@@ -89,6 +89,46 @@ var OSApp = OSApp || {};
 
 OSApp.Sensors = {};
 
+/**
+ * Translate the compact /jsd wire format to the long-key, object-units shape
+ * the rest of the app expects. Firmware uses short keys (n/a/t/d/h/o/l/g/s/
+ * e/as/dfl/hd/lk/ug) and unit tuples [id, name, short, group] to keep the
+ * payload small. Each unit's `id` is duplicated into both `value` and `index`
+ * because existing code sorts by `index` and looks up by `value`.
+ */
+OSApp.Sensors.normalizeJsd = function (raw) {
+    function normArg(a) {
+        const out = { name: a.n, arg: a.a, type: a.t };
+        if ("d" in a) out.default = a.d;
+        if ("h" in a) out.hint = a.h;
+        if ("indicator" in a) out.indicator = a.indicator;
+        if (Array.isArray(a.e)) out.extra = a.e.map(normArg);
+        if (Array.isArray(a.o)) out.options = a.o.map(normOption);
+        return out;
+    }
+
+    function normOption(o) {
+        const out = { id: o.id, label: o.l };
+        if (o.dfl) out.defaults = o.dfl;
+        if (o.hd) out.hides = o.hd;
+        if (o.lk) out.locked = o.lk;
+        if (typeof o.ug === "number") out.unit_group = o.ug;
+        return out;
+    }
+
+    function normUnit(u) {
+        return { value: u[0], name: u[1], short: u[2], group: u[3], index: u[0] };
+    }
+
+    return {
+        sensors: (raw.sensors || []).map((s) => ({ name: s.n, args: (s.as || []).map(normArg) })),
+        units: (raw.units || []).map(normUnit),
+        enums: raw.enums || {},
+        args: (raw.as || []).map(normArg),
+        flags: (raw.flags || []).map((f) => ({ name: f.n, default: f.d }))
+    };
+};
+
 OSApp.Sensors.makeSensorSelect = function ($select) {
     $select.append($("<option></option>")
             .attr("value", "0")
@@ -104,13 +144,40 @@ OSApp.Sensors.makeSensorSelect = function ($select) {
 };
 
 OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
-    const units = data.units.sort((a, b) => a.index - b.index).reduce((/** @type {Units[][]} */ acc, v) => {
+    const groupNames = (data.enums && data.enums.SensorUnitGroup) || [];
+    // Build the units-by-group structure. Use a sparse-then-fill pattern so
+    // we don't blow up if a unit's group ID is outside the enum table.
+    const units = data.units.slice().sort((a, b) => a.index - b.index).reduce((/** @type {Units[][]} */ acc, v) => {
+        if (!acc[v.group]) acc[v.group] = [];
         acc[v.group].push({
             name: v.short ? `${v.name} (${v.short})` : v.name,
             value: v.value
         });
         return acc;
-    }, Array(data.enums["SensorUnitGroup"].length).fill(null).map(() => []));
+    }, []);
+    // Ensure every group slot is at least an empty array so .forEach indices line up.
+    for (let i = 0; i < Math.max(groupNames.length, units.length); i++) {
+        if (!units[i]) units[i] = [];
+    }
+
+    // Type-correlated args: every arg name appearing as a key in any subtype
+    // option's `dfl` (defaults) block, anywhere in /jsd. On a type or subtype
+    // change, common args in this set are reset to their base default and then
+    // overridden by the selected option's dfl. Common args outside this set
+    // remain sticky (user-entered values are preserved).
+    const typeCorrelated = new Set();
+    function collectTypeCorrelated(arg) {
+        if (Array.isArray(arg.options)) {
+            arg.options.forEach((opt) => {
+                if (opt && opt.defaults) {
+                    Object.keys(opt.defaults).forEach((k) => typeCorrelated.add(k));
+                }
+            });
+        }
+        if (Array.isArray(arg.extra)) arg.extra.forEach(collectTypeCorrelated);
+    }
+    (data.args || []).forEach(collectTypeCorrelated);
+    (data.sensors || []).forEach((s) => (s.args || []).forEach(collectTypeCorrelated));
 
     /**
      *
@@ -137,9 +204,15 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
         const $select = $('<select></select>').attr("id", id);
         parent.append($select);
 
+        /** @type {Map<number, JQuery>} */
+        const optgroups = new Map();
+        /** @type {Map<number, number>} */
+        const valueToGroup = new Map();
+
         units.forEach((g, i) => {
+            if (!g || g.length === 0) return;
             let $group = $("<optgroup></optgroup>")
-                .attr("label", data["enums"]["SensorUnitGroup"][i]);
+                .attr("label", groupNames[i] || "");
 
             g.forEach((v) => {
                 let $unit = $("<option></option>")
@@ -147,9 +220,11 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
                     .text(v.name);
 
                 $group.append($unit);
+                valueToGroup.set(v.value, i);
             });
 
             $select.append($group);
+            optgroups.set(i, $group);
         });
 
         $select.selectmenu();
@@ -161,6 +236,33 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
                 $select.selectmenu('refresh');
             },
             validate: () => /** @type {HTMLSelectElement} */ ($select[0]).checkValidity(),
+            setGroup: (groupId) => {
+                if (groupId == null) {
+                    optgroups.forEach(($g) => {
+                        $g.show();
+                        $g.find("option").show().prop("disabled", false);
+                    });
+                } else {
+                    optgroups.forEach(($g, gid) => {
+                        if (gid === groupId) {
+                            $g.show();
+                            $g.find("option").show().prop("disabled", false);
+                        } else {
+                            $g.hide();
+                            $g.find("option").hide().prop("disabled", true);
+                        }
+                    });
+                    const cur = parseInt(String($select.val()));
+                    if (valueToGroup.get(cur) !== groupId) {
+                        const allowed = units[groupId];
+                        if (allowed && allowed.length > 0) {
+                            $select.val(String(allowed[0].value));
+                        }
+                    }
+                }
+                $select.selectmenu("refresh");
+            },
+            getGroup: () => valueToGroup.get(parseInt(String($select.val()))),
         };
     }
 
@@ -190,17 +292,20 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
 
         $select.selectmenu();
 
-        function updateSelect() {
+        function updateSelect(applyDefaults) {
             const v = parseInt(String($select.val())) || 0;
             sensorOptions.forEach((_, i) => {
-                sensorOptions[i].visibility(v == i);
+                sensorOptions[i].visibility(v == i, applyDefaults);
             });
         }
 
-        updateSelect();
+        updateSelect(false);
 
+        // User-initiated type change: per spec, reset typeCorrelated common
+        // args to base default and apply the new segment's controller's
+        // current option dfl on top.
         $select.on("input", () => {
-            updateSelect();
+            updateSelect(true);
         });
 
         return {
@@ -208,7 +313,7 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
             set: (val) => {
                 $select.val(val);
                 $select.selectmenu('refresh');
-                updateSelect();
+                updateSelect(false);
             },
             validate: () => /** @type {HTMLSelectElement} */ ($select[0]).checkValidity(),
         };
@@ -383,7 +488,7 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
      * @param {JQuery} parent
      * @returns {ParamUpdater}
      */
-    function appendHelpIcon($label, hint) {
+    function appendHint($label, hint) {
         if (!hint) return;
         const $help = $('<button type="button" class="help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext"></button>')
             .attr("data-helptext", hint)
@@ -391,7 +496,325 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
         $label.append(" ", $help);
     }
 
-    function createInput(argument, namespace, key, parent) {
+    // Common args (defined in /jsd at the top level of args[]) that are always
+    // visible regardless of an inline-options enum's `shows` list.
+    const COMMON_ARGS = new Set(["name", "interval", "unit", "min", "max", "type"]);
+
+    /**
+     * Builds an enum dropdown driven by argument.options[] (each option carries
+     * id/label and optionally hides/defaults/locked/unit_group). On user change,
+     * applies defaults to siblings (with base-default fallback for any
+     * controller-managed arg not in this option's defaults), toggles per-segment
+     * arg visibility per `hides`, toggles read-only state per `locked`
+     * (cross-segment), and sets the unit group filter on the base "unit" arg.
+     *
+     * ctx.local — siblings within the same segment (for visibility/hides).
+     * ctx.global — all sensor args across segments (for defaults/locked/unit_group).
+     */
+    function createInlineEnumOptions(argument, id, parent, $label, vis, ctx) {
+        parent.append($label);
+        const $select = $('<select></select>').attr("id", id);
+        parent.append($select);
+
+        argument.options.forEach((opt) => {
+            $select.append($('<option></option>').attr("value", opt.id).text(opt.label));
+        });
+        $select.selectmenu();
+
+        const localArgs = (ctx && ctx.local) || new Map();
+        const globalArgs = (ctx && ctx.global) || localArgs;
+
+        const findOpt = (val) => argument.options.find((o) => String(o.id) === String(val));
+
+        let prevLocked = new Set();
+
+        function applySideEffects(opt, applyDefaults) {
+            if (!opt) return;
+
+            // On type/subtype change: common args in typeCorrelated reset to
+            // their base default; opt.dfl overrides apply on top; non-common
+            // args in opt.dfl are also applied. Common args not in
+            // typeCorrelated are sticky.
+            if (applyDefaults) {
+                const optDefaults = opt.defaults || {};
+                const toProcess = new Set();
+                for (const a of COMMON_ARGS) if (typeCorrelated.has(a)) toProcess.add(a);
+                for (const a of Object.keys(optDefaults)) toProcess.add(a);
+                for (const argName of toProcess) {
+                    const sib = globalArgs.get(argName);
+                    if (!sib) continue;
+                    if (Object.prototype.hasOwnProperty.call(optDefaults, argName)) {
+                        if (typeof sib.update === "function") {
+                            sib.update(String(optDefaults[argName]));
+                        }
+                    } else if (typeof sib.reset === "function") {
+                        sib.reset();
+                    }
+                }
+            }
+
+            // Visibility — within this segment only; common args always shown.
+            // Args in `hides` are hidden; everything else is shown by default.
+            const hides = new Set(opt.hides || []);
+            for (const [argName, sib] of localArgs) {
+                if (argName === argument.arg) continue;
+                if (COMMON_ARGS.has(argName)) continue;
+                if (typeof sib.setVisible === "function") {
+                    sib.setVisible(!hides.has(argName));
+                }
+            }
+
+            // Locked — applies to listed args (which may live in the base segment,
+            // e.g. "unit"). Unlock anything we previously locked but isn't in the
+            // new set.
+            const newLocked = new Set(opt.locked || []);
+            const affected = new Set([...prevLocked, ...newLocked]);
+            for (const argName of affected) {
+                const sib = globalArgs.get(argName);
+                if (sib && typeof sib.setLocked === "function") {
+                    sib.setLocked(newLocked.has(argName));
+                }
+            }
+            prevLocked = newLocked;
+
+            // Unit group filter — operates on the base "unit" arg. Mutually
+            // exclusive with locked: ["unit"] per the spec.
+            const unitSib = globalArgs.get("unit");
+            if (unitSib && typeof unitSib.setGroup === "function") {
+                unitSib.setGroup(typeof opt.unit_group === "number" ? opt.unit_group : null);
+            }
+        }
+
+        $select.val(argument.default);
+        $select.selectmenu("refresh");
+
+        $select.on("change", function() {
+            const opt = findOpt($select.val());
+            applySideEffects(opt, true);
+        });
+
+        return {
+            reset: () => {
+                $select.val(argument.default);
+                $select.selectmenu("refresh");
+                // Hidden segments must not propagate cross-segment side effects
+                // (defaults clobber base unit/max; setGroup auto-switches unit
+                // when current value isn't in the new group).
+                if (ctx && typeof ctx.isSegmentVisible === "function" && !ctx.isSegmentVisible()) return;
+                applySideEffects(findOpt(argument.default), true);
+            },
+            add: (params) => {
+                if (!vis.isVisible()) return;
+                const val = String($select.val() ?? "");
+                if (val !== "") params.append(argument.arg, val);
+                return val;
+            },
+            update: (val) => {
+                $select.val(val);
+                $select.selectmenu("refresh");
+                applySideEffects(findOpt(val), false);
+            },
+            validate: () => true,
+            setVisible: vis.setVisible,
+            setLocked: vis.setLocked,
+            isVisible: vis.isVisible,
+            // Re-apply current selection's effects (called when this segment
+            // becomes visible, after all globalArgs are populated). When the
+            // segment is being activated by a user-initiated type change,
+            // applyDefaults=true triggers the typeCorrelated reset + dfl
+            // override per the firmware spec.
+            _wireOptions: (applyDefaults) => applySideEffects(findOpt($select.val()), !!applyDefaults),
+            // Undo locked + unit-group state when this segment hides, so the
+            // next segment's controller starts from a clean slate.
+            _deactivateOptions: () => {
+                for (const argName of prevLocked) {
+                    const sib = globalArgs.get(argName);
+                    if (sib && typeof sib.setLocked === "function") sib.setLocked(false);
+                }
+                prevLocked = new Set();
+                const u = globalArgs.get("unit");
+                if (u && typeof u.setGroup === "function") u.setGroup(null);
+            },
+        };
+    }
+
+    /**
+     * Editor for the `points::[min,max]` arg type. Wire format: x0,y0,x1,y1,...
+     * (no flag/uuid prefix — that's snadj's concern). Loaded values arrive as
+     * a JSON-stringified [{x, y}, ...] array.
+     *
+     * Mirrors the snadj points editor in programs.js — pre-classed `<a>` for
+     * delete (so JQM doesn't double-enhance into a wrapped button), a single
+     * `enhanceWithin()` per re-render, and a top-aligned label so it doesn't
+     * shift as rows are added.
+     */
+    function createPointsEditor(argument, rangeStr, _id, parent, $label, vis) {
+        parent.append($label);
+        parent.addClass("sensor-points-field");
+
+        const range = rangeStr ? rangeStr.match(/\[\s*(\d+)\s*,\s*(\d+)\s*\]/) : null;
+        const minPts = range ? parseInt(range[1]) : 2;
+        const maxPts = range ? parseInt(range[2]) : 8;
+
+        const $wrap = $('<div class="sensor-points-wrap"></div>').appendTo(parent);
+        const $table = $('<table class="sensor-splits-table"></table>').appendTo($wrap);
+        $table.append(
+            "<thead><tr>" +
+            "<th scope='col'>" + OSApp.Language._("Point") + "</th>" +
+            "<th scope='col'>" + OSApp.Language._("Voltage") + "</th>" +
+            "<th scope='col'>" + OSApp.Language._("Sensor Value") + "</th>" +
+            "<th scope='col'></th>" +
+            "</tr></thead>"
+        );
+        const $tbody = $('<tbody></tbody>').appendTo($table);
+        $table.append(
+            "<tfoot><tr>" +
+            "<td colspan='4' style='text-align:right;padding-right:0'>" +
+            "<button type='button' class='sensor-add-point ui-btn ui-mini ui-corner-all ui-icon-plus ui-btn-icon-left ui-btn-inline'>" +
+            OSApp.Language._("Add a Point") +
+            "</button>" +
+            "</td></tr></tfoot>"
+        );
+
+        /** @type {Array<{x:number, y:number}>} */
+        let points = [];
+
+        function render() {
+            $tbody.empty();
+            points.forEach((p, idx) => {
+                const $xInput = $('<input type="number" class="pt-x split-x" step="any">');
+                const $yInput = $('<input type="number" class="pt-y split-y" step="any">');
+                const $del = $('<a class="ui-btn ui-btn-icon-notext ui-icon-delete ui-btn-corner-all split-remove" tabindex="-1" href="#"></a>');
+
+                if (Number.isFinite(p.x)) $xInput.val(p.x);
+                if (Number.isFinite(p.y)) $yInput.val(p.y);
+
+                $xInput.on("change", function() {
+                    points[idx].x = parseFloat($(this).val());
+                });
+                $yInput.on("change", function() {
+                    points[idx].y = parseFloat($(this).val());
+                });
+                $del.on("click", function(e) {
+                    e.preventDefault();
+                    points.splice(idx, 1);
+                    render();
+                });
+
+                $tbody.append(
+                    $('<tr></tr>').append(
+                        $('<th scope="row"></th>').text(idx + 1),
+                        $('<td></td>').append($xInput),
+                        $('<td></td>').append($yInput),
+                        $('<td></td>').append($del)
+                    )
+                );
+            });
+            $tbody.enhanceWithin();
+        }
+
+        function fillToMin() {
+            while (points.length < minPts) points.push({ x: NaN, y: NaN });
+            render();
+        }
+        fillToMin();
+
+        $table.find(".sensor-add-point").on("click", function() {
+            if (points.length >= maxPts) return;
+            points.push({ x: NaN, y: NaN });
+            render();
+        });
+
+        return {
+            reset: () => { points = []; fillToMin(); },
+            add: (params) => {
+                if (!vis.isVisible()) return;
+                const valid = points.filter((p) => Number.isFinite(p.x) && Number.isFinite(p.y));
+                valid.sort((a, b) => a.x - b.x);
+                const flat = [];
+                valid.forEach((p) => { flat.push(p.x, p.y); });
+                const str = flat.join(",");
+                params.append(argument.arg, str);
+                return str;
+            },
+            update: (val) => {
+                let parsed;
+                try { parsed = JSON.parse(val); } catch { return; }
+                if (!Array.isArray(parsed)) return;
+                points = parsed.map((p) => ({ x: parseFloat(p.x), y: parseFloat(p.y) }));
+                while (points.length < minPts) points.push({ x: NaN, y: NaN });
+                render();
+            },
+            validate: () => {
+                if (!vis.isVisible()) return true;
+                if (points.length < minPts || points.length > maxPts) return false;
+                const xs = [];
+                for (const p of points) {
+                    if (!Number.isFinite(p.x) || !Number.isFinite(p.y)) return false;
+                    xs.push(p.x);
+                }
+                for (let i = 1; i < xs.length; i++) {
+                    if (xs[i] < xs[i - 1]) return false;
+                }
+                return true;
+            },
+            setVisible: vis.setVisible,
+            setLocked: vis.setLocked,
+            isVisible: vis.isVisible,
+        };
+    }
+
+    function makeVisibilityHelpers(parent) {
+        let visible = true;
+        function setVisible(v) {
+            visible = !!v;
+            // Clear inline display style on show (rather than jQuery's .show()
+            // which writes style.display="block" and clobbers the flex layout
+            // defined in main.css for .ui-field-contain at >=480px).
+            if (visible) parent.css("display", "");
+            else parent.css("display", "none");
+        }
+        function setLocked(v) {
+            const $controls = parent.find("input, select, textarea, button").not(".help-icon");
+            $controls.prop("disabled", !!v);
+            parent.find("select").each(function() {
+                try { $(this).selectmenu("refresh"); } catch { /* not enhanced yet */ }
+            });
+            parent.find("input[type='checkbox'],input[type='radio']").each(function() {
+                try { $(this).checkboxradio("refresh"); } catch { /* not enhanced yet */ }
+            });
+            parent.find("input[type='text'],input[type='number']").each(function() {
+                try { $(this).textinput("refresh"); } catch { /* not enhanced yet */ }
+            });
+        }
+        return {
+            isVisible: () => visible,
+            setVisible,
+            setLocked,
+        };
+    }
+
+    function wrapSimple(argument, value, vis) {
+        return {
+            reset: () => value.set(argument.default),
+            add: (params) => {
+                if (!vis.isVisible()) return;
+                const val = value.get();
+                if (typeof val != "undefined") {
+                    params.append(argument.arg, val);
+                }
+                return val;
+            },
+            update: (val) => value.set(val),
+            validate: () => vis.isVisible() ? value.validate() : true,
+            setVisible: vis.setVisible,
+            setLocked: vis.setLocked,
+            isVisible: vis.isVisible,
+            _value: value,
+        };
+    }
+
+    function createInput(argument, namespace, key, parent, siblings) {
         const parts = argument.type.split("::");
 
         const ns = `${namespace}-${argument.arg}`;
@@ -400,84 +823,40 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
         const $label = $("<label></label>")
             .attr("for", id)
             .text(argument.name);
-        appendHelpIcon($label, argument.hint);
+        appendHint($label, argument.hint);
+
+        const vis = makeVisibilityHelpers(parent);
 
         switch (parts[0]) {
             case "enum": {
+                if (Array.isArray(argument.options)) {
+                    return createInlineEnumOptions(argument, id, parent, $label, vis, siblings);
+                }
                 parent.append($label);
                 const value = createEnumSelect(parts[1], id, parent);
                 value.set(argument.default);
-
-                return {
-                    reset: () => value.set(argument.default),
-                    add: (params) => {
-                        const val = value.get();
-                        if (typeof val != "undefined") {
-                            params.append(argument.arg, val);
-                        }
-
-                        return val;
-                    },
-                    update: (val) => value.set(val),
-                    validate: () => value.validate(),
-                };
+                return wrapSimple(argument, value, vis);
             }
             case "sensor": {
                 parent.append($label);
                 const value = createSensorSelect(uuid, id, parent);
                 value.set(argument.default);
-
-                return {
-                    reset: () => value.set(argument.default),
-                    add: (params) => {
-                        const val = value.get();
-                        if (typeof val != "undefined") {
-                            params.append(argument.arg, val);
-                        }
-
-                        return val;
-                    },
-                    update: (val) => value.set(val),
-                    validate: () => value.validate(),
-                };
+                return wrapSimple(argument, value, vis);
             }
             case "type": {
                 parent.append($label);
                 const value = createTypeSelect(id, parent);
                 value.set(argument.default);
-
-                return {
-                    reset: () => value.set(argument.default),
-                    add: (params) => {
-                        const val = value.get();
-                        if (typeof val != "undefined") {
-                            params.append(argument.arg, val);
-                        }
-
-                        return val;
-                    },
-                    update: (val) => value.set(val),
-                    validate: () => value.validate(),
-                };
+                return wrapSimple(argument, value, vis);
             }
             case "unit": {
                 parent.append($label);
                 const value = createUnitSelect(id, parent);
                 value.set(argument.default);
-
-                return {
-                    reset: () => value.set(argument.default),
-                    add: (params) => {
-                        const val = value.get();
-                        if (typeof val != "undefined") {
-                            params.append(argument.arg, val);
-                        }
-
-                        return val;
-                    },
-                    update: (val) => value.set(val),
-                    validate: () => value.validate(),
-                };
+                const wrapped = wrapSimple(argument, value, vis);
+                wrapped.setGroup = value.setGroup;
+                wrapped.getGroup = value.getGroup;
+                return wrapped;
             }
             case "string": {
                 parent.append($label);
@@ -486,78 +865,29 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
                     parent.find(`#${id}`).attr("placeholder", argument._placeholder);
                 }
                 value.set(argument.default);
-
-                return {
-                    reset: () => value.set(argument.default),
-                    add: (params) => {
-                        const val = value.get();
-                        if (typeof val != "undefined") {
-                            params.append(argument.arg, val);
-                        }
-
-                        return val;
-                    },
-                    update: (val) => value.set(val),
-                    validate: () => value.validate(),
-                };
+                return wrapSimple(argument, value, vis);
             }
             case "int": {
                 parent.append($label);
                 const value = createIntInput(parts[1], id, parent);
                 value.set(argument.default);
-
-                return {
-                    reset: () => value.set(argument.default),
-                    add: (params) => {
-                        const val = value.get();
-                        if (typeof val != "undefined") {
-                            params.append(argument.arg, val);
-                        }
-
-                        return val;
-                    },
-                    update: (val) => value.set(val),
-                    validate: () => value.validate(),
-                };
+                return wrapSimple(argument, value, vis);
             }
             case "float":
             case "double": {
                 parent.append($label);
                 const value = createDoubleInput(parts[1], id, parent);
                 value.set(argument.default);
-
-                return {
-                    reset: () => value.set(argument.default),
-                    add: (params) => {
-                        const val = value.get();
-                        if (typeof val != "undefined") {
-                            params.append(argument.arg, val);
-                        }
-
-                        return val;
-                    },
-                    update: (val) => value.set(val),
-                    validate: () => value.validate(),
-                };
+                return wrapSimple(argument, value, vis);
             }
             case "flag": {
                 parent.append($label);
                 const value = createFlagInput(id, parent);
                 value.set(argument.default);
-
-                return {
-                    reset: () => value.set(argument.default),
-                    add: (params) => {
-                        const val = value.get();
-                        if (typeof val != "undefined") {
-                            params.append(argument.arg, val);
-                        }
-
-                        return val;
-                    },
-                    update: (val) => value.set(val),
-                    validate: () => value.validate(),
-                };
+                return wrapSimple(argument, value, vis);
+            }
+            case "points": {
+                return createPointsEditor(argument, parts[1], id, parent, $label, vis);
             }
             case "array": {
                 /**
@@ -750,6 +1080,9 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
                             return ret || empty;
                         });
                     },
+                    setVisible: vis.setVisible,
+                    setLocked: vis.setLocked,
+                    isVisible: vis.isVisible,
                 };
             }
         }
@@ -769,6 +1102,9 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
      * @param {JQuery} parent
      * @returns {SegmentUpdater}
      */
+    /** @type {Map<string, ParamUpdater>} — populated as segments are built, shared across segments */
+    const globalArgs = new Map();
+
     function createSensorSegment(sensor, i, key, parent, inline) {
         let $content;
         let $ui = null;
@@ -784,15 +1120,28 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
             parent.append($ui);
         }
 
-        /** @type {Map<string, ParamUpdater>} */
-        const values = sensor.args.reduce((acc, v) => {
-            const $fieldWrap = $('<div class="ui-field-contain"></div>').appendTo($content);
-            acc.set(v.arg, createInput(v, `sensor-${i}`, key, $fieldWrap));
-
-            return acc;
-        }, new Map());
+        /** @type {Array<() => void>} */
+        const wireHooks = [];
+        /** @type {Array<() => void>} */
+        const deactivateHooks = [];
 
         let visible = true;
+
+        /** @type {Map<string, ParamUpdater>} */
+        const values = new Map();
+        const ctx = { local: values, global: globalArgs, isSegmentVisible: () => visible };
+        sensor.args.forEach((v) => {
+            const $fieldWrap = $('<div class="ui-field-contain"></div>').appendTo($content);
+            const updater = createInput(v, `sensor-${i}`, key, $fieldWrap, ctx);
+            values.set(v.arg, updater);
+            globalArgs.set(v.arg, updater);
+            if (typeof updater._wireOptions === "function") {
+                wireHooks.push(updater._wireOptions);
+            }
+            if (typeof updater._deactivateOptions === "function") {
+                deactivateHooks.push(updater._deactivateOptions);
+            }
+        });
 
         return {
             reset: () => {
@@ -812,7 +1161,7 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
                 return true;
             },
             update: (key, value) => values.get(key)?.update(value),
-            visibility: (value) => {
+            visibility: (value, applyDefaults) => {
                 visible = value;
                 if ($ui) {
                     if (value) {
@@ -821,8 +1170,19 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
                         $ui.hide();
                     }
                 }
+                if (value) {
+                    // Re-apply inline-options enum effects. applyDefaults is
+                    // forwarded so user-initiated type changes trigger the
+                    // typeCorrelated reset + dfl override; programmatic
+                    // activation (construction, reset, update) does not.
+                    wireHooks.forEach((fn) => fn(applyDefaults));
+                } else {
+                    // Undo any cross-segment effects this segment's controllers had set.
+                    deactivateHooks.forEach((fn) => fn());
+                }
             },
             is_visible: () => visible,
+            wireOptions: (applyDefaults) => wireHooks.forEach((fn) => fn(applyDefaults)),
         };
     }
 
@@ -839,7 +1199,7 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
             const id = `sensor-flags-${arg.arg}-${key || "new"}`;
             const $input = $('<input type="checkbox">').attr("id", id).attr("name", id);
             const $lbl = $('<label></label>').attr("for", id).text(arg.name);
-            appendHelpIcon($lbl, arg.hint);
+            appendHint($lbl, arg.hint);
             $checkboxes.append($input, $lbl);
             $input.checkboxradio();
             $input.prop("checked", !!arg.default);
@@ -910,6 +1270,13 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
         ret.visibility(i == 0);
         return ret;
     });
+
+    // The first segment was built before its siblings existed in globalArgs,
+    // so re-apply its inline-options enum side effects now that everything is
+    // wired up.
+    if (sensorOptions.length > 0) {
+        sensorOptions[0].wireOptions();
+    }
 
     /**
      *
@@ -1089,6 +1456,8 @@ OSApp.Sensors.displayPage = function (_callback) {
             const url = page.getURL();
             if (url) {
                 OSApp.Sensors.changeSensor(url, false);
+            } else {
+                OSApp.Errors.showError(OSApp.Language._("Please fill in all required fields"));
             }
         });
 
@@ -1106,7 +1475,7 @@ OSApp.Sensors.displayPage = function (_callback) {
     function updateContent () {
         const jsdRequest = OSApp.currentSession.controller.sensor_desc
             ? $.Deferred().resolve(OSApp.currentSession.controller.sensor_desc).promise()
-            : OSApp.Firmware.sendToOS("/jsd?pw=", "json").then((data) => data);
+            : OSApp.Firmware.sendToOS("/jsd?pw=", "json").then((data) => OSApp.Sensors.normalizeJsd(data));
 
         $.mobile.loading("show");
         jsdRequest
@@ -1205,6 +1574,8 @@ OSApp.Sensors.addSensor = function (_callback) {
             const url = page.getURL();
             if (url) {
                 OSApp.Sensors.changeSensor(url, true);
+            } else {
+                OSApp.Errors.showError(OSApp.Language._("Please fill in all required fields"));
             }
         };
 
@@ -1214,7 +1585,7 @@ OSApp.Sensors.addSensor = function (_callback) {
     function updateContent () {
         const jsdRequest = OSApp.currentSession.controller.sensor_desc
             ? $.Deferred().resolve(OSApp.currentSession.controller.sensor_desc).promise()
-            : OSApp.Firmware.sendToOS("/jsd?pw=", "json").then((data) => data);
+            : OSApp.Firmware.sendToOS("/jsd?pw=", "json").then((data) => OSApp.Sensors.normalizeJsd(data));
 
         $.mobile.loading("show");
         jsdRequest
@@ -1607,7 +1978,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
         const jslRequest = OSApp.Firmware.sendToOS("/jsl?pw=&fmt=binary&count=max", "arraybuffer");
         const jsdRequest = OSApp.currentSession.controller.sensor_desc
             ? $.Deferred().resolve(OSApp.currentSession.controller.sensor_desc).promise()
-            : OSApp.Firmware.sendToOS("/jsd?pw=", "json").then((data) => data);
+            : OSApp.Firmware.sendToOS("/jsd?pw=", "json").then((data) => OSApp.Sensors.normalizeJsd(data));
 
         $.when(jslRequest, jsdRequest)
             .done((buf, jsdData) => {

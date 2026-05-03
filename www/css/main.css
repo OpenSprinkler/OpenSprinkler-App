@@ -1392,6 +1392,18 @@ input:invalid, .invalid {
     padding: 0 !important;
 }
 
+/* Points editor (sensors.js) — keep the label at the top of its column rather
+   than vertically centered against the growing table, and allow the table to
+   scroll horizontally if it exceeds its parent's width on narrow viewports. */
+.sensor-points-field {
+    align-items: flex-start !important;
+}
+
+.sensor-points-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
 .sensor-log-card {
     background-color: #f2f2f2;
     border: 1px solid #d8d8d8;

@@ -1314,7 +1314,7 @@ OSApp.Sites.updateControllerSensorDescription = function( callback ) {
         callback();
 	} else {
 		return OSApp.Firmware.sendToOS( "/jsd?pw=", "json" ).done( function( desc ) {
-			OSApp.currentSession.controller.sensor_desc = desc;
+			OSApp.currentSession.controller.sensor_desc = OSApp.Sensors.normalizeJsd( desc );
 			callback();
 		} );
 	}

@@ -137,13 +137,24 @@ OSApp.Firmware.sendToOS = function( dest, type ) {
 
 			// Only show error messages on setting change requests
 			if ( /\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu|up|cm)/.exec( dest ) ) {
-				if ( data.result === 48 ) {
-					OSApp.Errors.showError(
-						OSApp.Language._( "The selected station is already running or is scheduled to run." )
-					);
-				} else {
-					OSApp.Errors.showError( OSApp.Language._( "Please check input and try again." ) );
-				}
+				// Friendly text for well-known firmware result codes (see
+				// HTML_* in OpenSprinkler firmware/defines.h). Anything not
+				// in the map falls back to the generic message. The raw code
+				// is always appended so unknown errors can still be looked up.
+				var resultMsgs = {
+					0x03: "Item mismatch.",                                                    // HTML_MISMATCH
+					0x10: "A required field is missing.",                                      // HTML_DATA_MISSING
+					0x11: "A value is out of range.",                                          // HTML_DATA_OUTOFBOUND
+					0x12: "A field has an invalid format.",                                    // HTML_DATA_FORMATERROR
+					0x13: "RF code error.",                                                    // HTML_RFCODE_ERROR
+					0x30: "Operation not permitted.",                                          // HTML_NOT_PERMITTED
+					0x40: "Upload failed.",                                                    // HTML_UPLOAD_FAILED
+					0x50: "Internal firmware error."                                           // HTML_INTERNAL_ERROR
+				};
+				var msgKey = resultMsgs[ data.result ] || "Please check input and try again.";
+				OSApp.Errors.showError(
+					OSApp.Language._( msgKey ) + " (Error " + data.result + ")"
+				);
 
 				// Tell subsequent handlers this request has failed
 				return $.Deferred().reject( data );
