@@ -258,20 +258,33 @@ OSApp.Status.checkStatus = function() {
 		OSApp.UIDom.changePage( "#os-options", { expandItem: "weather" } );
 	};
 
-	// Handle rain sensor triggered
+	// Map a sensor type code to a short display name for the footer alert.
+	var sensorTypeShort = function( t ) {
+		switch ( t ) {
+			case 1: return OSApp.Language._( "Rain" );
+			case 3: return OSApp.Language._( "Soil" );
+			case 240: return OSApp.Language._( "Program Switch" );
+			default: return OSApp.Language._( "Rain" );
+		}
+	};
+
+	// Build a sensor-active footer message: "{Type} (SN{N}) Activated".
+	var sensorActivatedMsg = function( num, typeCode ) {
+		return "<p class='running-text center pointer'>" + sensorTypeShort( typeCode ) + " (SN" + num + ") " + OSApp.Language._( "Activated" ) + "</p>";
+	};
+
+	// Handle rain sensor triggered (legacy urs/rs scheme — sensor 1 only).
 	if ( OSApp.currentSession.controller.options.urs === 1 && OSApp.currentSession.controller.settings.rs === 1 ) {
-		OSApp.Status.changeStatus( 0, "blue", "<p class='running-text center pointer'>" + OSApp.Language._( "Rain detected" ) + "</p>", openSensorOptions );
+		OSApp.Status.changeStatus( 0, "blue", sensorActivatedMsg( 1, 1 ), openSensorOptions );
 		return;
 	}
 
-	if ( OSApp.currentSession.controller.settings.sn1 === 1 ) {
-		OSApp.Status.changeStatus( 0, "blue", "<p class='running-text center pointer'>Sensor 1 (" + ( OSApp.currentSession.controller.options.sn1t === 3 ? OSApp.Language._( "Soil" ) : OSApp.Language._( "Rain" ) ) + OSApp.Language._( ") Activated" ) + "</p>", openSensorOptions );
-		return;
-	}
-
-	if ( OSApp.currentSession.controller.settings.sn2 === 1 ) {
-		OSApp.Status.changeStatus( 0, "blue", "<p class='running-text center pointer'>Sensor 2 (" + ( OSApp.currentSession.controller.options.sn2t === 3 ? OSApp.Language._( "Soil" ) : OSApp.Language._( "Rain" ) ) + OSApp.Language._( ") Activated" ) + "</p>", openSensorOptions );
-		return;
+	// Modern sensor activation flags settings.sn1..sn4, with type from options.sn{N}t.
+	for ( var sni = 1; sni <= 4; sni++ ) {
+		if ( OSApp.currentSession.controller.settings[ "sn" + sni ] === 1 ) {
+			OSApp.Status.changeStatus( 0, "blue", sensorActivatedMsg( sni, OSApp.currentSession.controller.options[ "sn" + sni + "t" ] ), openSensorOptions );
+			return;
+		}
 	}
 
 	// Handle manual mode enabled

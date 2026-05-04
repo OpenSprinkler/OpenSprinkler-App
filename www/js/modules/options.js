@@ -265,10 +265,13 @@ OSApp.Options.showOptions = function( expandItem ) {
 						}
 						break;
 					case "sensor1":
-					case "sensor2": {
+					case "sensor2":
+					case "sensor3":
+					case "sensor4": {
 						var sconf = OSApp.Utils.unescapeJSON( data ) || { type: 0, no: 0, on: 0, off: 0 };
 						var optsRef = OSApp.currentSession.controller.options;
-						if ( id === "sensor1" ) {
+						var snum = parseInt( id.substring( 6 ) );
+						if ( snum === 1 ) {
 							// Legacy firmware uses urs/rso; modern uses sn1t/sn1o.
 							if ( typeof optsRef.urs !== "undefined" ) {
 								opt.o21 = sconf.type;
@@ -286,11 +289,26 @@ OSApp.Options.showOptions = function( expandItem ) {
 								opt.o41 = Math.round( fpr * 100 ) & 0xff;
 								opt.o42 = ( Math.round( fpr * 100 ) >> 8 ) & 0xff;
 							}
-						} else {
+						} else if ( snum === 2 ) {
+							// Sensor 2 retains legacy o-IDs (52/53/56/57) so transformKeys
+							// can convert them on firmware ≥ 2.1.9.
 							opt.o52 = sconf.type;
 							if ( typeof optsRef.sn2o !== "undefined" ) { opt.o53 = sconf.no; }
 							if ( typeof optsRef.sn2on !== "undefined" ) { opt.o56 = sconf.on; }
 							if ( typeof optsRef.sn2of !== "undefined" ) { opt.o57 = sconf.off; }
+						} else {
+							// Sensor 3/4 use named keys directly (firmware-defined,
+							// no keyIndex entry); transformKeys passes them through.
+							opt[ "sn" + snum + "t" ] = sconf.type;
+							if ( typeof optsRef[ "sn" + snum + "o" ] !== "undefined" ) {
+								opt[ "sn" + snum + "o" ] = sconf.no;
+							}
+							if ( typeof optsRef[ "sn" + snum + "on" ] !== "undefined" ) {
+								opt[ "sn" + snum + "on" ] = sconf.on;
+							}
+							if ( typeof optsRef[ "sn" + snum + "of" ] !== "undefined" ) {
+								opt[ "sn" + snum + "of" ] = sconf.off;
+							}
 						}
 						return true;
 					}
@@ -664,12 +682,18 @@ OSApp.Options.showOptions = function( expandItem ) {
 				conf.fprUnit = "liter";
 			}
 		} else {
-			if ( typeof opts.sn2t === "undefined" || !OSApp.Firmware.checkOSVersion( 219 ) ) { return ""; }
+			// Sensor 2/3/4 share the same shape (sn{N}t / sn{N}o / sn{N}on /
+			// sn{N}of); render only when the firmware exposes the type key.
+			var tKey = "sn" + num + "t",
+				oKey = "sn" + num + "o",
+				onKey = "sn" + num + "on",
+				ofKey = "sn" + num + "of";
+			if ( typeof opts[ tKey ] === "undefined" || !OSApp.Firmware.checkOSVersion( 219 ) ) { return ""; }
 			conf = {
-				type: opts.sn2t || 0,
-				no: opts.sn2o || 0,
-				on: typeof opts.sn2on === "number" ? opts.sn2on : 0,
-				off: typeof opts.sn2of === "number" ? opts.sn2of : 0
+				type: opts[ tKey ] || 0,
+				no: opts[ oKey ] || 0,
+				on: typeof opts[ onKey ] === "number" ? opts[ onKey ] : 0,
+				off: typeof opts[ ofKey ] === "number" ? opts[ ofKey ] : 0
 			};
 		}
 		var label = conf.type > 0 ? sensorTypeName( conf.type ) : OSApp.Language._( "Tap to Configure" );
@@ -682,6 +706,8 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 	list += renderSensorButton( 1 );
 	list += renderSensorButton( 2 );
+	list += renderSensorButton( 3 );
+	list += renderSensorButton( 4 );
 
 	if ( typeof OSApp.currentSession.controller.settings.ifkey !== "undefined" || typeof OSApp.currentSession.controller.settings.mqtt !== "undefined" ||
 		typeof OSApp.currentSession.controller.settings.otc !== "undefined" ) {
@@ -1641,7 +1667,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 		return html;
 	};
 
-	page.find( "#sensor1, #sensor2" ).on( "click", function() {
+	page.find( "#sensor1, #sensor2, #sensor3, #sensor4" ).on( "click", function() {
 		var button = this, curr = button.value,
 			conf = $.extend( {}, { type: 0, no: 0, on: 0, off: 0, fpr: 0, fprUnit: "liter" }, OSApp.Utils.unescapeJSON( curr ) ),
 			num = parseInt( button.id.substring( 6 ) ),
@@ -1665,11 +1691,18 @@ OSApp.Options.showOptions = function( expandItem ) {
 				"</div>";
 		}
 
-		// Keep the two program-switch hints as separate string literals so
+		// Keep each program-switch hint as a separate string literal so
 		// `grunt pushEng` can extract them for translation.
-		var prgHint = num === 1
-			? OSApp.Language._( "When using program switch, a switch is connected to the sensor port to trigger Program 1 every time the switch is pressed for at least 1 second." )
-			: OSApp.Language._( "When using program switch, a switch is connected to the sensor port to trigger Program 2 every time the switch is pressed for at least 1 second." );
+		var prgHint;
+		if ( num === 1 ) {
+			prgHint = OSApp.Language._( "When using program switch, a switch is connected to the sensor port to trigger Program 1 every time the switch is pressed for at least 1 second." );
+		} else if ( num === 2 ) {
+			prgHint = OSApp.Language._( "When using program switch, a switch is connected to the sensor port to trigger Program 2 every time the switch is pressed for at least 1 second." );
+		} else if ( num === 3 ) {
+			prgHint = OSApp.Language._( "When using program switch, a switch is connected to the sensor port to trigger Program 3 every time the switch is pressed for at least 1 second." );
+		} else {
+			prgHint = OSApp.Language._( "When using program switch, a switch is connected to the sensor port to trigger Program 4 every time the switch is pressed for at least 1 second." );
+		}
 
 		var popup = $( "<div data-role='popup' data-theme='a' id='sensorSettings'>" +
 				"<div data-role='header' data-theme='b'>" +
