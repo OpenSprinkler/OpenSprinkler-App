@@ -28,23 +28,6 @@ OSApp.Options.showOptions = function( expandItem ) {
 				"<a class='submit preventBack' style='display:none'></a>" +
 			"</div>" +
 		"</div>" ),
-		generateSensorOptions = function( index, sensorType, number ) {
-			return "<div class='ui-field-contain'>" +
-				"<fieldset data-role='controlgroup' class='ui-mini center sensor-options' data-type='horizontal'>" +
-					"<legend class='left'>" + OSApp.Language._( "Sensor" ) + ( number ? " " + number + " " : " " ) + OSApp.Language._( "Type" ) + "</legend>" +
-					"<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-none' value='0'" + ( sensorType === 0 ? " checked='checked'" : "" ) + ">" +
-					"<label for='o" + index + "-none'>" + OSApp.Language._( "None" ) + "</label>" +
-					"<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-rain' value='1'" + ( sensorType === 1 ? " checked='checked'" : "" ) + ">" +
-					"<label for='o" + index + "-rain'>" + OSApp.Language._( "Rain" ) + "</label>" +
-					( index === 52 ? "" : "<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-flow' value='2'" + ( sensorType === 2 ? " checked='checked'" : "" ) + ">" +
-						"<label for='o" + index + "-flow'>" + OSApp.Language._( "Flow" ) + "</label>" ) +
-					( OSApp.Firmware.checkOSVersion( 219 ) ? "<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-soil' value='3'" + ( sensorType === 3 ? " checked='checked'" : "" ) + ">" +
-						"<label for='o" + index + "-soil'>" + OSApp.Language._( "Soil" ) + "</label>" : "" ) +
-					( OSApp.Firmware.checkOSVersion( 217 ) ? "<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-program' value='240'" + ( sensorType === 240 ? " checked='checked'" : "" ) + ">" +
-						"<label for='o" + index + "-program'>" + OSApp.Language._( "Program Switch" ) + "</label>" : "" ) +
-				"</fieldset>" +
-			"</div>";
-		},
 		submitOptions = function() {
 			var opt = {},
 				invalid = false,
@@ -269,32 +252,48 @@ OSApp.Options.showOptions = function( expandItem ) {
 						}
 						return true;
 					}
-					case "o41":
-						if ( page.find( "#o41-units" ).val() === "gallon" ) {
-							data = data * 3.78541;
-						}
-
-						opt.o41 = ( data * 100 ) & 0xff;
-						opt.o42 = ( ( data * 100 ) >> 8 ) & 0xff;
-						return true;
 					case "o2":
 					case "o3":
 					case "o14":
 					case "o16":
-					case "o21":
-					case "o22":
 					case "o25":
 					case "o36":
 					case "o48":
-					case "o50":
-					case "o51":
-					case "o52":
-					case "o53":
 						data = $item.is( ":checked" ) ? 1 : 0;
 						if ( !OSApp.Firmware.checkOSVersion( 219 ) && !data ) {
 							return true;
 						}
 						break;
+					case "sensor1":
+					case "sensor2": {
+						var sconf = OSApp.Utils.unescapeJSON( data ) || { type: 0, no: 0, on: 0, off: 0 };
+						var optsRef = OSApp.currentSession.controller.options;
+						if ( id === "sensor1" ) {
+							// Legacy firmware uses urs/rso; modern uses sn1t/sn1o.
+							if ( typeof optsRef.urs !== "undefined" ) {
+								opt.o21 = sconf.type;
+								if ( typeof optsRef.rso !== "undefined" ) { opt.o22 = sconf.no; }
+							} else {
+								opt.o50 = sconf.type;
+								if ( typeof optsRef.sn1o !== "undefined" ) { opt.o51 = sconf.no; }
+							}
+							if ( typeof optsRef.sn1on !== "undefined" ) { opt.o54 = sconf.on; }
+							if ( typeof optsRef.sn1of !== "undefined" ) { opt.o55 = sconf.off; }
+							// Flow pulse rate: only meaningful when type=Flow; pack into o41/o42.
+							if ( typeof optsRef.fpr0 !== "undefined" && parseInt( sconf.type ) === 2 ) {
+								var fpr = parseFloat( sconf.fpr ) || 0;
+								if ( sconf.fprUnit === "gallon" ) { fpr = fpr * 3.78541; }
+								opt.o41 = Math.round( fpr * 100 ) & 0xff;
+								opt.o42 = ( Math.round( fpr * 100 ) >> 8 ) & 0xff;
+							}
+						} else {
+							opt.o52 = sconf.type;
+							if ( typeof optsRef.sn2o !== "undefined" ) { opt.o53 = sconf.no; }
+							if ( typeof optsRef.sn2on !== "undefined" ) { opt.o56 = sconf.on; }
+							if ( typeof optsRef.sn2of !== "undefined" ) { opt.o57 = sconf.off; }
+						}
+						return true;
+					}
 				}
 				if ( isPi ) {
 					if ( id === "loc" || id === "lg" ) {
@@ -317,19 +316,6 @@ OSApp.Options.showOptions = function( expandItem ) {
 				button.prop( "disabled", false );
 				page.find( ".submit" ).addClass( "hasChanges" );
 				return;
-			}
-			if ( typeof OSApp.currentSession.controller.options.fpr0 !== "undefined" ) {
-				if ( typeof OSApp.currentSession.controller.options.urs !== "undefined" ) {
-					opt.o21 = page.find( "input[name='o21'][type='radio']:checked" ).val();
-				} else {
-					if ( typeof OSApp.currentSession.controller.options.sn1t !== "undefined" ) {
-						opt.o50 = page.find( "input[name='o50'][type='radio']:checked" ).val();
-					}
-
-					if ( typeof OSApp.currentSession.controller.options.sn2t !== "undefined" ) {
-						opt.o52 = page.find( "input[name='o52'][type='radio']:checked" ).val();
-					}
-				}
 			}
 
 			opt = OSApp.Utils.transformKeys( opt );
@@ -622,101 +608,57 @@ OSApp.Options.showOptions = function( expandItem ) {
 				"data-mini='true' id='o23' value='" + OSApp.currentSession.controller.options.wl + "'>" + OSApp.currentSession.controller.options.wl + "%</button></div>";
 	}
 
-	if ( typeof OSApp.currentSession.controller.options.urs !== "undefined" || typeof OSApp.currentSession.controller.options.sn1t !== "undefined" ) {
-		if ( typeof OSApp.currentSession.controller.options.fpr0 !== "undefined" ) {
-			list += typeof OSApp.currentSession.controller.options.urs !== "undefined" ? generateSensorOptions( OSApp.Constants.keyIndex.urs, OSApp.currentSession.controller.options.urs ) :
-					( typeof OSApp.currentSession.controller.options.sn1t !== "undefined" ? generateSensorOptions( OSApp.Constants.keyIndex.sn1t, OSApp.currentSession.controller.options.sn1t, 1 ) : "" );
-		} else {
-			list += "<label for='o21'>" +
-				"<input data-mini='true' id='o21' type='checkbox' " + ( ( OSApp.currentSession.controller.options.urs === 1 ) ? "checked='checked'" : "" ) + ">" +
-				OSApp.Language._( "Use Rain Sensor" ) + "</label>";
+	// Each built-in sensor (port 1 / port 2) gets a single button that opens a
+	// popup for its type and parameters. Button stores config as JSON in
+	// `value`; the page-level submit unpacks it into the firmware option keys
+	// (urs/rso for legacy, sn1t/sn1o/sn2t/sn2o for modern, plus the on/off
+	// delays and packed flow pulse rate). Blue when configured (type ≠ None).
+	var sensorTypeName = function( t ) {
+		switch ( parseInt( t ) ) {
+			case 1: return OSApp.Language._( "Rain" );
+			case 2: return OSApp.Language._( "Flow" );
+			case 3: return OSApp.Language._( "Soil" );
+			case 240: return OSApp.Language._( "Program Switch" );
+			default: return "";
 		}
-	}
+	};
 
-	if ( typeof OSApp.currentSession.controller.options.rso !== "undefined" ) {
-		list += "<label for='o22'><input " + ( OSApp.currentSession.controller.options.urs === 1 || OSApp.currentSession.controller.options.urs === 240 ? "" : "data-wrapper-class='hidden' " ) +
-			"data-mini='true' id='o22' type='checkbox' " + ( ( OSApp.currentSession.controller.options.rso === 1 ) ? "checked='checked'" : "" ) + ">" +
-			OSApp.Language._( "Normally Open" ) + "</label>";
-	}
+	var renderSensorButton = function( num ) {
+		var opts = OSApp.currentSession.controller.options;
+		var conf;
+		if ( num === 1 ) {
+			if ( typeof opts.urs === "undefined" && typeof opts.sn1t === "undefined" ) { return ""; }
+			var t1 = ( typeof opts.urs !== "undefined" ) ? opts.urs : opts.sn1t;
+			var no1 = ( typeof opts.rso !== "undefined" ) ? opts.rso : ( opts.sn1o || 0 );
+			conf = {
+				type: t1 || 0,
+				no: no1 || 0,
+				on: typeof opts.sn1on === "number" ? opts.sn1on : 0,
+				off: typeof opts.sn1of === "number" ? opts.sn1of : 0
+			};
+			if ( typeof opts.fpr0 !== "undefined" ) {
+				conf.fpr = ( ( opts.fpr1 * 256 + opts.fpr0 ) / 100 );
+				conf.fprUnit = "liter";
+			}
+		} else {
+			if ( typeof opts.sn2t === "undefined" || !OSApp.Firmware.checkOSVersion( 219 ) ) { return ""; }
+			conf = {
+				type: opts.sn2t || 0,
+				no: opts.sn2o || 0,
+				on: typeof opts.sn2on === "number" ? opts.sn2on : 0,
+				off: typeof opts.sn2of === "number" ? opts.sn2of : 0
+			};
+		}
+		var label = conf.type > 0 ? sensorTypeName( conf.type ) : OSApp.Language._( "Tap to Configure" );
+		return "<div class='ui-field-contain'>" +
+				"<label for='sensor" + num + "'>" + OSApp.Language._( "Sensor" ) + " " + num + "</label>" +
+				"<button data-mini='true' id='sensor" + num + "' class=" + ( conf.type > 0 ? "'blue'" : "''" ) +
+					" value='" + OSApp.Utils.escapeJSON( conf ) + "'>" + label + "</button>" +
+			"</div>";
+	};
 
-	if ( typeof OSApp.currentSession.controller.options.sn1o !== "undefined" ) {
-		list += "<label for='o51'><input " + ( OSApp.currentSession.controller.options.sn1t === 1 || OSApp.currentSession.controller.options.sn1t === 3 || OSApp.currentSession.controller.options.sn1t === 240 ? "" : "data-wrapper-class='hidden' " ) +
-			"data-mini='true' id='o51' type='checkbox' " + ( ( OSApp.currentSession.controller.options.sn1o === 1 ) ? "checked='checked'" : "" ) + ">" +
-			OSApp.Language._( "Normally Open" ) + "</label>";
-	}
-
-	if ( typeof OSApp.currentSession.controller.options.fpr0 !== "undefined" ) {
-		list += "<div class='ui-field-contain" + ( OSApp.currentSession.controller.options.urs === 2 || OSApp.currentSession.controller.options.sn1t === 2 ? "" : " hidden" ) + "'>" +
-			"<label for='o41'>" + OSApp.Language._( "Flow Pulse Rate" ) + "</label>" +
-			"<table>" +
-				"<tr style='width:100%;vertical-align: top;'>" +
-					"<td style='width:100%'>" +
-						"<div class='ui-input-text controlgroup-textinput ui-btn ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'>" +
-							"<input data-role='none' data-mini='true' type='number' pattern='^[-+]?[0-9]*.?[0-9]*$' id='o41' value='" + ( ( OSApp.currentSession.controller.options.fpr1 * 256 + OSApp.currentSession.controller.options.fpr0 ) / 100 ) + "'>" +
-						"</div>" +
-					"</td>" +
-					"<td class='tight-select'>" +
-						"<select id='o41-units' class='noselect' data-mini='true'>" +
-							"<option selected='selected' value='liter'>L/pulse</option>" +
-							"<option value='gallon'>Gal/pulse</option>" +
-						"</select>" +
-					"</td>" +
-				"</tr>" +
-			"</table></div>";
-	}
-
-	if ( typeof OSApp.currentSession.controller.options.sn1on !== "undefined" ) {
-		list += "<div class='" + ( OSApp.currentSession.controller.options.sn1t === 1 || OSApp.currentSession.controller.options.sn1t === 3 ? "" : "hidden " ) +
-			"ui-field-no-border ui-field-contain duration-field'><label for='o54'>" +
-				OSApp.Language._( "Sensor 1 Delayed On Time" ) +
-			"</label><button data-mini='true' id='o54' value='" + OSApp.currentSession.controller.options.sn1on + "'>" + OSApp.currentSession.controller.options.sn1on + "m</button></div>";
-	}
-
-	if ( typeof OSApp.currentSession.controller.options.sn1of !== "undefined" ) {
-		list += "<div class='" + ( OSApp.currentSession.controller.options.sn1t === 1 || OSApp.currentSession.controller.options.sn1t === 3 ? "" : "hidden " ) +
-			"ui-field-no-border ui-field-contain duration-field'><label for='o55'>" +
-				OSApp.Language._( "Sensor 1 Delayed Off Time" ) +
-			"</label><button data-mini='true' id='o55' value='" + OSApp.currentSession.controller.options.sn1of + "'>" + OSApp.currentSession.controller.options.sn1of + "m</button></div>";
-	}
-
-	if ( OSApp.Firmware.checkOSVersion( 217 ) ) {
-		list += "<label id='prgswitch' class='center smaller" + ( OSApp.currentSession.controller.options.urs === 240 ||
-			OSApp.currentSession.controller.options.sn1t === 240 || OSApp.currentSession.controller.options.sn2t === 240 ? "" : " hidden" ) + "'>" +
-			OSApp.Language._( "When using program switch, a switch is connected to the sensor port to trigger Program 1 every time the switch is pressed for at least 1 second." ) +
-		"</label>";
-	}
-
-	if ( typeof OSApp.currentSession.controller.options.sn2t !== "undefined" && OSApp.Firmware.checkOSVersion( 219 ) ) {
-		list += generateSensorOptions( OSApp.Constants.keyIndex.sn2t, OSApp.currentSession.controller.options.sn2t, 2 );
-	}
-
-	if ( typeof OSApp.currentSession.controller.options.sn2o !== "undefined" ) {
-		list += "<label for='o53'><input " + ( OSApp.currentSession.controller.options.sn2t === 1 || OSApp.currentSession.controller.options.sn2t === 3 ||
-			OSApp.currentSession.controller.options.sn2t === 240 ? "" : "data-wrapper-class='hidden' " ) +
-			"data-mini='true' id='o53' type='checkbox' " + ( ( OSApp.currentSession.controller.options.sn2o === 1 ) ? "checked='checked'" : "" ) + ">" +
-			OSApp.Language._( "Normally Open" ) + "</label>";
-	}
-
-	if ( typeof OSApp.currentSession.controller.options.sn2on !== "undefined" ) {
-		list += "<div class='" + ( OSApp.currentSession.controller.options.sn2t === 1 || OSApp.currentSession.controller.options.sn2t === 3 ? "" : "hidden " ) +
-			"ui-field-no-border ui-field-contain duration-field'><label for='o56'>" +
-				OSApp.Language._( "Sensor 2 Delayed On Time" ) +
-			"</label><button data-mini='true' id='o56' value='" + OSApp.currentSession.controller.options.sn2on + "'>" + OSApp.currentSession.controller.options.sn2on + "m</button></div>";
-	}
-
-	if ( typeof OSApp.currentSession.controller.options.sn2of !== "undefined" ) {
-		list += "<div class='" + ( OSApp.currentSession.controller.options.sn2t === 1 || OSApp.currentSession.controller.options.sn2t === 3 ? "" : "hidden " ) +
-			"ui-field-no-border ui-field-contain duration-field'><label for='o57'>" +
-				OSApp.Language._( "Sensor 2 Delayed Off Time" ) +
-			"</label><button data-mini='true' id='o57' value='" + OSApp.currentSession.controller.options.sn2of + "'>" + OSApp.currentSession.controller.options.sn2of + "m</button></div>";
-	}
-
-	if ( typeof OSApp.currentSession.controller.options.sn2t !== "undefined" ) {
-		list += "<label id='prgswitch-2' class='center smaller" + ( OSApp.currentSession.controller.options.urs === 240 || OSApp.currentSession.controller.options.sn1t === 240 ||
-			OSApp.currentSession.controller.options.sn2t === 240 ? "" : " hidden" ) + "'>" +
-			OSApp.Language._( "When using program switch, a switch is connected to the sensor port to trigger Program 2 every time the switch is pressed for at least 1 second." ) +
-		"</label>";
-	}
+	list += renderSensorButton( 1 );
+	list += renderSensorButton( 2 );
 
 	if ( typeof OSApp.currentSession.controller.settings.ifkey !== "undefined" || typeof OSApp.currentSession.controller.settings.mqtt !== "undefined" ||
 		typeof OSApp.currentSession.controller.settings.otc !== "undefined" ) {
@@ -1406,48 +1348,6 @@ OSApp.Options.showOptions = function( expandItem ) {
 		}
 	} );
 
-	page.find( ".sensor-options input[type='radio']" ).on( "change", function() {
-		var currentValue = this.value;
-		var index = parseInt( this.id.match( /o(\d+)/ )[ 1 ], 10 );
-
-		if ( currentValue === "2" ) {
-			page.find( "#o41" ).parents( ".ui-field-contain" ).removeClass( "hidden" );
-		} else if ( index === 21 || index === 50 ) {
-			page.find( "#o41" ).parents( ".ui-field-contain" ).addClass( "hidden" );
-		}
-
-		if ( currentValue === "1" || currentValue === "3" || currentValue === "240" ) {
-			page.find( "#o" + ( index + 1 ) ).parent().removeClass( "hidden" );
-		} else {
-			page.find( "#o" + ( index + 1 ) ).parent().addClass( "hidden" );
-		}
-
-		if (
-			$( "input[name='o21'][type='radio']:checked" ).val() === "240" ||
-			$( "input[name='o50'][type='radio']:checked" ).val() === "240"
-		) {
-			page.find( "#prgswitch" ).removeClass( "hidden" );
-		} else {
-			page.find( "#prgswitch" ).addClass( "hidden" );
-		}
-
-		if ( $( "input[name='o52'][type='radio']:checked" ).val() === "240" ) {
-			page.find( "#prgswitch-2" ).removeClass( "hidden" );
-		} else {
-			page.find( "#prgswitch-2" ).addClass( "hidden" );
-		}
-
-		if ( currentValue === "1" || currentValue === "3" ) {
-			page.find( "#o" + ( index + 4 ) + ",#o" + ( index + 5 ) ).parent().removeClass( "hidden" );
-		} else {
-			page.find( "#o" + ( index + 4 ) + ",#o" + ( index + 5 ) ).parent().addClass( "hidden" );
-		}
-	} );
-
-	page.find( "#o21" ).on( "change", function() {
-		page.find( "#o22" ).parent().toggleClass( "hidden", $( this ).is( ":checked" ) );
-	} );
-
 	page.find( "#verify-api" ).on( "click", function() {
 		var key = page.find( "#wtkey" ),
 			button = $( this ),
@@ -1561,18 +1461,6 @@ OSApp.Options.showOptions = function( expandItem ) {
 				},
 				maximum: max,
 				minimum: min
-			} );
-		} else if ( id === "o54" || id === "o55" || id === "o56" || id === "o57" ) {
-			OSApp.UIDom.showSingleDurationInput( {
-				data: dur.val(),
-				title: name,
-				callback: function( result ) {
-					dur.val( result ).text( result + "m" );
-				},
-				label: OSApp.Language._( "Minutes" ),
-				maximum: 240,
-				minimum: 0,
-				helptext: helptext
 			} );
 		} else if ( id === "imin" ) {
 			OSApp.UIDom.showSingleDurationInput( {
@@ -1711,6 +1599,126 @@ OSApp.Options.showOptions = function( expandItem ) {
 		}
 		return html;
 	};
+
+	// Build the type options for a sensor popup. Sensor 1 may include Flow,
+	// Sensor 2 may not (per firmware spec). Soil and Program Switch are gated
+	// by firmware version, matching the legacy radio-button rendering.
+	var buildSensorTypeOptions = function( num, current, hasFlowSupport ) {
+		var html = "<option value='0'" + ( current === 0 ? " selected" : "" ) + ">" + OSApp.Language._( "None" ) + "</option>" +
+			"<option value='1'" + ( current === 1 ? " selected" : "" ) + ">" + OSApp.Language._( "Rain" ) + "</option>";
+		if ( num === 1 && hasFlowSupport ) {
+			html += "<option value='2'" + ( current === 2 ? " selected" : "" ) + ">" + OSApp.Language._( "Flow" ) + "</option>";
+		}
+		if ( OSApp.Firmware.checkOSVersion( 219 ) ) {
+			html += "<option value='3'" + ( current === 3 ? " selected" : "" ) + ">" + OSApp.Language._( "Soil" ) + "</option>";
+		}
+		if ( OSApp.Firmware.checkOSVersion( 217 ) ) {
+			html += "<option value='240'" + ( current === 240 ? " selected" : "" ) + ">" + OSApp.Language._( "Program Switch" ) + "</option>";
+		}
+		return html;
+	};
+
+	page.find( "#sensor1, #sensor2" ).on( "click", function() {
+		var button = this, curr = button.value,
+			conf = $.extend( {}, { type: 0, no: 0, on: 0, off: 0, fpr: 0, fprUnit: "liter" }, OSApp.Utils.unescapeJSON( curr ) ),
+			num = parseInt( button.id.substring( 6 ) ),
+			hasFlow = num === 1 && typeof OSApp.currentSession.controller.options.fpr0 !== "undefined";
+
+		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
+
+		var fprRow = "";
+		if ( hasFlow ) {
+			fprRow = "<div class='ui-field-contain sn-fpr'>" +
+					"<label for='sn-fpr'>" + OSApp.Language._( "Flow Pulse Rate" ) + "</label>" +
+					"<table style='width:100%'><tr style='vertical-align:top'>" +
+						"<td style='width:60%'><input data-mini='true' type='number' step='any' id='sn-fpr' value='" + ( parseFloat( conf.fpr ) || 0 ) + "'></td>" +
+						"<td class='tight-select' style='width:40%'>" +
+							"<select id='sn-fpr-unit' data-mini='true'>" +
+								"<option value='liter'" + ( conf.fprUnit === "gallon" ? "" : " selected" ) + ">L/pulse</option>" +
+								"<option value='gallon'" + ( conf.fprUnit === "gallon" ? " selected" : "" ) + ">Gal/pulse</option>" +
+							"</select>" +
+						"</td>" +
+					"</tr></table>" +
+				"</div>";
+		}
+
+		// Keep the two program-switch hints as separate string literals so
+		// `grunt pushEng` can extract them for translation.
+		var prgHint = num === 1
+			? OSApp.Language._( "When using program switch, a switch is connected to the sensor port to trigger Program 1 every time the switch is pressed for at least 1 second." )
+			: OSApp.Language._( "When using program switch, a switch is connected to the sensor port to trigger Program 2 every time the switch is pressed for at least 1 second." );
+
+		var popup = $( "<div data-role='popup' data-theme='a' id='sensorSettings'>" +
+				"<div data-role='header' data-theme='b'>" +
+					"<h1>" + OSApp.Language._( "Sensor" ) + " " + num + "</h1>" +
+				"</div>" +
+				"<div class='ui-content'>" +
+					"<div class='ui-field-contain'>" +
+						"<label for='sn-type' class='select'>" + OSApp.Language._( "Type" ) + "</label>" +
+						"<select data-mini='true' id='sn-type'>" + buildSensorTypeOptions( num, parseInt( conf.type ) || 0, hasFlow ) + "</select>" +
+					"</div>" +
+					"<div class='ui-field-contain sn-no'>" +
+						"<label class='select sn-option-label'>" + OSApp.Language._( "Option" ) + "</label>" +
+						"<label class='sn-no-toggle' for='sn-no'>" +
+							"<input data-mini='true' data-iconpos='right' id='sn-no' type='checkbox'" + ( conf.no ? " checked='checked'" : "" ) + ">" +
+							OSApp.Language._( "Normally Open" ) +
+						"</label>" +
+					"</div>" +
+					"<div class='ui-field-contain sn-on-off'>" +
+						"<label for='sn-on'>" + OSApp.Language._( "Delayed On Time" ) + " (" + OSApp.Language._( "minutes" ) + ")</label>" +
+						"<input data-mini='true' type='number' id='sn-on' min='0' max='240' step='1' value='" + ( parseInt( conf.on ) || 0 ) + "'>" +
+					"</div>" +
+					"<div class='ui-field-contain sn-on-off'>" +
+						"<label for='sn-off'>" + OSApp.Language._( "Delayed Off Time" ) + " (" + OSApp.Language._( "minutes" ) + ")</label>" +
+						"<input data-mini='true' type='number' id='sn-off' min='0' max='240' step='1' value='" + ( parseInt( conf.off ) || 0 ) + "'>" +
+					"</div>" +
+					fprRow +
+					"<p class='sn-prg-hint smaller'>" + prgHint + "</p>" +
+					"<button class='submit' data-theme='b'>" + OSApp.Language._( "Submit" ) + "</button>" +
+				"</div>" +
+			"</div>" );
+
+		var refreshFields = function() {
+			var t = parseInt( popup.find( "#sn-type" ).val() ) || 0;
+			// Normally Open: rain (1) / soil (3) / program switch (240)
+			popup.find( ".sn-no" ).toggle( t === 1 || t === 3 || t === 240 );
+			// On/Off delays: rain (1) / soil (3)
+			popup.find( ".sn-on-off" ).toggle( t === 1 || t === 3 );
+			// Flow pulse rate: flow (2), sensor 1 only
+			popup.find( ".sn-fpr" ).toggle( t === 2 );
+			// Program switch hint: program switch (240)
+			popup.find( ".sn-prg-hint" ).toggle( t === 240 );
+		};
+		popup.find( "#sn-type" ).on( "change", refreshFields );
+
+		popup.find( ".submit" ).on( "click", function() {
+			var newConf = {
+				type: parseInt( popup.find( "#sn-type" ).val() ) || 0,
+				no: popup.find( "#sn-no" ).prop( "checked" ) ? 1 : 0,
+				on: parseInt( popup.find( "#sn-on" ).val() ) || 0,
+				off: parseInt( popup.find( "#sn-off" ).val() ) || 0
+			};
+			if ( hasFlow ) {
+				newConf.fpr = parseFloat( popup.find( "#sn-fpr" ).val() ) || 0;
+				newConf.fprUnit = popup.find( "#sn-fpr-unit" ).val();
+			}
+			if ( newConf.type > 0 ) {
+				$( button ).addClass( "blue" ).text( sensorTypeName( newConf.type ) );
+			} else {
+				$( button ).removeClass( "blue" ).text( OSApp.Language._( "Tap to Configure" ) );
+			}
+			popup.popup( "close" );
+			var encoded = OSApp.Utils.escapeJSON( newConf );
+			if ( curr === encoded ) { return; }
+			button.value = encoded;
+			header.eq( 2 ).prop( "disabled", false );
+			page.find( ".submit" ).addClass( "hasChanges" );
+		} );
+
+		popup.css( { "min-width": "360px", "max-width": "360px" } );
+		OSApp.UIDom.openPopup( popup, { positionTo: "window" } );
+		refreshFields();
+	} );
 
 	page.find( "#master1, #master2, #master3, #master4" ).on( "click", function() {
 		var button = this, curr = button.value,
