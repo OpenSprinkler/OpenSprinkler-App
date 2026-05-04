@@ -121,7 +121,16 @@ OSApp.Sensors.normalizeJsd = function (raw) {
     }
 
     return {
-        sensors: (raw.sensors || []).map((s) => ({ name: s.n, args: (s.as || []).map(normArg) })),
+        sensors: (raw.sensors || []).map((s) => {
+            const out = { name: s.n, args: (s.as || []).map(normArg) };
+            // Optional firmware-detection flag: when hwd is present and 0,
+            // the underlying hardware (e.g. ADS1115) wasn't found at boot.
+            if ("hwd" in s) out.hardware_detected = !!s.hwd;
+            // Optional firmware-disable flag: when dis is 1, the sensor type
+            // cannot be selected (e.g. unsupported on this build).
+            if ("dis" in s) out.disabled = !!s.dis;
+            return out;
+        }),
         units: (raw.units || []).map(normUnit),
         enums: raw.enums || {},
         args: (raw.as || []).map(normArg),
@@ -286,17 +295,32 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
                 .attr("value", i)
                 .text(v.name);
 
+            // Firmware can mark a type as disabled (dis: 1) — keep it visible
+            // for awareness but block selection.
+            if (v.disabled) $option.prop("disabled", true);
+
             $select.append($option);
 
         });
 
         $select.selectmenu();
 
+        // Hardware-detection warning shown when the currently-selected sensor
+        // type's firmware reports `hwd: 0` (hardware not detected at boot).
+        // Inserted as a sibling AFTER the field-contain so it doesn't share
+        // the inline-block row with the dropdown.
+        const $hwWarning = $('<p class="sensor-hw-missing"></p>')
+            .text(OSApp.Language._("The required hardware for this type was not detected."))
+            .hide();
+        parent.after($hwWarning);
+
         function updateSelect(applyDefaults) {
             const v = parseInt(String($select.val())) || 0;
             sensorOptions.forEach((_, i) => {
                 sensorOptions[i].visibility(v == i, applyDefaults);
             });
+            const sensor = data["sensors"][v];
+            $hwWarning.toggle(!!sensor && sensor.hardware_detected === false);
         }
 
         updateSelect(false);

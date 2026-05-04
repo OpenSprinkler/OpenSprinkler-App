@@ -1224,6 +1224,19 @@ input:invalid, .invalid {
     border-top: 1px solid #d8d8d8;
 }
 
+.sensor-hw-missing {
+    margin: 0.25em 0 0.75em 0;
+    font-size: 0.9em;
+    color: #888;
+    font-style: italic;
+}
+
+@media (min-width: 28em) {
+    .sensor-hw-missing {
+        margin-left: calc(30% + 0.5em);
+    }
+}
+
 .master-config-button {
     margin: 0.75em 0;
 }
