@@ -319,6 +319,30 @@ OSApp.Options.showOptions = function( expandItem ) {
 			}
 
 			opt = OSApp.Utils.transformKeys( opt );
+
+			// Firmware ≥ 2.2.0 accepts partial /co updates (omitted keys keep
+			// their existing values), so drop keys whose values match the
+			// session state. This shrinks the URL substantially and reduces
+			// the firmware-side receive buffer pressure. Only keys present in
+			// controller.options are eligible for pruning — anything else
+			// (datetime, settings stored as objects, credentials) is sent as-is.
+			if ( OSApp.Firmware.checkOSVersion( 220 ) ) {
+				var sessionOpts = OSApp.currentSession.controller.options || {};
+				var pruned = {};
+				Object.keys( opt ).forEach( function( k ) {
+					if ( Object.prototype.hasOwnProperty.call( sessionOpts, k ) ) {
+						// Loose compare — firmware sends numbers, the form
+						// reads strings; coercion handles both safely.
+						if ( String( opt[ k ] ) !== String( sessionOpts[ k ] ) ) {
+							pruned[ k ] = opt[ k ];
+						}
+					} else {
+						pruned[ k ] = opt[ k ];
+					}
+				} );
+				opt = pruned;
+			}
+
 			$.mobile.loading( "show" );
 
 			OSApp.Firmware.sendToOS( "/co?pw=&" + $.param( opt ) ).done( function() {
@@ -452,11 +476,10 @@ OSApp.Options.showOptions = function( expandItem ) {
 			mton: typeof opts[ mtonKey ] === "number" ? opts[ mtonKey ] : 0,
 			mtof: typeof opts[ mtofKey ] === "number" ? opts[ mtofKey ] : 0
 		};
-		return "<div class='ui-field-contain'>" +
-				"<label for='master" + num + "'>" + OSApp.Language._( "Master Station" ) + " " + num + "</label>" +
+		return "<div class='master-config-button'>" +
 				"<button data-mini='true' id='master" + num + "' class=" + ( conf.mas > 0 ? "'blue'" : "''" ) +
 					" value='" + OSApp.Utils.escapeJSON( conf ) + "'>" +
-					OSApp.Language._( "Tap to Configure" ) +
+					OSApp.Language._( "Tap to Configure Master" ) + " " + num +
 				"</button>" +
 			"</div>";
 	};

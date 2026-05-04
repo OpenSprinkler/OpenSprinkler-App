@@ -1224,13 +1224,17 @@ input:invalid, .invalid {
     border-top: 1px solid #d8d8d8;
 }
 
+.master-config-button {
+    margin: 0.75em 0;
+}
+
 #masterSettings .ui-field-contain > label,
 #sensorSettings .ui-field-contain > label {
     padding-right: 14px;
 }
 
 #masterSettings .master-step-hint {
-    margin: -0.25em 0 0.75em 0;
+    margin: 1em 0 0.75em 0;
     font-size: 0.85em;
     color: #666;
 }
