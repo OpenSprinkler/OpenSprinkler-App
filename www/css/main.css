@@ -1229,11 +1229,23 @@ input:invalid, .invalid {
     padding-right: 14px;
 }
 
-#masterSettings .master-step-hint,
-#sensorSettings .sn-prg-hint {
+#masterSettings .master-step-hint {
     margin: -0.25em 0 0.75em 0;
     font-size: 0.85em;
     color: #666;
+}
+
+#sensorSettings .sn-prg-hint {
+    margin: 1em 0 0.75em 0;
+    font-size: 0.85em;
+    color: #666;
+}
+
+#sensorSettings .ui-select .ui-btn,
+#sensorSettings input[type='number'] {
+    font-size: 1.05em;
+    padding-top: 0.6em;
+    padding-bottom: 0.6em;
 }
 
 #sensors_list .ui-field-contain > label {
