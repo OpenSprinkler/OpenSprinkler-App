@@ -184,7 +184,7 @@ OSApp.UIDom.launchApp = function() {
 				$( hash ).one( "pageshow", function() { OSApp.Status.refreshStatus(); } );
 			}
 		} else if ( hash === "#sensors" ) {
-			OSApp.Sensors.displayPage();
+			OSApp.Sensors.displayPage( data.options.expandUuid );
 		} else if ( hash === "#add-sensor" ) {
 			OSApp.Sensors.addSensor();
 		} else if ( hash === "#sensor-logs" ) {
@@ -698,6 +698,18 @@ OSApp.UIDom.bindPanel = function() {
 			updateButtons = function() {
 				var operation = ( OSApp.currentSession.controller && OSApp.currentSession.controller.settings && OSApp.currentSession.controller.settings.en && OSApp.currentSession.controller.settings.en === 1 ) ? OSApp.Language._( "Disable" ) : OSApp.Language._( "Enable" );
 				panel.find( ".toggleOperation span:first" ).html( operation ).attr( "data-translate", operation );
+
+				// Hardware 3.0 family (hwv 30..39) supports browser-based
+				// firmware update at <baseurl>/update. Show the link and point
+				// it at the current session's URL so the existing .iab handler
+				// can open it in a new tab / in-app browser.
+				var hwv = OSApp.currentSession.controller && OSApp.currentSession.controller.options && OSApp.currentSession.controller.options.hwv;
+				var showUpdate = typeof hwv === "number" && hwv >= 30 && hwv < 40;
+				panel.find( ".update-fw" ).toggleClass( "hidden", !showUpdate );
+				if ( showUpdate ) {
+					panel.find( ".update-fw a" ).attr( "href",
+						OSApp.currentSession.prefix + OSApp.currentSession.ip + "/update" );
+				}
 			};
 
 		$( "html" ).on( "datarefresh",  updateButtons );

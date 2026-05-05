@@ -1231,6 +1231,58 @@ input:invalid, .invalid {
     font-style: italic;
 }
 
+.sensor-home-header {
+    max-width: 500px;
+    margin: 1.5em auto 0.5em auto;
+    padding-top: 0.75em;
+    border-top: 1px solid #d8d8d8;
+    text-align: center;
+    font-size: 0.9em;
+}
+
+.sensors-home-combined {
+    font-size: 0.9em;
+}
+
+.sensor-home-list {
+    column-gap: 16px;
+    -webkit-column-gap: 16px;
+    -moz-column-gap: 16px;
+}
+
+@media (min-width: 1032px) {
+    .sensor-home-list {
+        column-count: 2;
+        -webkit-column-count: 2;
+        -moz-column-count: 2;
+    }
+    /* Widen the sensor card and its header to span both station-card columns
+       so each sensor row has enough room for long names. */
+    .sensors-home-combined,
+    .sensor-home-header {
+        max-width: 1010px;
+    }
+}
+
+.sensor-home-row {
+    /* Don't let a row split across columns. */
+    -webkit-column-break-inside: avoid;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    padding: 2px 0;
+    display: flex;
+    gap: 12px;
+}
+
+.sensor-home-name {
+    min-width: 0;
+    font-weight: bold;
+}
+
+.sensor-home-value {
+    white-space: nowrap;
+}
+
 @media (min-width: 28em) {
     .sensor-hw-missing {
         margin-left: calc(30% + 0.5em);

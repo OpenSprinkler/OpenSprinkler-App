@@ -89,6 +89,104 @@ var OSApp = OSApp || {};
 
 OSApp.Sensors = {};
 
+// Status bitfield reported by /jsn for each sensor.
+OSApp.Sensors.STATUS = { VALID: 1, ERROR: 2, STALE: 4, CLAMPED_HIGH: 8, CLAMPED_LOW: 16 };
+
+// Format a sensor reading for display. Returns text + a CSS class name driven
+// by the sensor status bitfield. Used by both the Edit Sensors page and the
+// homepage show-on-home cards.
+OSApp.Sensors.formatValue = function (value, unitShort, status) {
+    const S = OSApp.Sensors.STATUS;
+    if (!(status & S.VALID)) {
+        return { text: "—", cls: "" };
+    }
+    let text = value + (unitShort ? " " + unitShort : "");
+    let cls = "sensor-value-valid";
+    if ((status & S.ERROR) || (status & S.STALE)) {
+        text += " ⚠";
+        cls = "sensor-value-warning";
+    } else if (status & S.CLAMPED_HIGH) {
+        text += " ⊤";
+        cls = "sensor-value-clamped";
+    } else if (status & S.CLAMPED_LOW) {
+        text += " ⊥";
+        cls = "sensor-value-clamped";
+    }
+    return { text: text, cls: cls };
+};
+
+// Look up a unit's short label (e.g. "V") from the cached /jsd description.
+OSApp.Sensors.unitShort = function (unitValue) {
+    const desc = OSApp.currentSession.controller.sensor_desc;
+    if (!desc || !Array.isArray(desc.units)) return "";
+    const u = desc.units.find((x) => x.value === unitValue);
+    return u ? (u.short || u.name || "") : "";
+};
+
+// Bit 2 of sensor.flag = "show on home". Renders a single combined card
+// containing all such sensors as rows. Rows carry data-sensor-uuid + data-unit
+// so OSApp.Sensors.refreshHomeValues can update them on /ja datarefresh
+// without rebuilding the DOM. Tapping anywhere on the card opens the Edit
+// Sensors page.
+OSApp.Sensors.renderHomeCards = function ($parent) {
+    $parent.empty();
+    const sensors = OSApp.currentSession.controller.sensors && OSApp.currentSession.controller.sensors.sn;
+    if (!Array.isArray(sensors)) return;
+    const visible = sensors.filter((s) => s.flag & 4);
+    if (visible.length === 0) return;
+
+    $parent.append($('<h3 class="sensor-home-header"></h3>').text(OSApp.Language._("Sensors")));
+
+    const $card = $('<div class="card sensors-home-combined"></div>');
+    const $body = $('<div class="ui-body ui-body-a"></div>').appendTo($card);
+    const $list = $('<div class="sensor-home-list"></div>').appendTo($body);
+
+    visible.forEach((s) => {
+        const unitShort = OSApp.Sensors.unitShort(s.unit);
+        const status = s.status != null ? s.status : 1;
+        const hasValue = typeof s.value !== "undefined" && s.value !== null;
+        const { text, cls } = hasValue
+            ? OSApp.Sensors.formatValue(s.value, unitShort, status)
+            : { text: "—", cls: "" };
+        const $row = $('<div class="sensor-home-row"></div>');
+        $row.append($('<span class="sensor-home-name"></span>').text(s.name + ": "));
+        $row.append(
+            $('<span class="sensor-home-value"></span>')
+                .text(text)
+                .addClass(cls)
+                .attr("data-sensor-uuid", s.uuid)
+                .attr("data-unit", unitShort)
+        );
+        $list.append($row);
+    });
+
+    $card.on("click", function (e) {
+        // The dashboard delegates ".card" clicks to show a station Duration
+        // dialog; stop the bubble so it doesn't fire for our sensor card.
+        e.stopPropagation();
+        OSApp.UIDom.changePage("#sensors");
+    });
+    $parent.append($card);
+};
+
+// Update home-card values in place from the latest /ja sensor data.
+OSApp.Sensors.refreshHomeValues = function ($parent) {
+    const sensors = OSApp.currentSession.controller.sensors && OSApp.currentSession.controller.sensors.sn;
+    if (!Array.isArray(sensors)) return;
+    $parent.find("[data-sensor-uuid]").each(function () {
+        const $el = $(this);
+        const uuid = $el.attr("data-sensor-uuid");
+        const sensor = sensors.find((s) => String(s.uuid) === uuid);
+        if (!sensor || typeof sensor.value === "undefined" || sensor.value === null) return;
+        const unitShort = $el.attr("data-unit") || "";
+        const status = sensor.status != null ? sensor.status : 1;
+        const { text, cls } = OSApp.Sensors.formatValue(sensor.value, unitShort, status);
+        $el.text(text)
+            .removeClass("sensor-value-valid sensor-value-warning sensor-value-clamped")
+            .addClass(cls);
+    });
+};
+
 /**
  * Translate the compact /jsd wire format to the long-key, object-units shape
  * the rest of the app expects. Firmware uses short keys (n/a/t/d/h/o/l/g/s/
@@ -1407,31 +1505,12 @@ OSApp.Sensors.deleteSensor = function (uuid) {
     });
 };
 
-OSApp.Sensors.displayPage = function (_callback) {
+OSApp.Sensors.displayPage = function (expandUuid) {
     const page = $(`<div data-role="page" id="sensors"></div>`);
 	const content = $(`<div class="ui-content" role="main" id="sensors_list"></div>`);
     page.append(content);
 
-    const SENSOR_STATUS = { VALID: 1, ERROR: 2, STALE: 4, CLAMPED_HIGH: 8, CLAMPED_LOW: 16 };
-
-    function sensorValueDisplay( value, unitShort, status ) {
-        if ( !( status & SENSOR_STATUS.VALID ) ) {
-            return { text: "—", cls: "" };
-        }
-        let text = value + ( unitShort ? " " + unitShort : "" );
-        let cls = "sensor-value-valid";
-        if ( ( status & SENSOR_STATUS.ERROR ) || ( status & SENSOR_STATUS.STALE ) ) {
-            text += " ⚠";
-            cls = "sensor-value-warning";
-        } else if ( status & SENSOR_STATUS.CLAMPED_HIGH ) {
-            text += " ⊤";
-            cls = "sensor-value-clamped";
-        } else if ( status & SENSOR_STATUS.CLAMPED_LOW ) {
-            text += " ⊥";
-            cls = "sensor-value-clamped";
-        }
-        return { text: text, cls: cls };
-    }
+    const sensorValueDisplay = OSApp.Sensors.formatValue;
 
     /**
      *
@@ -1441,7 +1520,7 @@ OSApp.Sensors.displayPage = function (_callback) {
      * @returns {SensorPage}
      */
     function createSensorCollapse(parent, data, sensorData) {
-        const $div = $("<div></div>");
+        const $div = $("<div></div>").attr("data-uuid", sensorData["uuid"]);
         const $header = $("<h3></h3>");
         $header.text(`${sensorData["name"]} (UUID: ${sensorData["uuid"]})`);
         const $inner = $("<div></div>");
@@ -1490,7 +1569,13 @@ OSApp.Sensors.displayPage = function (_callback) {
         $delete.button({icon: "delete"});
         $delete.closest(".ui-btn").addClass("red bold");
         $delete.on("click", () => {
-            OSApp.Sensors.deleteSensor(sensorData["uuid"]);
+            OSApp.UIDom.areYouSure(
+                OSApp.Language._("Are you sure you want to delete this sensor?"),
+                sensorData["name"] + " (UUID: " + sensorData["uuid"] + ")",
+                () => {
+                    OSApp.Sensors.deleteSensor(sensorData["uuid"]);
+                }
+            );
         });
 
         return page;
@@ -1515,6 +1600,13 @@ OSApp.Sensors.displayPage = function (_callback) {
                     createSensorCollapse($set, jsdData, v);
                 });
                 $set.collapsibleset();
+
+                // If we navigated here from a homepage card, auto-expand the
+                // matching sensor's collapsible so the user lands directly on
+                // its settings.
+                if (expandUuid) {
+                    $set.find('[data-uuid="' + expandUuid + '"]').collapsible("expand");
+                }
 
                 const $notice = $('<p class="sensor-page-notice"></p>');
                 $notice.append(document.createTextNode(OSApp.Language._(

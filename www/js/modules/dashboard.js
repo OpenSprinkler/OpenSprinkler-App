@@ -40,6 +40,7 @@ OSApp.Dashboard.displayPage = function() {
 					'</div>' +
 					'<div id="os-stations-list" class="card-group center"></div>' +
 					'<div id="os-sensor-show" class="card-group center"></div>' +
+					'<div id="os-sensors-home" class="card-group"></div>' +
 				'</div>' +
 			'</div>' +
 		'</div>';
@@ -946,6 +947,9 @@ OSApp.Dashboard.displayPage = function() {
 			OSApp.Dashboard.updateWaterLevel();
 			OSApp.Dashboard.updateRestrictNotice();
 			OSApp.Analog.updateSensorShowArea( page );
+			// Re-render fully so name/flag changes (not just value updates)
+			// reflect on the homepage without requiring a hard refresh.
+			OSApp.Sensors.renderHomeCards( page.find( "#os-sensors-home" ) );
 
 			page.find( ".sitename" ).text( OSApp.currentSession.local ? OSApp.currentSession.controller.settings?.dname || "" : siteSelect.val() );
 
@@ -1090,6 +1094,7 @@ OSApp.Dashboard.displayPage = function() {
 		page.find( ".waterlevel" ).text( OSApp.currentSession.controller.options.wl );
 
 		OSApp.Analog.updateSensorShowArea( page );
+		OSApp.Sensors.renderHomeCards( page.find( "#os-sensors-home" ) );
 		updateClock();
 
 		page.on( "click", ".station-settings", showAttributes );
