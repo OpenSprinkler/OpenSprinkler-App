@@ -1279,6 +1279,28 @@ input:invalid, .invalid {
     font-weight: bold;
 }
 
+/* App Settings: lay all toggle buttons in a single wrap-friendly row so
+   they sit side-by-side on wide screens and stack onto extra rows as the
+   viewport narrows. */
+.app-settings-row .ui-controlgroup-controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+}
+
+.app-settings-row .ui-checkbox {
+    flex: 0 0 auto;
+}
+
+/* JQM's horizontal controlgroup strips inner borders/radii because adjacent
+   buttons share an edge — but with a 6px gap each button stands alone, so
+   restore a full outline on every button. */
+.app-settings-row .ui-checkbox .ui-btn {
+    border-right-width: 1px;
+    border-radius: 0.3125em;
+}
+
 .sensor-home-value {
     white-space: nowrap;
 }

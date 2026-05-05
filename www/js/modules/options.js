@@ -450,27 +450,27 @@ OSApp.Options.showOptions = function( expandItem ) {
                "<legend>" + OSApp.Language._( "App Settings" ) + "</legend>" +
                "<p class='small'>" + OSApp.Language._( "These settings are stored locally with the application and do not affect the controller. Changes are saved automatically." ) + "</p>";
 
-       list += "<div class='center' data-role='controlgroup' data-type='horizontal'>";
+       var showDisabled = OSApp.Storage.getItemSync( "showDisabled" ) === "true";
+       var showStationNum = OSApp.Storage.getItemSync( "showStationNum" ) === "true";
+
+       // All six App Settings toggles in one horizontal controlgroup so they
+       // sit on a single row on wide screens and wrap onto extra rows as
+       // viewport width shrinks.
+       list += "<div class='app-settings-row' data-role='controlgroup' data-type='horizontal' style='text-align:center'>";
                list += "<label for='isMetric'><input data-mini='true' class='noselect' id='isMetric' type='checkbox' " + ( OSApp.currentDevice.isMetric ? "checked='checked'" : "" ) + ">" +
                        OSApp.Language._( "Use Metric" ) + "</label>";
 
                list += "<label for='is24Hour'><input data-mini='true' class='noselect' id='is24Hour' type='checkbox' " + ( OSApp.uiState.is24Hour ? "checked='checked'" : "" ) + ">" +
                        OSApp.Language._( "Use 24 Hour Time" ) + "</label>";
-       list += "</div>";
 
-       list += "<div data-role='controlgroup' data-type='horizontal' style='text-align:center'>";
                if ( OSApp.Supported.groups() ) {
                        list += "<label for='groupView'><input data-mini='true' class='noselect' id='groupView' type='checkbox' " + ( OSApp.uiState.groupView ? "checked='checked'" : "" ) + ">" +
                        OSApp.Language._( "Order Stations by Groups" ) + "</label>";
                }
 
                list += "<label for='sortByStationName'><input data-mini='true' class='noselect' id='sortByStationName' type='checkbox' " + ( OSApp.uiState.sortByStationName ? "checked='checked'" : "" ) + ">" +
-               OSApp.Language._( "Order Stations by Name" ) + "</label>";
-       list += "</div>";
+                       OSApp.Language._( "Order Stations by Name" ) + "</label>";
 
-       list += "<div data-role='controlgroup' data-type='horizontal' style='text-align:center'>";
-               var showDisabled = OSApp.Storage.getItemSync( "showDisabled" ) === "true";
-               var showStationNum = OSApp.Storage.getItemSync( "showStationNum" ) === "true";
                list += "<label for='showDisabled'><input data-mini='true' class='noselect' id='showDisabled' type='checkbox' " + ( showDisabled ? "checked='checked'" : "" ) + ">" +
                        OSApp.Language._( "Show Disabled" ) + "</label>";
 

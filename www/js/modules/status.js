@@ -300,6 +300,17 @@ OSApp.Status.checkStatus = function() {
 		return;
 	}
 
+	// Tapping the idle/last-ran footer: go home from any other page, but
+	// open Edit Options when already on the homepage (more useful next step
+	// than a no-op).
+	var homeOrOptions = function() {
+		if ( $( ".ui-page-active" ).attr( "id" ) === "sprinklers" ) {
+			OSApp.UIDom.changePage( "#os-options" );
+		} else {
+			OSApp.UIDom.goHome();
+		}
+	};
+
 	var lrdur = OSApp.currentSession.controller.settings.lrun[ 2 ];
 
 	// If last run duration is given, add it to the footer
@@ -309,9 +320,9 @@ OSApp.Status.checkStatus = function() {
 
 		OSApp.Status.changeStatus( 0, "transparent", "<p class='running-text smaller center pointer'>" + pname + " " + OSApp.Language._( "last ran station" ) + " " +
 		OSApp.Stations.getName( OSApp.currentSession.controller.settings.lrun[ 0 ] ) + " " + OSApp.Language._( "for" ) + " " + ( lrdur / 60 >> 0 ) + "m " + ( lrdur % 60 ) + "s " +
-			OSApp.Language._( "on" ) + " " + OSApp.Dates.dateToString( new Date( ( OSApp.currentSession.controller.settings.lrun[ 3 ] - lrdur ) * 1000 ) ) + "</p>", OSApp.UIDom.goHome );
+			OSApp.Language._( "on" ) + " " + OSApp.Dates.dateToString( new Date( ( OSApp.currentSession.controller.settings.lrun[ 3 ] - lrdur ) * 1000 ) ) + "</p>", homeOrOptions );
 		return;
 	}
 
-	OSApp.Status.changeStatus( 0, "transparent", "<p class='running-text smaller center pointer'>" + OSApp.Language._( "System Idle" ) + "</p>", OSApp.UIDom.goHome );
+	OSApp.Status.changeStatus( 0, "transparent", "<p class='running-text smaller center pointer'>" + OSApp.Language._( "System Idle" ) + "</p>", homeOrOptions );
 };
