@@ -48,7 +48,26 @@ export function readFirmwareGlobals(): { ver?: number; ipas?: number } {
 	};
 }
 
-/** Browser implementation. STUB for the scaffold — ports of home.js logic are marked TODO. */
+/** Result of an authentication attempt. */
+export interface AuthResult { ok: boolean; pwHash: string; }
+
+/**
+ * Resolve the device base URL from the current location (LAN path), mirroring home.js
+ * `document.URL.match(/(https?:\/\/.*)\/.*?/)[1]`. For OTC remote access, pass the cloud
+ * forward URL as `baseUrl` instead — the seam treats both uniformly.
+ */
+export function resolveDeviceBaseFromLocation( href: string = ( globalThis as { location?: { href: string } } ).location?.href ?? "" ): string {
+	const m = href.match( /(https?:\/\/[^/]+)/ );
+	return m ? m[ 1 ] + "/" : "";
+}
+
+/**
+ * Browser implementation — ports the proven device-comms from www/js/home.js:
+ *   - request with the `pw=` (md5) auth param,
+ *   - native `fetch` CORS (the legacy XDomainRequest IE8/9 shim is no longer needed),
+ *   - LAN vs OTC handled uniformly via `config.baseUrl`,
+ *   - version-gated auth check against `/sp` (md5 for fwv>=213, cleartext fallback/<208).
+ */
 export class BrowserDeviceSeam implements DeviceSeam {
 	constructor( readonly config: Readonly<DeviceSeamConfig> ) {}
 
@@ -57,19 +76,49 @@ export class BrowserDeviceSeam implements DeviceSeam {
 		const base = this.config.baseUrl.endsWith( "/" ) ? this.config.baseUrl : this.config.baseUrl + "/";
 		const url = base + path;
 		if ( !this.config.pwHash ) return url;
-		return url + ( url.includes( "?" ) ? "&" : "?" ) + "pw=" + this.config.pwHash;
+		return url + ( url.includes( "?" ) ? "&" : "?" ) + "pw=" + encodeURIComponent( this.config.pwHash );
 	}
 
 	async requestJson( path: string ): Promise<unknown> {
-		// TODO(port from home.js): CORS handling (legacy XDomainRequest shim no longer needed),
-		// TODO: OTC vs LAN base selection + mixed-content handling (PRD §4 #1 risk),
-		// TODO: timeout/retry parity with the existing app.
+		// CORS is handled natively by fetch in modern browsers (firmware sends the headers);
+		// LAN vs OTC differ only by config.baseUrl. NOTE: an HTTPS-hosted app cannot reach a
+		// plain-HTTP LAN device (mixed content) — remote access must go via the OTC HTTPS tunnel
+		// (PRD §4 risk #1). This is what the live LAN+OTC hardware proof validates.
 		const res = await fetch( this.buildUrl( path ), {
 			method: "GET",
+			mode: "cors",
 			headers: { Accept: "application/json" },
 		} );
 		if ( !res.ok ) throw new Error( `device request failed: ${ res.status } ${ res.statusText } (${ path })` );
 		return res.json();
+	}
+
+	/**
+	 * Authenticate against the device (port of home.js homeCheckPW / version gating).
+	 * `GET /sp?pw=&npw=&cpw=` returns `{result}` (<=1 = valid). fwv>=213 hashes with md5
+	 * (cleartext fallback); fwv<208 sends cleartext. Returns the pwHash to store on the seam.
+	 */
+	async authenticate( password: string, fwv: number, md5: Md5 ): Promise<AuthResult> {
+		if ( fwv < 208 ) {
+			return { ok: await this.checkPassword( password ), pwHash: password };
+		}
+		if ( fwv >= 213 ) {
+			const hashed = md5( password );
+			if ( await this.checkPassword( hashed ) ) return { ok: true, pwHash: hashed };
+			// fall back to cleartext for devices that pre-date hashed auth
+			return { ok: await this.checkPassword( password ), pwHash: password };
+		}
+		return { ok: await this.checkPassword( password ), pwHash: password };
+	}
+
+	/** `GET /sp?pw=&npw=&cpw=` → `{result}`; valid when result is defined and <= 1. */
+	private async checkPassword( pass: string ): Promise<boolean> {
+		const base = this.config.baseUrl.endsWith( "/" ) ? this.config.baseUrl : this.config.baseUrl + "/";
+		const p = encodeURIComponent( pass );
+		const res = await fetch( `${ base }sp?pw=${ p }&npw=${ p }&cpw=${ p }`, { method: "GET", mode: "cors" } );
+		if ( !res.ok ) return false;
+		const data = await res.json() as { result?: number };
+		return typeof data.result !== "undefined" && data.result <= 1;
 	}
 }
 

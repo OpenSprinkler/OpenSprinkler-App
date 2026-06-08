@@ -21,8 +21,12 @@ consuming a field the firmware doesn't already emit is Phase 2 (firmware) work.
 fixtures in `test/fixtures/api/`. Replace those fixtures with **live device captures** (one set per
 `fwv`) to turn these into a real producer-drift guard — that is the next contract-capture task.
 
-**Status:** scaffold only. The next step (PRD §8.2) is the **seam spike** — replace
-`BrowserDeviceSeam`'s stubbed `requestJson` with the real logic ported from `www/js/home.js`
-(CORS, OTC vs LAN base, auth) and render one read-only screen from `/jc` over both access paths.
+**Status:** scaffold + **seam spike (unit-proven)**. `BrowserDeviceSeam` now ports the real
+`www/js/home.js` device-comms (native-`fetch` CORS, `pw=` md5 auth via `/sp`, version gating,
+LAN/OTC-uniform base). `www/src/spike/` boots the pipeline end-to-end (globals → seam → client →
+render of a `/jc`+`/jo` status screen); `test/seam-spike.spec.ts` proves it against a mocked
+transport (auth, fail-closed, `ipas`, OTC parity). **Remaining:** the live **LAN+OTC proof on real
+hardware** (the mixed-content risk, PRD §4 #1), then build out screens and replace fixtures with
+live captures.
 
 This scaffold is isolated: it does not touch the existing Grunt/Cordova build or `www/js`.
