@@ -1,0 +1,32 @@
+:root {
+	--bg: #f6f7fb; --fg: #0f172a; --muted: #586380;
+	--card: #fff; --border: #cdd5e0; --accent: #2563eb; --err: #b91c1c;
+}
+@media (prefers-color-scheme: dark) {
+	:root {
+		--bg: #0b1220; --fg: #e6eaff; --muted: #a3acc7;
+		--card: #0f172a; --border: #334155; --accent: #60a5fa; --err: #f87171;
+	}
+}
+body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+	background: var(--bg); color: var(--fg); margin: 0; padding: 20px;
+	max-width: 640px; margin-inline: auto;
+}
+.banner {
+	background: color-mix(in oklab, var(--accent) 12%, transparent);
+	border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; font-size: 14px;
+}
+.controls { display: flex; gap: 18px; margin: 16px 0; flex-wrap: wrap; }
+.controls label { display: inline-flex; align-items: center; gap: 6px; }
+#app section {
+	background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+	padding: 20px 24px; box-shadow: 0 4px 12px rgba(0,0,0,.06);
+}
+#app h1 { margin-top: 0; font-size: 22px; }
+table.status { width: 100%; border-collapse: collapse; }
+table.status th, table.status td { text-align: left; padding: 10px 4px; border-bottom: 1px solid var(--border); }
+table.status th[scope="row"] { color: var(--muted); font-weight: 600; width: 45%; }
+table.status tr:last-child th, table.status tr:last-child td { border-bottom: none; }
+.err { color: var(--err); white-space: pre-wrap; }
+code { background: color-mix(in oklab, var(--border) 30%, transparent); padding: 1px 5px; border-radius: 4px; }

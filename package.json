@@ -24,7 +24,9 @@
 		"prepare": "husky",
 		"start": "npx http-server --port 8080 --cors '*' -c-1 ./www",
 		"test": "npx karma start --browsers ChromeHeadless test/karma.conf.js",
-		"test:contract": "vitest run"
+		"test:contract": "vitest run",
+		"demo": "vite demo",
+		"demo:build": "vite build demo"
 	},
 	"lint-staged": {
 		"package.json": "sort-package-json"

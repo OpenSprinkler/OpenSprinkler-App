@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>OpenSprinkler — status spike (demo)</title>
+	<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+	<p class="banner" role="note">
+		<b>Demo harness.</b> This renders the Phase-1 seam spike's status screen from a <b>mocked
+		<code>/jc</code> + <code>/jo</code> fixture</b> — no device required. Toggle the access path to
+		confirm LAN and OTC render identically (both are just a <code>baseUrl</code>).
+	</p>
+	<div class="controls">
+		<label><input type="radio" name="path" value="lan" checked> LAN (http://demo-device/)</label>
+		<label><input type="radio" name="path" value="otc"> OTC (https://cloud.openthings.io/forward/v1/…)</label>
+	</div>
+	<div id="app" aria-live="polite"></div>
+	<script type="module" src="./demo.ts"></script>
+</body>
+</html>
