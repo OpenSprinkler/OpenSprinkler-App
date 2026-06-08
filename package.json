@@ -23,7 +23,8 @@
 		"lint": "eslint ./www/js/**",
 		"prepare": "husky",
 		"start": "npx http-server --port 8080 --cors '*' -c-1 ./www",
-		"test": "npx karma start --browsers ChromeHeadless test/karma.conf.js"
+		"test": "npx karma start --browsers ChromeHeadless test/karma.conf.js",
+		"test:contract": "vitest run"
 	},
 	"lint-staged": {
 		"package.json": "sort-package-json"
@@ -59,7 +60,9 @@
 		"mocha": "^10.8.2",
 		"po2json": "^0.4.5",
 		"sinon": "^19.0.2",
-		"sort-package-json": "^2.10.1"
+		"sort-package-json": "^2.10.1",
+		"typescript": "^6.0.3",
+		"vitest": "^4.1.8"
 	},
 	"cordova": {
 		"plugins": {
