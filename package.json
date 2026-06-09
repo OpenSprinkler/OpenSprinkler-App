@@ -26,7 +26,8 @@
 		"test": "npx karma start --browsers ChromeHeadless test/karma.conf.js",
 		"test:contract": "vitest run",
 		"demo": "vite demo",
-		"demo:build": "vite build demo"
+		"demo:build": "vite build demo",
+		"build:app": "vite build app"
 	},
 	"lint-staged": {
 		"package.json": "sort-package-json"

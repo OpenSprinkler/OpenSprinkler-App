@@ -51,3 +51,6 @@ npm-debug.log*
 
 # Phase-1 demo build output
 demo/dist/
+
+# Phase-1 app production build output
+/dist/
