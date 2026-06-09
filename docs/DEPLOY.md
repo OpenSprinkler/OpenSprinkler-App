@@ -61,9 +61,11 @@ http://<device-ip>/cu?jsp=https://<nextui-domain>/js&pw=<md5(password)>
   (`assets/app.js` + `assets/app.css`) — so when `SOPT_JAVASCRIPTURL` points here (such that
   `home.js` is reachable at `<jsp>/home.js`), the firmware bootstrap loads the modernized UI.
   Verified by `test/home-bootstrap.spec.ts` (jsdom).
-- ⚠️ **Still a prototype:** the dashboard is **read-only** and the full md5 **login UI** is not built
-  yet (`ipas` devices work; others need `?pwhash=<md5>`). Validate on real hardware (LAN + OTC)
-  before pointing production devices here.
+- The **md5 login UI** is built (`www/src/auth/`): non-`ipas` devices get a password prompt that
+  authenticates via the version-gated `/sp` check (md5 for `fwv>=213`). md5 is verified against
+  RFC 1321 vectors. `?pwhash=<md5>` still works for automated/standalone access.
+- ⚠️ **Still a prototype:** the dashboard is **read-only** (no write/control paths). Validate on
+  real hardware (LAN + OTC) before pointing production devices here.
 
 **Rollback:** point the device back at the default:
 ```
@@ -76,5 +78,5 @@ No firmware flash, no app-store release — just a config flip.
 - The app is **read-only** today; it has no write/control paths yet.
 - The firmware-loaded **`home.js` bootstrap entry is now produced** (`dist/home.js` → loads
   `assets/app.js`); the standalone `index.html` SPA also works for direct access (`?base=`).
-- Auth UI is a draft — `ipas` devices work; others use `?pwhash=<md5>` for now. The full md5
-  login prompt (ported from `www/js/home.js`) is the next sub-step.
+- Auth: `ipas` devices skip login; others get the md5 password prompt (`www/src/auth/`).
+  `?pwhash=<md5>` bypasses the prompt for automated access.

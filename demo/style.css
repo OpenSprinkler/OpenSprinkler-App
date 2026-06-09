@@ -29,6 +29,24 @@ table.status th, table.status td { text-align: left; padding: 10px 4px; border-b
 table.status th[scope="row"] { color: var(--muted); font-weight: 600; width: 45%; }
 table.status tr:last-child th, table.status tr:last-child td { border-bottom: none; }
 .err { color: var(--err); white-space: pre-wrap; }
+
+/* login form */
+form.login {
+	max-width: 340px; margin: 48px auto; padding: 24px; background: var(--card);
+	border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,.06);
+	display: flex; flex-direction: column; gap: 10px;
+}
+form.login h1 { margin: 0 0 6px; font-size: 18px; text-align: center; }
+form.login label { font-weight: 600; font-size: 14px; }
+form.login input {
+	padding: 10px; font-size: 16px; border: 1px solid var(--border); border-radius: 5px;
+	background: transparent; color: inherit; box-sizing: border-box;
+}
+form.login button {
+	margin-top: 6px; padding: 11px; font-size: 15px; font-weight: 600; color: #fff;
+	background: var(--accent); border: none; border-radius: 5px; cursor: pointer;
+}
+form.login button:disabled { opacity: .6; cursor: not-allowed; }
 code { background: color-mix(in oklab, var(--border) 30%, transparent); padding: 1px 5px; border-radius: 4px; }
 
 /* tabs */

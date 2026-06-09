@@ -14,6 +14,7 @@ import "../demo/style.css"; // DRAFT: shares the demo's view styling for now
 import { BrowserDeviceSeam, readFirmwareGlobals } from "../www/src/seam/device";
 import { OsApiClient } from "../www/src/api/client";
 import { renderDashboard, type DashboardData, type DashboardTab } from "../www/src/views/dashboard";
+import { runLogin } from "../www/src/auth/login";
 
 function qp( name: string ): string | undefined {
 	return new URLSearchParams( location.search ).get( name ) ?? undefined;
@@ -21,7 +22,7 @@ function qp( name: string ): string | undefined {
 
 const { ver, ipas } = readFirmwareGlobals();
 const baseUrl = qp( "base" ) || location.origin + "/";
-const pwHash = qp( "pwhash" );
+let pwHash = qp( "pwhash" );
 
 const mount = document.getElementById( "app" ) as HTMLElement;
 let data: DashboardData | null = null;
@@ -41,9 +42,17 @@ async function load(): Promise<void> {
 	paint();
 }
 
+async function boot(): Promise<void> {
+	// Authenticate when the device enforces a password and we weren't handed a hash.
+	if ( ipas !== 1 && !pwHash ) {
+		pwHash = await runLogin( mount, baseUrl, ver ?? 0 );
+	}
+	await load();
+}
+
 mount.addEventListener( "click", ( ev ) => {
 	const t = ( ev.target as HTMLElement ).closest<HTMLElement>( "[data-tab]" );
 	if ( t && t.dataset.tab ) { activeTab = t.dataset.tab as DashboardTab; paint(); }
 } );
 
-load().catch( ( e ) => { mount.innerHTML = `<pre style="color:#b91c1c">${ String( e ) }</pre>`; } );
+boot().catch( ( e ) => { mount.innerHTML = `<pre style="color:#b91c1c">${ String( e ) }</pre>`; } );
