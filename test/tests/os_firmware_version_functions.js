@@ -81,4 +81,19 @@ describe("OpenSprinkler Firmware Version Functions", function () {
 			assert.equal("2.0.4", OSApp.Firmware.getOSVersion());
 		});
 	});
+
+	describe("Retrieve the fork build tag (fwf)", function () {
+		it("getForkTag() returns ' +<fwf>' when the fork firmware exposes fwf", function () {
+			OSApp.currentSession.controller.options = { fwv: 221, fwf: "kars85.3" };
+			assert.equal(" +kars85.3", OSApp.Firmware.getForkTag());
+		});
+		it("getForkTag() returns '' on official firmware (no fwf)", function () {
+			OSApp.currentSession.controller.options = { fwv: 221 };
+			assert.equal("", OSApp.Firmware.getForkTag());
+		});
+		it("getForkTag() returns '' for an empty fwf string", function () {
+			OSApp.currentSession.controller.options = { fwv: 221, fwf: "" };
+			assert.equal("", OSApp.Firmware.getForkTag());
+		});
+	});
 });

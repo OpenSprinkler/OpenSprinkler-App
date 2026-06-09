@@ -102,6 +102,15 @@ export function parseJs( raw: unknown ): JsResponse {
 	return o as unknown as JsResponse;
 }
 
+/**
+ * Fork build-tag suffix for the version string (e.g. " +kars85.3"). The kars85 firmware fork
+ * emits `fwf` as a string in /jo; official firmware omits it, so the suffix is guarded to "".
+ * No firmware change is needed — the field is already served when present.
+ */
+export function getForkTag( jo: Pick<JoResponse, "fwf"> ): string {
+	return typeof jo.fwf === "string" && jo.fwf ? " +" + jo.fwf : "";
+}
+
 /** Derive UI capability flags from /jc + /jo (PRD §5 fwv matrix). */
 export function deriveCapabilities( jc: JcResponse, jo: JoResponse ): Capabilities {
 	return {

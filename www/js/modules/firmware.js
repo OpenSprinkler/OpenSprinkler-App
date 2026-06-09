@@ -269,6 +269,13 @@ OSApp.Firmware.getOSMinorVersion = function() {
 	return "";
 };
 
+// Fork build tag (kars85 firmware fork) exposed as the string option `fwf` in /jo, e.g. "kars85.3".
+// Returns a guarded suffix (" +kars85.3"); official firmware omits fwf, so this yields "".
+OSApp.Firmware.getForkTag = function() {
+	var o = OSApp.currentSession.controller.options;
+	return ( typeof o === "object" && typeof o.fwf === "string" && o.fwf ) ? " +" + o.fwf : "";
+};
+
 OSApp.Firmware.getHWVersion = function( hwv ) {
 	if ( !hwv ) {
 		if ( typeof OSApp.currentSession.controller.options === "object" && typeof OSApp.currentSession.controller.options.hwv !== "undefined" ) {
@@ -350,7 +357,7 @@ OSApp.Firmware.checkFirmwareUpdate = function() {
 											"<h3 class='center' style='margin-bottom:0'>" +
 												OSApp.Language._( "Latest" ) + " " + OSApp.Language._( "Firmware" ) + ": " + data[ 0 ].name +
 											"</h3>" +
-											"<h5 class='center' style='margin:0'>" + OSApp.Language._( "This Controller" ) + ": " + OSApp.Firmware.getOSVersion() + OSApp.Firmware.getOSMinorVersion() + "</h5>" +
+											"<h5 class='center' style='margin:0'>" + OSApp.Language._( "This Controller" ) + ": " + OSApp.Firmware.getOSVersion() + OSApp.Firmware.getOSMinorVersion() + OSApp.Firmware.getForkTag() + "</h5>" +
 											"<a class='iab ui-btn ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' target='_blank' href='" + changelog + "'>" +
 												OSApp.Language._( "View Changelog" ) +
 											"</a>" +

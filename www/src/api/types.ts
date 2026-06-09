@@ -42,6 +42,7 @@ export interface JcResponse {
 /** /jo — integer options (NUM_IOPTS + metadata). `fwv` is pre-auth readable. */
 export interface JoResponse {
 	fwv: number; fwm: number; hwv: number; hwt: number; mexp: number; dexp?: number;
+	fwf?: string; // fork build tag (kars85 firmware fork), e.g. "kars85.3"; absent on official firmware
 	tz: number; ntp: 0 | 1; dhcp: 0 | 1;
 	hp0: number; hp1: number;
 	ntp1: number; ntp2: number; ntp3: number; ntp4: number;
@@ -63,7 +64,9 @@ export interface JoResponse {
 	con?: number; lit?: number;
 	bst?: number; laton?: number; latof?: number; tpdv?: number;
 	imin?: number; imax?: number;
-	[option: string]: number | number[] | undefined; // forward-compat: unknown future options
+	// forward-compat: unknown future options. Includes `string` so string-valued options
+	// (e.g. the `fwf` fork build tag) coexist with the numeric integer-options.
+	[option: string]: number | number[] | string | undefined;
 }
 
 /** Pre-auth fallback emitted when the password check fails (opensprinkler_server.cpp:415,2445). */
