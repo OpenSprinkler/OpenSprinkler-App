@@ -88,8 +88,8 @@ describe( "/jl logs (discriminated rows)", () => {
 		expect( Array.isArray( jl ) ).toBe( true );
 		const stationRows = jl.filter( isStationLogRow );
 		const specialRows = jl.filter( ( r ) => !isStationLogRow( r ) );
-		expect( stationRows.length ).toBe( 2 );
-		expect( specialRows.length ).toBe( 2 );
+		expect( stationRows.length ).toBe( 2 );  // jl fixture: 2 station runs
+		expect( specialRows.length ).toBe( 4 );  // + s1/rd/wl/fl special events
 		// station row with flow telemetry has a 5th element
 		expect( stationRows[ 0 ][ 4 ] ).toBeTypeOf( "number" );
 		// special row's index 1 is the type string

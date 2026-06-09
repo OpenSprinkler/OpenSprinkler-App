@@ -11,7 +11,7 @@
  * Notes: the existing app's readStartTime has an operator-precedence bug (`!(time>>14)&1`);
  * we follow the firmware logic instead.
  */
-import type { JcResponse, JnResponse, JpResponse } from "./types";
+import type { JcResponse, JnResponse, JpResponse, JlRow, JlStationRow, JlSpecialRow } from "./types";
 
 const PARALLEL_GROUP_ID = 255;
 
@@ -196,5 +196,56 @@ export function decodeProgram( p: unknown[], stationNames: string[] ): ProgramVi
 export function decodeAllPrograms( jp: JpResponse, stationNames: string[] ): ProgramView[] {
 	return jp.pd.map( ( p ) => decodeProgram( p as unknown[], stationNames ) );
 }
+
+// ---- logs (/jl) -------------------------------------------------------------
+// Station run row: [program, station, durationSec, endtime, flowGpm?]
+// Special row:     [value, "<code>", value2, endtime]   code: s1 s2 rd fl wl
+//   value2 = duration seconds (s1/s2/rd/fl) OR water-level % (wl);  value = flow pulses (fl)
+
+export type LogKind = "station" | "sensor1" | "sensor2" | "raindelay" | "flow" | "waterlevel" | "current";
+
+export type LogEntry =
+	| { kind: "station"; when: number; program: number; station: number; durationSec: number; flowGpm?: number }
+	| { kind: Exclude<LogKind, "station">; when: number; value: number; durationSec: number };
+
+const LOG_CODE: Record<string, Exclude<LogKind, "station">> = {
+	s1: "sensor1", s2: "sensor2", rd: "raindelay", fl: "flow", wl: "waterlevel", cu: "current",
+};
+
+export function decodeLogRow( row: JlRow ): LogEntry {
+	if ( typeof row[ 1 ] === "number" ) {
+		const [ program, station, durationSec, when, flowGpm ] = row as JlStationRow;
+		const e: LogEntry = { kind: "station", when, program, station, durationSec };
+		if ( typeof flowGpm === "number" ) e.flowGpm = flowGpm;
+		return e;
+	}
+	const [ value, code, value2, when ] = row as JlSpecialRow;
+	const kind = LOG_CODE[ code ] ?? "current";
+	if ( kind === "waterlevel" ) return { kind, when, value: value2, durationSec: 0 };
+	return { kind, when, value, durationSec: value2 };
+}
+
+/** Human-readable description of a log entry. */
+export function describeLogEntry( e: LogEntry, stationNames: string[] ): string {
+	switch ( e.kind ) {
+		case "station": {
+			const name = stationNames[ e.station ] ?? `S${ String( e.station + 1 ).padStart( 2, "0" ) }`;
+			const flow = e.flowGpm != null ? ` · ${ e.flowGpm } gpm` : "";
+			const src = e.program ? `program ${ e.program }` : "manual";
+			return `${ name } ran ${ formatDuration( e.durationSec ) } (${ src })${ flow }`;
+		}
+		case "sensor1": return `Sensor 1 active ${ formatDuration( e.durationSec ) }`;
+		case "sensor2": return `Sensor 2 active ${ formatDuration( e.durationSec ) }`;
+		case "raindelay": return `Rain delay ${ formatDuration( e.durationSec ) }`;
+		case "flow": return `Flow: ${ e.value } pulses over ${ formatDuration( e.durationSec ) }`;
+		case "waterlevel": return `Water level set to ${ e.value }%`;
+		case "current": return `Current event (${ e.value })`;
+	}
+}
+
+export const LOG_KIND_LABEL: Record<LogKind, string> = {
+	station: "Run", sensor1: "Sensor 1", sensor2: "Sensor 2",
+	raindelay: "Rain delay", flow: "Flow", waterlevel: "Water level", current: "Current",
+};
 
 export { PARALLEL_GROUP_ID };

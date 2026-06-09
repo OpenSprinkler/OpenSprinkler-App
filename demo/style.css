@@ -31,6 +31,15 @@ table.status tr:last-child th, table.status tr:last-child td { border-bottom: no
 .err { color: var(--err); white-space: pre-wrap; }
 code { background: color-mix(in oklab, var(--border) 30%, transparent); padding: 1px 5px; border-radius: 4px; }
 
+/* tabs */
+nav.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border); margin-bottom: 16px; flex-wrap: wrap; }
+.tab {
+	padding: 9px 16px; border: none; background: none; color: var(--muted); cursor: pointer;
+	border-bottom: 2px solid transparent; font-size: 15px;
+}
+.tab:hover { color: var(--fg); }
+.tab.active { color: var(--fg); font-weight: 600; border-bottom-color: var(--accent); }
+
 /* shared view chrome */
 #app section { margin-bottom: 18px; }
 #app h2 { font-size: 18px; margin: 0 0 10px; }
