@@ -12,14 +12,32 @@
  */
 import type {
 	JcResponse, JoResponse, JnResponse, JpResponse, JlResponse, JlRow,
-	JlStationRow, JsResponse, Capabilities,
+	JlStationRow, JsResponse, Capabilities, OSProgram,
 } from "./types";
 import type { DeviceSeam } from "../seam/device";
+import {
+	encodeProgram, programSubmitPath, stationConfigPath, optionsPath,
+	type ProgramInput, type StationConfigInput,
+} from "./encode";
 
 export class ApiError extends Error {
 	constructor( message: string, readonly endpoint: string, readonly raw?: unknown ) {
 		super( message );
 		this.name = "ApiError";
+	}
+}
+
+/** Firmware change-command result codes (opensprinkler_server.cpp / defines.h HTML_* ). */
+export const COMMAND_RESULT_TEXT: Record<number, string> = {
+	1: "Success", 2: "Unauthorized", 3: "Mismatch", 16: "Data missing", 17: "Out of range",
+	18: "Data format error", 19: "RF code error", 32: "Page not found", 48: "Not permitted",
+};
+
+/** Thrown when a change command returns a non-success (`result !== 1`) code. */
+export class CommandError extends Error {
+	constructor( readonly code: number, readonly endpoint: string ) {
+		super( ( COMMAND_RESULT_TEXT[ code ] ?? `command failed (result ${ code })` ) + ` [${ endpoint }]` );
+		this.name = "CommandError";
 	}
 }
 
@@ -150,5 +168,80 @@ export class OsApiClient {
 		const o = ( raw && typeof raw === "object" ) ? raw as Record<string, unknown> : {};
 		if ( typeof o.fwv !== "number" ) throw new ApiError( "no fwv in /jo", "/jo", raw );
 		return o.fwv;
+	}
+
+	/**
+	 * Run a change command and validate the firmware result code (1 = success). Throws CommandError
+	 * on any non-success code. The single choke point all typed mutations go through.
+	 */
+	async command( path: string ): Promise<Record<string, unknown>> {
+		const raw = await this.seam.runCommand( path );
+		const o = ( raw && typeof raw === "object" ) ? raw as Record<string, unknown> : {};
+		const result = typeof o.result === "number" ? o.result : NaN;
+		if ( result !== 1 ) throw new CommandError( result, path );
+		return o;
+	}
+
+	// ---- control / action paths (/cm, /cr, /cv, /dp) -------------------------
+
+	/** Manually start (en=1, with seconds) or stop (en=0) a station. /cm */
+	startStation( sid: number, seconds: number ): Promise<Record<string, unknown>> {
+		return this.command( `cm?sid=${ sid }&en=1&t=${ Math.max( 0, Math.round( seconds ) ) }` );
+	}
+	stopStation( sid: number ): Promise<Record<string, unknown>> {
+		return this.command( `cm?sid=${ sid }&en=0` );
+	}
+	/** Run-once: per-station seconds (index = sid); a trailing 0 is appended for legacy fw. /cr */
+	runOnce( durationsBySid: number[] ): Promise<Record<string, unknown>> {
+		const t = JSON.stringify( [ ...durationsBySid.map( ( n ) => Math.max( 0, Math.round( n ) ) ), 0 ] );
+		return this.command( `cr?t=${ encodeURIComponent( t ) }` );
+	}
+	/** Set the rain delay in hours (0 cancels). /cv?rd= */
+	setRainDelayHours( hours: number ): Promise<Record<string, unknown>> {
+		return this.command( `cv?rd=${ Math.max( 0, hours ) }` );
+	}
+	cancelRainDelay(): Promise<Record<string, unknown>> { return this.command( "cv?rd=0" ); }
+	stopAllStations(): Promise<Record<string, unknown>> { return this.command( "cv?rsn=1" ); }
+	setControllerEnabled( enabled: boolean ): Promise<Record<string, unknown>> {
+		return this.command( `cv?en=${ enabled ? 1 : 0 }` );
+	}
+	reboot(): Promise<Record<string, unknown>> { return this.command( "cv?rbt=1" ); }
+	clearOvercurrent(): Promise<Record<string, unknown>> { return this.command( "cv?rocs=1" ); }
+	deleteProgram( pid: number ): Promise<Record<string, unknown>> { return this.command( `dp?pid=${ pid }` ); }
+
+	/**
+	 * Enable/disable a program by re-packing its existing /jp tuple with flags bit0 flipped and
+	 * resubmitting via /cp (the firmware has no enable-only toggle). No decode needed — the read
+	 * tuple already carries the v-array fields.
+	 */
+	setProgramEnabled( pid: number, program: OSProgram, enabled: boolean ): Promise<Record<string, unknown>> {
+		const [ flags, days0, days1, starttimes, durations, name, daterange ] = program;
+		const newFlags = enabled ? ( flags | 1 ) : ( flags & ~1 );
+		const v: Array<number | number[]> = [ newFlags, days0, days1, starttimes, durations ];
+		let path = `cp?pid=${ pid }&v=${ encodeURIComponent( JSON.stringify( v ) ) }&name=${ encodeURIComponent( name ) }`;
+		if ( Array.isArray( daterange ) ) {
+			path += `&endr=${ daterange[ 0 ] ? 1 : 0 }&from=${ daterange[ 1 ] ?? 0 }&to=${ daterange[ 2 ] ?? 0 }`;
+		}
+		return this.command( path );
+	}
+
+	/** Run a program's per-station durations immediately as a run-once. /cr */
+	runProgramNow( program: OSProgram ): Promise<Record<string, unknown>> {
+		return this.runOnce( program[ 4 ] );
+	}
+
+	// ---- settings (/cp, /cs, /co) -------------------------------------------
+
+	/** Create (pid=-1) or update a program. /cp */
+	submitProgram( pid: number, program: ProgramInput ): Promise<Record<string, unknown>> {
+		return this.command( programSubmitPath( pid, encodeProgram( program ) ) );
+	}
+	/** Save station names + attributes. /cs */
+	submitStations( cfg: StationConfigInput ): Promise<Record<string, unknown>> {
+		return this.command( stationConfigPath( cfg ) );
+	}
+	/** Save general/weather/network options by NAMED key (fw219+; keys match /jo). /co */
+	submitOptions( named: Record<string, string | number> ): Promise<Record<string, unknown>> {
+		return this.command( optionsPath( named ) );
 	}
 }

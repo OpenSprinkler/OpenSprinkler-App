@@ -8,15 +8,17 @@
 </head>
 <body>
 	<p class="banner" role="note">
-		<b>Demo harness.</b> The Phase-1 read-only dashboard (Status · Stations · Programs · Log)
-		rendered from <b>mocked fixtures</b> — no device required. Switch tabs above the card; toggle
-		the access path to confirm LAN and OTC render identically (both are just a <code>baseUrl</code>).
+		<b>Demo harness.</b> The Phase-1 dashboard (Status · Stations · Programs · Weather · Log ·
+		Diagnostics · Settings) rendered from <b>mocked fixtures</b> — no device required. Control and
+		settings actions hit the mock and return success. Toggle the access path to confirm LAN and OTC
+		render identically (both are just a <code>baseUrl</code>).
 	</p>
 	<div class="controls">
 		<label><input type="radio" name="path" value="lan" checked> LAN (http://demo-device/)</label>
 		<label><input type="radio" name="path" value="otc"> OTC (https://cloud.openthings.io/forward/v1/…)</label>
 	</div>
-	<div id="app" aria-live="polite"></div>
+	<div id="app"></div>
+	<div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 	<script type="module" src="./demo.ts"></script>
 </body>
 </html>

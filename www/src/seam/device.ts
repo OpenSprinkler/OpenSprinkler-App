@@ -31,6 +31,12 @@ export interface DeviceSeam {
 	readonly config: Readonly<DeviceSeamConfig>;
 	/** GET a controller endpoint (e.g. "jc", "jo", "jl?type=..") and parse JSON. */
 	requestJson( path: string ): Promise<unknown>;
+	/**
+	 * Send a CHANGE command (e.g. "cm?sid=0&en=1&t=60", "cv?rd=2") and parse the `{result}` JSON.
+	 * Mirrors home.js sendToOS transport: POST (params in the body, query stripped from the path)
+	 * for fwv>=300, else GET; the `pw=` hash is injected either way.
+	 */
+	runCommand( path: string ): Promise<unknown>;
 }
 
 /** A function that returns the md5 hex of a string (provide www/js/hasher.js's md5). */
@@ -90,6 +96,34 @@ export class BrowserDeviceSeam implements DeviceSeam {
 			headers: { Accept: "application/json" },
 		} );
 		if ( !res.ok ) throw new Error( `device request failed: ${ res.status } ${ res.statusText } (${ path })` );
+		return res.json();
+	}
+
+	/**
+	 * Send a change command. Faithful to home.js sendToOS: change endpoints use POST for fwv>=300
+	 * (the query string becomes the form body, so large station/program payloads aren't capped by
+	 * URL length), else GET. The `pw=` hash is injected into the query (GET) or body (POST).
+	 */
+	async runCommand( path: string ): Promise<unknown> {
+		const usePOST = typeof this.config.ver === "number" && this.config.ver >= 300;
+		if ( !usePOST ) {
+			const res = await fetch( this.buildUrl( path ), {
+				method: "GET", mode: "cors", headers: { Accept: "application/json" },
+			} );
+			if ( !res.ok ) throw new Error( `device command failed: ${ res.status } ${ res.statusText } (${ path })` );
+			return res.json();
+		}
+		const base = this.config.baseUrl.endsWith( "/" ) ? this.config.baseUrl : this.config.baseUrl + "/";
+		const q = path.indexOf( "?" );
+		const pathOnly = q >= 0 ? path.slice( 0, q ) : path;
+		const query = q >= 0 ? path.slice( q + 1 ) : "";
+		const pw = this.config.pwHash ? ( query ? "&" : "" ) + "pw=" + encodeURIComponent( this.config.pwHash ) : "";
+		const res = await fetch( base + pathOnly, {
+			method: "POST", mode: "cors",
+			headers: { "Content-Type": "application/x-www-form-urlencoded", Accept: "application/json" },
+			body: query + pw,
+		} );
+		if ( !res.ok ) throw new Error( `device command failed: ${ res.status } ${ res.statusText } (${ pathOnly })` );
 		return res.json();
 	}
 

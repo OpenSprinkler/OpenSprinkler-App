@@ -110,3 +110,46 @@ table.meta td { padding: 4px 0; }
 ul.durations { margin: 6px 0 0; padding-left: 18px; }
 ul.durations li { margin: 2px 0; }
 details summary { cursor: pointer; color: var(--muted); font-size: 14px; }
+
+/* action buttons + bars */
+.action {
+	font: inherit; font-size: 13px; padding: 6px 12px; border-radius: 6px; cursor: pointer;
+	border: 1px solid var(--border); background: var(--card); color: var(--fg);
+}
+.action:hover { border-color: var(--accent); }
+.action.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.action.danger { border-color: #b91c1c; color: #b91c1c; }
+.action.danger:hover { background: #b91c1c; color: #fff; }
+.action:focus-visible, .action:focus, .subtab:focus-visible, .subtab:focus {
+	outline: 2px solid var(--accent); outline-offset: 2px;
+}
+.action-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+
+/* settings forms */
+.subtabs { display: flex; gap: 2px; flex-wrap: wrap; margin-bottom: 14px; }
+.subtab {
+	padding: 7px 12px; border: none; background: none; color: var(--muted); cursor: pointer;
+	border-bottom: 2px solid transparent; font-size: 14px;
+}
+.subtab.active { color: var(--fg); font-weight: 600; border-bottom-color: var(--accent); }
+form.settings { display: flex; flex-direction: column; gap: 12px; }
+form.settings .field { display: flex; flex-direction: column; gap: 4px; }
+form.settings .field-check { flex-direction: row; align-items: center; gap: 8px; }
+form.settings label { font-weight: 600; font-size: 14px; color: var(--muted); }
+form.settings input[type="text"], form.settings input[type="number"], form.settings select {
+	padding: 9px; font-size: 15px; border: 1px solid var(--border); border-radius: 5px;
+	background: transparent; color: inherit; box-sizing: border-box;
+}
+form.settings fieldset { border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin: 0; }
+form.settings fieldset legend { color: var(--muted); font-weight: 600; font-size: 13px; padding: 0 6px; }
+fieldset.station-edit { display: grid; gap: 8px; }
+
+/* toast */
+.toast {
+	position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%);
+	background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 8px;
+	font-size: 14px; box-shadow: 0 6px 18px rgba(0,0,0,.25); max-width: 90vw; z-index: 50;
+	opacity: 0; pointer-events: none; transition: opacity .15s;
+}
+.toast:not(:empty), .toast.show { opacity: 1; }
+.toast.err { background: var(--err); color: #fff; }

@@ -11,6 +11,7 @@ import type { JcResponse, JoResponse, Capabilities } from "../api/types";
 import { getForkTag } from "../api/client";
 import { formatMinutesOfDay, formatClockTime } from "../api/time";
 import { esc, helpTip } from "../ui/help";
+import { actionBar, actionButton } from "../ui/controls";
 
 function fmtVersion( fwv: number ): string {
 	const major = Math.floor( fwv / 100 ), minor = Math.floor( ( fwv % 100 ) / 10 ), patch = fwv % 10;
@@ -24,8 +25,10 @@ export function countActiveStations( sbits: number[] ): number {
 	return n;
 }
 
-/** Render the controller-status screen as an HTML string. */
-export function renderControllerStatus( jc: JcResponse, jo: JoResponse, caps: Capabilities ): string {
+export interface ViewOptions { actions?: boolean; }
+
+/** Render the controller-status screen as an HTML string. With `opts.actions`, append a control bar. */
+export function renderControllerStatus( jc: JcResponse, jo: JoResponse, caps: Capabilities, opts: ViewOptions = {} ): string {
 	const active = countActiveStations( jc.sbits );
 	const tz = typeof jo.tz === "number" ? jo.tz : 48;
 	const firmware = fmtVersion( jo.fwv ) + ( jo.fwm ? ` (${ jo.fwm })` : "" ) + getForkTag( jo );
@@ -45,6 +48,18 @@ export function renderControllerStatus( jc: JcResponse, jo: JoResponse, caps: Ca
 	];
 	const body = rows.map( ( [ k, v, help ] ) =>
 		`<tr><th scope="row">${ esc( k ) }${ help ? " " + helpTip( help ) : "" }</th><td>${ v }</td></tr>` ).join( "" );
+
+	let controls = "";
+	if ( opts.actions ) {
+		const buttons = [
+			actionButton( "toggle-enable", jc.en ? "Disable" : "Enable", { enabled: jc.en ? 1 : 0 } ),
+			actionButton( "stop-all", "Stop all", {}, "danger" ),
+			actionButton( jc.rd ? "cancel-rain" : "rain-delay", jc.rd ? "Cancel rain delay" : "Rain delay…" ),
+			actionButton( "reboot", "Reboot", {}, "danger" ),
+		].join( "" );
+		controls = actionBar( buttons );
+	}
+
 	return `<section aria-label="Controller status"><h1>${ esc( jc.dname || "OpenSprinkler" ) }</h1>` +
-		`<table class="status"><tbody>${ body }</tbody></table></section>`;
+		`<table class="status"><tbody>${ body }</tbody></table>${ controls }</section>`;
 }
