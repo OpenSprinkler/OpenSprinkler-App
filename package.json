@@ -25,6 +25,7 @@
 		"start": "npx http-server --port 8080 --cors '*' -c-1 ./www",
 		"test": "npx karma start --browsers ChromeHeadless test/karma.conf.js",
 		"test:contract": "vitest run",
+		"capture": "node scripts/capture-fixtures.mjs",
 		"demo": "vite demo",
 		"demo:build": "vite build demo",
 		"build:app": "vite build app"

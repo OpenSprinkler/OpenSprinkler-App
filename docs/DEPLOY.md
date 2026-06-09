@@ -64,8 +64,13 @@ http://<device-ip>/cu?jsp=https://<nextui-domain>/js&pw=<md5(password)>
 - The **md5 login UI** is built (`www/src/auth/`): non-`ipas` devices get a password prompt that
   authenticates via the version-gated `/sp` check (md5 for `fwv>=213`). md5 is verified against
   RFC 1321 vectors. `?pwhash=<md5>` still works for automated/standalone access.
-- ⚠️ **Still a prototype:** the dashboard is **read-only** (no write/control paths). Validate on
-  real hardware (LAN + OTC) before pointing production devices here.
+- The dashboard now has **write/control + full settings** (manual run, run-once, rain delay,
+  enable/stop-all, program run/enable/delete, and General/Weather/Network/Stations/Programs editors).
+  The command/encoder layer is unit-proven (request construction + encode↔decode round-trips); it is
+  **not yet validated on real hardware**.
+- ⚠️ **Before pointing production devices here**, run the on-device checklist in
+  [`docs/HARDWARE-VERIFICATION.md`](HARDWARE-VERIFICATION.md) (LAN + OTC render, auth, and a safe
+  control smoke test), and capture live fixtures with `npm run capture` (see below).
 
 **Rollback:** point the device back at the default:
 ```
@@ -73,10 +78,29 @@ http://<device-ip>/cu?jsp=https://ui.opensprinkler.com/js&pw=<md5(password)>
 ```
 No firmware flash, no app-store release — just a config flip.
 
+## Capture live fixtures (turns the contract tests into a real drift guard)
+
+The committed `test/fixtures/api/*.json` are **derived from the firmware emit code**, not a live
+device. Replace them with a real capture (one set per `fwv`) so the contract tests pin the actual
+wire format:
+
+```bash
+npm run capture -- --base http://<device-ip>/ --pw '<device password>'   # or --pwhash <md5>
+# writes test/fixtures/api/{jc,jo,jn,jp,jl,js}.fixture.json
+npm run test:contract                                                      # re-pin against the live data
+```
+
+The script probes `/jo` for `fwv` and hashes the password with md5 for `fwv>=213` (matching the
+firmware). It only **reads** (`/jc /jo /jn /jp /jl /js`) — it never sends a change command.
+
 ## Status / caveats
 
-- The app is **read-only** today; it has no write/control paths yet.
-- The firmware-loaded **`home.js` bootstrap entry is now produced** (`dist/home.js` → loads
+- The dashboard is now **read + write**: control actions and full settings editors are wired through
+  the typed command layer (`www/src/api/client.ts` + `encode.ts`), unit-proven but **pending
+  on-device validation** — see [`docs/HARDWARE-VERIFICATION.md`](HARDWARE-VERIFICATION.md).
+- The firmware-loaded **`home.js` bootstrap entry is produced** (`dist/home.js` → loads
   `assets/app.js`); the standalone `index.html` SPA also works for direct access (`?base=`).
 - Auth: `ipas` devices skip login; others get the md5 password prompt (`www/src/auth/`).
   `?pwhash=<md5>` bypasses the prompt for automated access.
+- Change commands POST on `fwv>=300` (body) and GET otherwise, injecting the `pw=` hash — matching
+  the legacy `sendToOS` transport.
