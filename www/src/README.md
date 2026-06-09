@@ -21,20 +21,25 @@ consuming a field the firmware doesn't already emit is Phase 2 (firmware) work.
 fixtures in `test/fixtures/api/`. Replace those fixtures with **live device captures** (one set per
 `fwv`) to turn these into a real producer-drift guard — that is the next contract-capture task.
 
-**Status:** complete **read-only dashboard** + **seam spike (unit-proven)**.
+**Status:** **read + write dashboard** + **seam spike (unit-proven)**. Read-only screens, plus
+control/action paths and full Settings — all unit-proven, pending on-device validation.
 
 - `seam/device.ts` ports the real `www/js/home.js` device-comms (native-`fetch` CORS, `pw=` md5
-  auth via `/sp`, version gating, LAN/OTC-uniform base).
-- `api/decode.ts` decodes programs/stations/logs faithfully from the firmware encodings.
-- `views/` + `spike/status-view.ts` render the four read-only screens; `views/dashboard.ts` is the
-  tabbed shell. `demo/` runs the whole pipeline against mocked fixtures (`npm run demo`).
-- **46 tests** (`npm run test:contract`) cover the contract, seam, decoders, views and logs.
+  auth via `/sp`, version gating, LAN/OTC-uniform base) + change-command transport (POST on
+  `fwv>=300`, else GET).
+- `api/decode.ts` / `api/encode.ts` decode **and** encode programs/stations/options faithfully from
+  the firmware encodings (round-trip tested).
+- `api/client.ts` adds typed mutations (`/cm /cr /cv /cp /cs /co /dp`) with result-code → `CommandError`.
+- `views/` render Status · Stations · Programs · Weather · Log · Diagnostics · Settings; `dispatch.ts`
+  + `host.ts` wire control actions and settings saves. `demo/` runs the whole pipeline against mocked
+  fixtures (`npm run demo`); `app/` is the real-device build.
+- **157 tests** (`npm run test:contract`) cover the contract, seam (GET/POST), decoders, **encoders**,
+  views, logs, commands, settings mappers, the action dispatcher, time/diagnostics, a11y and XSS.
 
-**Remaining — higher-consideration (out of the isolated scaffold):**
-1. Live **LAN+OTC proof on real hardware** (mixed-content risk, PRD §4 #1) + replace derived
-   fixtures with live captures.
-2. Wire into the real `home.js` bootstrap (touches the firmware-loaded entry point).
-3. Deploy pipeline (Vite build → parallel Firebase URL) and the `SOPT_JAVASCRIPTURL` rollout.
-4. Write/control paths (manual run, rain delay, program edits) — needs auth + on-device testing.
+**Remaining — operator / hardware steps** (see `docs/HARDWARE-VERIFICATION.md`, `docs/DEPLOY.md`):
+1. Live **LAN+OTC proof on real hardware** (mixed-content risk, PRD §4 #1) + replace derived fixtures
+   with live captures (`npm run capture`).
+2. On-device validation of the write/control + settings paths (the smoke test in HARDWARE-VERIFICATION).
+3. Wire into the real `home.js` bootstrap + the parallel-Firebase / `SOPT_JAVASCRIPTURL` rollout (§7).
 
 This scaffold is isolated: it does not touch the existing Grunt/Cordova build or `www/js`.
