@@ -1,15 +1,22 @@
 /**
- * Local demo harness for the Phase-1 seam spike — renders the controller-status screen
- * from a MOCKED /jc + /jo fixture, no device required.
+ * Local demo harness for the Phase-1 read-only views — renders the controller status,
+ * the stations grid, and the programs list from MOCKED fixtures (no device required).
  *
- *   npm run demo     (vite dev server; open the printed URL)
+ *   npm run demo
  *
- * It installs a fake `fetch` that returns the test fixtures, sets the firmware-injected
- * globals (ver/ipas), and runs the real spike pipeline (seam -> typed client -> render).
+ * Installs a fake `fetch` returning the test fixtures, sets the firmware-injected globals,
+ * and runs the real seam → typed client → decoders → views pipeline.
  */
 import jc from "../test/fixtures/api/jc.fixture.json";
 import jo from "../test/fixtures/api/jo.fixture.json";
-import { bootStatusSpike } from "../www/src/spike/boot";
+import jn from "../test/fixtures/api/jn.fixture.json";
+import jp from "../test/fixtures/api/jp.fixture.json";
+
+import { BrowserDeviceSeam } from "../www/src/seam/device";
+import { OsApiClient, deriveCapabilities } from "../www/src/api/client";
+import { renderControllerStatus } from "../www/src/spike/status-view";
+import { renderStations } from "../www/src/views/stations-view";
+import { renderPrograms } from "../www/src/views/programs-view";
 
 // Firmware globals normally injected by server_home before home.js loads.
 ( globalThis as Record<string, unknown> ).ver = 221;
@@ -21,10 +28,11 @@ globalThis.fetch = ( async ( input: RequestInfo | URL ) => {
 	const body =
 		url.includes( "/jc" ) ? jc :
 		url.includes( "/jo" ) ? jo :
+		url.includes( "/jn" ) ? jn :
+		url.includes( "/jp" ) ? jp :
 		url.includes( "/sp" ) ? { result: 0 } :
 		null;
-	// emulate a little latency so the aria-live region announces
-	await new Promise( ( r ) => setTimeout( r, 50 ) );
+	await new Promise( ( r ) => setTimeout( r, 40 ) );
 	return { ok: true, status: 200, statusText: "OK", json: async () => body } as Response;
 } ) as typeof fetch;
 
@@ -36,7 +44,14 @@ async function render( path: "lan" | "otc" ): Promise<void> {
 		: "http://demo-device/";
 	mount.innerHTML = "<p>Loading…</p>";
 	try {
-		await bootStatusSpike( { baseUrl, md5: ( s ) => s }, mount );
+		const api = new OsApiClient( new BrowserDeviceSeam( { baseUrl, ipas: 1 } ) );
+		const [ c, o, n, p ] = await Promise.all( [
+			api.getControllerStatus(), api.getOptions(), api.getStations(), api.getPrograms(),
+		] );
+		mount.innerHTML =
+			renderControllerStatus( c, o, deriveCapabilities( c, o ) ) +
+			renderStations( c, n ) +
+			renderPrograms( p, n );
 	} catch ( e ) {
 		mount.innerHTML = `<pre class="err">${ String( e ) }</pre>`;
 	}

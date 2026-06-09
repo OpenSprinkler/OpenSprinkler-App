@@ -30,3 +30,40 @@ table.status th[scope="row"] { color: var(--muted); font-weight: 600; width: 45%
 table.status tr:last-child th, table.status tr:last-child td { border-bottom: none; }
 .err { color: var(--err); white-space: pre-wrap; }
 code { background: color-mix(in oklab, var(--border) 30%, transparent); padding: 1px 5px; border-radius: 4px; }
+
+/* shared view chrome */
+#app section { margin-bottom: 18px; }
+#app h2 { font-size: 18px; margin: 0 0 10px; }
+.muted { color: var(--muted); font-weight: 400; }
+
+/* stations grid */
+table.grid { width: 100%; border-collapse: collapse; }
+table.grid th, table.grid td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--border); }
+table.grid th { color: var(--muted); font-weight: 600; font-size: 13px; }
+table.grid td.num, table.grid th:first-child { width: 36px; color: var(--muted); }
+tr:last-child td { border-bottom: none; }
+
+/* badges */
+.badge {
+	display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px;
+	border: 1px solid var(--border); color: var(--muted);
+}
+.badge.on { color: #fff; background: #16a34a; border-color: #16a34a; }
+.badge.off { color: #fff; background: #6b7280; border-color: #6b7280; }
+.badge.spec { color: var(--accent); border-color: var(--accent); }
+.badge.cap { text-transform: capitalize; }
+
+/* program cards */
+article.program {
+	border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px;
+	background: color-mix(in oklab, var(--card) 92%, var(--accent) 4%);
+}
+article.program header { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+article.program h3 { margin: 0; font-size: 16px; }
+article.program .badges { display: flex; gap: 6px; flex-wrap: wrap; }
+table.meta { width: 100%; border-collapse: collapse; margin: 10px 0; }
+table.meta th { text-align: left; color: var(--muted); font-weight: 600; width: 110px; padding: 4px 0; vertical-align: top; }
+table.meta td { padding: 4px 0; }
+ul.durations { margin: 6px 0 0; padding-left: 18px; }
+ul.durations li { margin: 2px 0; }
+details summary { cursor: pointer; color: var(--muted); font-size: 14px; }
