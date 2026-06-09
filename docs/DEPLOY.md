@@ -56,9 +56,14 @@ The firmware loads the UI from `SOPT_JAVASCRIPTURL` (default `https://ui.openspr
 http://<device-ip>/cu?jsp=https://<nextui-domain>/js&pw=<md5(password)>
 ```
 
-- ⚠️ **Prerequisite (not yet done):** the build must publish a `home.js` entry at `<nextui>/js/home.js`
-  for the firmware bootstrap to load it. That is the deferred **home.js-wiring** step (PRD §4) — until
-  it lands, this site is for direct/standalone access (`?base=<device-url>`), not the firmware bootstrap.
+- The build now publishes the bootstrap **`home.js`** entry at the deploy root (`dist/home.js`,
+  from `app/public/home.js`). It self-locates its base and loads the dashboard bundle
+  (`assets/app.js` + `assets/app.css`) — so when `SOPT_JAVASCRIPTURL` points here (such that
+  `home.js` is reachable at `<jsp>/home.js`), the firmware bootstrap loads the modernized UI.
+  Verified by `test/home-bootstrap.spec.ts` (jsdom).
+- ⚠️ **Still a prototype:** the dashboard is **read-only** and the full md5 **login UI** is not built
+  yet (`ipas` devices work; others need `?pwhash=<md5>`). Validate on real hardware (LAN + OTC)
+  before pointing production devices here.
 
 **Rollback:** point the device back at the default:
 ```
@@ -69,6 +74,7 @@ No firmware flash, no app-store release — just a config flip.
 ## Status / caveats
 
 - The app is **read-only** today; it has no write/control paths yet.
-- The `home.js` bootstrap entry is **not** produced yet (Vite emits a standalone `index.html`/SPA).
-  Wiring the firmware-loaded `home.js` is the next integration step before a real device rollout.
-- Auth UI is a draft — `ipas` devices work; others use `?pwhash=<md5>` for now.
+- The firmware-loaded **`home.js` bootstrap entry is now produced** (`dist/home.js` → loads
+  `assets/app.js`); the standalone `index.html` SPA also works for direct access (`?base=`).
+- Auth UI is a draft — `ipas` devices work; others use `?pwhash=<md5>` for now. The full md5
+  login prompt (ported from `www/js/home.js`) is the next sub-step.
