@@ -26,6 +26,7 @@
 		"test": "npx karma start --browsers ChromeHeadless test/karma.conf.js",
 		"test:contract": "vitest run",
 		"capture": "node scripts/capture-fixtures.mjs",
+		"verify:live": "vitest run --config vitest.live.config.ts",
 		"demo": "vite demo",
 		"demo:build": "vite build demo",
 		"build:app": "vite build app"

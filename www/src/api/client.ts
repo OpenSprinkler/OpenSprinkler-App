@@ -159,7 +159,17 @@ export class OsApiClient {
 	getOptions(): Promise<JoResponse> { return this.get( "jo", parseJo ); }
 	getStations(): Promise<JnResponse> { return this.get( "jn", parseJn ); }
 	getPrograms(): Promise<JpResponse> { return this.get( "jp", parseJp ); }
-	getLogs( query = "" ): Promise<JlResponse> { return this.get( "jl" + ( query ? "?" + query : "" ), parseJl ); }
+	/**
+	 * Fetch the log history. The firmware /jl REQUIRES a start/end epoch range — without it it returns
+	 * `{result:16}` (data missing), NOT an array (verified on real hardware) — so this defaults to the
+	 * last `days` (7). `end` is padded by 86340s to include the final day (legacy logs.js parity).
+	 */
+	getLogs( opts: { start?: number; end?: number; type?: string; days?: number; now?: number } = {} ): Promise<JlResponse> {
+		const end = opts.end ?? Math.floor( ( opts.now ?? Date.now() ) / 1000 );
+		const start = opts.start ?? ( end - ( opts.days ?? 7 ) * 86400 );
+		const type = opts.type ? `&type=${ encodeURIComponent( opts.type ) }` : "";
+		return this.get( `jl?start=${ start }&end=${ end + 86340 }${ type }`, parseJl );
+	}
 	getStatus(): Promise<JsResponse> { return this.get( "js", parseJs ); }
 
 	/** Pre-auth firmware-version probe (works before login). */

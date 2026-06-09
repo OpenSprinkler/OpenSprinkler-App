@@ -40,6 +40,29 @@ describe( "typed command paths", () => {
 	}
 } );
 
+describe( "getLogs sends the firmware-required start/end range", () => {
+	function captureSeam(): { seam: DeviceSeam; get: () => string } {
+		let captured = "";
+		const seam = {
+			config: { baseUrl: "http://d/" },
+			async requestJson( p: string ) { captured = p; return []; },
+			async runCommand() { return { result: 1 }; },
+		} as unknown as DeviceSeam;
+		return { seam, get: () => captured };
+	}
+	it( "defaults to a 7-day window ending now (end padded by 86340s)", async () => {
+		const c = captureSeam();
+		await new OsApiClient( c.seam ).getLogs( { now: 1_700_000_000_000 } );
+		const end = Math.floor( 1_700_000_000_000 / 1000 );
+		expect( c.get() ).toBe( `jl?start=${ end - 7 * 86400 }&end=${ end + 86340 }` );
+	} );
+	it( "accepts an explicit range + type", async () => {
+		const c = captureSeam();
+		await new OsApiClient( c.seam ).getLogs( { start: 100, end: 200, type: "fl" } );
+		expect( c.get() ).toBe( `jl?start=100&end=${ 200 + 86340 }&type=fl` );
+	} );
+} );
+
 describe( "command result handling", () => {
 	it( "throws CommandError with the firmware code on non-success", async () => {
 		const seam = new MockSeam();

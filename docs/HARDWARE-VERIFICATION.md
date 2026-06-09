@@ -8,6 +8,22 @@ against a **real controller**. This checklist closes the hardware-gated items in
 > ⚠️ Run against a **test controller** (or a zone with no real sprinkler load) first. The control
 > smoke test will physically actuate stations.
 
+## Quick automated check — `npm run verify:live`
+
+Runs the REAL seam → typed client → decoders against the device (no browser, no overwrite of the
+committed fixtures) and prints the device's actual config. Covers §1–§4 reads + capabilities, and —
+with `OS_LIVE_WRITE=1` — a single **reversible** rain-delay write (set → verify → cancel; no stations
+run) that proves the authenticated command path:
+
+```bash
+OS_LIVE_BASE=http://<device-ip>/ OS_LIVE_PW='<password>' npm run verify:live
+OS_LIVE_BASE=http://<device-ip>/ OS_LIVE_PW='<password>' OS_LIVE_WRITE=1 npm run verify:live  # + write proof
+```
+
+Validated on a live fwv 221 / 24-station controller (reads, capabilities, and the reversible write
+all pass; the fork tag `fwf` is present). It does **not** physically run stations or change config —
+those are the manual steps below.
+
 ## 0. Prerequisites
 - [ ] A controller on your LAN; note its IP and `fwv` (Diagnostics → Firmware, or `GET /jo`).
 - [ ] Device password (or `ipas=1` / ignore-password enabled).
