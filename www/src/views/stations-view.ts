@@ -3,10 +3,7 @@
  */
 import type { JcResponse, JnResponse } from "../api/types";
 import { decodeAllStations, formatDuration, PARALLEL_GROUP_ID, type StationState } from "../api/decode";
-
-function esc( s: string ): string {
-	return s.replace( /[&<>"]/g, ( c ) => ( { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" } )[ c ]! );
-}
+import { esc, emptyState } from "../ui/help";
 
 function stateLabel( s: StationState ): string {
 	if ( s.disabled ) return '<span class="badge off">Disabled</span>';
@@ -21,6 +18,11 @@ function groupLabel( g: number ): string {
 
 export function renderStations( jc: JcResponse, jn: JnResponse ): string {
 	const stations = decodeAllStations( jc, jn );
+	if ( stations.length === 0 ) {
+		return `<section aria-label="Stations"><h2>Stations</h2>` +
+			emptyState( "No stations configured", "Add stations in the controller's settings to start watering." ) +
+			`</section>`;
+	}
 	const rows = stations.map( ( s ) =>
 		`<tr><td class="num">${ s.index + 1 }</td>` +
 		`<td>${ esc( s.name ) }${ s.special ? ' <span class="badge spec">Special</span>' : "" }</td>` +

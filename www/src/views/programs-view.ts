@@ -3,10 +3,7 @@
  */
 import type { JpResponse, JnResponse } from "../api/types";
 import { decodeAllPrograms, type ProgramView } from "../api/decode";
-
-function esc( s: string ): string {
-	return s.replace( /[&<>"]/g, ( c ) => ( { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" } )[ c ]! );
-}
+import { esc, emptyState } from "../ui/help";
 
 function renderProgram( p: ProgramView ): string {
 	const badges = [
@@ -39,6 +36,6 @@ export function renderPrograms( jp: JpResponse, jn: JnResponse ): string {
 	const programs = decodeAllPrograms( jp, jn.snames );
 	const body = programs.length
 		? programs.map( renderProgram ).join( "" )
-		: '<p class="muted">No programs defined.</p>';
+		: emptyState( "No programs yet", "Create a program to schedule automatic watering." );
 	return `<section aria-label="Programs"><h2>Programs <span class="muted">(${ programs.length })</span></h2>${ body }</section>`;
 }

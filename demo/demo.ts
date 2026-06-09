@@ -51,7 +51,8 @@ async function load( path: "lan" | "otc" ): Promise<void> {
 		const [ c, o, n, p, l ] = await Promise.all( [
 			api.getControllerStatus(), api.getOptions(), api.getStations(), api.getPrograms(), api.getLogs(),
 		] );
-		data = { jc: c, jo: o, jn: n, jp: p, jl: l };
+		// Showcase the fork build tag (#3): the kars85 firmware fork emits `fwf` in /jo.
+		data = { jc: c, jo: { ...o, fwf: "kars85.3" }, jn: n, jp: p, jl: l };
 		paint();
 	} catch ( e ) {
 		mount.innerHTML = `<pre class="err">${ String( e ) }</pre>`;

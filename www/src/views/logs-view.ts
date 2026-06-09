@@ -3,10 +3,7 @@
  */
 import type { JlResponse, JnResponse } from "../api/types";
 import { decodeLogRow, describeLogEntry, LOG_KIND_LABEL, type LogEntry } from "../api/decode";
-
-function esc( s: string ): string {
-	return s.replace( /[&<>"]/g, ( c ) => ( { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" } )[ c ]! );
-}
+import { esc, emptyState, helpTip } from "../ui/help";
 
 /** Deterministic "YYYY-MM-DD HH:MM" (UTC) — stable for tests; the real UI would localize. */
 function fmtWhen( unix: number ): string {
@@ -25,9 +22,12 @@ export function renderLogs( jl: JlResponse, jn: JnResponse ): string {
 		`<td><span class="badge ${ KIND_BADGE[ e.kind ] ?? "" }">${ LOG_KIND_LABEL[ e.kind ] }</span></td>` +
 		`<td>${ esc( describeLogEntry( e, jn.snames ) ) }</td></tr>`
 	).join( "" );
-	const body = entries.length ? rows : '<tr><td colspan="3" class="muted">No log entries.</td></tr>';
+	const body = entries.length
+		? rows
+		: `<tr><td colspan="3">${ emptyState( "No log entries yet", "Watering runs and sensor events will appear here." ) }</td></tr>`;
 	return `<section aria-label="Log"><h2>Log <span class="muted">(${ entries.length })</span></h2>` +
 		`<table class="grid"><thead><tr>` +
-		`<th scope="col">When (UTC)</th><th scope="col">Event</th><th scope="col">Detail</th>` +
+		`<th scope="col">When (UTC) ${ helpTip( "Timestamps are shown in UTC, not your local timezone." ) }</th>` +
+		`<th scope="col">Event</th><th scope="col">Detail</th>` +
 		`</tr></thead><tbody>${ body }</tbody></table></section>`;
 }
