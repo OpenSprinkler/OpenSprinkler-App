@@ -35,6 +35,8 @@ control/action paths and full Settings — all unit-proven, pending on-device va
   fixtures (`npm run demo`); `app/` is the real-device build.
 - **157 tests** (`npm run test:contract`) cover the contract, seam (GET/POST), decoders, **encoders**,
   views, logs, commands, settings mappers, the action dispatcher, time/diagnostics, a11y and XSS.
+- `server/` (optional companion) serves the SPA + persists telemetry/run history to SQLite and adds a
+  feature-detected History tab. `www/src/api/companion.ts` is the typed client. See docs/DEPLOY.md.
 
 **Remaining — operator / hardware steps** (see `docs/HARDWARE-VERIFICATION.md`, `docs/DEPLOY.md`):
 1. Live **LAN+OTC proof on real hardware** (mixed-content risk, PRD §4 #1) + replace derived fixtures

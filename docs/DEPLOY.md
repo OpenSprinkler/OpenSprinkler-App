@@ -104,3 +104,10 @@ firmware). It only **reads** (`/jc /jo /jn /jp /jl /js`) — it never sends a ch
   `?pwhash=<md5>` bypasses the prompt for automated access.
 - Change commands POST on `fwv>=300` (body) and GET otherwise, injecting the `pw=` hash — matching
   the legacy `sendToOS` transport.
+
+## Self-host with the companion (local database)
+
+`docker compose up --build` runs the **companion** (`server/`): it serves the dashboard at
+`http://<host>:8080`, polls your controller into a local SQLite database (`/data` volume), and adds
+a **History** tab. Config via `.env` (see `.env.example`). The companion is optional — the dashboard
+works controller-direct without it. See the v1 spec: `docs/superpowers/specs/2026-06-09-companion-local-db-v1.nlspec.md`.
