@@ -27,12 +27,14 @@ export interface DashboardOptions {
 	actions?: boolean;
 	/** Active sub-section when the Settings tab is shown. */
 	settingsSection?: SettingsSection;
+	/** When the companion is present, the host passes the rendered History HTML to add a History tab. */
+	historyHtml?: string;
 }
 
-export function renderDashboard( d: DashboardData, active: DashboardTab = "Status", opts: DashboardOptions = {} ): string {
-	// Each tab controls the single panel; the panel is labelled by the active tab and is focusable.
-	// (Arrow-key roving-tabindex is a host-JS follow-up; the buttons remain Tab-navigable + operable.)
-	const nav = DASHBOARD_TABS.map( ( t ) =>
+export function renderDashboard( d: DashboardData, active: DashboardTab | "History" = "Status", opts: DashboardOptions = {} ): string {
+	const tabs: readonly string[] = opts.historyHtml !== undefined
+		? [ ...DASHBOARD_TABS, "History" ] : DASHBOARD_TABS;
+	const nav = tabs.map( ( t ) =>
 		`<button class="tab${ t === active ? " active" : "" }" role="tab" id="dashboard-tab-${ t }" ` +
 		`aria-controls="dashboard-panel" aria-selected="${ t === active }" tabindex="${ t === active ? 0 : -1 }" ` +
 		`data-tab="${ t }">${ t }</button>`
@@ -47,6 +49,7 @@ export function renderDashboard( d: DashboardData, active: DashboardTab = "Statu
 		case "Log": content = renderLogs( d.jl, d.jn ); break;
 		case "Diagnostics": content = renderDiagnostics( d.jc, d.jo ); break;
 		case "Settings": content = renderSettings( d.jc, d.jo, d.jn, opts.settingsSection ); break;
+		case "History": content = opts.historyHtml ?? ""; break;
 		default: content = renderControllerStatus( d.jc, d.jo, deriveCapabilities( d.jc, d.jo ), { actions: a } );
 	}
 	return `<nav class="tabs" role="tablist" aria-label="Dashboard sections">${ nav }</nav>` +
