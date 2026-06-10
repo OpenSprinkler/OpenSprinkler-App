@@ -107,7 +107,24 @@ firmware). It only **reads** (`/jc /jo /jn /jp /jl /js`) — it never sends a ch
 
 ## Self-host with the companion (local database)
 
-`docker compose up --build` runs the **companion** (`server/`): it serves the dashboard at
-`http://<host>:8080`, polls your controller into a local SQLite database (`/data` volume), and adds
-a **History** tab. Config via `.env` (see `.env.example`). The companion is optional — the dashboard
-works controller-direct without it. See the v1 spec: `docs/superpowers/specs/2026-06-09-companion-local-db-v1.nlspec.md`.
+The **companion** (`server/`) serves the dashboard at `http://<host>:8080`, polls your controller into
+a local SQLite database (`/data`), and adds a **History** tab. It is optional — the dashboard works
+controller-direct without it. Config via `.env` (see `.env.example`). Spec:
+`docs/superpowers/specs/2026-06-09-companion-local-db-v1.nlspec.md`.
+
+**Run it — two ways:**
+- **Build from source** (zero setup; the repo must be on the Docker host):
+  `cp .env.example .env && edit .env && docker compose up --build -d`
+- **Pull a published image** (no repo needed on the host): in `docker-compose.yml` comment out `build:`
+  and uncomment `image: kars85/opensprinkler-companion:latest`.
+
+**linuxserver-style integration:** the image honors `PUID` / `PGID` (owner of the `/data` SQLite dir,
+so bind mounts like `${DOCKERCONFDIR}/opensprinkler-companion:/data` just work) and `TZ` (host log
+timestamps only — the dashboard always shows the controller's own local time). It starts as root, fixes
+ownership, then drops to `PUID:PGID` (see `server/docker-entrypoint.sh`).
+
+**Publish the image (maintainer):** the workflow `.github/workflows/companion-image.yml` builds a
+multi-arch (amd64 + arm64) image and pushes to Docker Hub. One-time setup: add repo secrets
+`DOCKERHUB_USERNAME` (e.g. `kars85`) and `DOCKERHUB_TOKEN` (a Docker Hub access token). Then trigger it
+via **Actions → Build & push companion image → Run workflow**, or push a `companion-v*` tag. Nothing is
+pushed without those secrets.
