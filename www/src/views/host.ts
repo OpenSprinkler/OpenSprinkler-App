@@ -14,6 +14,20 @@ import { buildWeatherOptions } from "./settings/weather";
 import { buildNetworkOptions } from "./settings/network";
 import { buildStationConfig } from "./settings/stations-edit";
 import { buildProgramInput } from "./settings/program-edit";
+import { detectCompanion, fetchHistory, fetchRunLog } from "../api/companion";
+import { renderHistory } from "./history-view";
+
+/**
+ * If the companion is reachable + healthy, fetch the last 7 days and render the History HTML;
+ * otherwise return undefined so the dashboard omits the History tab (FR-21/22).
+ */
+export async function resolveHistoryHtml( companionBase: string, now: () => number = () => Math.floor( Date.now() / 1000 ) ): Promise<string | undefined> {
+	const health = await detectCompanion( companionBase );
+	if ( !health ) return undefined;
+	const range = { fromTs: now() - 7 * 86400, toTs: now() };
+	const [ tel, runs ] = await Promise.all( [ fetchHistory( companionBase, range ), fetchRunLog( companionBase, range ) ] );
+	return renderHistory( tel, runs, { stale: !!health.pollerStale } );
+}
 
 export interface HostDeps {
 	mount: HTMLElement;
@@ -30,8 +44,9 @@ export interface DashboardController { refresh(): Promise<void>; }
 
 export function mountDashboard( deps: HostDeps ): DashboardController {
 	let data: DashboardData | null = null;
-	let activeTab: DashboardTab = "Status";
+	let activeTab: DashboardTab | "History" = "Status";
 	let settingsSection: SettingsSection = "General";
+	let historyHtml: string | undefined;
 
 	/** Show only the schedule/start fieldset that matches the current select (program editor). */
 	function applyConditionalVisibility(): void {
@@ -47,7 +62,7 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 		// Preserve keyboard focus on the active tab across a re-render driven by tab navigation.
 		const refocusTab = ( document.activeElement as HTMLElement | null )?.getAttribute?.( "role" ) === "tab";
 		deps.mount.innerHTML = data
-			? renderDashboard( data, activeTab, { actions: true, settingsSection } )
+			? renderDashboard( data, activeTab, { actions: true, settingsSection, historyHtml } )
 			: "<p>Loading…</p>";
 		applyConditionalVisibility();
 		if ( refocusTab ) deps.mount.querySelector<HTMLElement>( '[role="tab"][aria-selected="true"]' )?.focus();
@@ -59,6 +74,9 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 		} catch ( e ) {
 			deps.toast( String( e ), true );
 		}
+		// resolve the companion History once per refresh (companion base defaults to the serving origin)
+		const companionBase = new URLSearchParams( location.search ).get( "companion" ) || location.origin + "/";
+		historyHtml = await resolveHistoryHtml( companionBase );
 		paint();
 	}
 
@@ -98,7 +116,7 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 	deps.mount.addEventListener( "click", ( ev ) => {
 		const target = ev.target as HTMLElement;
 		const tab = target.closest<HTMLElement>( "[data-tab]" );
-		if ( tab?.dataset.tab ) { activeTab = tab.dataset.tab as DashboardTab; paint(); return; }
+		if ( tab?.dataset.tab ) { activeTab = tab.dataset.tab as DashboardTab | "History"; paint(); return; }
 
 		const sec = target.closest<HTMLElement>( "[data-settings-section]" );
 		if ( sec?.dataset.settingsSection ) { settingsSection = sec.dataset.settingsSection as SettingsSection; paint(); return; }
