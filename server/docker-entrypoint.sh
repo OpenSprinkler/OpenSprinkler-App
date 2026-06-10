@@ -8,9 +8,10 @@ PUID="${PUID:-1000}"
 PGID="${PGID:-1000}"
 
 # Timezone (only affects host log timestamps; the dashboard renders the controller's own local time).
+# Non-fatal: tolerate a read-only /etc/localtime bind mount (a common linuxserver-style pattern).
 if [ -n "${TZ:-}" ] && [ -f "/usr/share/zoneinfo/${TZ}" ]; then
-	ln -snf "/usr/share/zoneinfo/${TZ}" /etc/localtime
-	echo "${TZ}" > /etc/timezone
+	ln -snf "/usr/share/zoneinfo/${TZ}" /etc/localtime 2>/dev/null || true
+	echo "${TZ}" > /etc/timezone 2>/dev/null || true
 fi
 
 # Ensure the SQLite data dir exists and is writable by the requested user (handles bind mounts).
