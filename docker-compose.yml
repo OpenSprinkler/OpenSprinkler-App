@@ -1,0 +1,10 @@
+services:
+  companion:
+    build: { context: ., dockerfile: server/Dockerfile }
+    ports: [ "8080:8080" ]
+    env_file: [ .env ]
+    volumes: [ "osdata:/data" ]
+    restart: unless-stopped
+  # Follow-on: a `postgres` service goes here when the Postgres adapter lands.
+volumes:
+  osdata:

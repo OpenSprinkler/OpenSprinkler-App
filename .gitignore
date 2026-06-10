@@ -54,3 +54,8 @@ demo/dist/
 
 # Phase-1 app production build output
 /dist/
+
+# companion local database
+*.db
+*.db-*
+/data/
