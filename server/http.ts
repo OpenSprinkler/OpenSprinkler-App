@@ -4,8 +4,9 @@ import { serveStatic } from "@hono/node-server/serve-static";
 import { existsSync } from "node:fs";
 import type { Hono as HonoApp } from "hono";
 
-/** Root app: GET-only CORS on /api, mounts the API, serves app/dist with SPA fallback (FR-1/2/19). */
-export function createHttpApp( api: HonoApp, distDir = "app/dist" ): Hono {
+/** Root app: GET-only CORS on /api, mounts the API, serves the built SPA with SPA fallback (FR-1/2/19).
+ *  `npm run build:app` emits to ./dist (app/vite.config.ts outDir "../dist"). */
+export function createHttpApp( api: HonoApp, distDir = "dist" ): Hono {
 	const app = new Hono();
 	app.use( "/api/*", cors( { origin: "*", allowMethods: [ "GET" ] } ) );
 	app.route( "/api", api );
