@@ -6,14 +6,20 @@ import type { StorageProvider, TelemetrySample, RunLogRow } from "./storage/prov
 
 const RUNLOG_OVERLAP_SEC = 3600; // re-scan the last hour to catch late-arriving rows
 
+/** Coerce to a finite number (the parsers don't validate every /jc,/jo field; NOT NULL columns must
+ *  never receive undefined). */
+function num( v: unknown, fallback = 0 ): number {
+	return typeof v === "number" && Number.isFinite( v ) ? v : fallback;
+}
+
 function mapTelemetry( jc: JcResponse, jo: JoResponse, now: number ): TelemetrySample {
 	return {
 		ts: now,
-		waterLevel: jo.wl,
-		rainDelay: jc.rd,
-		weatherErr: jc.wterr,
-		weatherRestricted: jc.wtrestr,
-		lastWeatherUpdate: jc.lswc,
+		waterLevel: num( jo.wl ),
+		rainDelay: num( jc.rd ),
+		weatherErr: num( jc.wterr ),
+		weatherRestricted: num( jc.wtrestr ),
+		lastWeatherUpdate: num( jc.lswc ),
 		activeStations: countActiveStations( jc.sbits ),
 		rssi: typeof jc.RSSI === "number" ? jc.RSSI : null,
 		currentDraw: typeof jc.curr === "number" ? jc.curr : null,

@@ -1,5 +1,5 @@
 import type { TelemetryPoint, RunLogPoint } from "../api/companion";
-import { esc, emptyState, infoNote } from "../ui/help";
+import { emptyState, infoNote } from "../ui/help";
 
 /** Minimal inline-SVG sparkline from a series of numbers (no charting dependency, FR-21). */
 function sparkline( values: number[], w = 240, h = 40 ): string {
