@@ -13,6 +13,7 @@ import { OsApiClient } from "../www/src/api/client";
 import type { DashboardData } from "../www/src/views/dashboard";
 import { mountDashboard } from "../www/src/views/host";
 import { runLogin } from "../www/src/auth/login";
+import { errorCard } from "../www/src/ui/help";
 
 function qp( name: string ): string | undefined {
 	return new URLSearchParams( location.search ).get( name ) ?? undefined;
@@ -55,4 +56,8 @@ async function boot(): Promise<void> {
 	} );
 }
 
-boot().catch( ( e ) => { mount.innerHTML = `<pre style="color:#b91c1c">${ String( e ) }</pre>`; } );
+boot().catch( ( e ) => {
+	mount.innerHTML = errorCard( String( e ) );
+	// At boot failure the host click-listener isn't mounted yet, so wire retry to a full reload.
+	mount.querySelector<HTMLButtonElement>( '[data-action="retry"]' )?.addEventListener( "click", () => location.reload() );
+} );

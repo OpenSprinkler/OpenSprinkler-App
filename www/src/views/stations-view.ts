@@ -8,11 +8,16 @@ import { actionBar, actionButton } from "../ui/controls";
 
 export interface StationsViewOptions { actions?: boolean; }
 
+/** A small status dot prepended inside a state badge. Decorative — the badge text carries meaning. */
+function badgeDot( cls: string ): string {
+	return `<svg class="i-dot ${ cls }" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><circle cx="6" cy="6" r="4" fill="currentColor"/></svg>`;
+}
+
 function stateLabel( s: StationState ): string {
-	if ( s.disabled ) return '<span class="badge off">Disabled</span>';
-	if ( s.on ) return '<span class="badge on">On</span>' +
+	if ( s.disabled ) return `<span class="badge off">${ badgeDot( "" ) }Disabled</span>`;
+	if ( s.on ) return `<span class="badge on">${ badgeDot( s.running ? "live" : "" ) }On</span>` +
 		( s.running ? ` <span class="muted">${ formatDuration( s.remaining ) } left</span>` : "" );
-	return '<span class="badge">Off</span>';
+	return `<span class="badge">${ badgeDot( "" ) }Off</span>`;
 }
 
 function groupLabel( g: number ): string {
@@ -45,7 +50,7 @@ export function renderStations( jc: JcResponse, jn: JnResponse, opts: StationsVi
 	const controls = opts.actions ? actionBar( actionButton( "stop-all", "Stop all", {}, "danger" ) ) : "";
 	return `<section aria-label="Stations">` +
 		`<h2>Stations <span class="muted">(${ stations.length }, ${ activeCount } on)</span></h2>` +
-		`<table class="grid"><thead><tr>` +
+		`<div class="table-scroll" tabindex="0" role="region" aria-label="Stations table"><table class="grid"><thead><tr>` +
 		`<th scope="col">#</th><th scope="col">Name</th><th scope="col">State</th><th scope="col">Group</th>${ actionsCol }` +
-		`</tr></thead><tbody>${ rows }</tbody></table>${ controls }</section>`;
+		`</tr></thead><tbody>${ rows }</tbody></table></div>${ controls }</section>`;
 }
