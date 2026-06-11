@@ -98,11 +98,11 @@ capture the §0 baseline first and **click nothing**.
 | §2a UI render vs mocks (`npm run demo`) | ✅ **Ran this session.** Demo harness boots + serves the full dashboard (all tabs) from mock fixtures; tab visual click-through is the operator's. |
 | §2b live LAN render | ⬜ Gated (armed controls — capture baseline, click nothing). |
 | §3 OTC remote / mixed-content (PRD §4 #1) | ⬜ Gated (needs OTC token + HTTPS build + browser). |
-| §4 auth | ⬜ Gated (wrong-pw / pre-auth-stub contrast is manual). |
+| §4 auth | ✅ **API-level PASSED this session.** correct pw → full `/jo` (67 keys); wrong pw → `fwv` stub (1 key); no pw → stub. Wrong password rejected, correct authorizes. (UI login-prompt contrast still operator-visual in §2b.) |
 | §5 reversible write proof (rain delay) | ✅ **PASSED this session.** `rd 0→1 (rdst set)→0`; independent post-read `rd=0 rdst=0 en=0`; write flag cleared. Authenticated GET command path proven on hardware. |
 | §6 control smoke test (PHYSICAL) | ⬜ Gated — **actuates valves.** Default-SKIP; requires a disconnected zone. |
 | §7 settings write-back (atomic) | ✅ **§7a/§7c/§7d PASSED this session** (atomic writes, all restored): dname round-trip; loc round-trip (`wto`/`wsp` untouched); station rename of `S24` (`stn_dis` untouched, station 8 disable intact). Empirically confirms the atomic-only design — neighbor fields never perturbed. §7b skip (ETo-auto `wl`); §7e/§7f pending/never-ad-hoc. |
-| §8 rollback drill | ⬜ Gated (capture `jsp` first). |
+| §8 rollback drill | ⬜ Deferred to the real §7 rollout. Captured `jsp=''` this session — the device already serves its compiled-default UI (= the rollback target), so a synthetic flip gains nothing and restoring to empty via `/cu?jsp=` is uncertain. Run the drill when `jsp` is actually set to the new UI URL. |
 | §9 final close-out diff | ⬜ Gated. |
 
 ---
@@ -393,6 +393,11 @@ token; `wsp` clobbers the custom weather server. Do not send these against this 
 
 > `/cu?jsp=` changes which UI the controller serves to anyone hitting `http://10.10.100.246/`. It is a
 > **persistent** change. If you didn't capture `jsp` in §0, **skip this section.**
+>
+> **This session's finding:** `jsp=''` — the device already serves its **compiled-default UI**
+> (`ui.opensprinkler.com`), which is the rollback target. A synthetic flip now gains nothing and
+> restoring to empty via `/cu?jsp=` is uncertain. **Run this drill during the real §7 rollout**, when
+> `jsp` is set to the new UI URL and rollback is a clean re-point to the default.
 - **Capture** `/jo.jsp` (§0). **Do** point at the legacy UI:
   `GET /cu?jsp=https://ui.opensprinkler.com/js&pw=<md5>`; confirm the legacy UI loads.
 - **Restore** the **exact captured** `jsp`: `GET /cu?jsp=<captured>&pw=<md5>`; re-read `/jo.jsp`.
