@@ -94,7 +94,7 @@ capture the §0 baseline first and **click nothing**.
 | Section | Status |
 |---|---|
 | §1 read-only proof — `npm run verify:live` | ✅ **PASSED this session.** fwv221/fwm4/hwv32, `fwf=kars85.3`, 24 stations, 2 programs, caps derived. Reads + capabilities green. |
-| §1 read-only capture — `npm run capture` | ⬜ Gated (read-only; safe — produces baseline fixtures; **scrub secrets**, see §1). |
+| §1b read-only capture — `npm run capture` | ✅ **Ran this session.** 5/6 endpoints captured (`/jl` needs a range), `wto.key` scrubbed, parse-verified; curated corpus restored (not re-pinned — see §1b). |
 | §2a UI render vs mocks (`npm run demo`) | ⬜ Gated (no device risk). |
 | §2b live LAN render | ⬜ Gated (armed controls — capture baseline, click nothing). |
 | §3 OTC remote / mixed-content (PRD §4 #1) | ⬜ Gated (needs OTC token + HTTPS build + browser). |
@@ -172,22 +172,37 @@ capability derivation. Confirmed: `fwv=221 fwm=4 hwv=32 fwf="kars85.3"`, 24 stat
 - [ ] Note: the harness prints `weather=Online` only when `/jc.wterr===0` at read time. A transient
   `Offline`/`Error` from the custom weather server is **not** a read-pipeline failure.
 
-### 1b. Live fixture capture — `npm run capture`  (read-only, re-pins the contract)
+### 1b. Live fixture capture — `npm run capture`  (read-only; parse-verification + scrubbed reference)
 
-`scripts/capture-fixtures.mjs` reads `OS_BASE`/`OS_PW`/`OS_PWHASH` (**not** `OS_LIVE_*`). The `--base`/
-`--pw` flags below supply everything, so env vars are unnecessary:
+> **Do NOT re-pin the shared corpus with this.** `npm run capture` overwrites the curated fixtures in
+> `test/fixtures/api/*.fixture.json` in place, but the full `npm run test:contract` suite is
+> **value-coupled** to those curated fixtures — it hardcodes the station count, program count, weather
+> host, device name, and station names. A live capture from this device (24 stations, 2 programs, custom
+> PWS host) therefore **fails those value assertions even with zero contract drift.** The real
+> on-hardware parse/decoder guard is **§1a `verify:live`** (already green). Use the capture for
+> inspection + a secret-scrubbed snapshot, then restore the curated fixtures.
+
+`scripts/capture-fixtures.mjs` reads `OS_BASE`/`OS_PW`/`OS_PWHASH` (**not** `OS_LIVE_*`); the `--base`/
+`--pw` flags below supply everything:
 
 ```powershell
-npm run capture -- --base http://10.10.100.246/ --pw 'opendoor'
-npm run test:contract     # re-pin the contract against the LIVE capture (not the derived defaults)
+npm run capture -- --base http://10.10.100.246/ --pw 'opendoor'   # writes 5/6 endpoints; /jl skipped (needs a start/end range)
+# ...scrub secrets (below), inspect, then restore the curated corpus:
+git checkout -- test/fixtures/api/
 ```
 
-- [ ] ⚠️ **Secret scrub:** `npm run capture` writes `/jc` and `/jo` **verbatim** to
-  `test/fixtures/api/*.fixture.json`, **including the OTC token (`jc.otc`) and the weather API key
-  (`wto.key`)**. Before capture, add `test/fixtures/api/` to `.gitignore`, **or** scrub `jc.otc` and
-  `wto.key` from the fixtures before they touch git.
-- [ ] If `test:contract` fails on the live capture, the fork firmware differs from the documented
-  contract — record the diff (do not silently re-pin).
+- [ ] ⚠️ **Secret scrub (before anything touches git):** the capture writes `/jc` **verbatim**. On this
+  device the only real secret is **`jc.wto.key`** (32-char weather API key) — redact it. `jc.otc` was an
+  empty object (no token); `jc.mqtt`/`jc.email` had no credentials. Note `jc.wsp`
+  (`http://10.10.100.3:3000`) and `jc.mqtt.host` are internal LAN addresses (not secrets, but
+  device-revealing). If you ever *do* keep a capture in git, redact `wto.key` (and any future `jc.otc`
+  token) first, or `.gitignore` the capture path.
+- [ ] **Parsing is the pass criterion, not green tests.** Success = the typed client/decoders read every
+  live endpoint without throwing (proven by §1a). Expect `test:contract` value assertions to fail on a
+  live capture — that is corpus coupling, **not** firmware drift. A *genuine* contract problem looks like
+  a decode throw or a structural shape error in `verify:live`, not a hardcoded count mismatch.
+- [ ] If you want a live-pinned corpus per `fwv`, give it its **own** fixture dir + de-coupled
+  assertions — never overwrite the curated `test/fixtures/api/` corpus the shared suite depends on.
 
 ---
 
@@ -403,7 +418,7 @@ clobbered by a stray write that isn't on this list goes undetected — so diff t
 
 | #5 item | Closed when |
 |---|---|
-| §3 contract capture (live) | §1 done, contract re-pinned, **secrets scrubbed** |
+| §3 contract capture (live) | §1a `verify:live` green on hardware; capture parse-verified + `wto.key` scrubbed; curated corpus preserved (not re-pinned) |
 | §4/§8.2 seam spike LAN+OTC | §2 + §3 pass (no mixed-content errors); ≥2-fw/DEMO done **or** deferred-with-rationale |
 | §6 UI rebuild (write/control + settings) | §5 + §6 + §7 pass via **atomic writes**; §9 diff clean |
 | §7 hosting + jsp flip/rollback | go-live (DEPLOY.md) + §8 rollback drill, `jsp` restored |
