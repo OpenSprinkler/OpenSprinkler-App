@@ -71,11 +71,21 @@ function renderSourceFooter( jc: JcResponse, jo: JoResponse ): string {
 	return `<footer class="weather-source">${ source }${ hostLine }${ pwsLine }</footer>`;
 }
 
+/** A decorative glyph for the adjustment method: cloud = a weather service drives it, slider = manual. */
+function methodGlyph( uwt: number ): string {
+	const manual = ( uwt & ~( 1 << 7 ) ) === 0;
+	const path = manual
+		? `<path d="M4 12h16"/><circle cx="9" cy="12" r="2.5"/>`
+		: `<path d="M17.5 18a4.5 4.5 0 0 0 0-9 6 6 0 0 0-11.6 1.5A3.5 3.5 0 0 0 6.5 18z"/>`;
+	return `<svg class="i-method" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ` +
+		`stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${ path }</svg>`;
+}
+
 export function renderWeather( jc: JcResponse, jo: JoResponse ): string {
 	const summaryRows = [
 		typeof jo.uwt === "number"
 			? `<tr><th scope="row">Adjustment method ${ helpTip( "How weather changes the watering amount." ) }</th>` +
-				`<td>${ esc( adjustmentMethodName( jo.uwt ) ) }</td></tr>` : "",
+				`<td><span class="method-cell">${ methodGlyph( jo.uwt ) }${ esc( adjustmentMethodName( jo.uwt ) ) }</span></td></tr>` : "",
 		typeof jo.wl === "number"
 			? `<tr><th scope="row">Watering level ${ helpTip( "Current overall watering as a percentage of program durations." ) }</th>` +
 				`<td>${ esc( String( jo.wl ) ) }%</td></tr>` : "",

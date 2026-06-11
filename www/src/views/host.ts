@@ -16,6 +16,7 @@ import { buildStationConfig } from "./settings/stations-edit";
 import { buildProgramInput } from "./settings/program-edit";
 import { detectCompanion, fetchHistory, fetchRunLog } from "../api/companion";
 import { renderHistory } from "./history-view";
+import { errorCard } from "../ui/help";
 
 /**
  * If the companion is reachable + healthy, fetch the last 7 days and render the History HTML;
@@ -44,6 +45,7 @@ export interface DashboardController { refresh(): Promise<void>; }
 
 export function mountDashboard( deps: HostDeps ): DashboardController {
 	let data: DashboardData | null = null;
+	let lastError: string | null = null;
 	let activeTab: DashboardTab | "History" = "Status";
 	let settingsSection: SettingsSection = "General";
 	let historyHtml: string | undefined;
@@ -63,7 +65,9 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 		const refocusTab = ( document.activeElement as HTMLElement | null )?.getAttribute?.( "role" ) === "tab";
 		deps.mount.innerHTML = data
 			? renderDashboard( data, activeTab, { actions: true, settingsSection, historyHtml } )
-			: "<p>Loading…</p>";
+			: lastError
+				? errorCard( lastError )
+				: `<div class="loading" role="status"><span class="spinner" aria-hidden="true"></span><span>Loading…</span></div>`;
 		applyConditionalVisibility();
 		if ( refocusTab ) deps.mount.querySelector<HTMLElement>( '[role="tab"][aria-selected="true"]' )?.focus();
 	}
@@ -71,7 +75,9 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 	async function refresh(): Promise<void> {
 		try {
 			data = await deps.load();
+			lastError = null;
 		} catch ( e ) {
+			lastError = String( e );
 			deps.toast( String( e ), true );
 		}
 		// resolve the companion History once per refresh (companion base defaults to the serving origin)
@@ -123,6 +129,7 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 
 		const action = target.closest<HTMLButtonElement>( "[data-action]" );
 		if ( action?.dataset.action ) {
+			if ( action.dataset.action === "retry" ) { void refresh(); return; }
 			if ( action.dataset.action === "program-new" ) {
 				activeTab = "Settings"; settingsSection = "Programs"; paint(); return;
 			}

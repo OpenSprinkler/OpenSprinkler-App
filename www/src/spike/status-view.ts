@@ -27,6 +27,25 @@ export function countActiveStations( sbits: number[] ): number {
 
 export interface ViewOptions { actions?: boolean; }
 
+/** A filled dot for an OK/on state. Decorative — the adjacent text label carries the meaning (WCAG 1.4.1). */
+function dotOk(): string {
+	return `<svg class="i-dot ok" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><circle cx="6" cy="6" r="5" fill="currentColor"/></svg>`;
+}
+/** A ring-with-slash for a disabled/paused state (shape redundancy, not color-only). Decorative. */
+function dotOff(): string {
+	return `<svg class="i-dot off" viewBox="0 0 12 12" aria-hidden="true" focusable="false">` +
+		`<circle cx="6" cy="6" r="4.3" fill="none" stroke="currentColor" stroke-width="1.6"/>` +
+		`<line x1="3" y1="9" x2="9" y2="3" stroke="currentColor" stroke-width="1.6"/></svg>`;
+}
+/** A radial water-level gauge (server-computed offset, no JS). Decorative: the % text beside it is authoritative. */
+function waterGauge( wl: number ): string {
+	const pct = Math.max( 0, Math.min( 100, Number( wl ) || 0 ) ), C = 97.39, off = ( C * ( 1 - pct / 100 ) ).toFixed( 2 );
+	return `<svg class="i-gauge" viewBox="0 0 36 36" aria-hidden="true" focusable="false">` +
+		`<circle class="i-gauge-track" cx="18" cy="18" r="15.5" fill="none" stroke="currentColor" stroke-width="3"/>` +
+		`<circle class="i-gauge-fill" cx="18" cy="18" r="15.5" fill="none" stroke-linecap="round" stroke-width="3" ` +
+		`stroke-dasharray="${ C }" stroke-dashoffset="${ off }" transform="rotate(-90 18 18)"/></svg>`;
+}
+
 /** Render the controller-status screen as an HTML string. With `opts.actions`, append a control bar. */
 export function renderControllerStatus( jc: JcResponse, jo: JoResponse, caps: Capabilities, opts: ViewOptions = {} ): string {
 	const active = countActiveStations( jc.sbits );
@@ -35,10 +54,11 @@ export function renderControllerStatus( jc: JcResponse, jo: JoResponse, caps: Ca
 	const rows: Array<[ label: string, value: string, help?: string ]> = [
 		[ "Device", esc( jc.dname || "OpenSprinkler" ) ],
 		[ "Firmware", esc( firmware ), jo.fwf ? "Includes a fork build tag (+) from a custom firmware build." : undefined ],
-		[ "Controller", jc.en ? "Enabled" : "Disabled" ],
+		[ "Controller", `${ jc.en ? dotOk() : dotOff() }<span>${ jc.en ? "Enabled" : "Disabled" }</span>` ],
 		[ "Active stations", `${ active }` ],
-		[ "Water level", `${ esc( String( jo.wl ) ) }%`, "Scales every program's run time (100% = as programmed)." ],
-		[ "Rain delay", jc.rd ? `Active until ${ esc( formatClockTime( jc.rdst, tz ) ) }` : "Off",
+		[ "Water level", `<span class="gauge-cell">${ waterGauge( jo.wl ) }<span class="gauge-pct">${ esc( String( jo.wl ) ) }%</span></span>`,
+			"Scales every program's run time (100% = as programmed)." ],
+		[ "Rain delay", `${ jc.rd ? dotOff() : dotOk() }<span>${ jc.rd ? `Active until ${ esc( formatClockTime( jc.rdst, tz ) ) }` : "Off" }</span>`,
 			"A timed pause on all watering." ],
 		[ "Weather restriction", caps.weatherRestricted && jc.wtrestr ? "Restricted" : "None",
 			"Watering is paused by a weather rule (e.g. a rain restriction)." ],

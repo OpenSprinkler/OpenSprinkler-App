@@ -31,13 +31,31 @@ export interface DashboardOptions {
 	historyHtml?: string;
 }
 
+/** Decorative single-stroke tab glyphs (currentColor, aria-hidden — the label is the accessible name). */
+const TAB_ICONS: Record<string, string> = {
+	Status: `<circle cx="12" cy="12" r="9"/><path d="M12 12l3.5-2"/>`,
+	Stations: `<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>`,
+	Programs: `<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/>`,
+	Weather: `<path d="M17.5 19a4.5 4.5 0 0 0 0-9 6 6 0 0 0-11.6 1.5A3.5 3.5 0 0 0 6.5 19z"/>`,
+	Log: `<path d="M8 6h12M8 12h12M8 18h12M3.5 6h.01M3.5 12h.01M3.5 18h.01"/>`,
+	Diagnostics: `<path d="M3 12h4l2 6 4-14 2 8h6"/>`,
+	Settings: `<path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="7" cy="18" r="2"/>`,
+	History: `<path d="M3 12a9 9 0 1 0 3-6.7M3 5v4h4"/><path d="M12 8v4l3 2"/>`,
+};
+function tabIcon( t: string ): string {
+	const p = TAB_ICONS[ t ];
+	return p
+		? `<svg class="i-tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${ p }</svg>`
+		: "";
+}
+
 export function renderDashboard( d: DashboardData, active: DashboardTab | "History" = "Status", opts: DashboardOptions = {} ): string {
 	const tabs: readonly string[] = opts.historyHtml !== undefined
 		? [ ...DASHBOARD_TABS, "History" ] : DASHBOARD_TABS;
 	const nav = tabs.map( ( t ) =>
 		`<button class="tab${ t === active ? " active" : "" }" role="tab" id="dashboard-tab-${ t }" ` +
 		`aria-controls="dashboard-panel" aria-selected="${ t === active }" tabindex="${ t === active ? 0 : -1 }" ` +
-		`data-tab="${ t }">${ t }</button>`
+		`data-tab="${ t }">${ tabIcon( t ) }<span class="tab-label">${ t }</span></button>`
 	).join( "" );
 
 	const a = !!opts.actions;
