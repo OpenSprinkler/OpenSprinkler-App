@@ -1,0 +1,17 @@
+{
+	"//": "Scaffold-scoped TS config (Phase 1 modernization). Covers only the new typed API/seam code and its tests; the legacy www/js is unaffected (governed by jsconfig.json).",
+	"compilerOptions": {
+		"target": "ES2020",
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"lib": [ "ES2020", "DOM" ],
+		"strict": true,
+		"noUncheckedIndexedAccess": false,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"resolveJsonModule": true,
+		"types": [ "vitest/globals", "node" ],
+		"noEmit": true
+	},
+	"include": [ "www/src/**/*.ts", "test/api-contract.spec.ts", "test/time.spec.ts", "test/fork-tag.spec.ts", "test/diagnostics.spec.ts", "test/weather-view.spec.ts", "test/empty-states.spec.ts", "test/xss.spec.ts", "test/encode.spec.ts", "test/commands.spec.ts", "test/settings.spec.ts", "test/dispatch.spec.ts", "vitest.config.ts" ]
+}

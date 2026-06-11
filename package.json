@@ -23,13 +23,22 @@
 		"lint": "eslint ./www/js/**",
 		"prepare": "husky",
 		"start": "npx http-server --port 8080 --cors '*' -c-1 ./www",
-		"test": "npx karma start --browsers ChromeHeadless test/karma.conf.js"
+		"test": "npx karma start --browsers ChromeHeadless test/karma.conf.js",
+		"test:contract": "vitest run",
+		"capture": "node scripts/capture-fixtures.mjs",
+		"verify:live": "vitest run --config vitest.live.config.ts",
+		"demo": "vite demo",
+		"demo:build": "vite build demo",
+		"build:app": "vite build app",
+		"companion": "tsx server/index.ts",
+		"test:server": "vitest run --config vitest.server.config.ts"
 	},
 	"lint-staged": {
 		"package.json": "sort-package-json"
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.15.0",
+		"@types/better-sqlite3": "^7.6.13",
 		"chai": "^4.5.0",
 		"cordova": "^12.0.0",
 		"cordova-android": "^14.0.1",
@@ -51,6 +60,7 @@
 		"grunt-shell": "^4.0.0",
 		"http-server": "^14.1.1",
 		"husky": "^9.1.6",
+		"jsdom": "^29.1.1",
 		"karma": "^6.4.4",
 		"karma-chai": "^0.1.0",
 		"karma-chrome-launcher": "^3.2.0",
@@ -59,7 +69,9 @@
 		"mocha": "^10.8.2",
 		"po2json": "^0.4.5",
 		"sinon": "^19.0.2",
-		"sort-package-json": "^2.10.1"
+		"sort-package-json": "^2.10.1",
+		"typescript": "^6.0.3",
+		"vitest": "^4.1.8"
 	},
 	"cordova": {
 		"plugins": {
@@ -77,5 +89,12 @@
 			"android",
 			"ios"
 		]
+	},
+	"dependencies": {
+		"@hono/node-server": "^2.0.4",
+		"better-sqlite3": "^12.10.0",
+		"drizzle-orm": "^0.45.2",
+		"hono": "^4.12.25",
+		"tsx": "^4.22.4"
 	}
 }

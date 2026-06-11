@@ -1,0 +1,20 @@
+services:
+  companion:
+    container_name: opensprinkler-companion
+    # Option A (zero-setup): build the image locally from this repo.
+    build: { context: ., dockerfile: server/Dockerfile }
+    # Option B (pull a published multi-arch image): comment out `build:` above and uncomment:
+    # image: kars85/opensprinkler-companion:latest
+    environment:
+      - PUID=${PUID:-1000}            # owner of the SQLite data dir (matches your stack's convention)
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-UTC}                 # host log TZ only; the dashboard shows the controller's own time
+    env_file: [ .env ]               # CONTROLLER_BASE (required), CONTROLLER_PW, CONTROLLER_ID, etc.
+    ports: [ "8080:8080" ]
+    volumes:
+      - osdata:/data                 # named volume (no permission setup needed)
+      # bind-mount alternative (PUID/PGID make it writable): - ${DOCKERCONFDIR}/opensprinkler-companion:/data
+    restart: unless-stopped
+  # Follow-on: a `postgres` service goes here when the Postgres adapter lands.
+volumes:
+  osdata:

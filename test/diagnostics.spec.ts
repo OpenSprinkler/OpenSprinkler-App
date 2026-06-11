@@ -1,0 +1,117 @@
+/**
+ * Diagnostics tests — interpretation helpers (ported from the legacy app) plus the System
+ * Diagnostics view: health summary, grouped sections, relative+absolute times, and the tz-correct
+ * "Last request" (upstream #287/#288).
+ */
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { describe, it, expect } from "vitest";
+import { parseJc, parseJo } from "../www/src/api/client";
+import {
+	adjustmentMethodName, weatherErrorText, weatherStatus, rebootReason, wifiRating, otcStatus,
+	weatherProviderTag, weatherSourceName,
+} from "../www/src/api/diagnostics";
+import { formatClock } from "../www/src/api/time";
+import { renderDiagnostics } from "../www/src/views/diagnostics-view";
+
+function fx( name: string ): unknown {
+	return JSON.parse( readFileSync( fileURLToPath( new URL( `./fixtures/api/${ name }.fixture.json`, import.meta.url ) ), "utf8" ) );
+}
+const jc = parseJc( fx( "jc" ) );
+const jo = parseJo( fx( "jo" ) );
+
+describe( "interpretation helpers (legacy parity)", () => {
+	it( "adjustmentMethodName masks bit 7 and names known methods", () => {
+		expect( adjustmentMethodName( 0 ) ).toBe( "Manual" );
+		expect( adjustmentMethodName( 1 ) ).toBe( "Zimmerman" );
+		expect( adjustmentMethodName( 4 ) ).toBe( "Monthly" );
+		expect( adjustmentMethodName( 4 | ( 1 << 7 ) ) ).toBe( "Monthly" ); // restriction bit ignored
+		expect( adjustmentMethodName( 9 ) ).toBe( "Method 9" );
+	} );
+	it( "weatherErrorText: exact match, tens-digit category, then unknown", () => {
+		expect( weatherErrorText( 0 ) ).toBe( "Success" );
+		expect( weatherErrorText( -3 ) ).toBe( "Timed Out" );
+		expect( weatherErrorText( 21 ) ).toBe( "Location Not Found" );
+		expect( weatherErrorText( 25 ) ).toBe( "Location Error" ); // 25 → category 2
+		expect( weatherErrorText( 1234 ) ).toBe( "Unrecognised (1234)" );
+	} );
+	it( "weatherErrorText: category boundaries and the >=10 guard for negatives", () => {
+		expect( weatherErrorText( 19 ) ).toBe( "Weather Data Error" );   // category 1
+		expect( weatherErrorText( 59 ) ).toBe( "Adjustment Options Error" ); // category 5
+		expect( weatherErrorText( 60 ) ).toBe( "Unrecognised (60)" );    // past the 10..59 window
+		// the err>=10 guard must stop Math.floor(-7/10) === -1 ("No Response") from matching:
+		expect( weatherErrorText( -7 ) ).toBe( "Unrecognised (-7)" );
+	} );
+	it( "weatherStatus tri-states on sign", () => {
+		expect( weatherStatus( 0 ) ).toEqual( { text: "Online", level: "ok" } );
+		expect( weatherStatus( -1 ) ).toEqual( { text: "Offline", level: "error" } );
+		expect( weatherStatus( 5 ) ).toEqual( { text: "Error", level: "error" } );
+	} );
+	it( "rebootReason maps codes", () => {
+		expect( rebootReason( 99 ) ).toBe( "Power On" );
+		expect( rebootReason( 1 ) ).toBe( "Factory Reset" );
+		expect( rebootReason( 50 ) ).toBe( "Unrecognised (50)" );
+	} );
+	it( "wifiRating bands", () => {
+		expect( wifiRating( -45 ) ).toEqual( { text: "-45 dBm (Excellent)", level: "ok" } );
+		expect( wifiRating( -67 ) ).toEqual( { text: "-67 dBm (Fair)", level: "warn" } );
+		expect( wifiRating( -85 ) ).toEqual( { text: "-85 dBm (Unusable)", level: "error" } );
+	} );
+	it( "otcStatus maps codes", () => {
+		expect( otcStatus( 3 ).text ).toBe( "Connected" );
+		expect( otcStatus( 2 ) ).toEqual( { text: "Disconnected", level: "error" } );
+		expect( otcStatus( 0 ).level ).toBe( "neutral" );
+	} );
+	it( "weatherProviderTag + weatherSourceName", () => {
+		expect( weatherProviderTag( { wp: "local" } ) ).toBe( "local" );
+		expect( weatherProviderTag( { weatherProvider: "OWM" } ) ).toBe( "OWM" );
+		expect( weatherProviderTag( {} ) ).toBeNull();
+		expect( weatherSourceName( "local" ) ).toContain( "Personal Weather Station (PWS)" );
+		expect( weatherSourceName( "OWM" ) ).toBe( "OpenWeather" );
+		expect( weatherSourceName( "ZZ" ) ).toBe( "an unrecognised weather provider" );
+	} );
+} );
+
+describe( "renderDiagnostics", () => {
+	const html = renderDiagnostics( jc, jo );
+	it( "shows a one-line health summary with weather status + relative last-update", () => {
+		expect( html ).toContain( "health-summary" );
+		expect( html ).toContain( "Weather: Online" );
+		expect( html ).toContain( "Last update 10 mins ago" ); // devt-lswc = 600s
+	} );
+	it( "groups fields under Connectivity / Weather service / Scheduling", () => {
+		expect( html ).toContain( "Connectivity" );
+		expect( html ).toContain( "Weather service" );
+		expect( html ).toContain( "Scheduling" );
+	} );
+	it( "decodes the external IP from the uint32", () => {
+		expect( html ).toContain( "192.168.1.100" ); // eip 3232235876
+	} );
+	it( "renders Last request as tz-correct absolute time + relative hint (#287)", () => {
+		expect( html ).toContain( "Last request" );
+		expect( html ).toContain( formatClock( jc.lwc, jo.tz ) ); // ties view to the single tz base
+		expect( html ).toContain( "(10 mins ago)" );
+	} );
+	it( "the absolute time tracks the device timezone (no fixed-UTC rendering)", () => {
+		const utc = renderDiagnostics( jc, { ...jo, tz: 48 } );
+		const pdt = renderDiagnostics( jc, { ...jo, tz: 20 } ); // GMT-7
+		expect( utc ).toContain( formatClock( jc.lwc, 48 ) );
+		expect( pdt ).toContain( formatClock( jc.lwc, 20 ) );
+		expect( formatClock( jc.lwc, 48 ) ).not.toBe( formatClock( jc.lwc, 20 ) );
+	} );
+	it( "shows platform-gated rows only when present", () => {
+		expect( html ).not.toContain( "Wi-Fi strength" ); // fixture has no RSSI
+		expect( html ).not.toContain( "OpenThings Cloud" ); // fixture has no otcs
+		expect( html ).not.toContain( "Current draw" );     // fixture has no curr
+		const rich = renderDiagnostics( { ...jc, RSSI: -67, otcs: 3, curr: 240 }, jo );
+		expect( rich ).toContain( "-67 dBm (Fair)" );
+		expect( rich ).toContain( "Connected" );
+		expect( rich ).toContain( "240 mA" );
+	} );
+	it( "renders the Weather restriction Active/Inactive branch (#290)", () => {
+		expect( html ).toContain( "Weather restriction" );
+		expect( html ).toContain( "Inactive" );             // fixture wtrestr 0
+		const restricted = renderDiagnostics( { ...jc, wtrestr: 1 }, jo );
+		expect( restricted ).toContain( "Active" );
+	} );
+} );

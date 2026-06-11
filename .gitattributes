@@ -3,3 +3,6 @@
 
 # JS files must always use LF for tools to work
 *.js eol=lf
+
+# Shell scripts must use LF (they run inside Linux containers)
+*.sh eol=lf

@@ -113,6 +113,51 @@
           ]
         }
       ]
+    },
+    {
+      "_comment": "Phase-1 modernized dashboard (DRAFT) — parallel site serving the Vite build (dist). Create the Firebase Hosting site `opensprinkler-nextui` before deploying. Leaves the legacy sites untouched. See docs/DEPLOY.md.",
+      "site": "opensprinkler-nextui",
+      "public": "dist",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ],
+      "headers": [
+        {
+          "source": "**/*",
+          "headers": [
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            }
+          ]
+        },
+        {
+          "source": "**/*.@(jpg|jpeg|gif|png|svg|webp)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public, max-age=3600, s-maxage=31536000"
+            }
+          ]
+        },
+        {
+          "source": "**/*.@(js|css)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public, max-age=3600, s-maxage=31536000"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

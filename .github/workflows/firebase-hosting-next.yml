@@ -1,0 +1,60 @@
+# DRAFT — Phase-1 modernized dashboard deploy (manual, preview-channel only).
+#
+# Deliberately separate from the legacy firebase-hosting.yml so it can NEVER auto-deploy or touch
+# the live sites:
+#   - triggers ONLY on manual workflow_dispatch (no push/PR),
+#   - deploys to a temporary PREVIEW CHANNEL (an expiring URL), never the live channel,
+#   - requires a FIREBASE_SERVICE_ACCOUNT_NEXT secret; without it the deploy step is skipped.
+#
+# Promotion to live (the parallel `opensprinkler-nextui` site) and the SOPT_JAVASCRIPTURL flip are
+# manual, operator-run steps documented in docs/DEPLOY.md.
+name: Deploy Phase-1 dashboard (preview, manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "Preview channel id"
+        required: true
+        default: "phase1-preview"
+
+permissions:
+  checks: write
+  contents: read
+  pull-requests: write
+
+jobs:
+  build_and_preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build the Phase-1 app
+        run: npm run build:app   # → ./dist
+
+      - name: Check for deploy credentials
+        id: creds
+        run: echo "has_sa=${{ secrets.FIREBASE_SERVICE_ACCOUNT_NEXT != '' }}" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy to a preview channel (skipped without secret)
+        if: ${{ steps.creds.outputs.has_sa == 'true' }}
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_NEXT }}
+          projectId: opensprinkler-ui
+          target: opensprinkler-nextui
+          channelId: ${{ github.event.inputs.channel }}
+          expires: 7d
+
+      - name: Note when credentials are absent
+        if: ${{ steps.creds.outputs.has_sa != 'true' }}
+        run: |
+          echo "::notice::Built ./dist but skipped deploy — set the FIREBASE_SERVICE_ACCOUNT_NEXT secret to enable preview-channel deploys."
