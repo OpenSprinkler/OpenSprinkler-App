@@ -95,13 +95,13 @@ capture the §0 baseline first and **click nothing**.
 |---|---|
 | §1 read-only proof — `npm run verify:live` | ✅ **PASSED this session.** fwv221/fwm4/hwv32, `fwf=kars85.3`, 24 stations, 2 programs, caps derived. Reads + capabilities green. |
 | §1b read-only capture — `npm run capture` | ✅ **Ran this session.** 5/6 endpoints captured (`/jl` needs a range), `wto.key` scrubbed, parse-verified; curated corpus restored (not re-pinned — see §1b). |
-| §2a UI render vs mocks (`npm run demo`) | ⬜ Gated (no device risk). |
+| §2a UI render vs mocks (`npm run demo`) | ✅ **Ran this session.** Demo harness boots + serves the full dashboard (all tabs) from mock fixtures; tab visual click-through is the operator's. |
 | §2b live LAN render | ⬜ Gated (armed controls — capture baseline, click nothing). |
 | §3 OTC remote / mixed-content (PRD §4 #1) | ⬜ Gated (needs OTC token + HTTPS build + browser). |
 | §4 auth | ⬜ Gated (wrong-pw / pre-auth-stub contrast is manual). |
-| §5 reversible write proof (rain delay) | ⬜ Gated (reversible, no stations; mandatory post-read). |
+| §5 reversible write proof (rain delay) | ✅ **PASSED this session.** `rd 0→1 (rdst set)→0`; independent post-read `rd=0 rdst=0 en=0`; write flag cleared. Authenticated GET command path proven on hardware. |
 | §6 control smoke test (PHYSICAL) | ⬜ Gated — **actuates valves.** Default-SKIP; requires a disconnected zone. |
-| §7 settings write-back (atomic) | ⬜ Gated — mutates live config; capture/restore each field. |
+| §7 settings write-back (atomic) | ✅ **§7a/§7c/§7d PASSED this session** (atomic writes, all restored): dname round-trip; loc round-trip (`wto`/`wsp` untouched); station rename of `S24` (`stn_dis` untouched, station 8 disable intact). Empirically confirms the atomic-only design — neighbor fields never perturbed. §7b skip (ETo-auto `wl`); §7e/§7f pending/never-ad-hoc. |
 | §8 rollback drill | ⬜ Gated (capture `jsp` first). |
 | §9 final close-out diff | ⬜ Gated. |
 
