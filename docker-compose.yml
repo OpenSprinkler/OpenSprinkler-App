@@ -1,20 +1,44 @@
 services:
   companion:
     container_name: opensprinkler-companion
-    # Option A (zero-setup): build the image locally from this repo.
+
+    # ── Image: pick ONE ───────────────────────────────────────────────────────
+    # Option A — build locally from this repo (zero setup; good for trying it out):
     build: { context: ., dockerfile: server/Dockerfile }
-    # Option B (pull a published multi-arch image): comment out `build:` above and uncomment:
+    # Option B — pull the published multi-arch image (recommended when your docker host
+    # is a separate machine from where you edit code). Comment out `build:` and uncomment:
     # image: kars85/opensprinkler-companion:latest
+
     environment:
-      - PUID=${PUID:-1000}            # owner of the SQLite data dir (matches your stack's convention)
+      - PUID=${PUID:-1000}            # owner of the /data dir (linuxserver-style)
       - PGID=${PGID:-1000}
       - TZ=${TZ:-UTC}                 # host log TZ only; the dashboard shows the controller's own time
-    env_file: [ .env ]               # CONTROLLER_BASE (required), CONTROLLER_PW, CONTROLLER_ID, etc.
-    ports: [ "8080:8080" ]
+
+    # App config — CONTROLLER_BASE is required; CONTROLLER_PW is required unless the device has
+    # ignore-password on (ipas=1). Default: a `.env` next to this file. For a stack that centralizes
+    # config per service, point this at a per-service file instead, e.g.:
+    #   env_file: [ "${DOCKERCONFDIR}/opensprinkler-companion/.env" ]
+    env_file: [ .env ]
+
+    ports: [ "8080:8080" ]           # change the HOST side if 8080 is taken, e.g. "38080:8080"
+
     volumes:
-      - osdata:/data                 # named volume (no permission setup needed)
-      # bind-mount alternative (PUID/PGID make it writable): - ${DOCKERCONFDIR}/opensprinkler-companion:/data
+      # Option 1 — named volume (zero setup, no host permissions to manage):
+      - osdata:/data
+      # Option 2 — bind mount under your stack's config dir (recommended for an organized stack;
+      # PUID/PGID make it writable). Comment out `osdata:/data` above and uncomment:
+      # - "${DOCKERCONFDIR}/opensprinkler-companion:/data"
+
     restart: unless-stopped
   # Follow-on: a `postgres` service goes here when the Postgres adapter lands.
+
 volumes:
   osdata:
+
+# ── Notes ────────────────────────────────────────────────────────────────────
+# • The companion serves the dashboard at http://<host>:<port> AND polls the controller into a local
+#   SQLite DB. When the firmware's UI source (SOPT_JAVASCRIPTURL) points here, the page is served from
+#   the DEVICE origin and loads the SPA cross-origin — the companion sends CORS on all assets for that.
+# • To publish a new image (CI builds linux/amd64+arm64 → Docker Hub): push a `companion-v*` tag, e.g.
+#   `git tag -a companion-v0.1.2 -m "…" && git push origin companion-v0.1.2`, then on the host
+#   `docker compose pull && docker compose up -d`.
