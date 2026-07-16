@@ -1,0 +1,237 @@
+/**
+ * The shipped design system: every rule the product renders. Consumes tokens.css; see DESIGN.md
+ * (root) for the doctrine and .impeccable/design.json for the component snippets.
+ *
+ * Consumers: `app/main.ts` (production build → dist/assets/app.css) and `demo/style.css`
+ * (harness, which adds its own demo-only chrome on top). Nothing here may be demo-specific.
+ *
+ * LAN bundle constraint: no web font, no raster asset, no off-origin request. Graphics are inline
+ * currentColor SVG or they don't exist.
+ */
+@import "./tokens.css";
+
+body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+	background: var(--bg); color: var(--fg); margin: 0; line-height: var(--lh-base);
+	max-width: var(--maxw); margin-inline: auto;
+	padding: var(--space-4)
+		max(var(--space-4), env(safe-area-inset-right))
+		calc(var(--space-4) + env(safe-area-inset-bottom))
+		max(var(--space-4), env(safe-area-inset-left));
+}
+@media (min-width: 700px) { body { padding-block: var(--space-6); } }
+@media (max-width: 400px) { #app section { padding: var(--space-4) var(--space-3); } }
+
+#app section {
+	background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-4);
+	padding: var(--space-5) var(--space-6); box-shadow: var(--shadow-1); margin-bottom: var(--space-4);
+}
+#app h1 { margin-top: 0; font-size: var(--fs-22); line-height: var(--lh-tight); letter-spacing: var(--tracking-tight); font-weight: var(--fw-semibold); }
+#app h2 { font-size: var(--fs-18); margin: 0 0 var(--space-3); line-height: var(--lh-snug); letter-spacing: var(--tracking-tight); }
+.muted { color: var(--muted); font-weight: 400; }
+
+table.status { width: 100%; border-collapse: collapse; }
+table.status th, table.status td { text-align: left; padding: var(--space-3) var(--space-1); border-bottom: 1px solid var(--border); }
+table.status th[scope="row"] { color: var(--muted); font-weight: var(--fw-semibold); width: auto; min-width: 8.5em; padding-right: var(--space-3); overflow-wrap: anywhere; }
+table.status td { overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+table.status tr:last-child th, table.status tr:last-child td { border-bottom: none; }
+@media (max-width: 400px) { table.status th[scope="row"] { min-width: 6em; } }
+.err { color: var(--err); white-space: pre-wrap; }
+
+/* login form */
+form.login {
+	max-width: 340px; margin: var(--space-12) auto; padding: var(--space-6); background: var(--card);
+	border: 1px solid var(--border); border-radius: var(--radius-4); box-shadow: var(--shadow-1);
+	display: flex; flex-direction: column; gap: var(--space-3);
+}
+form.login h1 { margin: 0 0 var(--space-1); font-size: var(--fs-18); text-align: center; }
+form.login label { font-weight: var(--fw-semibold); font-size: var(--fs-14); }
+form.login input {
+	padding: var(--space-3); font-size: var(--fs-16); border: 1px solid var(--border); border-radius: var(--radius-1);
+	background: transparent; color: inherit; box-sizing: border-box;
+}
+form.login button {
+	margin-top: var(--space-1); padding: var(--space-3); font-size: var(--fs-15); font-weight: var(--fw-semibold);
+	color: var(--on-accent); background: var(--accent); border: none; border-radius: var(--radius-1); cursor: pointer;
+}
+form.login button:hover { background: var(--accent-strong); }
+form.login button:disabled { opacity: .6; cursor: not-allowed; }
+code { background: color-mix(in oklab, var(--border) 30%, transparent); padding: 1px 5px; border-radius: var(--radius-1); }
+
+/* tabs */
+nav.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border); margin-bottom: var(--space-4); flex-wrap: wrap; }
+.tab {
+	padding: 9px 16px; border: none; background: none; color: var(--muted); cursor: pointer;
+	border-bottom: 2px solid transparent; font-size: var(--fs-15);
+	display: inline-flex; align-items: center; gap: 7px; min-height: 40px;
+	transition: color var(--dur-fast) var(--ease-standard), border-color var(--dur-fast) var(--ease-standard);
+}
+.tab:hover { color: var(--fg); }
+.tab.active { color: var(--fg); font-weight: var(--fw-semibold); border-bottom-color: var(--accent); border-bottom-width: 2px; }
+
+/* Visible keyboard focus (WCAG 2.4.7) — these elements reset border/background so the UA outline is unreliable. */
+.tab:focus-visible, .tab:focus,
+.action:focus-visible, .action:focus,
+.subtab:focus-visible, .subtab:focus,
+.help-tip:focus-visible, .help-tip:focus,
+.table-scroll:focus-visible, .table-scroll:focus,
+[data-action]:focus-visible {
+	outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px;
+}
+form.login input:focus-visible, form.settings input:focus-visible, form.settings select:focus-visible {
+	outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent);
+}
+
+/* Inline help affordance: visible bubble on hover AND keyboard focus (WCAG 1.4.13). */
+.help-tip { position: relative; display: inline-block; color: var(--accent); cursor: help; font-size: var(--fs-13); }
+.help-tip::after {  /* invisible 44px hit area centered on the tiny glyph (WCAG 2.5.5 on coarse pointers) */
+	content: ""; position: absolute; inset: 50% auto auto 50%;
+	width: var(--tap); height: var(--tap); transform: translate(-50%, -50%);
+}
+.help-tip .help-bubble {
+	display: none; position: absolute; left: 50%; bottom: 150%; transform: translateX(-50%);
+	width: max-content; max-width: 240px; padding: 6px 9px; z-index: 10;
+	background: var(--fg); color: var(--bg); border-radius: var(--radius-2);
+	font-size: var(--fs-12); font-weight: 400; line-height: 1.35; text-align: left; white-space: normal;
+	box-shadow: var(--shadow-2); transition: opacity var(--dur-fast) var(--ease-standard);
+}
+.help-tip:hover .help-bubble, .help-tip:focus-visible .help-bubble, .help-tip:focus .help-bubble { display: block; }
+
+/* shared view chrome */
+.info-note, .empty-state, .help-bubble { max-width: var(--measure); }
+
+/* stations grid */
+table.grid { width: 100%; border-collapse: collapse; }
+table.grid th, table.grid td { text-align: left; padding: var(--space-2) 6px; border-bottom: 1px solid var(--border); }
+table.grid th { color: var(--muted); font-weight: var(--fw-semibold); font-size: var(--fs-13); }
+table.grid td { font-variant-numeric: tabular-nums; }
+table.grid td.num, table.grid th:first-child { width: 36px; color: var(--muted); }
+tr:last-child td { border-bottom: none; }
+/* wide-grid escape hatch — a focusable wrapper around ONLY the table, so section padding + help
+   tooltips (which render above their anchors) are never clipped. */
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.table-scroll table.grid { min-width: max-content; }
+
+/* badges (hardcoded fills: dark-mode-immune, AA in both schemes) */
+.badge {
+	display: inline-flex; align-items: center; gap: 5px;
+	font-size: var(--fs-12); font-weight: var(--fw-semibold); padding: 2px var(--space-2);
+	border-radius: var(--radius-pill); border: 1px solid var(--border); color: var(--muted);
+}
+.badge.on { color: #fff; background: #15803d; border-color: #15803d; } /* 5.02:1 on #fff (both schemes) */
+.badge.off { color: #fff; background: #6b7280; border-color: #6b7280; }
+.badge.spec { color: var(--accent); border-color: var(--accent); }
+.badge.cap { text-transform: capitalize; }
+.badge .i-dot { width: 8px; height: 8px; margin: 0; color: currentColor; }
+.badge.on .i-dot.live { animation: dot-pulse 1.8s ease-in-out infinite; }
+@keyframes dot-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+
+/* program cards */
+article.program {
+	border: 1px solid var(--border); border-radius: var(--radius-4); padding: var(--space-3) var(--space-4); margin-bottom: var(--space-3);
+	background: var(--accent-soft);
+}
+article.program header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; }
+article.program h3 { margin: 0; font-size: var(--fs-16); }
+article.program .badges { display: flex; gap: 6px; flex-wrap: wrap; }
+table.meta { width: 100%; border-collapse: collapse; margin: var(--space-3) 0; }
+table.meta th { text-align: left; color: var(--muted); font-weight: var(--fw-semibold); width: auto; min-width: 6.5em; max-width: 40%; padding: var(--space-1) 0; vertical-align: top; }
+table.meta td { padding: var(--space-1) 0; overflow-wrap: anywhere; }
+@media (min-width: 700px) { table.meta th { width: 110px; } }
+ul.durations { margin: 6px 0 0; padding-left: 18px; }
+ul.durations li { margin: 2px 0; }
+details summary { cursor: pointer; color: var(--muted); font-size: var(--fs-14); }
+
+/* action buttons + bars */
+.action {
+	font: inherit; font-size: var(--fs-13); padding: var(--space-2) var(--space-3); border-radius: var(--radius-2); cursor: pointer;
+	border: 1px solid var(--border); background: var(--card); color: var(--fg);
+	display: inline-flex; align-items: center; justify-content: center; min-height: 36px;
+	transition: border-color var(--dur-fast) var(--ease-standard), background var(--dur-fast) var(--ease-standard), color var(--dur-fast) var(--ease-standard);
+}
+.action:hover { border-color: var(--accent); }
+.action:active { transform: translateY(1px); }
+.action:disabled { opacity: .55; cursor: not-allowed; }
+.action.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.action.primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
+.action.danger { border-color: var(--err); color: var(--err); }
+.action.danger:hover { background: color-mix(in oklab, var(--err) 16%, var(--card)); border-color: var(--err); color: var(--err); }
+.action-bar { display: flex; gap: var(--space-2); flex-wrap: wrap; margin-top: var(--space-3); }
+
+/* settings forms */
+.subtabs { display: flex; gap: 2px; flex-wrap: wrap; margin-bottom: var(--space-3); }
+.subtab {
+	padding: var(--space-2) var(--space-3); border: none; background: none; color: var(--muted); cursor: pointer;
+	border-bottom: 2px solid transparent; font-size: var(--fs-14);
+	display: inline-flex; align-items: center; min-height: 36px;
+	transition: color var(--dur-fast) var(--ease-standard), border-color var(--dur-fast) var(--ease-standard);
+}
+.subtab.active { color: var(--fg); font-weight: var(--fw-semibold); border-bottom-color: var(--accent); border-bottom-width: 2px; }
+form.settings { display: flex; flex-direction: column; gap: var(--space-3); }
+form.settings .field { display: flex; flex-direction: column; gap: var(--space-1); }
+form.settings .field-check { flex-direction: row; align-items: center; gap: var(--space-2); }
+form.settings label { font-weight: var(--fw-semibold); font-size: var(--fs-14); color: var(--muted); }
+form.settings input[type="text"], form.settings input[type="number"], form.settings select {
+	padding: 9px; font-size: var(--fs-15); border: 1px solid var(--border); border-radius: var(--radius-1);
+	background: transparent; color: inherit; box-sizing: border-box;
+}
+form.settings fieldset { border: 1px solid var(--border); border-radius: var(--radius-3); padding: var(--space-3); margin: 0; }
+form.settings fieldset legend { color: var(--muted); font-weight: var(--fw-semibold); font-size: var(--fs-13); padding: 0 6px; }
+fieldset.station-edit { display: grid; gap: var(--space-2); }
+
+/* touch targets — comfortable for mouse; 44px on touch (WCAG 2.5.5). Base 36px already meets 2.5.8 AA. */
+@media (pointer: coarse) {
+	.tab, .subtab, .action, form.login button, form.login input,
+	.table-scroll table.grid td .action { min-height: var(--tap); }
+}
+
+/* loading state */
+.loading { display: flex; align-items: center; gap: var(--space-3); color: var(--muted); font-size: var(--fs-14); padding: var(--space-6) var(--space-1); }
+.spinner { width: 18px; height: 18px; border: 2px solid var(--gauge-track); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* error card */
+.error-card {
+	background: color-mix(in oklab, var(--err) 10%, var(--card));
+	border: 1px solid color-mix(in oklab, var(--err) 45%, var(--border));
+	border-radius: var(--radius-4); padding: var(--space-4) var(--space-5); color: var(--fg);
+}
+.error-card .error-title { display: flex; align-items: center; gap: var(--space-2); font-weight: var(--fw-semibold); color: var(--err); }
+.error-card .error-detail { color: var(--muted); font-size: var(--fs-14); white-space: pre-wrap; margin: var(--space-2) 0 var(--space-3); }
+
+/* graphics */
+.icon { display: inline-block; vertical-align: -.12em; fill: currentColor; }
+.empty-state { display: flex; align-items: flex-start; gap: var(--space-3); color: var(--muted); }
+.i-empty { width: 20px; height: 20px; flex: none; opacity: .55; margin-top: 1px; color: var(--accent); }
+.gauge-cell { display: inline-flex; align-items: center; gap: var(--space-2); }
+.i-gauge { width: 30px; height: 30px; flex: none; }
+.i-gauge-track { color: var(--gauge-track); }
+.i-gauge-fill { stroke: var(--accent); transition: stroke-dashoffset var(--dur-slow) var(--ease-standard); }
+.i-dot { width: 11px; height: 11px; vertical-align: -1px; margin-right: var(--space-2); flex: none; }
+.i-dot.ok { color: var(--ok); }
+.i-dot.off { color: var(--muted); }
+.i-tab { width: 16px; height: 16px; flex: none; }
+.method-cell { display: inline-flex; align-items: center; gap: var(--space-2); }
+.i-method { width: 16px; height: 16px; flex: none; color: var(--muted); }
+@media (max-width: 400px) { .tab { padding: 9px 10px; } .i-tab { width: 18px; height: 18px; } }
+
+/* toast */
+.toast {
+	position: fixed; left: 50%; bottom: calc(var(--space-5) + env(safe-area-inset-bottom)); transform: translateX(-50%);
+	background: var(--fg); color: var(--bg); padding: var(--space-3) var(--space-4); border-radius: var(--radius-3);
+	font-size: var(--fs-14); box-shadow: var(--shadow-3); max-width: min(90vw, var(--maxw)); z-index: 50;
+	margin-inline: max(0px, env(safe-area-inset-left)) max(0px, env(safe-area-inset-right));
+	opacity: 0; pointer-events: none; transition: opacity var(--dur-base) var(--ease-standard);
+}
+.toast:not(:empty), .toast.show { opacity: 1; }
+.toast.err { background: #b91c1c; color: #fff; }   /* fixed dark red — 6.47:1 with #fff in both schemes */
+
+/* WCAG 2.3.3 — neutralize ALL motion. Global guard; keep this the LAST block in the file. */
+@media (prefers-reduced-motion: reduce) {
+	*, *::before, *::after {
+		animation-duration: .001ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: .001ms !important;
+		scroll-behavior: auto !important;
+	}
+}

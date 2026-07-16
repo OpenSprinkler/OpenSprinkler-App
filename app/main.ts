@@ -7,7 +7,7 @@
  *   - `?base=http://192.168.1.50/`  → explicit device (LAN) or an OTC forward URL (remote)
  *   - otherwise `location.origin`   → when this build is eventually served from the device
  */
-import "../demo/style.css"; // DRAFT: shares the demo's view styling for now
+import "../www/src/ui/system.css";
 import { BrowserDeviceSeam, readFirmwareGlobals } from "../www/src/seam/device";
 import { OsApiClient } from "../www/src/api/client";
 import type { DashboardData } from "../www/src/views/dashboard";

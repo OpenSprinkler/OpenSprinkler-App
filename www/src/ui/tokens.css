@@ -1,0 +1,54 @@
+/**
+ * Design tokens — the normative layer. See DESIGN.md (root) for the doctrine behind each value.
+ *
+ * Rule (UX-SPEC §14): a token is added only when it appears in at least TWO shipped components.
+ * Otherwise compose from what's here. This file is the contract; `system.css` consumes it.
+ *
+ * Dark mode redefines the base colors only — accent variants are derived with color-mix off
+ * --accent, so they follow automatically. Never hand-pick a dark-mode accent tint.
+ */
+:root {
+	/* color */
+	--bg: #f6f7fb; --fg: #0f172a; --muted: #586380;
+	--card: #fff; --border: #cdd5e0; --accent: #2563eb; --err: #b91c1c;
+	--on-accent: #fff;                         /* text on filled accent — #fff on #2563eb = 5.17:1 */
+	/* type scale (hierarchy via weight/tracking; sizes ~minor-third off 16px) */
+	--fs-12: 12px; --fs-13: 13px; --fs-14: 14px; --fs-15: 15px; --fs-16: 16px; --fs-18: 18px; --fs-22: 22px;
+	--lh-base: 1.5; --lh-snug: 1.35; --lh-tight: 1.2;
+	--fw-semibold: 600; --tracking-tight: -0.01em; --measure: 60ch;
+	/* spacing */
+	--space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+	--space-5: 20px; --space-6: 24px; --space-8: 32px; --space-12: 48px;
+	--gap: var(--space-4);
+	/* radius */
+	--radius-1: 4px; --radius-2: 6px; --radius-3: 8px; --radius-4: 10px; --radius-pill: 999px;
+	/* elevation */
+	--shadow-1: 0 1px 2px rgba(15,23,42,.04), 0 2px 8px rgba(15,23,42,.06);
+	--shadow-2: 0 4px 16px rgba(15,23,42,.10);
+	--shadow-3: 0 8px 24px rgba(15,23,42,.18);
+	/* motion */
+	--dur-fast: 120ms; --dur-base: 180ms; --dur-slow: 260ms;
+	--ease-standard: cubic-bezier(.2,0,0,1);
+	/* accent tonal variants (derive from --accent → dark inherits automatically) */
+	--accent-weak: color-mix(in oklab, var(--accent) 12%, transparent);
+	--accent-soft: color-mix(in oklab, var(--accent) 8%, var(--card));
+	--accent-strong: color-mix(in oklab, var(--accent) 100%, black 8%);
+	/* status marks — dots/gauge only (badges stay hardcoded for dark-mode immunity) */
+	--ok: #15803d;                             /* dot on card ≥3:1 (light) */
+	--gauge-track: color-mix(in oklab, var(--muted) 35%, transparent);  /* unfilled arc, perceivable */
+	/* responsive */
+	--tap: 44px; --maxw: 640px;
+}
+@media (prefers-color-scheme: dark) {
+	:root {
+		--bg: #0b1220; --fg: #e6eaff; --muted: #a3acc7;
+		--card: #0f172a; --border: #334155; --accent: #60a5fa; --err: #f87171;
+		--on-accent: #0b1220;                  /* #0b1220 on #60a5fa ≈ 7:1 (filled-accent text) */
+		--ok: #4ade80;                         /* dot on dark card; meaning-bearing mark ≥3:1 */
+	}
+}
+
+/* Responsive token steps. Layout that consumes them lives in system.css. */
+@media (min-width: 700px)  { :root { --maxw: 720px; } }
+@media (min-width: 1024px) { :root { --maxw: 1100px; } }
+@media (max-width: 400px)  { :root { --gap: var(--space-3); } }
