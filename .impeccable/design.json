@@ -1,0 +1,218 @@
+{
+	"schemaVersion": 2,
+	"generatedAt": "2026-07-16T00:00:00.000Z",
+	"title": "Design System: OpenSprinkler (fork)",
+	"extensions": {
+		"colorMeta": {
+			"clear-sky-blue": {
+				"role": "primary",
+				"displayName": "Clear-Sky Blue",
+				"canonical": "#2563eb",
+				"darkValue": "#60a5fa",
+				"tonalRamp": ["oklch(20% 0.12 262)", "oklch(30% 0.16 262)", "oklch(40% 0.20 262)", "oklch(50% 0.23 262)", "oklch(60% 0.20 262)", "oklch(70% 0.15 262)", "oklch(82% 0.09 262)", "oklch(94% 0.03 262)"]
+			},
+			"ink": {
+				"role": "neutral",
+				"displayName": "Ink",
+				"canonical": "#0f172a",
+				"darkValue": "#e6eaff",
+				"tonalRamp": ["oklch(15% 0.03 265)", "oklch(24% 0.03 265)", "oklch(35% 0.03 265)", "oklch(46% 0.03 265)", "oklch(58% 0.03 265)", "oklch(70% 0.02 265)", "oklch(83% 0.02 265)", "oklch(95% 0.01 265)"]
+			},
+			"slate-muted": {
+				"role": "neutral",
+				"displayName": "Slate Muted",
+				"canonical": "#586380",
+				"darkValue": "#a3acc7",
+				"tonalRamp": ["oklch(20% 0.04 270)", "oklch(30% 0.04 270)", "oklch(40% 0.04 270)", "oklch(50% 0.04 270)", "oklch(60% 0.04 270)", "oklch(72% 0.03 270)", "oklch(84% 0.02 270)", "oklch(95% 0.01 270)"]
+			},
+			"cool-paper": {
+				"role": "neutral",
+				"displayName": "Cool Paper",
+				"canonical": "#f6f7fb",
+				"darkValue": "#0b1220",
+				"tonalRamp": ["oklch(18% 0.02 265)", "oklch(28% 0.02 265)", "oklch(40% 0.015 265)", "oklch(52% 0.012 265)", "oklch(64% 0.01 265)", "oklch(76% 0.008 265)", "oklch(88% 0.006 265)", "oklch(97% 0.004 265)"]
+			},
+			"hairline": {
+				"role": "neutral",
+				"displayName": "Hairline",
+				"canonical": "#cdd5e0",
+				"darkValue": "#334155",
+				"tonalRamp": ["oklch(20% 0.02 250)", "oklch(30% 0.025 250)", "oklch(41% 0.025 250)", "oklch(52% 0.025 250)", "oklch(64% 0.022 250)", "oklch(75% 0.02 250)", "oklch(86% 0.015 250)", "oklch(95% 0.008 250)"]
+			},
+			"fault-red": {
+				"role": "tertiary",
+				"displayName": "Fault Red",
+				"canonical": "#b91c1c",
+				"darkValue": "#f87171",
+				"tonalRamp": ["oklch(22% 0.10 27)", "oklch(32% 0.14 27)", "oklch(42% 0.17 27)", "oklch(51% 0.19 27)", "oklch(62% 0.19 27)", "oklch(73% 0.15 27)", "oklch(85% 0.09 27)", "oklch(95% 0.03 27)"]
+			},
+			"running-green": {
+				"role": "tertiary",
+				"displayName": "Running Green",
+				"canonical": "#15803d",
+				"darkValue": "#4ade80",
+				"tonalRamp": ["oklch(22% 0.07 150)", "oklch(32% 0.10 150)", "oklch(42% 0.12 150)", "oklch(52% 0.14 150)", "oklch(63% 0.15 150)", "oklch(75% 0.15 150)", "oklch(86% 0.10 150)", "oklch(95% 0.04 150)"]
+			}
+		},
+		"typographyMeta": {
+			"display": { "displayName": "Display", "purpose": "The view's h1. One per screen." },
+			"headline": { "displayName": "Headline", "purpose": "Section h2 and the login card title." },
+			"title": { "displayName": "Title", "purpose": "Program card h3 — the name of one saved rule." },
+			"body": { "displayName": "Body", "purpose": "All prose and all values. Capped at 60ch (--measure) for notes, empty states, help bubbles." },
+			"label": { "displayName": "Label", "purpose": "Field labels, table row headers, fieldset legends. Slate Muted. Never body copy." },
+			"data": { "displayName": "Data", "purpose": "Durations, percentages, timestamps, zone counts. Always tabular-nums." },
+			"caption": { "displayName": "Caption", "purpose": "Badges and help bubbles." }
+		},
+		"shadows": [
+			{ "name": "seated", "value": "0 1px 2px rgba(15,23,42,.04), 0 2px 8px rgba(15,23,42,.06)", "purpose": "Sections, cards, login form. The default and, for in-flow content, the only one." },
+			{ "name": "floating", "value": "0 4px 16px rgba(15,23,42,.10)", "purpose": "The help bubble — something opened over the page." },
+			{ "name": "overlay", "value": "0 8px 24px rgba(15,23,42,.18)", "purpose": "The toast and any future <dialog> — something above everything." }
+		],
+		"motion": [
+			{ "name": "dur-fast", "value": "120ms", "purpose": "Hover/focus state changes on tabs, buttons, help bubbles." },
+			{ "name": "dur-base", "value": "180ms", "purpose": "Toast fade in/out." },
+			{ "name": "dur-slow", "value": "260ms", "purpose": "Gauge arc stroke-dashoffset — a value settling, not a flourish." },
+			{ "name": "ease-standard", "value": "cubic-bezier(.2,0,0,1)", "purpose": "The only easing. Exponential ease-out; no bounce, no elastic." },
+			{ "name": "dot-pulse", "value": "1.8s ease-in-out infinite (opacity 1 → .35 → 1)", "purpose": "Live-state dot on a running badge. Decorative — the badge text carries the state." },
+			{ "name": "reduced-motion-guard", "value": "@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; } }", "purpose": "Universal and non-negotiable (WCAG 2.3.3). Must remain the LAST block in the stylesheet." }
+		],
+		"breakpoints": [
+			{ "name": "narrow", "value": "400px", "purpose": "Tightens gap to --space-3 and section padding; shrinks table row-header min-width." },
+			{ "name": "tablet", "value": "700px", "purpose": "--maxw 720px; tab row becomes static top nav instead of bottom bar." },
+			{ "name": "desktop", "value": "1024px", "purpose": "--maxw 1100px; two-column Home and Schedule list/editor split allowed." }
+		]
+	},
+	"components": [
+		{
+			"name": "Primary Action",
+			"kind": "button",
+			"refersTo": "action-primary",
+			"description": "The single most-likely path on a view. One per screen.",
+			"html": "<button class=\"ds-action ds-action-primary\">Save schedule</button>",
+			"css": ".ds-action { font: inherit; font-size: var(--fs-13, 13px); padding: var(--space-2, 8px) var(--space-3, 12px); border-radius: var(--radius-2, 6px); cursor: pointer; border: 1px solid var(--border, #cdd5e0); background: var(--card, #fff); color: var(--fg, #0f172a); display: inline-flex; align-items: center; justify-content: center; min-height: 36px; transition: border-color 120ms cubic-bezier(.2,0,0,1), background 120ms cubic-bezier(.2,0,0,1), color 120ms cubic-bezier(.2,0,0,1); } .ds-action-primary { background: var(--accent, #2563eb); border-color: var(--accent, #2563eb); color: var(--on-accent, #fff); } .ds-action-primary:hover { background: var(--accent-strong, #1f56d3); border-color: var(--accent-strong, #1f56d3); } .ds-action:active { transform: translateY(1px); } .ds-action:focus-visible { outline: 2px solid var(--accent, #2563eb); outline-offset: 2px; border-radius: 3px; } .ds-action:disabled { opacity: .55; cursor: not-allowed; } @media (pointer: coarse) { .ds-action { min-height: 44px; } }"
+		},
+		{
+			"name": "Default Action",
+			"kind": "button",
+			"refersTo": "action",
+			"description": "Most buttons. Neutral face; the label carries the persuasion.",
+			"html": "<button class=\"ds-action\">Run now</button>",
+			"css": ".ds-action { font: inherit; font-size: var(--fs-13, 13px); padding: var(--space-2, 8px) var(--space-3, 12px); border-radius: var(--radius-2, 6px); cursor: pointer; border: 1px solid var(--border, #cdd5e0); background: var(--card, #fff); color: var(--fg, #0f172a); display: inline-flex; align-items: center; justify-content: center; min-height: 36px; transition: border-color 120ms cubic-bezier(.2,0,0,1), background 120ms cubic-bezier(.2,0,0,1); } .ds-action:hover { border-color: var(--accent, #2563eb); } .ds-action:active { transform: translateY(1px); } .ds-action:focus-visible { outline: 2px solid var(--accent, #2563eb); outline-offset: 2px; border-radius: 3px; } @media (pointer: coarse) { .ds-action { min-height: 44px; } }"
+		},
+		{
+			"name": "Danger Action",
+			"kind": "button",
+			"refersTo": "action-danger",
+			"description": "Delete, stop all, reboot. Serious at rest, never urgent.",
+			"html": "<button class=\"ds-action ds-action-danger\">Delete schedule</button>",
+			"css": ".ds-action { font: inherit; font-size: var(--fs-13, 13px); padding: var(--space-2, 8px) var(--space-3, 12px); border-radius: var(--radius-2, 6px); cursor: pointer; border: 1px solid var(--border, #cdd5e0); background: var(--card, #fff); color: var(--fg, #0f172a); display: inline-flex; align-items: center; justify-content: center; min-height: 36px; transition: border-color 120ms cubic-bezier(.2,0,0,1), background 120ms cubic-bezier(.2,0,0,1); } .ds-action-danger { border-color: var(--err, #b91c1c); color: var(--err, #b91c1c); } .ds-action-danger:hover { background: color-mix(in oklab, var(--err, #b91c1c) 16%, var(--card, #fff)); border-color: var(--err, #b91c1c); } .ds-action:focus-visible { outline: 2px solid var(--accent, #2563eb); outline-offset: 2px; border-radius: 3px; } @media (pointer: coarse) { .ds-action { min-height: 44px; } }"
+		},
+		{
+			"name": "Program Card",
+			"kind": "card",
+			"refersTo": "program-card",
+			"description": "The signature surface. Accent-soft ground says 'this is a saved rule'. Never nested inside another card.",
+			"html": "<article class=\"ds-program\"><header><h3>Front Lawn</h3><span class=\"ds-badges\"><span class=\"ds-badge ds-badge-on\"><svg class=\"ds-dot\" viewBox=\"0 0 8 8\" aria-hidden=\"true\"><circle cx=\"4\" cy=\"4\" r=\"4\" fill=\"currentColor\"/></svg>Enabled</span></span></header><table class=\"ds-meta\"><tr><th scope=\"row\">Runs</th><td>Every Monday, Wednesday, and Friday at 6:00 AM</td></tr><tr><th scope=\"row\">Zones</th><td>Front Lawn, Side Strip — 18 min base</td></tr></table></article>",
+			"css": ".ds-program { border: 1px solid var(--border, #cdd5e0); border-radius: var(--radius-4, 10px); padding: var(--space-3, 12px) var(--space-4, 16px); background: var(--accent-soft, color-mix(in oklab, var(--accent, #2563eb) 8%, var(--card, #fff))); color: var(--fg, #0f172a); } .ds-program header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3, 12px); flex-wrap: wrap; } .ds-program h3 { margin: 0; font-size: var(--fs-16, 16px); font-weight: 600; line-height: 1.35; } .ds-badges { display: flex; gap: 6px; flex-wrap: wrap; } .ds-badge { display: inline-flex; align-items: center; gap: 5px; font-size: var(--fs-12, 12px); font-weight: 600; padding: 2px var(--space-2, 8px); border-radius: 999px; border: 1px solid var(--border, #cdd5e0); color: var(--muted, #586380); } .ds-badge-on { color: #fff; background: #15803d; border-color: #15803d; } .ds-dot { width: 8px; height: 8px; color: currentColor; animation: ds-dot-pulse 1.8s ease-in-out infinite; } @keyframes ds-dot-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } } .ds-meta { width: 100%; border-collapse: collapse; margin: var(--space-3, 12px) 0 0; } .ds-meta th { text-align: left; color: var(--muted, #586380); font-weight: 600; font-size: var(--fs-14, 14px); min-width: 6.5em; max-width: 40%; padding: var(--space-1, 4px) 0; vertical-align: top; } .ds-meta td { padding: var(--space-1, 4px) 0; font-size: var(--fs-14, 14px); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; } @media (prefers-reduced-motion: reduce) { .ds-dot { animation-duration: .001ms !important; animation-iteration-count: 1 !important; } }"
+		},
+		{
+			"name": "Text Field",
+			"kind": "input",
+			"refersTo": "input",
+			"description": "Transparent face inherits whatever ground it sits on; correct in both schemes for free. 16px so iOS never zooms.",
+			"html": "<div class=\"ds-field\"><label for=\"ds-pgname\">Program name</label><input id=\"ds-pgname\" type=\"text\" value=\"Front Lawn\"></div>",
+			"css": ".ds-field { display: flex; flex-direction: column; gap: var(--space-1, 4px); } .ds-field label { font-weight: 600; font-size: var(--fs-14, 14px); color: var(--muted, #586380); } .ds-field input { padding: 9px; font-size: var(--fs-16, 16px); border: 1px solid var(--border, #cdd5e0); border-radius: var(--radius-1, 4px); background: transparent; color: inherit; box-sizing: border-box; } .ds-field input:focus-visible { outline: 2px solid var(--accent, #2563eb); outline-offset: 1px; border-color: var(--accent, #2563eb); }"
+		},
+		{
+			"name": "Tab Navigation",
+			"kind": "nav",
+			"refersTo": "tab",
+			"description": "Active state is text weight + underline shape + color — three signals, never color alone. Icons supplement; labels always visible.",
+			"html": "<nav class=\"ds-tabs\"><button class=\"ds-tab ds-tab-active\">Home</button><button class=\"ds-tab\">Schedule</button><button class=\"ds-tab\">Zones</button><button class=\"ds-tab\">Weather</button></nav>",
+			"css": ".ds-tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border, #cdd5e0); flex-wrap: wrap; } .ds-tab { padding: 9px 16px; border: none; background: none; color: var(--muted, #586380); cursor: pointer; border-bottom: 2px solid transparent; font: inherit; font-size: var(--fs-15, 15px); display: inline-flex; align-items: center; gap: 7px; min-height: 40px; transition: color 120ms cubic-bezier(.2,0,0,1), border-color 120ms cubic-bezier(.2,0,0,1); } .ds-tab:hover { color: var(--fg, #0f172a); } .ds-tab-active { color: var(--fg, #0f172a); font-weight: 600; border-bottom-color: var(--accent, #2563eb); } .ds-tab:focus-visible { outline: 2px solid var(--accent, #2563eb); outline-offset: 2px; border-radius: 3px; } @media (pointer: coarse) { .ds-tab { min-height: 44px; } }"
+		},
+		{
+			"name": "Help Tip",
+			"kind": "custom",
+			"refersTo": null,
+			"description": "The pattern for every 'why?' in the product. Opens on hover, focus, AND tap; a 13px glyph carries an invisible 44px hit area.",
+			"html": "<span class=\"ds-help\" tabindex=\"0\" role=\"button\" aria-label=\"Why is watering adjusted?\">?<span class=\"ds-help-bubble\">Weather lowered today's run to 45%. A 10 minute zone runs about 4½ minutes.</span></span>",
+			"css": ".ds-help { position: relative; display: inline-block; color: var(--accent, #2563eb); cursor: help; font-size: var(--fs-13, 13px); font-weight: 600; } .ds-help::after { content: \"\"; position: absolute; inset: 50% auto auto 50%; width: 44px; height: 44px; transform: translate(-50%, -50%); } .ds-help-bubble { display: none; position: absolute; left: 50%; bottom: 150%; transform: translateX(-50%); width: max-content; max-width: 240px; padding: 6px 9px; z-index: 10; background: var(--fg, #0f172a); color: var(--bg, #f6f7fb); border-radius: var(--radius-2, 6px); font-size: var(--fs-12, 12px); font-weight: 400; line-height: 1.35; text-align: left; white-space: normal; box-shadow: 0 4px 16px rgba(15,23,42,.10); } .ds-help:hover .ds-help-bubble, .ds-help:focus-visible .ds-help-bubble { display: block; } .ds-help:focus-visible { outline: 2px solid var(--accent, #2563eb); outline-offset: 2px; border-radius: 3px; }"
+		},
+		{
+			"name": "Error Card",
+			"kind": "card",
+			"refersTo": null,
+			"description": "States scope, never leaks a hash, token, key, or full query URL.",
+			"html": "<div class=\"ds-error\"><div class=\"ds-error-title\">Weather service unavailable</div><div class=\"ds-error-detail\">Last successful update 2 hours ago. The controller will use its fail-safe behavior.</div><button class=\"ds-action\">Retry</button></div>",
+			"css": ".ds-error { background: color-mix(in oklab, var(--err, #b91c1c) 10%, var(--card, #fff)); border: 1px solid color-mix(in oklab, var(--err, #b91c1c) 45%, var(--border, #cdd5e0)); border-radius: var(--radius-4, 10px); padding: var(--space-4, 16px) var(--space-5, 20px); color: var(--fg, #0f172a); } .ds-error-title { display: flex; align-items: center; gap: var(--space-2, 8px); font-weight: 600; color: var(--err, #b91c1c); } .ds-error-detail { color: var(--muted, #586380); font-size: var(--fs-14, 14px); white-space: pre-wrap; margin: var(--space-2, 8px) 0 var(--space-3, 12px); max-width: 60ch; } .ds-action { font: inherit; font-size: var(--fs-13, 13px); padding: var(--space-2, 8px) var(--space-3, 12px); border-radius: var(--radius-2, 6px); cursor: pointer; border: 1px solid var(--border, #cdd5e0); background: var(--card, #fff); color: var(--fg, #0f172a); min-height: 36px; } .ds-action:hover { border-color: var(--accent, #2563eb); }"
+		},
+		{
+			"name": "Toast",
+			"kind": "custom",
+			"refersTo": "toast",
+			"description": "Confirmation of a verified result. Never the sole location of an error.",
+			"html": "<div class=\"ds-toast\">Schedule saved</div>",
+			"css": ".ds-toast { display: inline-block; background: var(--fg, #0f172a); color: var(--bg, #f6f7fb); padding: var(--space-3, 12px) var(--space-4, 16px); border-radius: var(--radius-3, 8px); font-size: var(--fs-14, 14px); box-shadow: 0 8px 24px rgba(15,23,42,.18); max-width: min(90vw, 640px); }"
+		}
+	],
+	"narrative": {
+		"northStar": "The Utility Panel",
+		"overview": "This is a well-made household instrument, not an app experience. It lives on a phone held at arm's length in direct sunlight next to an open valve box, and it lives in a desktop tab during a seasonal schedule rework. Both times its job is identical: report what is true, and never look like it is performing. The system is a native-font, framework-free, single-stylesheet panel where a border does the work a shadow would do elsewhere and a word does the work an icon would do elsewhere.\n\nEvery visual decision descends from one constraint and one duty. The constraint: the bundle is served off the controller's own LAN flash, so there is no web font, no raster asset, no off-origin request, and no icon package — graphics are inline currentColor SVG or they do not exist. The duty: the panel must never look more certain than it is. Stale data, estimated runs, and skipped weather all get visible, textual treatment, because a confident-looking screen that is lying is the worst outcome this product can produce.\n\nIt explicitly rejects the four things named in PRODUCT.md. It is not the legacy jQuery Mobile app — no gradient chrome, no blue toolbar, no chevron list rows. It is not a firmware/engineer dashboard — no hex, no packed flags, no diagnostic table as the front door. It is not a Rachio/Rain Bird consumer app — no mascot, no illustration, no marketing surface inside the product. It is not generic SaaS — no repeated icon+heading+text card grid, no hero metric tile, no gradient accent anywhere.",
+		"keyCharacteristics": [
+			"Native system font stack; zero downloaded fonts, zero icon fonts.",
+			"One accent, used rarely: active tab, focus ring, primary button, gauge fill.",
+			"Bordered flat surfaces; shadows only for things that genuinely overlay.",
+			"Tabular numerals on every duration, percentage, and timestamp.",
+			"Light and dark ship together; neither is an inversion of the other.",
+			"44px targets on coarse pointers; visible focus on everything that resets its own chrome.",
+			"Motion is functional and globally revocable under prefers-reduced-motion."
+		],
+		"rules": [
+			{ "name": "The One Voice Rule", "body": "Clear-Sky Blue is the only accent and appears on well under 10% of any screen. If two things on a screen are blue, one of them is wrong. There is no secondary accent, and adding one is prohibited.", "section": "colors" },
+			{ "name": "The Sunlight Floor Rule", "body": "Body text is Ink, never Slate Muted. This panel is read outdoors; PRODUCT.md sets outdoor sunlight readability above the AA minimum. Muted-gray body copy on a tinted near-white is a bug in this project, not a style. Slate Muted is for labels the eye skips, never for the answer the user came for.", "section": "colors" },
+			{ "name": "The Meaning-Bearing Mark Rule", "body": "Any color that carries meaning — running, skipped, stale, fault — is accompanied by text or shape and holds ≥3:1 against its surface. Color alone is never the signal, in either scheme.", "section": "colors" },
+			{ "name": "The Derived Variant Rule", "body": "Accent variants are produced with color-mix off --accent, never hardcoded. Dark mode redefines one token and the whole tonal family follows. Hand-picking a dark-mode accent tint is prohibited.", "section": "colors" },
+			{ "name": "The Tabular Numeral Rule", "body": "Every number that can change while the user watches — remaining time, water level, log times, zone durations — is font-variant-numeric: tabular-nums. Digits must not reflow the row on a poll tick.", "section": "typography" },
+			{ "name": "The Firmware Vocabulary Ban", "body": "fwv, fwm, fwf, uwt, wl, wto, pid, sid, OTF, and rawData never appear in rendered type outside Settings → System. This is a typographic rule because it is enforced at the moment copy is written, not at review.", "section": "typography" },
+			{ "name": "The No Kicker Rule", "body": "No tiny uppercase tracked eyebrow above sections, and no 01 / 02 / 03 section numbering. The stepper's own step count is the sole exception — it is a real sequence carrying real information.", "section": "typography" },
+			{ "name": "The Overlay-Only Rule", "body": "--shadow-2 and --shadow-3 are reserved for elements that literally cover other content. Applying them to a card, a row, or a button to signal importance is forbidden.", "section": "elevation" },
+			{ "name": "The Border-First Rule", "body": "When a surface needs separating from its neighbor, add a Hairline border. Do not reach for a shadow, and do not reach for a second background tint.", "section": "elevation" },
+			{ "name": "The 2014 Test", "body": "If a surface looks lifted from the page at rest, the shadow is too dark and the blur is too small. Seated means you have to look for it.", "section": "elevation" }
+		],
+		"dos": [
+			"Do put body text in Ink (#0f172a / #e6eaff). Slate Muted is for labels only. The panel is read in direct sunlight — clear PRODUCT.md's outdoor readability bar, not just AA's 4.5:1.",
+			"Do compose from the existing tokens. Add a token only when it appears in at least two shipped components (UX-SPEC §14); otherwise compose.",
+			"Do derive accent variants with color-mix(in oklab, var(--accent) …) so dark mode inherits from one redefinition.",
+			"Do hardcode meaning-bearing badge fills (#15803d, #6b7280, #b91c1c) with white text. Theme-immunity beats token purity for marks that carry state.",
+			"Do use font-variant-numeric: tabular-nums on every duration, percentage, and timestamp.",
+			"Do use native <input type=\"time\">, <input type=\"date\">, checkboxes, selects, and <dialog>. No picker library, no modal library.",
+			"Do keep every graphic inline currentColor SVG.",
+			"Do give visible focus (outline: 2px solid var(--accent)) to anything that resets its own border or background.",
+			"Do hit 44px under (pointer: coarse) — with an invisible ::after hit area when the visible mark must stay small.",
+			"Do keep the reduced-motion guard the last block in the stylesheet, and keep it universal.",
+			"Do cap prose at --measure (60ch) on info notes, empty states, and help bubbles.",
+			"Do wrap only the table in .table-scroll, never the section — section padding and help bubbles must never be clipped.",
+			"Do state consequence in the label: \"Run Front Lawn now? Valves may open for about 18 minutes.\""
+		],
+		"donts": [
+			"Don't ship anything that resembles the legacy jQuery Mobile app: no gradient chrome, no blue toolbar, no chevron list rows, no 2013 mobile-web texture.",
+			"Don't ship a firmware/engineer dashboard: no hex, no packed flags, no raw object dump, no dense diagnostic table as a default screen. Diagnostics lives at Settings → System → Diagnostics and never returns to top-level nav.",
+			"Don't ship a Rachio / Rain Bird consumer app: no mascot, no playful blob, no illustration, no marketing copy or upsell inside the product.",
+			"Don't ship generic SaaS card grids: no repeated icon+heading+text cards, no hero metric tile, no gradient accent.",
+			"Don't use gradient text (background-clip: text), glassmorphism, or any decorative blur. This panel has none and gets none.",
+			"Don't use border-left/border-right greater than 1px as a colored stripe on a card, row, or callout. Full Hairline borders or --accent-soft ground.",
+			"Don't nest a card inside a card.",
+			"Don't introduce a second accent, a new palette, a logo, a downloaded font, or a raster asset. UX-SPEC §14: no rebrand.",
+			"Don't add a warning color. Text and icon labels carry warning; --err is for actual failure and danger only.",
+			"Don't use --shadow-2/--shadow-3 on anything that isn't literally overlaying other content.",
+			"Don't make color the only signal for running, skipped, stale, or error.",
+			"Don't make hover the only path to an action, and don't ship swipe-to-delete, long-press-only, or drag-only reorder.",
+			"Don't let the pulse (or any animation) be the sole carrier of state — adjacent text always says it.",
+			"Don't drop input font-size below 16px; iOS will zoom the viewport on focus.",
+			"Don't replace a good snapshot with a full-screen spinner during a refresh.",
+			"Don't put a firmware token (fwv, wl, uwt, pid, sid, OTF, rawData) in rendered copy outside Settings → System.",
+			"Don't add an off-origin font, image, or script request. The bundle is served from controller flash on a LAN with no internet."
+		]
+	}
+}
