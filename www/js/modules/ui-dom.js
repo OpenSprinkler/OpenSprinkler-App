@@ -137,6 +137,11 @@ OSApp.UIDom.launchApp = function() {
 
 		// Grabs the new page hash
 		hash = $.mobile.path.parseUrl( page ).hash;
+		if ( !OSApp.Supported.sensors() &&
+			$.inArray( hash, [ "#sensors", "#add-sensor", "#sensor-logs" ] ) !== -1 ) {
+			e.preventDefault();
+			return;
+		}
 
 		if ( currPage.length > 0 && hash === "#" + currPage.attr( "id" ) ) {
 			return;
@@ -542,10 +547,10 @@ OSApp.UIDom.initAppData = function() {
 		} else if ( ( menuOpen || altDown ) && code === 68 ) { // D
 			e.preventDefault();
 			OSApp.Weather.showRainDelay();
-		} else if ( ( menuOpen || altDown ) && code === 83 ) { // S
+		} else if ( ( menuOpen || altDown ) && code === 83 && OSApp.Supported.sensors() ) { // S
 			e.preventDefault();
 			OSApp.UIDom.changePage( "#sensors" );
-		} else if ( ( menuOpen || altDown ) && code === 71 ) { // G
+		} else if ( ( menuOpen || altDown ) && code === 71 && OSApp.Supported.sensors() ) { // G
 			e.preventDefault();
 			OSApp.UIDom.changePage( "#sensor-logs" );
 		}

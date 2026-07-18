@@ -1490,6 +1490,8 @@ OSApp.Sensors.changeSensor = function (url, isNew) {
                 OSApp.Errors.showError( OSApp.Language._( "Sensor updated successfully" ) );
             }
         });
+    }).fail(() => {
+        $.mobile.loading( "hide" );
     });
 
 };
@@ -1502,6 +1504,8 @@ OSApp.Sensors.deleteSensor = function (uuid) {
             $( "#sensors" ).trigger( "programrefresh" );
             OSApp.Errors.showError( OSApp.Language._( "Sensor deleted successfully" ) );
         });
+    }).fail(() => {
+        $.mobile.loading( "hide" );
     });
 };
 

@@ -17,6 +17,24 @@
 var OSApp = OSApp || {};
 OSApp.ImportExport = OSApp.ImportExport || {};
 
+OSApp.ImportExport.getSensorAdjustmentParameter = function( program ) {
+	var adjustment = program && program[ 7 ];
+	if ( !adjustment || typeof adjustment !== "object" ) {
+		return "";
+	}
+
+	var parts = [ adjustment.flag || 0, adjustment.uuid || 0 ];
+	if ( Array.isArray( adjustment.splits ) ) {
+		adjustment.splits.forEach( function( split ) {
+			if ( split && Number.isFinite( split.x ) && Number.isFinite( split.y ) ) {
+				parts.push( split.x, split.y );
+			}
+		} );
+	}
+
+	return "&snadj=" + parts.join( "," );
+};
+
 // Export and Import functions
 OSApp.ImportExport.getExportMethod = function() {
 	var popup = $(
@@ -352,7 +370,9 @@ OSApp.ImportExport.importConfig = function( data ) {
 				OSApp.Firmware.sendToOS( comm );
 			} ),
 			$.each( data.programs.pd, function( i, prog ) {
-				var name = "";
+				var name = "",
+					sensorAdjustment = OSApp.Supported.sensors() ?
+						OSApp.ImportExport.getSensorAdjustmentParameter( prog ) : "";
 
 				// Handle data from firmware 2.1+ being imported to OSPi
 				if ( isPi && typeof data.options.fwv === "number" && data.options.fwv >= 210 ) {
@@ -432,7 +452,7 @@ OSApp.ImportExport.importConfig = function( data ) {
 					name = "&name=" + OSApp.Language._( "Program" ) + " " + ( i + 1 );
 				}
 
-				OSApp.Firmware.sendToOS( cpStart + "&pid=-1&v=" + JSON.stringify( prog ) + name );
+				OSApp.Firmware.sendToOS( cpStart + "&pid=-1&v=" + JSON.stringify( prog ) + name + sensorAdjustment );
 			} ),
 			$.each( data.special, function( sid, info ) {
 				if ( OSApp.Firmware.checkOSVersion( 216 ) ) {

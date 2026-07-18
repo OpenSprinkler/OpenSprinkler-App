@@ -64,4 +64,14 @@ describe("General Function Checks", function () {
 		assert.equal("Zimmerman", OSApp.Weather.getAdjustmentMethod(1).name);
 		assert.equal("Zimmerman", OSApp.Weather.getAdjustmentMethod(129).name);
 	});
+
+	it("serializes sensor adjustments from exported program data", function () {
+		var program = [];
+		program[7] = {
+			flag: 0,
+			uuid: 42,
+			splits: [ { x: 10, y: 0.75 }, { x: 20, y: 1.25 } ]
+		};
+		assert.equal("&snadj=0,42,10,0.75,20,1.25", OSApp.ImportExport.getSensorAdjustmentParameter(program));
+	});
 });

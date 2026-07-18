@@ -42,6 +42,26 @@ OSApp.Firmware.isChangeRequest = function( dest ) {
 	return /\/(?:cv|cs|csn|cr|cp|uwa|dp|dsn|co|cl|cu|up|cm)(?:\?|$)/.test( dest );
 };
 
+OSApp.Firmware.getBinaryResponse = function( response ) {
+	if ( !response.ok ) {
+		return Promise.reject( { status: response.status } );
+	}
+
+	var contentType = response.headers.get( "Content-Type" ) || "";
+	if ( contentType.toLowerCase().indexOf( "application/json" ) !== -1 ) {
+		return response.json().then( function( data ) {
+			if ( data && data.result === 2 ) {
+				return Promise.reject( { status: 401 } );
+			} else if ( data && data.result === 32 ) {
+				return Promise.reject( { status: 404 } );
+			}
+			return Promise.reject( data );
+		} );
+	}
+
+	return response.arrayBuffer();
+};
+
 // Wrapper function to communicate with OpenSprinkler
 OSApp.Firmware.sendToOS = function( dest, type ) {
 
@@ -96,7 +116,7 @@ OSApp.Firmware.sendToOS = function( dest, type ) {
 		}
 		defer = $.Deferred();
 		fetch( obj.url, { headers: fetchHeaders } )
-			.then( function( r ) { if ( !r.ok ) { throw { status: r.status }; } return r.arrayBuffer(); } )
+			.then( OSApp.Firmware.getBinaryResponse )
 			.then( function( buf ) { defer.resolve( buf ); } )
 			.catch( function( err ) { defer.reject( err ); } );
 		return defer.promise();

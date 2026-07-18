@@ -22,6 +22,19 @@ describe("OpenSprinkler Firmware Version Functions", function () {
 		} );
 	} );
 
+	describe("Handle binary controller responses", function () {
+		it("rejects JSON firmware result codes", function () {
+			return OSApp.Firmware.getBinaryResponse({
+				ok: true,
+				headers: { get: function() { return "application/json"; } },
+				json: function() { return Promise.resolve({ result: 2 }); }
+			}).then(
+				function() { throw new Error("Expected response to be rejected"); },
+				function( error ) { assert.strictEqual(error.status, 401); }
+			);
+		} );
+	} );
+
 	describe("Test against Arduino Firmware Version", function () {
 		before(function () {
 			OSApp.currentSession.controller.options = {
