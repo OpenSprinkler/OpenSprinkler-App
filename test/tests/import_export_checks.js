@@ -662,6 +662,45 @@ describe("Import/Export Checks", function () {
 		}
 	});
 
+	it("should delete a target-only aggregate before its child when both are needed for capacity", function () {
+		var sandbox = sinon.createSandbox(),
+			state = [],
+			commands = [];
+		for (var uuid = 1; uuid <= 62; uuid++) state.push(onboardSensor(uuid, "Shared " + uuid, 0));
+		state.push(aggregateSensor(63, "Target-only aggregate", 64, 0));
+		state.push(onboardSensor(64, "Target-only child", 0));
+		var controller = installImportHarness(sandbox, state);
+
+		try {
+			sandbox.stub(OSApp.Errors, "showError");
+			sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (command) {
+				commands.push(command);
+				if (command.indexOf("/jsd?") === 0) return resolved(sensorDescription());
+				if (command.indexOf("/csn?") === 0) return rejected({ status: 500 });
+				return resolved({ result: 1 });
+			});
+			var backup = baseBackup(),
+				backupSensors = [];
+			for (var uuid = 1; uuid <= 62; uuid++) backupSensors.push(onboardSensor(uuid, "Shared " + uuid, 0));
+			backupSensors.push(onboardSensor(1000, "New source 1", 0));
+			backupSensors.push(onboardSensor(1001, "New source 2", 0));
+			backup.sensors = { sn: backupSensors, count: backupSensors.length };
+
+			var assertDeletions = function () {
+				var deleteCommands = commands.filter(function (command) { return command.indexOf("/dsn?") === 0; });
+				assert.deepEqual(deleteCommands.map(function (command) {
+					return paramsFor(command).get("uuid");
+				}), [ "63", "64" ]);
+				assert.include(OSApp.UIDom.areYouSure.firstCall.args[1], "sensor limit");
+			};
+			return cleanupAfter(asNative(OSApp.ImportExport.importConfig(backup)).then(assertDeletions, assertDeletions), sandbox, controller);
+		} catch (error) {
+			OSApp.currentSession.controller = controller;
+			sandbox.restore();
+			throw error;
+		}
+	});
+
 	it("should reject incompatible programs and invalid sensor ranges before mutation", function () {
 		var sandbox = sinon.createSandbox(),
 			controller = OSApp.currentSession.controller;

@@ -566,43 +566,78 @@ OSApp.ImportExport.importConfig = function( data ) {
 			} );
 		}
 	} );
-	// A target-only aggregate is preserved, so its existing children must not be
-	// selected as capacity victims. A matching aggregate will be overwritten.
-	targetSensors.forEach( function( sensor ) {
-		if ( !hasOwn( backupSensorUUIDs, String( sensor.uuid ) ) && sensor.type === 0 && sensor.extra && Array.isArray( sensor.extra.children ) ) {
-			sensor.extra.children.forEach( function( child ) {
-				if ( child.uuid ) {
-					aggregateChildUUIDs[ String( child.uuid ) ] = true;
-				}
-			} );
-		}
-	} );
-
 	var missingSensorCount = backupSensors.filter( function( sensor ) {
 			return !hasOwn( activeSensorUUIDs, String( sensor.uuid ) );
 		} ).length,
-		deletionsNeeded = Math.max( 0, targetSensors.length + missingSensorCount - OSApp.ImportExport.sensorLimit ),
 		targetOnlySensors = targetSensors.filter( function( sensor ) {
 			return !hasOwn( backupSensorUUIDs, String( sensor.uuid ) );
 		} ),
-		deletableTargetOnlySensors = targetOnlySensors.filter( function( sensor ) {
-			return !hasOwn( aggregateChildUUIDs, String( sensor.uuid ) );
-		} );
+		targetOnlyAggregateParents = Object.create( null ),
+		remainingDeletions = Math.max( 0, targetSensors.length + missingSensorCount - OSApp.ImportExport.sensorLimit );
 
-	if ( deletionsNeeded > deletableTargetOnlySensors.length ) {
+	// Children of an aggregate can be removed only after every target-only
+	// aggregate that references them has also been selected for removal.
+	targetOnlySensors.forEach( function( sensor ) {
+		var parentKey = String( sensor.uuid );
+		if ( sensor.type !== 0 || !sensor.extra || !Array.isArray( sensor.extra.children ) ) {
+			return;
+		}
+		sensor.extra.children.forEach( function( child ) {
+			var childKey = String( child.uuid );
+			if ( !child.uuid || childKey === parentKey ) {
+				return;
+			}
+			if ( !hasOwn( targetOnlyAggregateParents, childKey ) ) {
+				targetOnlyAggregateParents[ childKey ] = [];
+			}
+			targetOnlyAggregateParents[ childKey ].push( parentKey );
+		} );
+	} );
+
+	while ( remainingDeletions > 0 ) {
+		var selectedInPass = false;
+		for ( i = targetOnlySensors.length - 1; i >= 0 && remainingDeletions > 0; i-- ) {
+			var candidate = targetOnlySensors[ i ], candidateKey = String( candidate.uuid );
+			if ( hasOwn( plannedDeletedSensorUUIDs, candidateKey ) || hasOwn( aggregateChildUUIDs, candidateKey ) ) {
+				continue;
+			}
+			var parents = hasOwn( targetOnlyAggregateParents, candidateKey ) ? targetOnlyAggregateParents[ candidateKey ] : [];
+			if ( parents.some( function( parentUUID ) {
+				return !hasOwn( plannedDeletedSensorUUIDs, parentUUID );
+			} ) ) {
+				continue;
+			}
+			sensorsToDelete.push( candidate );
+			plannedDeletedSensorUUIDs[ candidateKey ] = true;
+			remainingDeletions--;
+			selectedInPass = true;
+		}
+		if ( !selectedInPass ) {
+			break;
+		}
+	}
+
+	if ( remainingDeletions > 0 ) {
 		OSApp.Errors.showError( OSApp.Language._( "This backup cannot be restored without removing sensors referenced by its aggregate definitions." ) );
 		return;
 	}
-	if ( deletionsNeeded > 0 ) {
-		sensorsToDelete = deletableTargetOnlySensors.slice( deletableTargetOnlySensors.length - deletionsNeeded );
-		sensorsToDelete.forEach( function( sensor ) {
-			plannedDeletedSensorUUIDs[ String( sensor.uuid ) ] = true;
+
+	// Only preserved target-only aggregates add dependencies to the final state.
+	targetOnlySensors.forEach( function( sensor ) {
+		if ( sensor.type !== 0 || hasOwn( plannedDeletedSensorUUIDs, String( sensor.uuid ) ) ||
+			!sensor.extra || !Array.isArray( sensor.extra.children ) ) {
+			return;
+		}
+		sensor.extra.children.forEach( function( child ) {
+			if ( child.uuid ) {
+				aggregateChildUUIDs[ String( child.uuid ) ] = true;
+			}
 		} );
-	}
+	} );
 
 	for ( sensorKey in aggregateChildUUIDs ) {
 		if ( hasOwn( aggregateChildUUIDs, sensorKey ) && !hasOwn( backupSensorUUIDs, sensorKey ) &&
-			!hasOwn( activeSensorUUIDs, sensorKey ) ) {
+			( !hasOwn( activeSensorUUIDs, sensorKey ) || hasOwn( plannedDeletedSensorUUIDs, sensorKey ) ) ) {
 			OSApp.Errors.showError( OSApp.Language._( "Sensor definitions in this backup reference unavailable child sensors." ) );
 			return;
 		}
