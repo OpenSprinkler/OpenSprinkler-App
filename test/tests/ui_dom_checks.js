@@ -92,6 +92,27 @@ describe("UI DOM Checks", function () {
 		}
 	} );
 
+	it( "Prevents navigation to sensor pages when the controller does not support them", function() {
+		var controller = OSApp.currentSession.controller,
+			hadSensors = Object.prototype.hasOwnProperty.call( controller, "sensors" ),
+			originalSensors = controller.sensors;
+
+		try {
+			delete controller.sensors;
+			[ "#sensors", "#add-sensor", "#sensor-logs" ].forEach( function( hash ) {
+				var event = $.Event( "pagebeforechange" );
+				$.mobile.document.trigger( event, { toPage: hash, options: {} } );
+				assert.isTrue( event.isDefaultPrevented(), hash + " should be blocked" );
+			} );
+		} finally {
+			if ( hadSensors ) {
+				controller.sensors = originalSensors;
+			} else {
+				delete controller.sensors;
+			}
+		}
+	} );
+
 	it( "Renders duration titles and help text without interpreting controller markup", function() {
 		var maliciousName = "<img id='duration-title-injection'>Station";
 		var openPopup = sinon.stub( OSApp.UIDom, "openPopup" ).callsFake( function( popup ) {

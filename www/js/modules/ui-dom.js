@@ -137,6 +137,11 @@ OSApp.UIDom.launchApp = function() {
 
 		// Grabs the new page hash
 		hash = $.mobile.path.parseUrl( page ).hash;
+		if ( !OSApp.Supported.sensors() &&
+			$.inArray( hash, [ "#sensors", "#add-sensor", "#sensor-logs" ] ) !== -1 ) {
+			e.preventDefault();
+			return;
+		}
 
 		if ( currPage.length > 0 && hash === "#" + currPage.attr( "id" ) ) {
 			return;
