@@ -1202,6 +1202,7 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
                         buttonUpdaters.forEach(fn => fn());
                     },
                     add: (params) => {
+                        if (!vis.isVisible()) return;
                         let res = "";
 
                         for (const values of arrayValues) {
@@ -1250,6 +1251,7 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
                         buttonUpdaters.forEach(fn => fn());
                     },
                     validate: () => {
+                        if (!vis.isVisible()) return true;
                         return arrayValues.every((v) => {
                             let ret = true;
                             let empty = true;

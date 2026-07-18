@@ -261,6 +261,55 @@ describe("Sensor UI Checks", function () {
 		}
 	});
 
+	it("should omit hidden sensor arrays and ignore their stale validation state", function () {
+		var parent = $("<div></div>").appendTo("body");
+		try {
+			var editor = OSApp.Sensors.createSensorPage(parent, "", {
+				enums: {},
+				units: [],
+				args: [
+					{ name: "Name", arg: "name", type: "string::[1,32]", default: "Aggregate" },
+					{ name: "Type", arg: "type", type: "type", default: 0 }
+				],
+				flags: [],
+				sensors: [ {
+					name: "Aggregate",
+					args: [
+						{
+							name: "Mode",
+							arg: "mode",
+							type: "enum",
+							default: "0",
+							options: [
+								{ id: "0", label: "With children" },
+								{ id: "1", label: "Without children", hides: [ "children" ] }
+							]
+						},
+						{
+							name: "Children",
+							arg: "children",
+							type: "array::1",
+							default: "",
+							extra: [ { name: "Value", arg: "value", type: "int::[0,10]", default: 7 } ]
+						}
+					]
+				} ]
+			});
+
+			var visibleURL = editor.getURL();
+			assert.include(visibleURL, "children=7%3B");
+
+			parent.find('input[type="number"]').val("");
+			parent.find('select[id*="-mode-"]').val("1").trigger("change");
+			var hiddenURL = editor.getURL();
+
+			assert.match(hiddenURL, /^\/csn\?/);
+			assert.notInclude(hiddenURL, "children=");
+		} finally {
+			parent.remove();
+		}
+	});
+
 	it("should reject blank and whitespace-only sensor names without starting a /csn mutation", function () {
 		var controller = OSApp.currentSession.controller;
 		var originalSensors = controller.sensors;
