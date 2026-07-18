@@ -2355,7 +2355,8 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 	if ( OSApp.Supported.sensors() ) {
 		list += "<label for='use-sn-" + id + "'>" +
 					"<input data-mini='true' type='checkbox' " +
-					( senAdjEnabled ? "checked='checked'" : "" ) + " name='use-sn-" + id + "' id='use-sn-" + id + "'>" +
+					( senAdjEnabled ? "checked='checked'" : "" ) + " data-sensor-adjustment-flag='" + adjustment.flag +
+					"' name='use-sn-" + id + "' id='use-sn-" + id + "'>" +
 					OSApp.Language._( "Use Sensor Adjustment" ) +
 				"</label>";
 
@@ -2936,26 +2937,31 @@ OSApp.Programs.waitForProgramAdjustments = function( runButton, controller, requ
 		} );
 	}
 
+	function releaseButtons( buttons, adjustmentsAvailable ) {
+		buttons
+			.prop( "disabled", false )
+			.removeClass( "ui-state-disabled" )
+			.removeAttr( "aria-busy" )
+			.removeData( "programAdjustmentRequest" );
+		if ( adjustmentsAvailable ) {
+			buttons.removeAttr( "title" );
+		} else {
+			buttons.attr( "title", OSApp.Language._( "Program adjustments are unavailable." ) );
+		}
+	}
+
 	request.done( function( data ) {
 		var currentButtons = getCurrentButtons();
 		if ( !currentButtons.length ) {
 			return;
 		}
 		if ( !OSApp.Programs.isProgramAdjustmentDataValid( data, controller ) ) {
-			currentButtons
-				.removeAttr( "aria-busy" )
-				.attr( "title", OSApp.Language._( "Program adjustments are unavailable." ) );
+			releaseButtons( currentButtons, false );
 			return;
 		}
-		currentButtons
-			.prop( "disabled", false )
-			.removeClass( "ui-state-disabled" )
-			.removeAttr( "aria-busy title" )
-			.removeData( "programAdjustmentRequest" );
+		releaseButtons( currentButtons, true );
 	} ).fail( function() {
-		getCurrentButtons()
-			.removeAttr( "aria-busy" )
-			.attr( "title", OSApp.Language._( "Program adjustments are unavailable." ) );
+		releaseButtons( getCurrentButtons(), false );
 	} );
 };
 
@@ -2982,8 +2988,10 @@ OSApp.Programs.getSenAdjURL = function (id) {
     }
 
 	const _pd = ( id !== "new" ) ? OSApp.currentSession.controller.programs.pd[ id ] : null;
-	const _existingFlag = ( _pd && _pd[ 7 ] && _pd[ 7 ].flag ) || 0;
-	const enabled = $( "#use-sn-" + id ).is( ":checked" );
+	const $enabled = $( "#use-sn-" + id );
+	const _formFlag = Number( $enabled.attr( "data-sensor-adjustment-flag" ) );
+	const _existingFlag = Number.isInteger( _formFlag ) ? _formFlag : ( ( _pd && _pd[ 7 ] && _pd[ 7 ].flag ) || 0 );
+	const enabled = $enabled.is( ":checked" );
 	const flag = enabled ? ( _existingFlag | 1 ) : ( _existingFlag & ~1 );
 	const uuid = $( "#sen-adj-sid-" + id ).val() || "0";
 

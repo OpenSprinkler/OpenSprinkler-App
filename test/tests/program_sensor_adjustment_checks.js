@@ -94,6 +94,7 @@ describe("Program Sensor Adjustment Checks", function () {
 	});
 
 	it("copies the source program sensor adjustment into the new-program form", function () {
+		OSApp.currentSession.controller.programs.pd[0][7].flag = 5;
 		var page = OSApp.Programs.makeProgram21(0, true);
 		fixture.append(page);
 
@@ -108,7 +109,7 @@ describe("Program Sensor Adjustment Checks", function () {
 			}).get(),
 			[ [ 0, 100 ], [ 10, 50 ] ]
 		);
-		assert.equal(OSApp.Programs.getSenAdjURL("new"), "&snadj=1,42,0,1,10,0.5");
+		assert.equal(OSApp.Programs.getSenAdjURL("new"), "&snadj=5,42,0,1,10,0.5");
 	});
 
 	it("copies the source program date range into the new-program form", function () {
@@ -344,7 +345,7 @@ describe("Program Sensor Adjustment Checks", function () {
 		assert.isTrue(openDialog.calledOnce);
 	});
 
-	it("keeps Run disabled when adjustment factors cannot be loaded", function () {
+	it("re-enables Run without adjustment options when factors cannot be loaded", function () {
 		delete OSApp.currentSession.controller.sensors;
 		var request = $.Deferred();
 		var program = $("<fieldset id='program-0'><div class='ui-collapsible-content'></div></fieldset>").appendTo(fixture);
@@ -356,10 +357,29 @@ describe("Program Sensor Adjustment Checks", function () {
 		});
 
 		var runButton = program.find("#run-0");
-		assert.isTrue(runButton.prop("disabled"));
+		assert.isFalse(runButton.prop("disabled"));
+		assert.isFalse(runButton.hasClass("ui-state-disabled"));
 		assert.equal(runButton.attr("title"), "Program adjustments are unavailable.");
 		runButton.trigger("click");
-		assert.isFalse(openDialog.called);
+		assert.isTrue(openDialog.calledOnce);
+	});
+
+	it("re-enables Run when adjustment factors are malformed", function () {
+		delete OSApp.currentSession.controller.sensors;
+		var request = $.Deferred();
+		var program = $("<fieldset id='program-0'><div class='ui-collapsible-content'></div></fieldset>").appendTo(fixture);
+		var openDialog = sandbox.stub(OSApp.Programs, "openRunProgramDialog");
+
+		OSApp.Programs.expandProgram(program, function () {
+			return request.promise();
+		});
+		request.resolve({ jpa: [] });
+
+		var runButton = program.find("#run-0");
+		assert.isFalse(runButton.prop("disabled"));
+		assert.equal(runButton.attr("title"), "Program adjustments are unavailable.");
+		runButton.trigger("click");
+		assert.isTrue(openDialog.calledOnce);
 	});
 
 	it("replaces a canceled run dialog handler instead of queuing stale runs", function () {
