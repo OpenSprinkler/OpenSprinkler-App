@@ -14,6 +14,13 @@
  */
 
 describe("OpenSprinkler Firmware Version Functions", function () {
+	describe("Classify controller requests", function () {
+		it("identifies sensor mutations without relying on endpoint prefixes", function () {
+			assert.strictEqual(true, OSApp.Firmware.isChangeRequest("/csn?pw=&uuid=-1"));
+			assert.strictEqual(true, OSApp.Firmware.isChangeRequest("/dsn?pw=&uuid=1"));
+			assert.strictEqual(false, OSApp.Firmware.isChangeRequest("/jsn?pw="));
+		} );
+	} );
 
 	describe("Test against Arduino Firmware Version", function () {
 		before(function () {

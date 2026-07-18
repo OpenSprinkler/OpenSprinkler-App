@@ -180,6 +180,10 @@ OSApp.ImportExport.importConfig = function( data ) {
 			csi = new Array( ncs ).fill( "/cs?pw=" ),
 			isPi = OSApp.Firmware.isOSPi(),
 			i, k, key, option, station;
+		var directOptionKeys = [
+			"mas3", "mton3", "mtof3",
+			"mas4", "mton4", "mtof4"
+		];
 
 		var findKey = function( index ) { return OSApp.Constants.keyIndex[ index ] === key; };
 
@@ -209,6 +213,14 @@ OSApp.ImportExport.importConfig = function( data ) {
 				co += "&o" + key + "=" + option;
 			}
 		}
+
+		// Master 3/4 use firmware-defined names rather than legacy option IDs.
+		directOptionKeys.forEach( function( optionKey ) {
+			if ( Object.prototype.hasOwnProperty.call( data.options, optionKey ) &&
+				Object.prototype.hasOwnProperty.call( OSApp.currentSession.controller.options, optionKey ) ) {
+				co += "&" + optionKey + "=" + data.options[ optionKey ];
+			}
+		} );
 
 		// Handle import from versions prior to 2.1.1 for enable logging flag
 		if ( !isPi && typeof data.options.fwv === "number" && data.options.fwv < 211 && OSApp.Firmware.checkOSVersion( 211 ) ) {

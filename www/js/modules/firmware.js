@@ -38,6 +38,10 @@ OSApp.Firmware.Constants = {
 	}
 };
 
+OSApp.Firmware.isChangeRequest = function( dest ) {
+	return /\/(?:cv|cs|csn|cr|cp|uwa|dp|dsn|co|cl|cu|up|cm)(?:\?|$)/.test( dest );
+};
+
 // Wrapper function to communicate with OpenSprinkler
 OSApp.Firmware.sendToOS = function( dest, type ) {
 
@@ -46,7 +50,7 @@ OSApp.Firmware.sendToOS = function( dest, type ) {
 	type = type || "text";
 
 	// Designate AJAX queue based on command type
-	var isChange = /\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu|up|cm)/.exec( dest ),
+	var isChange = OSApp.Firmware.isChangeRequest( dest ),
 		queue = isChange ? "change" : "default",
 
 		// Use POST when sending data to the controller (requires firmware 2.1.8 or newer)
@@ -122,7 +126,7 @@ OSApp.Firmware.sendToOS = function( dest, type ) {
 
 			// Handle incorrect password
 			} else if ( data.result === 2 ) {
-				if ( /\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu|up|cm)/.exec( dest ) ) {
+				if ( isChange ) {
 					OSApp.Errors.showError( OSApp.Language._( "Check device password and try again." ) );
 				}
 
@@ -136,7 +140,7 @@ OSApp.Firmware.sendToOS = function( dest, type ) {
 			}
 
 			// Only show error messages on setting change requests
-			if ( /\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu|up|cm)/.exec( dest ) ) {
+			if ( isChange ) {
 				// Friendly text for well-known firmware result codes (see
 				// HTML_* in OpenSprinkler firmware/defines.h). Anything not
 				// in the map falls back to the generic message. The raw code
@@ -162,7 +166,7 @@ OSApp.Firmware.sendToOS = function( dest, type ) {
 
 		},
 		function( e ) {
-			if ( ( e.statusText === "timeout" || e.status === 0 ) && /\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu|cm)/.exec( dest ) ) {
+			if ( ( e.statusText === "timeout" || e.status === 0 ) && isChange ) {
 
 				// Handle the connection timing out but only show error on setting change
 				OSApp.Errors.showError( OSApp.Language._( "Connection timed-out. Please try again." ) );

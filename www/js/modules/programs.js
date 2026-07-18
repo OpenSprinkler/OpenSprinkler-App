@@ -2122,7 +2122,7 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 		program = OSApp.Programs.readProgram( OSApp.currentSession.controller.programs.pd[ n ] );
 	}
 
-    const _pd = ( id !== "new" ) ? OSApp.currentSession.controller.programs.pd[ id ] : null;
+    const _pd = ( n !== "new" ) ? OSApp.currentSession.controller.programs.pd[ n ] : null;
     const _rawAdj = ( _pd && _pd[ 7 ] ) || {};
     const adjustment = {
         flag: _rawAdj.flag ?? 0,

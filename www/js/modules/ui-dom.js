@@ -305,6 +305,7 @@ OSApp.UIDom.showHomeMenu = ( function() {
 				"<li><a href='#preview' class='squeeze'>" + OSApp.Language._( "Preview Programs" ) + "</a></li>" +
 				( OSApp.Firmware.checkOSVersion( 206 ) || OSApp.Firmware.checkOSPiVersion( "1.9" ) ? "<li><a href='#logs'>" + OSApp.Language._( "Sprinkler Logs" ) + "</a></li>" : "" ) +
 				( OSApp.Supported.sensors() ? "<li><a href='#sensor-logs'>" + OSApp.Language._( "Sensor Logs" ) + "</a></li>" : "" ) +
+				( !OSApp.Supported.sensors() && OSApp.Analog.checkAnalogSensorAvail() ? "<li><a href='#analogsensorchart'>" + OSApp.Language._( "Show Sensor Log" ) + "</a></li>" : "" ) +
 				"<li data-role='list-divider'>" + OSApp.Language._( "Manual Control" ) + "</li>" +
 				"<li><a href='#runonce'>" + OSApp.Language._( "Run-Once" ) + "</a></li>" +
 				"<li><a href='#raindelay'>" + OSApp.Language._( "Rain Delay" ) + "</a></li>" +
@@ -316,6 +317,7 @@ OSApp.UIDom.showHomeMenu = ( function() {
 				"<li><a href='#os-options'>" + OSApp.Language._( "Edit Options" ) + "</a></li>" +
 				"<li><a href='#programs'>" + OSApp.Language._( "Edit Programs" ) + "</a></li>" +
 				( OSApp.Supported.sensors() ? "<li><a href='#sensors'>" + OSApp.Language._( "Edit Sensors" ) + "</a></li>" : "" ) +
+				( !OSApp.Supported.sensors() && OSApp.Analog.checkAnalogSensorAvail() ? "<li><a href='#analogsensorconfig'>" + OSApp.Language._( "Analog Sensor Config" ) + "</a></li>" : "" ) +
 			( id === "sprinklers" || id === "runonce" || id === "programs" || id === "manual" || id === "addprogram" ?
 				"</ul>" +
 				"<div class='ui-grid-a ui-mini tight'>" +
@@ -701,10 +703,11 @@ OSApp.UIDom.bindPanel = function() {
 
 				// Hardware 3.0 family (hwv 30..39) supports browser-based
 				// firmware update at <baseurl>/update. Show the link and point
-				// it at the current session's URL so the existing .iab handler
-				// can open it in a new tab / in-app browser.
+				// it at a directly connected controller so the existing .iab
+				// handler can open it in a new tab / in-app browser.
 				var hwv = OSApp.currentSession.controller && OSApp.currentSession.controller.options && OSApp.currentSession.controller.options.hwv;
-				var showUpdate = typeof hwv === "number" && hwv >= 30 && hwv < 40;
+				var showUpdate = typeof hwv === "number" && hwv >= 30 && hwv < 40 &&
+					!OSApp.currentSession.token && !!OSApp.currentSession.ip;
 				panel.find( ".update-fw" ).toggleClass( "hidden", !showUpdate );
 				if ( showUpdate ) {
 					panel.find( ".update-fw a" ).attr( "href",
