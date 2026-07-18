@@ -1197,10 +1197,14 @@ button[id^="start_1-"] {
     }
 }
 
-input:invalid, .invalid {
-  background-color: #cf9595 !important;
-  color: #eeeeee !important;
-  outline: 2px solid red !important;
+#sensors_list input:invalid,
+#add-sensor input:invalid,
+#sensorSettings input:invalid,
+#masterSettings input:invalid,
+[id^="sensor-options-"] input:invalid {
+  background-color: #fff4f4 !important;
+  color: #111 !important;
+  outline: 2px solid #b00020 !important;
   text-shadow: none !important;
 }
 
@@ -1241,7 +1245,10 @@ input:invalid, .invalid {
 }
 
 .sensors-home-combined {
+    display: block;
+    color: inherit !important;
     font-size: 0.9em;
+    text-decoration: none;
 }
 
 .sensor-home-list {
@@ -1433,6 +1440,8 @@ input:invalid, .invalid {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
     padding: 8px 0 16px;
     border-bottom: 1px solid #ddd;
     margin-bottom: 8px;
@@ -1450,7 +1459,15 @@ input:invalid, .invalid {
 
 .sensor-log-filter-actions {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
+}
+
+@media (max-width: 27.99em) {
+    .sensor-log-filter-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
 }
 
 .sensor-log-download-btn {

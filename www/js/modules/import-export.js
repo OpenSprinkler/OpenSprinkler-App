@@ -155,6 +155,272 @@ OSApp.ImportExport.getImportMethod = function( localData ) {
 	OSApp.UIDom.openPopup( popup, { positionTo: $( "#sprinklers-settings" ).find( ".import_config" ) } );
 };
 
+// Keep this aligned with MAX_SENSORS in the controller firmware.
+OSApp.ImportExport.sensorLimit = 64;
+
+OSApp.ImportExport.validateSensorDefinition = function( sensor ) {
+	var isFiniteNumber = function( value ) {
+		return typeof value === "number" && isFinite( value );
+	},
+		isInteger = function( value ) {
+			return isFiniteNumber( value ) && Math.floor( value ) === value;
+		},
+		extra, lastX;
+
+	if ( !sensor || typeof sensor !== "object" || !isInteger( sensor.uuid ) || sensor.uuid < 1 || sensor.uuid > 65535 ||
+		typeof sensor.name !== "string" || sensor.name.length < 1 || sensor.name.length > 32 ||
+		!isInteger( sensor.type ) || sensor.type < 0 || sensor.type > 4 ||
+		!isInteger( sensor.interval ) || sensor.interval < 1 || !isInteger( sensor.unit ) || sensor.unit < 0 ||
+		!isInteger( sensor.flag ) || sensor.flag < 0 || sensor.flag > 255 || !isFiniteNumber( sensor.min ) ||
+		!isFiniteNumber( sensor.max ) || sensor.min > sensor.max || !sensor.extra || typeof sensor.extra !== "object" ) {
+		return false;
+	}
+
+	extra = sensor.extra;
+	switch ( sensor.type ) {
+		case 0:
+			return isInteger( extra.action ) && extra.action >= 0 && extra.action < 6 && Array.isArray( extra.children ) &&
+				extra.children.length <= 8 && extra.children.every( function( child ) {
+					return child && typeof child === "object" && isInteger( child.uuid ) && child.uuid >= 0 && child.uuid <= 65535 &&
+						isFiniteNumber( child.scale ) && isFiniteNumber( child.offset );
+				} ) && extra.children.map( function( child ) {
+					return [ child.uuid, child.scale, child.offset ].join( "," );
+				} ).join( ";" ).concat( ";" ).length < 320;
+		case 1:
+			if ( !isInteger( extra.pin ) || extra.pin < 1 || extra.pin > 16 || !isFiniteNumber( extra.scale ) ||
+				!isFiniteNumber( extra.offset ) || !isInteger( extra.subtype ) ||
+				!( extra.subtype === 0 || extra.subtype === 1 || ( extra.subtype >= 10 && extra.subtype <= 17 ) ) ) {
+				return false;
+			}
+			if ( extra.subtype !== 1 ) {
+				return true;
+			}
+			if ( !Array.isArray( extra.points ) || extra.points.length < 2 || extra.points.length > 8 ) {
+				return false;
+			}
+			lastX = -Infinity;
+			return extra.points.every( function( point ) {
+				if ( !point || !isFiniteNumber( point.x ) || !isFiniteNumber( point.y ) || point.x < lastX ) {
+					return false;
+				}
+				lastX = point.x;
+				return true;
+			} ) && extra.points.map( function( point ) {
+				return [ point.x, point.y ].join( "," );
+			} ).join( "," ).length < 320;
+		case 2:
+			return isInteger( extra.action ) && extra.action >= 0;
+		case 3:
+			return isInteger( extra.metric ) && extra.metric >= 0;
+		case 4:
+			return isInteger( extra.input ) && extra.input >= 0 && extra.input < 4;
+		default:
+			return false;
+	}
+};
+
+OSApp.ImportExport.sensorDefinitionSupported = function( sensor, description, targetSensors ) {
+	if ( !description || !Array.isArray( description.sensors ) || !Array.isArray( description.units ) ) {
+		return false;
+	}
+
+	var sensorDescription = description.sensors[ sensor.type ],
+		existingSensor = Array.isArray( targetSensors ) && targetSensors.find( function( candidate ) {
+			return Number( candidate.uuid ) === Number( sensor.uuid ) && Number( candidate.type ) === Number( sensor.type );
+		} ),
+		unitDescription = description.units.find( function( unit ) {
+			return Number( unit.value ) === Number( sensor.unit );
+		} );
+
+	// A disabled type cannot be created on this controller, but the firmware may
+	// still allow an existing definition of that exact type to be updated.
+	if ( !sensorDescription || ( sensorDescription.disabled && !existingSensor ) || !unitDescription ) {
+		return false;
+	}
+
+	var extraKey = [ "action", "subtype", "action", "metric", "input" ][ sensor.type ],
+		extraValue = sensor.extra[ extraKey ],
+		findArg = function( args ) {
+			var found;
+			( args || [] ).some( function( arg ) {
+				if ( arg.arg === extraKey ) {
+					found = arg;
+					return true;
+				}
+				found = findArg( arg.extra );
+				return !!found;
+			} );
+			return found;
+		},
+		arg = findArg( sensorDescription.args ),
+		selectedOption;
+
+	if ( arg && Array.isArray( arg.options ) ) {
+		selectedOption = arg.options.find( function( option ) {
+			return Number( option.id ) === Number( extraValue );
+		} );
+		if ( !selectedOption ) {
+			return false;
+		}
+		if ( typeof selectedOption.unit_group === "number" && Number( unitDescription.group ) !== selectedOption.unit_group ) {
+			return false;
+		}
+	}
+
+	if ( description.enums ) {
+		var enumName = sensor.type === 0 ? "AggregateAction" : ( sensor.type === 2 ? "WeatherAction" : null );
+		if ( enumName && Array.isArray( description.enums[ enumName ] ) &&
+			sensor.extra.action >= description.enums[ enumName ].length ) {
+			return false;
+		}
+	}
+
+	return true;
+};
+
+OSApp.ImportExport.validateProgramDefinition = function( program, sourceFirmwareVersion, stationCount, legacyBoardCount ) {
+	var isIntegerInRange = function( value, min, max ) {
+		return Number.isInteger( value ) && value >= min && value <= max;
+	},
+		isCurrentFormat = sourceFirmwareVersion === null ?
+			Array.isArray( program && program[ 3 ] ) : sourceFirmwareVersion >= 210,
+		requiredStations = Number.isInteger( stationCount ) && stationCount >= 0 ? stationCount : 0,
+		requiredBoards = Number.isInteger( legacyBoardCount ) && legacyBoardCount >= 0 ? legacyBoardCount :
+			Math.ceil( requiredStations / 8 );
+
+	if ( !Array.isArray( program ) || program.length < 5 ||
+		!isIntegerInRange( program[ 0 ], 0, 255 ) || !isIntegerInRange( program[ 1 ], 0, 255 ) ||
+		!isIntegerInRange( program[ 2 ], 0, 255 ) ) {
+		return false;
+	}
+
+	if ( isCurrentFormat ) {
+		if ( program.length < 6 || !Array.isArray( program[ 3 ] ) || program[ 3 ].length !== 4 ||
+			!program[ 3 ].every( function( value ) {
+				// Sunrise/sunset encodings occupy the full signed 16-bit field, so
+				// validate storage width rather than restricting values to clock time.
+				return isIntegerInRange( value, -32768, 32767 );
+			} ) || !Array.isArray( program[ 4 ] ) || program[ 4 ].length < requiredStations ||
+			!program[ 4 ].every( function( value ) {
+				return isIntegerInRange( value, 0, 65535 );
+			} ) || typeof program[ 5 ] !== "string" ) {
+			return false;
+		}
+
+		if ( typeof program[ 6 ] !== "undefined" && program[ 6 ] !== null &&
+			( !Array.isArray( program[ 6 ] ) || program[ 6 ].length < 3 ||
+				!isIntegerInRange( program[ 6 ][ 0 ], 0, 1 ) ||
+				!isIntegerInRange( program[ 6 ][ 1 ], -32768, 32767 ) ||
+				!isIntegerInRange( program[ 6 ][ 2 ], -32768, 32767 ) ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	if ( program.length < 7 + requiredBoards ||
+		!isIntegerInRange( program[ 3 ], -32768, 32767 ) ||
+		!isIntegerInRange( program[ 4 ], -32768, 32767 ) ||
+		!isIntegerInRange( program[ 5 ], 0, 32767 ) ||
+		!isIntegerInRange( program[ 6 ], 0, 65535 ) ) {
+		return false;
+	}
+
+	return program.slice( 7 ).every( function( stationMask ) {
+		return isIntegerInRange( stationMask, 0, 255 );
+	} );
+};
+
+OSApp.ImportExport.buildSensorImportCommand = function( sensor, targetUUID, includeAggregateChildren, remapUUID ) {
+	var params = new URLSearchParams(),
+		extra = sensor.extra;
+
+	params.append( "pw", "" );
+	params.append( "uuid", targetUUID );
+	params.append( "type", sensor.type );
+	params.append( "name", sensor.name );
+	params.append( "min", sensor.min );
+	params.append( "max", sensor.max );
+	params.append( "interval", sensor.interval );
+	params.append( "unit", sensor.unit );
+	params.append( "flag", sensor.flag );
+
+	switch ( sensor.type ) {
+		case 0:
+			params.append( "action", extra.action );
+			if ( includeAggregateChildren ) {
+				var children = extra.children.length > 0 ? extra.children : [ { uuid: 0, scale: 1, offset: 0 } ];
+				params.append( "children", children.map( function( child ) {
+					return [ remapUUID( child.uuid ), child.scale, child.offset ].join( "," );
+				} ).join( ";" ) + ";" );
+			}
+			break;
+		case 1:
+			params.append( "pin", extra.pin );
+			params.append( "scale", extra.scale );
+			params.append( "offset", extra.offset );
+			params.append( "subtype", extra.subtype );
+			if ( extra.subtype === 1 ) {
+				params.append( "points", extra.points.map( function( point ) {
+					return [ point.x, point.y ].join( "," );
+				} ).join( "," ) );
+			}
+			break;
+		case 2:
+			params.append( "action", extra.action );
+			break;
+		case 3:
+			params.append( "metric", extra.metric );
+			break;
+		case 4:
+			params.append( "input", extra.input );
+			break;
+	}
+
+	return "/csn?" + params.toString();
+};
+
+OSApp.ImportExport.sensorDefinitionMatches = function( source, actual, remapUUID ) {
+	if ( !actual || Number( actual.type ) !== Number( source.type ) || actual.name !== source.name ||
+		Number( actual.interval ) !== Number( source.interval ) || Number( actual.unit ) !== Number( source.unit ) ||
+		Number( actual.flag ) !== Number( source.flag ) || Number( actual.min ) !== Number( source.min ) ||
+		Number( actual.max ) !== Number( source.max ) || !actual.extra || typeof actual.extra !== "object" ) {
+		return false;
+	}
+
+	var sourceExtra = source.extra,
+		actualExtra = actual.extra,
+		equalPoints = function( sourcePoints, actualPoints ) {
+			return Array.isArray( actualPoints ) && sourcePoints.length === actualPoints.length && sourcePoints.every( function( point, index ) {
+				return Number( point.x ) === Number( actualPoints[ index ].x ) && Number( point.y ) === Number( actualPoints[ index ].y );
+			} );
+		};
+
+	switch ( source.type ) {
+		case 0:
+			if ( Number( sourceExtra.action ) !== Number( actualExtra.action ) || !Array.isArray( actualExtra.children ) || actualExtra.children.length !== 8 ) {
+				return false;
+			}
+			return actualExtra.children.every( function( child, index ) {
+				var expected = sourceExtra.children[ index ] || { uuid: 0, scale: 1, offset: 0 };
+				return Number( child.uuid ) === Number( remapUUID( expected.uuid ) ) &&
+					Number( child.scale ) === Number( expected.scale ) && Number( child.offset ) === Number( expected.offset );
+			} );
+		case 1:
+			return Number( sourceExtra.pin ) === Number( actualExtra.pin ) && Number( sourceExtra.scale ) === Number( actualExtra.scale ) &&
+				Number( sourceExtra.offset ) === Number( actualExtra.offset ) && Number( sourceExtra.subtype ) === Number( actualExtra.subtype ) &&
+				( sourceExtra.subtype !== 1 || equalPoints( sourceExtra.points, actualExtra.points ) );
+		case 2:
+			return Number( sourceExtra.action ) === Number( actualExtra.action );
+		case 3:
+			return Number( sourceExtra.metric ) === Number( actualExtra.metric );
+		case 4:
+			return Number( sourceExtra.input ) === Number( actualExtra.input );
+		default:
+			return false;
+	}
+};
+
 OSApp.ImportExport.importConfig = function( data ) {
 	var warning = "";
 
@@ -163,14 +429,196 @@ OSApp.ImportExport.importConfig = function( data ) {
 		return;
 	}
 
-	if ( OSApp.Firmware.checkOSVersion( 210 ) && typeof data.options === "object" &&
-		( data.options.hp0 !== OSApp.currentSession.controller.options.hp0 || data.options.hp1 !== OSApp.currentSession.controller.options.hp1 ) ||
-		( data.options.dhcp !== OSApp.currentSession.controller.options.dhcp ) || ( data.options.devid !== OSApp.currentSession.controller.options.devid ) ) {
+	var programs = data.programs && Array.isArray( data.programs.pd ) ? data.programs.pd : [],
+		backupSensors = data.sensors && Array.isArray( data.sensors.sn ) ? data.sensors.sn : [],
+		sourceFirmwareVersion = data.options && typeof data.options.fwv === "number" ? data.options.fwv : null,
+		sourceStationCount = data.stations && Array.isArray( data.stations.snames ) ? data.stations.snames.length : 0,
+		targetStationCount = OSApp.currentSession.controller.stations && Array.isArray( OSApp.currentSession.controller.stations.snames ) ?
+			OSApp.currentSession.controller.stations.snames.length : sourceStationCount,
+		targetLegacyBoardCount = OSApp.currentSession.controller.programs &&
+			Number.isInteger( OSApp.currentSession.controller.programs.nboards ) ?
+			OSApp.currentSession.controller.programs.nboards : Math.ceil( targetStationCount / 8 ),
+		targetSensors = OSApp.currentSession.controller.sensors && Array.isArray( OSApp.currentSession.controller.sensors.sn ) ?
+		OSApp.currentSession.controller.sensors.sn : [],
+		backupSensorUUIDs = Object.create( null ),
+		activeSensorUUIDs = Object.create( null ),
+		sensorUUIDMap = Object.create( null ),
+		plannedDeletedSensorUUIDs = Object.create( null ),
+		sensorsToDelete = [],
+		hasOwn = function( object, key ) {
+			return Object.prototype.hasOwnProperty.call( object, key );
+		},
+		resolveSensorUUID = function( uuid ) {
+			var key = String( uuid );
+			if ( !/^\d+$/.test( key ) || Number( uuid ) < 1 || Number( uuid ) > 65535 ) {
+				return 0;
+			}
+			if ( hasOwn( sensorUUIDMap, key ) ) {
+				return sensorUUIDMap[ key ];
+			}
+			return hasOwn( activeSensorUUIDs, key ) ? Number( uuid ) : 0;
+		},
+		i, sensorKey;
+
+	if ( programs.some( function( prog ) {
+		return !OSApp.ImportExport.validateProgramDefinition(
+			prog, sourceFirmwareVersion, targetStationCount, targetLegacyBoardCount
+		);
+	} ) ) {
+		OSApp.Errors.showError( OSApp.Language._( "Invalid program configuration in backup." ) );
+		return;
+	}
+
+	for ( i = 0; i < targetSensors.length; i++ ) {
+		sensorKey = String( targetSensors[ i ].uuid );
+		if ( /^\d+$/.test( sensorKey ) && Number( sensorKey ) > 0 && Number( sensorKey ) <= 65535 ) {
+			activeSensorUUIDs[ sensorKey ] = Number( sensorKey );
+		}
+	}
+
+	var invalidProgramAdjustment = sourceFirmwareVersion !== null && sourceFirmwareVersion >= 210 && programs.some( function( prog ) {
+		if ( !Array.isArray( prog ) ) {
+			return true;
+		}
+		var adjustment = prog[ 7 ];
+		if ( typeof adjustment === "undefined" || adjustment === null ) {
+			return false;
+		}
+		// The firmware serializes a program without sensor adjustment as `{}`.
+		if ( !Array.isArray( adjustment ) && typeof adjustment === "object" && Object.keys( adjustment ).length === 0 ) {
+			return false;
+		}
+		if ( typeof adjustment !== "object" || !Number.isInteger( adjustment.flag ) || adjustment.flag < 0 || adjustment.flag > 255 ) {
+			return true;
+		}
+		if ( ( adjustment.flag & 1 ) !== 1 ) {
+			return false;
+		}
+		if ( !Number.isInteger( adjustment.uuid ) || adjustment.uuid < 1 || adjustment.uuid > 65535 ||
+			!Array.isArray( adjustment.splits ) || adjustment.splits.length < 1 || adjustment.splits.length > 8 ) {
+			return true;
+		}
+		var lastX = -Infinity;
+		return adjustment.splits.some( function( point ) {
+			if ( !point || !Number.isFinite( point.x ) || !Number.isFinite( point.y ) || point.y < 0 || point.x < lastX ) {
+				return true;
+			}
+			lastX = point.x;
+			return false;
+		} );
+	} );
+	if ( invalidProgramAdjustment ) {
+		OSApp.Errors.showError( OSApp.Language._( "Invalid program sensor adjustment in backup." ) );
+		return;
+	}
+
+	if ( backupSensors.length > 0 && !OSApp.Supported.sensors() ) {
+		OSApp.Errors.showError( OSApp.Language._( "This backup contains sensor definitions that this controller does not support." ) );
+		return;
+	}
+
+	for ( i = 0; i < backupSensors.length; i++ ) {
+		sensorKey = String( backupSensors[ i ].uuid );
+		if ( !OSApp.ImportExport.validateSensorDefinition( backupSensors[ i ] ) || hasOwn( backupSensorUUIDs, sensorKey ) ) {
+			OSApp.Errors.showError( OSApp.Language._( "Invalid sensor configuration in backup." ) );
+			return;
+		}
+		backupSensorUUIDs[ sensorKey ] = true;
+		if ( hasOwn( activeSensorUUIDs, sensorKey ) ) {
+			sensorUUIDMap[ sensorKey ] = Number( sensorKey );
+		}
+	}
+
+	if ( backupSensors.length > OSApp.ImportExport.sensorLimit ) {
+		OSApp.Errors.showError( OSApp.Language._( "This backup contains more sensor definitions than this controller supports." ) );
+		return;
+	}
+
+	var aggregateChildUUIDs = Object.create( null );
+	backupSensors.forEach( function( sensor ) {
+		if ( sensor.type === 0 ) {
+			sensor.extra.children.forEach( function( child ) {
+				if ( child.uuid ) {
+					aggregateChildUUIDs[ String( child.uuid ) ] = true;
+				}
+			} );
+		}
+	} );
+	// A target-only aggregate is preserved, so its existing children must not be
+	// selected as capacity victims. A matching aggregate will be overwritten.
+	targetSensors.forEach( function( sensor ) {
+		if ( !hasOwn( backupSensorUUIDs, String( sensor.uuid ) ) && sensor.type === 0 && sensor.extra && Array.isArray( sensor.extra.children ) ) {
+			sensor.extra.children.forEach( function( child ) {
+				if ( child.uuid ) {
+					aggregateChildUUIDs[ String( child.uuid ) ] = true;
+				}
+			} );
+		}
+	} );
+
+	var missingSensorCount = backupSensors.filter( function( sensor ) {
+			return !hasOwn( activeSensorUUIDs, String( sensor.uuid ) );
+		} ).length,
+		deletionsNeeded = Math.max( 0, targetSensors.length + missingSensorCount - OSApp.ImportExport.sensorLimit ),
+		targetOnlySensors = targetSensors.filter( function( sensor ) {
+			return !hasOwn( backupSensorUUIDs, String( sensor.uuid ) );
+		} ),
+		deletableTargetOnlySensors = targetOnlySensors.filter( function( sensor ) {
+			return !hasOwn( aggregateChildUUIDs, String( sensor.uuid ) );
+		} );
+
+	if ( deletionsNeeded > deletableTargetOnlySensors.length ) {
+		OSApp.Errors.showError( OSApp.Language._( "This backup cannot be restored without removing sensors referenced by its aggregate definitions." ) );
+		return;
+	}
+	if ( deletionsNeeded > 0 ) {
+		sensorsToDelete = deletableTargetOnlySensors.slice( deletableTargetOnlySensors.length - deletionsNeeded );
+		sensorsToDelete.forEach( function( sensor ) {
+			plannedDeletedSensorUUIDs[ String( sensor.uuid ) ] = true;
+		} );
+	}
+
+	for ( sensorKey in aggregateChildUUIDs ) {
+		if ( hasOwn( aggregateChildUUIDs, sensorKey ) && !hasOwn( backupSensorUUIDs, sensorKey ) &&
+			!hasOwn( activeSensorUUIDs, sensorKey ) ) {
+			OSApp.Errors.showError( OSApp.Language._( "Sensor definitions in this backup reference unavailable child sensors." ) );
+			return;
+		}
+	}
+
+	// Reject incompatible program data before making any changes to the controller.
+	if ( programs.length > 0 && sourceFirmwareVersion !== null && sourceFirmwareVersion >= 210 &&
+		( OSApp.Firmware.isOSPi() || !OSApp.Firmware.checkOSVersion( 210 ) ) ) {
+		OSApp.Errors.showError( OSApp.Language._( "Program data is newer than the device firmware and cannot be imported" ) );
+		return;
+	}
+
+	if ( OSApp.Firmware.checkOSVersion( 210 ) && data.options !== null && typeof data.options === "object" && (
+		data.options.hp0 !== OSApp.currentSession.controller.options.hp0 || data.options.hp1 !== OSApp.currentSession.controller.options.hp1 ||
+		data.options.dhcp !== OSApp.currentSession.controller.options.dhcp || data.options.devid !== OSApp.currentSession.controller.options.devid ) ) {
 
 		warning = OSApp.Language._( "Warning: Network changes will be made and the device may no longer be accessible from this address." );
 	}
 
-	OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to restore the configuration?" ), warning, function() {
+	var hasMissingAdjustmentSensor = programs.some( function( prog ) {
+			var adjustment = prog[ 7 ];
+			return adjustment && typeof adjustment === "object" && String( adjustment.uuid || 0 ) !== "0" &&
+				!hasOwn( backupSensorUUIDs, String( adjustment.uuid ) ) &&
+				( !hasOwn( activeSensorUUIDs, String( adjustment.uuid ) ) || hasOwn( plannedDeletedSensorUUIDs, String( adjustment.uuid ) ) );
+		} );
+
+	if ( sensorsToDelete.length > 0 ) {
+		warning += ( warning ? "<br><br>" : "" ) + OSApp.Language._(
+			"The controller is at its sensor limit. Restoring this backup will delete sensor definitions that exist only on this controller."
+		);
+	}
+	if ( hasMissingAdjustmentSensor ) {
+		warning += ( warning ? "<br><br>" : "" ) + OSApp.Language._(
+			"Program sensor adjustments that reference a sensor absent from both the backup and this controller will be disabled."
+		);
+	}
+
+	return OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to restore the configuration?" ), warning, function() {
 		$.mobile.loading( "show" );
 
 		var cs = "/cs?pw=",
@@ -179,6 +627,10 @@ OSApp.ImportExport.importConfig = function( data ) {
 			ncs = Math.ceil( data.stations.snames.length / 16 ),
 			csi = new Array( ncs ).fill( "/cs?pw=" ),
 			isPi = OSApp.Firmware.isOSPi(),
+			baseCommands = [],
+			importFailureMessage = OSApp.Language._( "Unable to import configuration. The restore stopped before completion; review the controller before retrying." ),
+			supportsDateRange = OSApp.Supported.dateRange(),
+			supportsSensors = OSApp.Supported.sensors(),
 			i, k, key, option, station;
 
 		var findKey = function( index ) { return OSApp.Constants.keyIndex[ index ] === key; };
@@ -206,12 +658,15 @@ OSApp.ImportExport.importConfig = function( data ) {
 				} else {
 					option = data.options[ i ];
 				}
+				if ( typeof option === "string" ) {
+					option = encodeURIComponent( option );
+				}
 				co += "&o" + key + "=" + option;
 			}
 		}
 
 		// Handle import from versions prior to 2.1.1 for enable logging flag
-		if ( !isPi && typeof data.options.fwv === "number" && data.options.fwv < 211 && OSApp.Firmware.checkOSVersion( 211 ) ) {
+		if ( !isPi && sourceFirmwareVersion !== null && sourceFirmwareVersion < 211 && OSApp.Firmware.checkOSVersion( 211 ) ) {
 
 			// Enables logging since prior firmwares always had logging enabled
 			co += "&o36=1";
@@ -219,34 +674,34 @@ OSApp.ImportExport.importConfig = function( data ) {
 
 		// Import Weather Adjustment Options, if available
 		if ( typeof data.settings.wto === "object" && OSApp.Firmware.checkOSVersion( 215 ) ) {
-			co += "&wto=" + OSApp.Utils.escapeJSON( data.settings.wto );
+			co += "&wto=" + encodeURIComponent( OSApp.Utils.escapeJSON( data.settings.wto ) );
 		}
 
 		// Import IFTTT Key, if available
 		if ( typeof data.settings.ifkey === "string" && OSApp.Firmware.checkOSVersion( 217 ) ) {
-			co += "&ifkey=" + data.settings.ifkey;
+			co += "&ifkey=" + encodeURIComponent( data.settings.ifkey );
 		}
 
 		// Import device name, if available
 		if ( typeof data.settings.dname === "string" && OSApp.Firmware.checkOSVersion( 2191 ) ) {
-			co += "&dname=" + data.settings.dname;
+			co += "&dname=" + encodeURIComponent( data.settings.dname );
 		}
 
 		// Import mqtt options, if available
 		if ( typeof data.settings.mqtt === "object" && OSApp.Firmware.checkOSVersion( 2191 ) ) {
-			co += "&mqtt=" + OSApp.Utils.escapeJSON( data.settings.mqtt );
+			co += "&mqtt=" + encodeURIComponent( OSApp.Utils.escapeJSON( data.settings.mqtt ) );
 			}
 
 		//Import email options, if available
 		if ( typeof data.settings.email === "object" && OSApp.Firmware.checkOSVersion( 2191 ) ) {
-			co += "&email=" + OSApp.Utils.escapeJSON( data.settings.email );
+			co += "&email=" + encodeURIComponent( OSApp.Utils.escapeJSON( data.settings.email ) );
 			}
 
 		if ( typeof data.settings.otc === "object" && OSApp.Firmware.checkOSVersion( 2191 ) ) {
-			co += "&otc=" + OSApp.Utils.escapeJSON( data.settings.otc );
-		}
+			co += "&otc=" + encodeURIComponent( OSApp.Utils.escapeJSON( data.settings.otc ) );
+			}
 
-		co += "&" + ( isPi ? "o" : "" ) + "loc=" + data.settings.loc;
+		co += "&" + ( isPi ? "o" : "" ) + "loc=" + encodeURIComponent( data.settings.loc );
 
 		// Due to potentially large number of zones, we split zone names import to maximum 16 per group
 		for ( k = 0; k < ncs; k++ ) {
@@ -300,6 +755,18 @@ OSApp.ImportExport.importConfig = function( data ) {
 			}
 		}
 
+		if ( typeof data.stations.ignore_sn3 === "object" ) {
+			for ( i = 0; i < data.stations.ignore_sn3.length; i++ ) {
+				cs += "&o" + i + "=" + data.stations.ignore_sn3[ i ];
+			}
+		}
+
+		if ( typeof data.stations.ignore_sn4 === "object" ) {
+			for ( i = 0; i < data.stations.ignore_sn4.length; i++ ) {
+				cs += "&r" + i + "=" + data.stations.ignore_sn4[ i ];
+			}
+		}
+
 		if ( typeof data.stations.stn_dis === "object" ) {
 			for ( i = 0; i < data.stations.stn_dis.length; i++ ) {
 				cs += "&d" + i + "=" + data.stations.stn_dis[ i ];
@@ -316,7 +783,7 @@ OSApp.ImportExport.importConfig = function( data ) {
 			for ( i = 0; i < data.stations.stn_seq.length; i++ ) {
 				cs += "&q" + i + "=" + data.stations.stn_seq[ i ];
 			}
-		} else if ( !isPi && typeof data.options.fwv === "number" && data.options.fwv < 211 && !OSApp.Firmware.checkOSVersion( 211 ) ) {
+		} else if ( !isPi && sourceFirmwareVersion !== null && sourceFirmwareVersion < 211 && !OSApp.Firmware.checkOSVersion( 211 ) ) {
 			var bid;
 			for ( bid = 0; bid < data.settings.nbrd; bid++ ) {
 				cs += "&q" + bid + "=" + ( data.options.seq === 1 ? 255 : 0 );
@@ -332,102 +799,220 @@ OSApp.ImportExport.importConfig = function( data ) {
 		// Normalize station special data object
 		data.special = data.special || {};
 
-		$.when(
-			OSApp.Firmware.sendToOS( OSApp.Utils.transformKeysinString( co ) ),
-			OSApp.Firmware.sendToOS( cs ),
-			OSApp.Firmware.sendToOS( "/dp?pw=&pid=-1" ),
-			$.each( csi, function( i, comm ) {
-				OSApp.Firmware.sendToOS( comm );
-			} ),
-			$.each( data.programs.pd, function( i, prog ) {
-				var name = "";
+		baseCommands.push( OSApp.Utils.transformKeysinString( co ), cs );
+		baseCommands = baseCommands.concat( csi );
 
-				// Handle data from firmware 2.1+ being imported to OSPi
-				if ( isPi && typeof data.options.fwv === "number" && data.options.fwv >= 210 ) {
-					OSApp.Errors.showError( OSApp.Language._( "Program data is newer than the device firmware and cannot be imported" ) );
-					return false;
+		var buildProgramCommand = function( sourceProgram, index ) {
+			var prog = sourceProgram.slice(),
+				dateRange = supportsDateRange ? "&endr=0&from=0&to=0" : "",
+				name = "",
+				sensorAdjustment = supportsSensors ? "&snadj=0,0" : "";
+
+			// The firmware does not accept 2.1+ program metadata inside the program array.
+			if ( !isPi && sourceFirmwareVersion !== null && sourceFirmwareVersion >= 210 && OSApp.Firmware.checkOSVersion( 210 ) ) {
+				name = "&name=" + encodeURIComponent( prog[ 5 ] );
+
+				if ( supportsDateRange && Array.isArray( prog[ 6 ] ) && prog[ 6 ].length >= 3 ) {
+					dateRange = "&endr=" + ( prog[ 6 ][ 0 ] ? 1 : 0 ) + "&from=" + prog[ 6 ][ 1 ] + "&to=" + prog[ 6 ][ 2 ];
 				}
 
-				// Handle data from firmware 2.1+ being imported to a firmware prior to 2.1
-				if ( !isPi && typeof data.options.fwv === "number" && data.options.fwv >= 210 && !OSApp.Firmware.checkOSVersion( 210 ) ) {
-					OSApp.Errors.showError( OSApp.Language._( "Program data is newer than the device firmware and cannot be imported" ) );
-					return false;
-				}
-
-				// Handle data from firmware 2.1+ being imported to a 2.1+ device
-				// The firmware does not accept program name inside the program array and must be submitted separately
-				if ( !isPi && typeof data.options.fwv === "number" && data.options.fwv >= 210 && OSApp.Firmware.checkOSVersion( 210 ) ) {
-					name = "&name=" + prog[ 5 ];
-
-					// Truncate the program name off the array
-					prog = prog.slice( 0, 5 );
-				}
-
-				// Handle data from firmware prior to 2.1 being imported to a 2.1+ device
-				if ( !isPi && typeof data.options.fwv === "number" && data.options.fwv < 210 && OSApp.Firmware.checkOSVersion( 210 ) ) {
-					var program = OSApp.Programs.readProgram183( prog ),
-						total = ( prog.length - 7 ),
-						allDur = [],
-						j = 0,
-						bits, n, s;
-
-					// Set enable/disable bit for program
-					j |= ( program.en << 0 );
-
-					// Set program restrictions
-					if ( program.is_even ) {
-						j |= ( 2 << 2 );
-					} else if ( program.is_odd ) {
-						j |= ( 1 << 2 );
-					} else {
-						j |= ( 0 << 2 );
+				var adjustment = prog[ 7 ],
+					mappedUUID = adjustment && typeof adjustment === "object" ? resolveSensorUUID( adjustment.uuid ) : 0;
+				if ( supportsSensors && mappedUUID > 0 && adjustment && ( ( Number( adjustment.flag ) || 0 ) & 1 ) === 1 &&
+					( typeof adjustment.flag !== "undefined" || typeof adjustment.uuid !== "undefined" || Array.isArray( adjustment.splits ) ) ) {
+					var adjustmentParts = [ adjustment.flag || 0, mappedUUID ];
+					if ( Array.isArray( adjustment.splits ) ) {
+						adjustment.splits.forEach( function( split ) {
+							adjustmentParts.push( split.x, split.y );
+						} );
 					}
-
-					// Set program type
-					if ( program.type === OSApp.Constants.options.PROGRAM_TYPE_INTERVAL ) {
-						j |= ( 3 << 4 );
-					} else if ( program.type === OSApp.Constants.options.PROGRAM_TYPE_MONTHLY ) {
-						j |= ( 2 << 4 );
-					} else if ( program.type === OSApp.Constants.options.PROGRAM_TYPE_SINGLERUN ) {
-						j |= ( 1 << 4 );
-					} else {
-						j |= ( 0 << 4 );
-					}
-
-					// Set start time type (repeating)
-					j |= ( 0 << 6 );
-
-					// Save bits to program data
-					prog[ 0 ] = j;
-
-					// Using the total number of stations, migrate the duration into each station
-					for ( n = 0; n < total; n++ ) {
-						bits = prog[ 7 + n ];
-						for ( s = 0; s < 8; s++ ) {
-							allDur.push( ( bits & ( 1 << s ) ) ? program.duration : 0 );
-						}
-					}
-
-					// Set the start time, interval time, and repeat count
-					prog[ 3 ] = [ program.start, parseInt( ( program.end - program.start ) / program.interval ), program.interval, 0 ];
-
-					// Change the duration from the previous int to the new array
-					prog[ 4 ] = allDur;
-
-					// Truncate the station enable/disable flags
-					prog = prog.slice( 0, 5 );
-
-					name = "&name=" + OSApp.Language._( "Program" ) + " " + ( i + 1 );
+					sensorAdjustment = "&snadj=" + adjustmentParts.join( "," );
 				}
 
-				OSApp.Firmware.sendToOS( cpStart + "&pid=-1&v=" + JSON.stringify( prog ) + name );
-			} ),
-			$.each( data.special, function( sid, info ) {
-				if ( OSApp.Firmware.checkOSVersion( 216 ) ) {
-					OSApp.Firmware.sendToOS( "/cs?pw=&sid=" + sid + "&st=" + info.st + "&sd=" + encodeURIComponent( info.sd ) );
+				prog = prog.slice( 0, 5 );
+			}
+
+			// Handle data from firmware prior to 2.1 being imported to a 2.1+ device.
+			if ( !isPi && sourceFirmwareVersion !== null && sourceFirmwareVersion < 210 && OSApp.Firmware.checkOSVersion( 210 ) ) {
+				var program = OSApp.Programs.readProgram183( prog ),
+					total = ( prog.length - 7 ),
+					allDur = [],
+					j = 0,
+					bits, n, s;
+
+				j |= ( program.en << 0 );
+				if ( program.is_even ) {
+					j |= ( 2 << 2 );
+				} else if ( program.is_odd ) {
+					j |= ( 1 << 2 );
 				}
-			} )
-		).then(
+				if ( program.type === OSApp.Constants.options.PROGRAM_TYPE_INTERVAL ) {
+					j |= ( 3 << 4 );
+				} else if ( program.type === OSApp.Constants.options.PROGRAM_TYPE_MONTHLY ) {
+					j |= ( 2 << 4 );
+				} else if ( program.type === OSApp.Constants.options.PROGRAM_TYPE_SINGLERUN ) {
+					j |= ( 1 << 4 );
+				}
+
+				prog[ 0 ] = j;
+				for ( n = 0; n < total; n++ ) {
+					bits = prog[ 7 + n ];
+					for ( s = 0; s < 8; s++ ) {
+						allDur.push( ( bits & ( 1 << s ) ) ? program.duration : 0 );
+					}
+				}
+				prog[ 3 ] = [ program.start, parseInt( ( program.end - program.start ) / program.interval ), program.interval, 0 ];
+				prog[ 4 ] = allDur;
+				prog = prog.slice( 0, 5 );
+				name = "&name=" + encodeURIComponent( OSApp.Language._( "Program" ) + " " + ( index + 1 ) );
+			}
+
+			return cpStart + "&pid=-1&v=" + JSON.stringify( prog ) + name + dateRange + sensorAdjustment;
+		};
+
+		$.each( data.special, function( sid, info ) {
+			if ( OSApp.Firmware.checkOSVersion( 216 ) ) {
+				baseCommands.push( "/cs?pw=&sid=" + sid + "&st=" + info.st + "&sd=" + encodeURIComponent( info.sd ) );
+			}
+		} );
+
+		var sendCommands = function( commands ) {
+			var commandSequence = $.Deferred().resolve().promise();
+			$.each( commands, function( index, command ) {
+				commandSequence = commandSequence.then( function() {
+					return OSApp.Firmware.sendToOS( command );
+				} );
+			} );
+			return commandSequence;
+		},
+			rejectImport = function( message ) {
+				if ( message ) {
+					importFailureMessage = message;
+				}
+				return $.Deferred().reject().promise();
+			},
+			readSensors = function() {
+				return OSApp.Firmware.sendToOS( "/jsn?pw=", "json" ).then( function( snapshot ) {
+					if ( !snapshot || !Array.isArray( snapshot.sn ) ) {
+						return rejectImport( OSApp.Language._( "Unable to verify sensor definitions during import. The restore was stopped." ) );
+					}
+					var uuids = Object.create( null ),
+						valid = snapshot.sn.every( function( sensor ) {
+							var uuid = Number( sensor.uuid ), key = String( sensor.uuid );
+							if ( !Number.isInteger( uuid ) || uuid < 1 || uuid > 65535 || hasOwn( uuids, key ) ) {
+								return false;
+							}
+							uuids[ key ] = uuid;
+							return true;
+						} );
+					if ( !valid || ( typeof snapshot.count === "number" && snapshot.count !== snapshot.sn.length ) ) {
+						return rejectImport( OSApp.Language._( "Unable to verify sensor definitions during import. The restore was stopped." ) );
+					}
+					return { sensors: snapshot.sn, uuids: uuids };
+				} );
+			},
+			preflightSensors = function() {
+				if ( backupSensors.length === 0 ) {
+					return $.Deferred().resolve().promise();
+				}
+				return OSApp.Firmware.sendToOS( "/jsd?pw=", "json" ).then( function( rawDescription ) {
+					if ( !rawDescription || typeof rawDescription !== "object" ) {
+						return rejectImport( OSApp.Language._( "Unable to validate sensor definitions on this controller. No configuration changes were made." ) );
+					}
+					var description = rawDescription.sensors && rawDescription.sensors.length > 0 && rawDescription.sensors[ 0 ].name ?
+						rawDescription : OSApp.Sensors.normalizeJsd( rawDescription );
+					if ( !backupSensors.every( function( sensor ) {
+						return OSApp.ImportExport.sensorDefinitionSupported( sensor, description, targetSensors );
+					} ) ) {
+						return rejectImport( OSApp.Language._( "This backup contains sensor definitions that are not supported by this controller." ) );
+					}
+					return description;
+				} );
+			},
+			sequence = preflightSensors().then( function() {
+				return sendCommands( baseCommands );
+			} );
+
+		// Make only the capacity-required deletions, and do them serially.
+		$.each( sensorsToDelete, function( index, sensor ) {
+			sequence = sequence.then( function() {
+				return OSApp.Firmware.sendToOS( "/dsn?pw=&uuid=" + sensor.uuid );
+			} ).then( function() {
+				delete activeSensorUUIDs[ String( sensor.uuid ) ];
+			} );
+		} );
+
+		// Update matching UUIDs and allocate missing sensors in backup order. Aggregate
+		// children are deliberately omitted until every source UUID has a mapping.
+		$.each( backupSensors, function( index, sensor ) {
+			var sourceUUID = String( sensor.uuid );
+			sequence = sequence.then( function() {
+				if ( hasOwn( sensorUUIDMap, sourceUUID ) ) {
+					return OSApp.Firmware.sendToOS( OSApp.ImportExport.buildSensorImportCommand(
+						sensor, sensorUUIDMap[ sourceUUID ], sensor.type !== 0, resolveSensorUUID
+					) );
+				}
+
+				var beforeCount = Object.keys( activeSensorUUIDs ).length;
+				return OSApp.Firmware.sendToOS( OSApp.ImportExport.buildSensorImportCommand(
+					sensor, -1, sensor.type !== 0, resolveSensorUUID
+				) ).then( readSensors ).then( function( snapshot ) {
+					var added = Object.keys( snapshot.uuids ).filter( function( uuid ) {
+						return !hasOwn( activeSensorUUIDs, uuid );
+					} );
+					if ( added.length !== 1 || snapshot.sensors.length !== beforeCount + 1 ) {
+						return rejectImport( OSApp.Language._( "Unable to determine the UUID assigned to a restored sensor. The restore was stopped." ) );
+					}
+					activeSensorUUIDs = snapshot.uuids;
+					sensorUUIDMap[ sourceUUID ] = snapshot.uuids[ added[ 0 ] ];
+				} );
+			} );
+		} );
+
+		// A second aggregate pass safely remaps forward references and cycles.
+		$.each( backupSensors, function( index, sensor ) {
+			if ( sensor.type !== 0 ) {
+				return;
+			}
+			sequence = sequence.then( function() {
+				var mappedUUID = resolveSensorUUID( sensor.uuid );
+				if ( mappedUUID === 0 ) {
+					return rejectImport( OSApp.Language._( "Unable to map an aggregate sensor during import. The restore was stopped." ) );
+				}
+				return OSApp.Firmware.sendToOS( OSApp.ImportExport.buildSensorImportCommand(
+					sensor, mappedUUID, true, resolveSensorUUID
+				) );
+			} );
+		} );
+
+		if ( backupSensors.length > 0 ) {
+			sequence = sequence.then( readSensors ).then( function( snapshot ) {
+				activeSensorUUIDs = snapshot.uuids;
+				var verified = backupSensors.every( function( sensor ) {
+					var mappedUUID = resolveSensorUUID( sensor.uuid ),
+						actual = snapshot.sensors.find( function( candidate ) {
+							return Number( candidate.uuid ) === Number( mappedUUID );
+						} );
+					return mappedUUID > 0 && OSApp.ImportExport.sensorDefinitionMatches( sensor, actual, resolveSensorUUID );
+				} );
+				if ( !verified ) {
+					return rejectImport( OSApp.Language._( "Restored sensor definitions did not pass verification. The restore was stopped before programs were changed." ) );
+				}
+			} );
+		}
+
+		// Erase must settle before ordered /cp appends begin.
+		sequence = sequence.then( function() {
+			return OSApp.Firmware.sendToOS( "/dp?pw=&pid=-1" );
+		} );
+
+		$.each( programs, function( index, program ) {
+			sequence = sequence.then( function() {
+				return OSApp.Firmware.sendToOS( buildProgramCommand( program, index ) );
+			} );
+		} );
+
+		return sequence.then(
 			function() {
 				setTimeout( function() {
 					OSApp.Sites.updateController(
@@ -446,7 +1031,7 @@ OSApp.ImportExport.importConfig = function( data ) {
 			},
 			function() {
 				$.mobile.loading( "hide" );
-				OSApp.Errors.showError( OSApp.Language._( "Unable to import configuration." ) );
+				OSApp.Errors.showError( importFailureMessage );
 			}
 		);
 	} );

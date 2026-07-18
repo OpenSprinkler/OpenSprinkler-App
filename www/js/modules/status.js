@@ -159,7 +159,7 @@ OSApp.Status.checkStatus = function() {
 		pname  = OSApp.Programs.pidToName( pid );
 		line   = "<div><div class='running-icon'></div><div class='running-text pointer'>";
 
-		line += pname + " " + OSApp.Language._( "is running on" ) + " " + Object.keys( open ).length + " " + OSApp.Language._( "stations" ) + " ";
+		line += OSApp.Utils.htmlEscape( pname ) + " " + OSApp.Language._( "is running on" ) + " " + Object.keys( open ).length + " " + OSApp.Language._( "stations" ) + " ";
 		if ( ptotal > 0 ) {
 			line += "<span id='countdown' class='nobr'>(" + OSApp.Dates.sec2hms( ptotal ) + " " + OSApp.Language._( "remaining" ) + ")</span>";
 		}
@@ -176,7 +176,8 @@ OSApp.Status.checkStatus = function() {
 			pid = OSApp.Stations.getPID( i );
 			pname = OSApp.Programs.pidToName( pid );
 			line = "<div><div class='running-icon'></div><div class='running-text pointer'>";
-			line += pname + " " + OSApp.Language._( "is running on station" ) + " <span class='nobr'>" + OSApp.Stations.getName( i ) + "</span> ";
+			line += OSApp.Utils.htmlEscape( pname ) + " " + OSApp.Language._( "is running on station" ) + " <span class='nobr'>" +
+				OSApp.Utils.htmlEscape( OSApp.Stations.getName( i ) ) + "</span> ";
 			if ( OSApp.Stations.getRemainingRuntime( i ) > 0 ) {
 				line += "<span id='countdown' class='nobr'>(" + OSApp.Dates.sec2hms( OSApp.Stations.getRemainingRuntime( i ) ) + " " + OSApp.Language._( "remaining" ) + ")</span>";
 			}
@@ -262,6 +263,7 @@ OSApp.Status.checkStatus = function() {
 	var sensorTypeShort = function( t ) {
 		switch ( t ) {
 			case 1: return OSApp.Language._( "Rain" );
+			case 2: return OSApp.Language._( "Flow" );
 			case 3: return OSApp.Language._( "Soil" );
 			case 240: return OSApp.Language._( "Program Switch" );
 			default: return OSApp.Language._( "Rain" );
@@ -318,8 +320,8 @@ OSApp.Status.checkStatus = function() {
 		var lrpid = OSApp.currentSession.controller.settings.lrun[ 1 ];
 		pname = OSApp.Programs.pidToName( lrpid );
 
-		OSApp.Status.changeStatus( 0, "transparent", "<p class='running-text smaller center pointer'>" + pname + " " + OSApp.Language._( "last ran station" ) + " " +
-		OSApp.Stations.getName( OSApp.currentSession.controller.settings.lrun[ 0 ] ) + " " + OSApp.Language._( "for" ) + " " + ( lrdur / 60 >> 0 ) + "m " + ( lrdur % 60 ) + "s " +
+		OSApp.Status.changeStatus( 0, "transparent", "<p class='running-text smaller center pointer'>" + OSApp.Utils.htmlEscape( pname ) + " " + OSApp.Language._( "last ran station" ) + " " +
+		OSApp.Utils.htmlEscape( OSApp.Stations.getName( OSApp.currentSession.controller.settings.lrun[ 0 ] ) ) + " " + OSApp.Language._( "for" ) + " " + ( lrdur / 60 >> 0 ) + "m " + ( lrdur % 60 ) + "s " +
 			OSApp.Language._( "on" ) + " " + OSApp.Dates.dateToString( new Date( ( OSApp.currentSession.controller.settings.lrun[ 3 ] - lrdur ) * 1000 ) ) + "</p>", homeOrOptions );
 		return;
 	}

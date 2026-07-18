@@ -60,16 +60,7 @@ OSApp.StationAttributes.getIgnoreSensor = function( sid, sensorID ) {
 
 	if ( !OSApp.Supported.ignoreSensor( sensorID ) ) { return 0; }
 
-	switch ( sensorID ) {
-		case OSApp.Constants.options.IGNORE_SENSOR_1:
-			sourceIgnoreSensorAttribute = OSApp.currentSession.controller.stations.ignore_sn1;
-			break;
-		case OSApp.Constants.options.IGNORE_SENSOR_2:
-			sourceIgnoreSensorAttribute = OSApp.currentSession.controller.stations.ignore_sn2;
-			break;
-		default:
-			return 0;
-	}
+	sourceIgnoreSensorAttribute = OSApp.currentSession.controller.stations[ "ignore_sn" + sensorID ];
 
 	var boardIgnoreSensorAttribute = sourceIgnoreSensorAttribute[ bid ],
 		boardStationID = 1 << ( sid % 8 );

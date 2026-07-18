@@ -248,27 +248,55 @@ OSApp.Stations.convertRemoteToExtender = function( data ) {
 };
 
 OSApp.Stations.submitRunonce = function( runonce, interval, repeat, annotation, qo ) {
+	var boundedInteger = function( value, minimum, maximum, fallback ) {
+		value = Number( value );
+		if ( !Number.isFinite( value ) ) {
+			return fallback;
+		}
+
+		return Math.min( maximum, Math.max( minimum, Math.floor( value ) ) );
+	},
+		normalizeDuration = function( value ) {
+			value = boundedInteger( value, 0, 65535, 0 );
+			return value === 65534 || value === 65535 ? value : Math.min( value, 65533 );
+		},
+		adjustDuration = function( value, percentage ) {
+			value = normalizeDuration( value );
+			if ( value === 65534 || value === 65535 ) {
+				if ( percentage === 100 ) {
+					return value;
+				}
+				value = OSApp.Stations.getStationDuration( value );
+			}
+
+			return Math.min( 65533, Math.floor( value * percentage / 100 ) );
+		},
+		originalRunonce;
+
 	// This block is for the Run-Once Page *only*.
 	// It detects if `runonce` is not an array, meaning it's being called from the page.
-	if ( !( runonce instanceof Array ) ) {
+	if ( !Array.isArray( runonce ) ) {
+		if ( runonce && typeof runonce.preventDefault === "function" ) {
+			runonce.preventDefault();
+		}
 		runonce = [];
 		$( "#runonce" ).find( "[id^='zone-']" ).each( function() {
-			runonce.push( parseInt( this.value ) || 0 );
+			runonce.push( normalizeDuration( this.value ) );
 		} );
 		runonce.push( 0 );
-		var originalRunonce = runonce.slice();
+		originalRunonce = runonce.slice();
 
 		var wlMode = $( "#runonce" ).find( "input[name='wl-runonce']:checked" ).val() || "none";
 		var i;
 		if ( wlMode === "custom" ) {
-			var customPct = parseFloat( $( "#runonce" ).find( "#wl-custom-slider" ).val() ) || 100;
+			var customPct = boundedInteger( $( "#runonce" ).find( "#wl-custom-slider" ).val(), 1, 250, 100 );
 			for ( i = 0; i < runonce.length - 1; i++ ) {
-				runonce[ i ] = Math.floor( runonce[ i ] * customPct / 100 );
+				runonce[ i ] = adjustDuration( runonce[ i ], customPct );
 			}
 		} else if ( wlMode === "current" ) {
-			var wlPct = OSApp.currentSession.controller.options.wl ?? 100;
+			var wlPct = boundedInteger( OSApp.currentSession.controller.options.wl, 0, 250, 100 );
 			for ( i = 0; i < runonce.length - 1; i++ ) {
-				runonce[ i ] = Math.floor( runonce[ i ] * wlPct / 100 );
+				runonce[ i ] = adjustDuration( runonce[ i ], wlPct );
 			}
 		}
 
@@ -286,6 +314,10 @@ OSApp.Stations.submitRunonce = function( runonce, interval, repeat, annotation, 
 				qo = $("input[name='qo-runonce']:checked").val();
 			}
 		}
+	} else {
+		runonce = runonce.map( function( duration ) {
+			return normalizeDuration( duration );
+		} );
 	}
 
 	var submit = function() {
@@ -295,24 +327,30 @@ OSApp.Stations.submitRunonce = function( runonce, interval, repeat, annotation, 
 		let request = "/cr?pw=&t=" + JSON.stringify( runonce );
 
 		if ( OSApp.Supported.repeatedRunonce() ) {
-			request += "&int=" + interval + "&cnt=" + repeat;
-			if ( annotation?.length > 0 ) {
-				request += "&anno=" + annotation;
+			interval = boundedInteger( interval, 0, 1439, 0 );
+			repeat = boundedInteger( repeat, 0, 1440, 0 );
+			if ( interval > 0 && repeat > 0 ) {
+				request += "&int=" + interval + "&cnt=" + repeat;
+			}
+			if ( typeof annotation === "string" && annotation.length > 0 ) {
+				request += "&anno=" + encodeURIComponent( annotation );
 			}
 		}
 		if ( OSApp.Firmware.checkOSVersion ( 2214 ) ) {
 			if ( qo != null ) {
-				request += "&qo=" + qo;
+				qo = Number( qo );
+				request += "&qo=" + ( Number.isInteger( qo ) && qo >= 0 && qo <= 2 ? qo : 2 );
 			}
 		}
 
 		OSApp.Firmware.sendToOS( request ).done( function() {
-			$.mobile.loading( "hide" );
 			$.mobile.document.one( "pageshow", function() {
 				OSApp.Errors.showError( OSApp.Language._( "Run-once program has been scheduled" ) );
 			} );
 			OSApp.Status.refreshStatus();
 			OSApp.UIDom.goBack();
+		} ).always( function() {
+			$.mobile.loading( "hide" );
 		} );
 	},
 	isOn = OSApp.StationQueue.isActive();
@@ -321,7 +359,7 @@ OSApp.Stations.submitRunonce = function( runonce, interval, repeat, annotation, 
 		if ( !OSApp.Firmware.checkOSVersion ( 2214 ) && isOn !== -1 ){
 			// Add a short delay to allow the first popup to finish closing
 			setTimeout(function() {
-				OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to stop the currently running program?" ), OSApp.Programs.pidToName( OSApp.Stations.getPID( isOn ) ), function() {
+				OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to stop the currently running program?" ), OSApp.Utils.htmlEscape( OSApp.Programs.pidToName( OSApp.Stations.getPID( isOn ) ) ), function() {
 					$.mobile.loading( "show" );
 					OSApp.Stations.stopStations( submit );
 				} );
@@ -332,6 +370,7 @@ OSApp.Stations.submitRunonce = function( runonce, interval, repeat, annotation, 
 	};
 
 	checkIsOnAndSubmit();
+	return false;
 };
 
 OSApp.Stations.getStationDuration = function( duration, date ) {

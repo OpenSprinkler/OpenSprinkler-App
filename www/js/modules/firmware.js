@@ -46,7 +46,8 @@ OSApp.Firmware.sendToOS = function( dest, type ) {
 	type = type || "text";
 
 	// Designate AJAX queue based on command type
-	var isChange = /\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu|up|cm)/.exec( dest ),
+	var isSensorChange = /\/(?:csn|dsn|dsl)(?:\?|$)/.test( dest ),
+		isChange = isSensorChange || /\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu|up|cm)/.test( dest ),
 		queue = isChange ? "change" : "default",
 
 		// Use POST when sending data to the controller (requires firmware 2.1.8 or newer)
@@ -85,84 +86,141 @@ OSApp.Firmware.sendToOS = function( dest, type ) {
 		} );
 	}
 
-	if ( type === "arraybuffer" ) {
-		const fetchHeaders = {};
-		if ( OSApp.currentSession.auth ) {
-			fetchHeaders[ "Authorization" ] = "Basic " + btoa( OSApp.currentSession.authUser + ":" + OSApp.currentSession.authPass );
+	function handleFirmwareResponse( data ) {
+
+		// In case the data type was incorrect, attempt to fix.
+		// If fix not possible, return string
+		if ( typeof data === "string" ) {
+			try {
+				data = $.parseJSON( data );
+			} catch {
+				return data;
+			}
 		}
-		defer = $.Deferred();
-		fetch( obj.url, { headers: fetchHeaders } )
-			.then( function( r ) { if ( !r.ok ) { throw { status: r.status }; } return r.arrayBuffer(); } )
-			.then( function( buf ) { defer.resolve( buf ); } )
-			.catch( function( err ) { defer.reject( err ); } );
-		return defer.promise();
-	}
 
-	defer = $.ajaxq( queue, obj ).then(
-		function( data ) {
+		// Don't need to handle this situation for OSPi or firmware below 2.1.0
+		if ( !data || typeof data !== "object" || typeof data.result !== "number" ) {
+			return data;
+		}
 
-			// In case the data type was incorrect, attempt to fix.
-			// If fix not possible, return string
-			if ( typeof data === "string" ) {
-				try {
-					data = $.parseJSON( data );
-				} catch {
-					return data;
-				}
+		// Return as successful
+		if ( data.result === 1 ) {
+			return data;
+
+		// Handle incorrect password
+		} else if ( data.result === 2 ) {
+			if ( isChange ) {
+				OSApp.Errors.showError( OSApp.Language._( "Check device password and try again." ) );
 			}
 
-			// Don't need to handle this situation for OSPi or firmware below 2.1.0
-			if ( typeof data !== "object" || typeof data.result !== "number" ) {
-				return data;
-			}
+			// Tell subsequent handlers this request has failed (use 401 to prevent retry)
+			return $.Deferred().reject( { "status":401 } );
 
-			// Return as successful
-			if ( data.result === 1 ) {
-				return data;
+		// Handle page not found by triggering fail
+		} else if ( data.result === 32 ) {
 
-			// Handle incorrect password
-			} else if ( data.result === 2 ) {
-				if ( /\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu|up|cm)/.exec( dest ) ) {
-					OSApp.Errors.showError( OSApp.Language._( "Check device password and try again." ) );
-				}
+			return $.Deferred().reject( { "status":404 } );
+		}
 
-				// Tell subsequent handlers this request has failed (use 401 to prevent retry)
-				return $.Deferred().reject( { "status":401 } );
-
-			// Handle page not found by triggering fail
-			} else if ( data.result === 32 ) {
-
-				return $.Deferred().reject( { "status":404 } );
-			}
-
-			// Only show error messages on setting change requests
-			if ( /\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu|up|cm)/.exec( dest ) ) {
+		// All numeric firmware errors reject, including JSON read endpoints such
+		// as /jsn and /jsd. Only mutations show the generic firmware toast; read
+		// callers provide operation-specific context.
+		if ( isChange ) {
 				// Friendly text for well-known firmware result codes (see
 				// HTML_* in OpenSprinkler firmware/defines.h). Anything not
 				// in the map falls back to the generic message. The raw code
 				// is always appended so unknown errors can still be looked up.
 				var resultMsgs = {
-					0x03: "Item mismatch.",                                                    // HTML_MISMATCH
-					0x10: "A required field is missing.",                                      // HTML_DATA_MISSING
-					0x11: "A value is out of range.",                                          // HTML_DATA_OUTOFBOUND
-					0x12: "A field has an invalid format.",                                    // HTML_DATA_FORMATERROR
-					0x13: "RF code error.",                                                    // HTML_RFCODE_ERROR
-					0x30: "Operation not permitted.",                                          // HTML_NOT_PERMITTED
-					0x40: "Upload failed.",                                                    // HTML_UPLOAD_FAILED
-					0x50: "Internal firmware error."                                           // HTML_INTERNAL_ERROR
+					0x03: OSApp.Language._( "Item mismatch." ),                                // HTML_MISMATCH
+					0x10: OSApp.Language._( "A required field is missing." ),                  // HTML_DATA_MISSING
+					0x11: OSApp.Language._( "A value is out of range." ),                      // HTML_DATA_OUTOFBOUND
+					0x12: OSApp.Language._( "A field has an invalid format." ),                // HTML_DATA_FORMATERROR
+					0x13: OSApp.Language._( "RF code error." ),                                // HTML_RFCODE_ERROR
+					0x30: OSApp.Language._( "Operation not permitted." ),                      // HTML_NOT_PERMITTED
+					0x40: OSApp.Language._( "Upload failed." ),                                // HTML_UPLOAD_FAILED
+					0x50: OSApp.Language._( "Internal firmware error." )                       // HTML_INTERNAL_ERROR
 				};
-				var msgKey = resultMsgs[ data.result ] || "Please check input and try again.";
-				OSApp.Errors.showError(
-					OSApp.Language._( msgKey ) + " (Error " + data.result + ")"
-				);
+				if ( data.result === 0x30 && /\/(?:cm|cs)(?:\?|$)/.test( dest ) ) {
+					// Preserve the long-standing station-busy guidance for manual-run commands.
+					OSApp.Errors.showError(
+						OSApp.Language._( "The selected station is already running or is scheduled to run." )
+					);
+				} else {
+					var message = resultMsgs[ data.result ] || OSApp.Language._( "Please check input and try again." );
+					OSApp.Errors.showError( message + " (Error " + data.result + ")" );
+				}
+		}
 
-				// Tell subsequent handlers this request has failed
-				return $.Deferred().reject( data );
+		// Tell subsequent handlers this request has failed.
+		return $.Deferred().reject( data );
+	}
+
+	if ( type === "arraybuffer" || type === "blob" ) {
+		const fetchHeaders = {};
+		if ( OSApp.currentSession.auth ) {
+			fetchHeaders[ "Authorization" ] = "Basic " + btoa( OSApp.currentSession.authUser + ":" + OSApp.currentSession.authPass );
+		}
+		const abortController = typeof AbortController === "function" ? new AbortController() : null;
+		const fetchOptions = { headers: fetchHeaders };
+		const isSensorLog = /\/jsl(?:\?|$)/.test( dest );
+		if ( abortController ) {
+			fetchOptions.signal = abortController.signal;
+		}
+		defer = $.Deferred();
+			const fetchTimeout = setTimeout( function() {
+			if ( abortController ) {
+				abortController.abort();
 			}
+			defer.reject( { status: 0, statusText: "timeout" } );
+			}, type === "blob" ? 10 * 60 * 1000 : ( $.ajaxSettings.timeout || 10000 ) );
+		fetch( obj.url, fetchOptions )
+			.then( function( r ) {
+				if ( !r.ok ) {
+					throw { status: r.status };
+				}
+				var contentType = r.headers.get( "Content-Type" ) || "";
+					if ( isSensorLog && /json/i.test( contentType ) ) {
+					return r.json().then( function( data ) {
+						// /jsl uses result 80 when no binary log header exists yet.
+						if ( data && data.result === 80 ) {
+							if ( type === "blob" ) {
+								return new Blob( [ "uuid,timestamp,value\n" ], { type: "text/csv;charset=utf-8;" } );
+							}
+							var emptyLog = new ArrayBuffer( 0 );
+							emptyLog.noLogHeader = true;
+							return emptyLog;
+						}
+						// A JSON success response is not a valid binary log payload.
+						if ( data && data.result === 1 ) {
+							return $.Deferred().reject( { status: 0, statusText: "parsererror" } );
+						}
+						return handleFirmwareResponse( data );
+						} );
+					}
+					if ( isSensorLog && ( type === "blob" ? !/^text\/csv(?:\s*;|$)/i.test( contentType ) :
+						!/^application\/octet-stream(?:\s*;|$)/i.test( contentType ) ) ) {
+						return $.Deferred().reject( { status: 0, statusText: "parsererror" } );
+					}
+					return type === "blob" ? r.blob() : r.arrayBuffer();
+			} )
+			.then( function( buf ) {
+				if ( type === "arraybuffer" && isSensorLog && ( !( buf instanceof ArrayBuffer ) || buf.byteLength % 10 !== 0 ) ) {
+					return $.Deferred().reject( { status: 0, statusText: "parsererror" } );
+				}
+				return buf;
+			} )
+			.then( function( buf ) { defer.resolve( buf ); } )
+			.catch( function( err ) { defer.reject( err ); } )
+			.finally( function() { clearTimeout( fetchTimeout ); } );
+		return defer.promise();
+	}
 
+	defer = $.ajaxq( queue, obj ).then(
+		function( data ) {
+			return handleFirmwareResponse( data );
 		},
 		function( e ) {
-			if ( ( e.statusText === "timeout" || e.status === 0 ) && /\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu|cm)/.exec( dest ) ) {
+			if ( ( e.statusText === "timeout" || e.status === 0 ) && isChange ) {
 
 				// Handle the connection timing out but only show error on setting change
 				OSApp.Errors.showError( OSApp.Language._( "Connection timed-out. Please try again." ) );
@@ -171,7 +229,9 @@ OSApp.Firmware.sendToOS = function( dest, type ) {
 				//Handle unauthorized requests
 				OSApp.Errors.showError( OSApp.Language._( "Check device password and try again." ) );
 			}
-			return;
+			// Preserve transport failure semantics for reads as well as writes. Callers
+			// must not treat a failed /jsn (or any other read) as resolved undefined.
+			return $.Deferred().reject( e );
 		}
 	);
 
@@ -335,6 +395,30 @@ OSApp.Firmware.getHWType = function() {
 	}
 };
 
+OSApp.Firmware.getTrustedGithubUrl = function( value ) {
+	if ( typeof value !== "string" ) {
+		return null;
+	}
+
+	try {
+		var url = new URL( value );
+
+		if (
+			url.protocol !== "https:" ||
+			url.hostname.toLowerCase() !== "github.com" ||
+			url.port ||
+			url.username ||
+			url.password
+		) {
+			return null;
+		}
+
+		return url.href;
+	} catch {
+		return null;
+	}
+};
+
 OSApp.Firmware.checkFirmwareUpdate = function() {
 
 	// Update checks are only be available for Arduino firmwares
@@ -367,17 +451,18 @@ OSApp.Firmware.checkFirmwareUpdate = function() {
 
 								// Modify the changelog by parsing markdown of lists to HTML
 								var button = $( this ).parent(),
-									canUpdate = OSApp.currentSession.controller.options.hwv === 30 || OSApp.currentSession.controller.options.hwv > 63 && OSApp.Firmware.checkOSVersion( 216 ),
-									changelog = data[ 0 ][ "html_url" ],
+									hwVersion = OSApp.currentSession.controller.options.hwv,
+									isBrowserUpload = hwVersion >= 30 && hwVersion < 40,
+									canUpdate = ( isBrowserUpload && !OSApp.currentSession.token && !!OSApp.currentSession.ip ) ||
+										( hwVersion > 63 && OSApp.Firmware.checkOSVersion( 216 ) ),
+									changelog = OSApp.Firmware.getTrustedGithubUrl( data[ 0 ][ "html_url" ] ),
 									popup = $(
 										"<div data-role='popup' class='modal' data-theme='a'>" +
-											"<h3 class='center' style='margin-bottom:0'>" +
-												OSApp.Language._( "Latest" ) + " " + OSApp.Language._( "Firmware" ) + ": " + data[ 0 ].name +
-											"</h3>" +
+											"<h3 class='center firmware-release-title' style='margin-bottom:0'></h3>" +
 											"<h5 class='center' style='margin:0'>" + OSApp.Language._( "This Controller" ) + ": " + OSApp.Firmware.getOSVersion() + OSApp.Firmware.getOSMinorVersion() + "</h5>" +
-											"<a class='iab ui-btn ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' target='_blank' href='" + changelog + "'>" +
+											( changelog ? "<a class='changelog iab ui-btn ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' target='_blank' rel='noopener noreferrer'>" +
 												OSApp.Language._( "View Changelog" ) +
-											"</a>" +
+											"</a>" : "" ) +
 											"<a class='guide ui-btn ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' href='#'>" +
 												OSApp.Language._( "Update Guide" ) +
 											"</a>" +
@@ -390,9 +475,18 @@ OSApp.Firmware.checkFirmwareUpdate = function() {
 										"</div>"
 									);
 
+								popup.find( ".firmware-release-title" ).text(
+									OSApp.Language._( "Latest" ) + " " + OSApp.Language._( "Firmware" ) + ": " + data[ 0 ].name
+								);
+								popup.find( ".changelog" ).attr( "href", changelog );
+
 								popup.find( ".update" ).on( "click", function() {
-									if ( OSApp.currentSession.controller.options.hwv === 30 ) {
-										$( "<a class='hidden iab' href='" + OSApp.currentSession.prefix + OSApp.currentSession.ip + "/update'></a>" ).appendTo( popup ).click();
+									if ( isBrowserUpload ) {
+										$( "<a></a>" )
+											.addClass( "hidden iab" )
+											.attr( "href", OSApp.currentSession.prefix + OSApp.currentSession.ip + "/update" )
+											.appendTo( popup )
+											.trigger( "click" );
 										return;
 									}
 

@@ -232,7 +232,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 						if ( parseInt( mconf.mas ) > maxStation ) { mconf.mas = 0; }
 						// Master 1/2 use legacy o-IDs so transformKeys converts them
 						// to mas/mton/mtof on firmware ≥ 2.1.9; master 3/4 use named
-						// keys directly (firmware-defined, no keyIndex entry).
+						// keys directly because they are only supported by modern firmware.
 						if ( id === "master1" ) {
 							opt.o18 = mconf.mas;
 							opt.o19 = mconf.mton;
@@ -297,8 +297,8 @@ OSApp.Options.showOptions = function( expandItem ) {
 							if ( typeof optsRef.sn2on !== "undefined" ) { opt.o56 = sconf.on; }
 							if ( typeof optsRef.sn2of !== "undefined" ) { opt.o57 = sconf.off; }
 						} else {
-							// Sensor 3/4 use named keys directly (firmware-defined,
-							// no keyIndex entry); transformKeys passes them through.
+							// Sensor 3/4 use named keys directly because they are only
+							// supported by modern firmware; transformKeys passes them through.
 							opt[ "sn" + snum + "t" ] = sconf.type;
 							if ( typeof optsRef[ "sn" + snum + "o" ] !== "undefined" ) {
 								opt[ "sn" + snum + "o" ] = sconf.no;
@@ -370,6 +370,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 				OSApp.UIDom.goBack();
 				OSApp.Sites.updateController( OSApp.Weather.updateWeather );
 			} ).fail( function() {
+				$.mobile.loading( "hide" );
 				button.prop( "disabled", false );
 				page.find( ".submit" ).addClass( "hasChanges" );
 			} );
@@ -1331,6 +1332,18 @@ OSApp.Options.showOptions = function( expandItem ) {
 			}
 		}
 
+		if ( typeof OSApp.currentSession.controller.stations.ignore_sn3 === "object" ) {
+			for ( i = 0; i < OSApp.currentSession.controller.settings.nbrd; i++ ) {
+				cs += "o" + i + "=0&";
+			}
+		}
+
+		if ( typeof OSApp.currentSession.controller.stations.ignore_sn4 === "object" ) {
+			for ( i = 0; i < OSApp.currentSession.controller.settings.nbrd; i++ ) {
+				cs += "r" + i + "=0&";
+			}
+		}
+
 		if ( typeof OSApp.currentSession.controller.stations.act_relay === "object" ) {
 			for ( i = 0; i < OSApp.currentSession.controller.settings.nbrd; i++ ) {
 				cs += "a" + i + "=0&";
@@ -1635,18 +1648,30 @@ OSApp.Options.showOptions = function( expandItem ) {
 		return topic;
 	}
 
-	// Build the station options HTML for a master-zone <select>. Pre-selects
-	// `current` (1-based station id; 0 = None).
+	var showPopupInputError = function() {
+		OSApp.Errors.showError( OSApp.Language._( "Please check input and try again." ) );
+	};
+
+	// Build station <option> nodes for a master-zone <select>. Station names are
+	// controller data, so assign them with .text() rather than treating them as HTML.
 	var buildMasterStationOptions = function( current ) {
-		var html = "<option value='0'>" + OSApp.Language._( "None" ) + "</option>";
-		var snames = OSApp.currentSession.controller.stations.snames;
+		var options = $( "<select></select>" ),
+			snames = OSApp.currentSession.controller.stations.snames;
+		$( "<option></option>" )
+			.val( 0 )
+			.text( OSApp.Language._( "None" ) )
+			.prop( "selected", current === 0 )
+			.appendTo( options );
 		for ( var si = 0; si < snames.length; si++ ) {
 			var val = si + 1;
-			html += "<option " + ( current === val ? "selected" : "" ) +
-				" value='" + val + "'>" + OSApp.Stations.getName( si ) + "</option>";
+			$( "<option></option>" )
+				.val( val )
+				.text( OSApp.Stations.getName( si ) )
+				.prop( "selected", current === val )
+				.appendTo( options );
 			if ( !OSApp.Firmware.checkOSVersion( 214 ) && si === 7 ) { break; }
 		}
-		return html;
+		return options.children();
 	};
 
 	// Build the type options for a sensor popup. Sensor 1 may include Flow,
@@ -1680,7 +1705,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 			fprRow = "<div class='ui-field-contain sn-fpr'>" +
 					"<label for='sn-fpr'>" + OSApp.Language._( "Flow Pulse Rate" ) + "</label>" +
 					"<table style='width:100%'><tr style='vertical-align:top'>" +
-						"<td style='width:60%'><input data-mini='true' type='number' step='any' id='sn-fpr' value='" + ( parseFloat( conf.fpr ) || 0 ) + "'></td>" +
+						"<td style='width:60%'><input data-mini='true' type='number' min='0' step='any' id='sn-fpr' value='" + ( parseFloat( conf.fpr ) || 0 ) + "'></td>" +
 						"<td class='tight-select' style='width:40%'>" +
 							"<select id='sn-fpr-unit' data-mini='true'>" +
 								"<option value='liter'" + ( conf.fprUnit === "gallon" ? "" : " selected" ) + ">L/pulse</option>" +
@@ -1748,15 +1773,31 @@ OSApp.Options.showOptions = function( expandItem ) {
 		popup.find( "#sn-type" ).on( "change", refreshFields );
 
 		popup.find( ".submit" ).on( "click", function() {
+			var onInput = popup.find( "#sn-on" ),
+				offInput = popup.find( "#sn-off" ),
+				type = parseInt( popup.find( "#sn-type" ).val() ) || 0,
+				usesDelays = type === 1 || type === 3,
+				fprValue = parseFloat( popup.find( "#sn-fpr" ).val() ),
+				fprUnit = popup.find( "#sn-fpr-unit" ).val(),
+				fprLiters = fprUnit === "gallon" ? fprValue * 3.78541 : fprValue;
+			if ( usesDelays && ( !onInput[ 0 ].checkValidity() || !offInput[ 0 ].checkValidity() ) ) {
+				showPopupInputError();
+				return;
+			}
+			if ( type === 2 && ( !Number.isFinite( fprValue ) || fprValue < 0 || fprLiters > 655.35 ) ) {
+				showPopupInputError();
+				return;
+			}
+
 			var newConf = {
-				type: parseInt( popup.find( "#sn-type" ).val() ) || 0,
-				no: popup.find( "#sn-no" ).prop( "checked" ) ? 1 : 0,
-				on: parseInt( popup.find( "#sn-on" ).val() ) || 0,
-				off: parseInt( popup.find( "#sn-off" ).val() ) || 0
+				type: type,
+				no: ( type === 1 || type === 3 || type === 240 ) && popup.find( "#sn-no" ).prop( "checked" ) ? 1 : 0,
+				on: usesDelays ? parseInt( onInput.val() ) || 0 : 0,
+				off: usesDelays ? parseInt( offInput.val() ) || 0 : 0
 			};
 			if ( hasFlow ) {
-				newConf.fpr = parseFloat( popup.find( "#sn-fpr" ).val() ) || 0;
-				newConf.fprUnit = popup.find( "#sn-fpr-unit" ).val();
+				newConf.fpr = Number.isFinite( fprValue ) ? fprValue : 0;
+				newConf.fprUnit = fprUnit;
 			}
 			if ( newConf.type > 0 ) {
 				$( button ).addClass( "blue" ).text( sensorTypeName( newConf.type ) );
@@ -1771,7 +1812,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 			page.find( ".submit" ).addClass( "hasChanges" );
 		} );
 
-		popup.css( { "min-width": "360px", "max-width": "360px" } );
+		popup.css( { "box-sizing": "border-box", "width": "calc(100vw - 24px)", "max-width": "360px" } );
 		OSApp.UIDom.openPopup( popup, { positionTo: "window" } );
 		refreshFields();
 	} );
@@ -1793,7 +1834,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 				"<div class='ui-content'>" +
 					"<div class='ui-field-contain'>" +
 						"<label for='mas-zone' class='select'>" + OSApp.Language._( "Zone" ) + "</label>" +
-						"<select data-mini='true' id='mas-zone'>" + buildMasterStationOptions( parseInt( conf.mas ) || 0 ) + "</select>" +
+						"<select data-mini='true' id='mas-zone'></select>" +
 					"</div>" +
 					"<div class='ui-field-contain master-on-off'>" +
 						"<label for='mas-on'>" + OSApp.Language._( "On Adj." ) + " (" + OSApp.Language._( "seconds" ) + ")</label>" +
@@ -1807,6 +1848,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 					"<button class='submit' data-theme='b'>" + OSApp.Language._( "Submit" ) + "</button>" +
 				"</div>" +
 			"</div>" );
+		popup.find( "#mas-zone" ).append( buildMasterStationOptions( parseInt( conf.mas ) || 0 ) );
 
 		// Hide on/off adjustments when no zone is selected.
 		var toggleAdjustments = function() {
@@ -1822,10 +1864,21 @@ OSApp.Options.showOptions = function( expandItem ) {
 		} );
 
 		popup.find( ".submit" ).on( "click", function() {
+			var masterZone = parseInt( popup.find( "#mas-zone" ).val() ) || 0,
+				onValue = masterZone ? snapToFive( popup.find( "#mas-on" ).val() ) : 0,
+				offValue = masterZone ? snapToFive( popup.find( "#mas-off" ).val() ) : 0;
+			popup.find( "#mas-on" ).val( onValue );
+			popup.find( "#mas-off" ).val( offValue );
+
+			if ( onValue < onMin || onValue > onMax || offValue < offMin || offValue > offMax ) {
+				showPopupInputError();
+				return;
+			}
+
 			var newConf = {
-				mas: parseInt( popup.find( "#mas-zone" ).val() ) || 0,
-				mton: snapToFive( popup.find( "#mas-on" ).val() ),
-				mtof: snapToFive( popup.find( "#mas-off" ).val() )
+				mas: masterZone,
+				mton: onValue,
+				mtof: offValue
 			};
 			if ( newConf.mas > 0 ) {
 				$( button ).addClass( "blue" );
@@ -1840,7 +1893,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 			page.find( ".submit" ).addClass( "hasChanges" );
 		} );
 
-		popup.css( { "min-width": "320px", "max-width": "380px" } );
+		popup.css( { "box-sizing": "border-box", "width": "calc(100vw - 24px)", "max-width": "380px" } );
 		OSApp.UIDom.openPopup( popup, { positionTo: "window" } );
 		toggleAdjustments();
 	} );

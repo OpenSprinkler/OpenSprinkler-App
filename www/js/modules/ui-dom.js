@@ -161,9 +161,9 @@ OSApp.UIDom.launchApp = function() {
 			OSApp.Programs.displayPageRunOnce();
 		} else if ( hash === "#os-options" ) {
 			OSApp.Options.showOptions( data.options.expandItem );
-		} else if ( OSApp.Analog.checkAnalogSensorAvail() && hash === "#analogsensorconfig" ) {
+		} else if ( hash === "#analogsensorconfig" && OSApp.Analog.checkAnalogSensorAvail() ) {
 			OSApp.Analog.showAnalogSensorConfig();
-		} else if ( OSApp.Analog.checkAnalogSensorAvail() && hash === "#analogsensorchart" ) {
+		} else if ( hash === "#analogsensorchart" && OSApp.Analog.checkAnalogSensorAvail() ) {
 			OSApp.Analog.showAnalogSensorCharts();
 		} else if ( hash === "#preview" ) {
 			OSApp.Programs.displayPagePreviewPrograms();
@@ -183,11 +183,11 @@ OSApp.UIDom.launchApp = function() {
 			} else {
 				$( hash ).one( "pageshow", function() { OSApp.Status.refreshStatus(); } );
 			}
-		} else if ( hash === "#sensors" ) {
+		} else if ( hash === "#sensors" && OSApp.Supported.sensors() ) {
 			OSApp.Sensors.displayPage( data.options.expandUuid );
-		} else if ( hash === "#add-sensor" ) {
+		} else if ( hash === "#add-sensor" && OSApp.Supported.sensors() ) {
 			OSApp.Sensors.addSensor();
-		} else if ( hash === "#sensor-logs" ) {
+		} else if ( hash === "#sensor-logs" && OSApp.Supported.sensors() ) {
 			OSApp.Sensors.displayLogs();
 		}
 	} )
@@ -299,12 +299,15 @@ OSApp.UIDom.showHomeMenu = ( function() {
 		page = $( ".ui-page-active" );
 		id = page.attr( "id" );
 		showHidden = page.hasClass( "show-hidden" );
+		var hasSensors = OSApp.Supported.sensors(),
+			hasLegacyAnalog = !hasSensors && OSApp.Analog.checkAnalogSensorAvail();
 		popup = $( "<div data-role='popup' data-theme='a' id='mainMenu'>" +
 			"<ul data-role='listview' data-inset='true' data-corners='false'>" +
 				"<li data-role='list-divider'>" + OSApp.Language._( "Information" ) + "</li>" +
 				"<li><a href='#preview' class='squeeze'>" + OSApp.Language._( "Preview Programs" ) + "</a></li>" +
 				( OSApp.Firmware.checkOSVersion( 206 ) || OSApp.Firmware.checkOSPiVersion( "1.9" ) ? "<li><a href='#logs'>" + OSApp.Language._( "Sprinkler Logs" ) + "</a></li>" : "" ) +
-				( OSApp.Supported.sensors() ? "<li><a href='#sensor-logs'>" + OSApp.Language._( "Sensor Logs" ) + "</a></li>" : "" ) +
+				( hasSensors ? "<li><a href='#sensor-logs'>" + OSApp.Language._( "Sensor Logs" ) + "</a></li>" :
+					( hasLegacyAnalog ? "<li><a href='#analogsensorchart'>" + OSApp.Language._( "Show Sensor Log" ) + "</a></li>" : "" ) ) +
 				"<li data-role='list-divider'>" + OSApp.Language._( "Manual Control" ) + "</li>" +
 				"<li><a href='#runonce'>" + OSApp.Language._( "Run-Once" ) + "</a></li>" +
 				"<li><a href='#raindelay'>" + OSApp.Language._( "Rain Delay" ) + "</a></li>" +
@@ -315,7 +318,8 @@ OSApp.UIDom.showHomeMenu = ( function() {
 				"<li data-role='list-divider'>" + OSApp.Language._( "Configuration" ) + "</li>" +
 				"<li><a href='#os-options'>" + OSApp.Language._( "Edit Options" ) + "</a></li>" +
 				"<li><a href='#programs'>" + OSApp.Language._( "Edit Programs" ) + "</a></li>" +
-				( OSApp.Supported.sensors() ? "<li><a href='#sensors'>" + OSApp.Language._( "Edit Sensors" ) + "</a></li>" : "" ) +
+				( hasSensors ? "<li><a href='#sensors'>" + OSApp.Language._( "Edit Sensors" ) + "</a></li>" :
+					( hasLegacyAnalog ? "<li><a href='#analogsensorconfig'>" + OSApp.Language._( "Analog Sensor Config" ) + "</a></li>" : "" ) ) +
 			( id === "sprinklers" || id === "runonce" || id === "programs" || id === "manual" || id === "addprogram" ?
 				"</ul>" +
 				"<div class='ui-grid-a ui-mini tight'>" +
@@ -383,6 +387,55 @@ OSApp.UIDom.showHomeMenu = ( function() {
 
 	return begin;
 } )();
+
+OSApp.UIDom.handleKeydown = function( e ) {
+	var target = e.target,
+		tag = $( target ).prop( "tagName" );
+
+	if ( tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || ( target && target.isContentEditable ) ) {
+		return;
+	}
+
+	var code = e.keyCode,
+		altDown = e.altKey,
+		menuOpen = $( "#mainMenu-popup" ).hasClass( "ui-popup-active" );
+
+	if ( code === 77 ) { // M
+		var menu = $( "#mainMenu" );
+		if ( menu.length > 0 ) {
+			$( "#mainMenu" ).popup( "close" );
+		} else {
+			OSApp.UIDom.showHomeMenu();
+		}
+	} else if ( ( menuOpen || altDown ) && code === 80 ) { // P
+		e.preventDefault();
+		OSApp.UIDom.changePage( "#programs" );
+	} else if ( ( menuOpen || altDown ) && code === 79 ) { // O
+		e.preventDefault();
+		OSApp.UIDom.changePage( "#os-options" );
+	} else if ( ( menuOpen || altDown ) && code === 86 ) { // V
+		e.preventDefault();
+		OSApp.UIDom.changePage( "#preview" );
+	} else if ( ( menuOpen || altDown ) && code === 76 ) { // L
+		e.preventDefault();
+		OSApp.UIDom.changePage( "#logs" );
+	} else if ( ( menuOpen || altDown ) && code === 82 ) { // R
+		e.preventDefault();
+		OSApp.UIDom.changePage( "#runonce" );
+	} else if ( ( menuOpen || altDown ) && code === 85 ) { // U
+		e.preventDefault();
+		OSApp.UIDom.showPause();
+	} else if ( ( menuOpen || altDown ) && code === 68 ) { // D
+		e.preventDefault();
+		OSApp.Weather.showRainDelay();
+	} else if ( ( menuOpen || altDown ) && code === 83 && OSApp.Supported.sensors() ) { // S
+		e.preventDefault();
+		OSApp.UIDom.changePage( "#sensors" );
+	} else if ( ( menuOpen || altDown ) && code === 71 && OSApp.Supported.sensors() ) { // G
+		e.preventDefault();
+		OSApp.UIDom.changePage( "#sensor-logs" );
+	}
+};
 
 OSApp.UIDom.initAppData = function() {
 
@@ -501,53 +554,7 @@ OSApp.UIDom.initAppData = function() {
 	OSApp.UIDom.updateTimers();
 
 	// Handle keybinds
-	$.mobile.document.on( "keydown", function( e ) {
-		var tag = $( e.target ).prop( "tagName" );
-
-		if ( tag === "INPUT" || tag === "TEXTAREA" ) {
-			return;
-		}
-
-		var code = e.keyCode,
-			altDown = e.altKey,
-			menuOpen = $( "#mainMenu-popup" ).hasClass( "ui-popup-active" );
-
-		if ( code === 77 ) { // M
-			var menu = $( "#mainMenu" );
-			if ( menu.length > 0 ) {
-				$( "#mainMenu" ).popup( "close" );
-			} else {
-				OSApp.UIDom.showHomeMenu();
-			}
-		} else if ( ( menuOpen || altDown ) && code === 80 ) { // P
-			e.preventDefault();
-			OSApp.UIDom.changePage( "#programs" );
-		} else if ( ( menuOpen || altDown ) && code === 79 ) { // O
-			e.preventDefault();
-			OSApp.UIDom.changePage( "#os-options" );
-		} else if ( ( menuOpen || altDown ) && code === 86 ) { // V
-			e.preventDefault();
-			OSApp.UIDom.changePage( "#preview" );
-		} else if ( ( menuOpen || altDown ) && code === 76 ) { // L
-			e.preventDefault();
-			OSApp.UIDom.changePage( "#logs" );
-		} else if ( ( menuOpen || altDown ) && code === 82 ) { // R
-			e.preventDefault();
-			OSApp.UIDom.changePage( "#runonce" );
-		} else if ( ( menuOpen || altDown ) && code === 85 ) { // U
-			e.preventDefault();
-			OSApp.UIDom.showPause();
-		} else if ( ( menuOpen || altDown ) && code === 68 ) { // D
-			e.preventDefault();
-			OSApp.Weather.showRainDelay();
-		} else if ( ( menuOpen || altDown ) && code === 83 ) { // S
-			e.preventDefault();
-			OSApp.UIDom.changePage( "#sensors" );
-		} else if ( ( menuOpen || altDown ) && code === 71 ) { // G
-			e.preventDefault();
-			OSApp.UIDom.changePage( "#sensor-logs" );
-		}
-	} );
+	$.mobile.document.on( "keydown", OSApp.UIDom.handleKeydown );
 
 	// Initialize external panel
 	OSApp.UIDom.bindPanel();
@@ -700,16 +707,16 @@ OSApp.UIDom.bindPanel = function() {
 				panel.find( ".toggleOperation span:first" ).html( operation ).attr( "data-translate", operation );
 
 				// Hardware 3.0 family (hwv 30..39) supports browser-based
-				// firmware update at <baseurl>/update. Show the link and point
-				// it at the current session's URL so the existing .iab handler
-				// can open it in a new tab / in-app browser.
-				var hwv = OSApp.currentSession.controller && OSApp.currentSession.controller.options && OSApp.currentSession.controller.options.hwv;
-				var showUpdate = typeof hwv === "number" && hwv >= 30 && hwv < 40;
-				panel.find( ".update-fw" ).toggleClass( "hidden", !showUpdate );
-				if ( showUpdate ) {
-					panel.find( ".update-fw a" ).attr( "href",
-						OSApp.currentSession.prefix + OSApp.currentSession.ip + "/update" );
-				}
+				// firmware update at <baseurl>/update. Only expose this for a
+				// direct session with a complete URL; cloud-token sessions do
+				// not have a directly reachable browser endpoint.
+				var hwv = OSApp.currentSession.controller && OSApp.currentSession.controller.options && OSApp.currentSession.controller.options.hwv,
+					updateItem = panel.find( ".update-fw" ),
+					showUpdate = typeof hwv === "number" && hwv >= 30 && hwv < 40 &&
+						!OSApp.currentSession.token && !!OSApp.currentSession.prefix && !!OSApp.currentSession.ip;
+				updateItem.toggleClass( "hidden", !showUpdate );
+				updateItem.find( "a" ).attr( "href", showUpdate ?
+					OSApp.currentSession.prefix + OSApp.currentSession.ip + "/update" : "#" );
 			};
 
 		$( "html" ).on( "datarefresh",  updateButtons );
@@ -1549,10 +1556,10 @@ OSApp.UIDom.showDurationBox = function( opt ) {
 		decrbts = "<fieldset class='ui-grid-" + String.fromCharCode( 95 + ( total ) ) + " decr'>",
 		popup = $( "<div data-role='popup' id='durationBox' data-theme='a'>" +
 			"<div data-role='header' data-theme='b'>" +
-				"<h1>" + opt.title + "</h1>" +
+				"<h1 class='duration-title'></h1>" +
 			"</div>" +
 			"<div class='ui-content'>" +
-				( opt.helptext ? "<p class='rain-desc center smaller'>" + opt.helptext + "</p>" : "" ) +
+				( opt.helptext ? "<p class='rain-desc center smaller'></p>" : "" ) +
 				"<span>" +
 				"</span>" +
 				( opt.showSun ? "<div class='ui-grid-a useSun'>" +
@@ -1647,6 +1654,9 @@ OSApp.UIDom.showDurationBox = function( opt ) {
 				}
 			} ).parent( ".ui-input-text" ).toggleClass( "ui-state-disabled", state );
 		};
+
+	popup.find( ".duration-title" ).text( opt.title );
+	popup.find( ".rain-desc" ).text( opt.helptext || "" );
 
 	for ( i = start; i < conv.length - opt.granularity; i++ ) {
 		incrbts += "<div " + ( ( total > 1 ) ? "class='ui-block-" + String.fromCharCode( 97 + i - start ) + "'" : "" ) + ">" +

@@ -77,9 +77,9 @@ module.exports = function( grunt ) {
 			},
 			pushEng: {
 				command: [
-					"xgettext --keyword=OSApp.Language._ --output=- <%= jsFiles %> --omit-header --force-po --from-code=UTF-8 --language='Python' | sed '/^\#/d' > .msgjs",
-					"sed -E 's/data-translate=\"([^\"]*)\"/_\(\"\\1\"\)/g' www/index.html > temp.html && xgettext --keyword=_ --output=- --language='Python' --omit-header --force-po temp.html | sed '/^#/d' > .msghtml && rm temp.html",
-					"msgcat .msgjs .msghtml > www/locale/messages_en.po",
+					"xgettext --keyword=OSApp.Language._ --output=- <%= jsFiles %> --force-po --from-code=UTF-8 --language='JavaScript' | sed '/^#/d' > .msgjs",
+					"sed -E 's/data-translate=\"([^\"]*)\"/_\(\"\\1\"\)/g' www/index.html > temp.html && xgettext --keyword=_ --output=- --language='Python' --force-po --from-code=UTF-8 temp.html | sed '/^#/d; s/charset=CHARSET/charset=UTF-8/' > .msghtml && rm temp.html",
+					"msgcat .msgjs .msghtml | sed '1,/^$/d; /^#/d' > www/locale/messages_en.po",
 					"rm .msgjs .msghtml",
 					"tx push",
 					"git add www/locale/messages_en.po",

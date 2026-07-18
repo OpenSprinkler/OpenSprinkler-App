@@ -39,14 +39,11 @@ OSApp.Supported.ignoreRain = function() {
 };
 
 OSApp.Supported.ignoreSensor = function( sensorID ) {
-	switch ( sensorID ) {
-		case OSApp.Constants.options.IGNORE_SENSOR_1:
-			return ( typeof OSApp.currentSession.controller.stations.ignore_sn1 === "object" ) ? true : false;
-		case OSApp.Constants.options.IGNORE_SENSOR_2:
-			return ( typeof OSApp.currentSession.controller.stations.ignore_sn2 === "object" ) ? true : false;
-		default:
-			return false;
+	if ( sensorID < OSApp.Constants.options.IGNORE_SENSOR_1 || sensorID > OSApp.Constants.options.IGNORE_SENSOR_4 ) {
+		return false;
 	}
+
+	return typeof OSApp.currentSession.controller.stations[ "ignore_sn" + sensorID ] === "object";
 };
 
 OSApp.Supported.actRelay = function() {
@@ -81,7 +78,7 @@ OSApp.Supported.dateRange = function() {
 };
 
 OSApp.Supported.sensors = function() {
-	return !!( OSApp.currentSession.controller && OSApp.currentSession.controller.sensors );
+	return Array.isArray( OSApp.currentSession.controller?.sensors?.sn );
 };
 
 OSApp.Supported.changePause = function() {
