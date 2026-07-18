@@ -448,14 +448,14 @@ describe("Sensor UI Checks", function () {
 		}
 	});
 
-	it("should build a capped three-hour sensor log request", function () {
+	it("should request the complete binary sensor log for chart ranges", function () {
 		assert.equal(
-			OSApp.Sensors.getChartLogURL(1700000000),
-			"/jsl?pw=&fmt=binary&after=1699989200&count=20000"
+			OSApp.Sensors.getChartLogURL(),
+			"/jsl?pw=&fmt=binary&count=max"
 		);
 	});
 
-	it("should cap rendered sensor records and expose only honest three-hour controls", function () {
+	it("should render the full log and expose all chart range controls", function () {
 		var controller = OSApp.currentSession.controller;
 		var originalSensors = controller.sensors;
 		var originalDescription = controller.sensor_desc;
@@ -470,7 +470,7 @@ describe("Sensor UI Checks", function () {
 		var loading = sinon.stub($.mobile, "loading");
 		var changeHeader = sinon.stub(OSApp.UIDom, "changeHeader");
 		var sendToOS = sinon.stub(OSApp.Firmware, "sendToOS")
-			.returns($.Deferred().resolve(sensorLogBuffer(OSApp.Sensors.LOG_CHART_MAX_RECORDS + 1)).promise());
+			.returns($.Deferred().resolve(sensorLogBuffer(20001)).promise());
 		var page;
 
 		try {
@@ -481,13 +481,13 @@ describe("Sensor UI Checks", function () {
 			page = $("#sensor-logs");
 
 			assert.isTrue(sendToOS.firstCall.calledWith(
-				"/jsl?pw=&fmt=binary&after=1699989200&count=20000",
+				"/jsl?pw=&fmt=binary&count=max",
 				"arraybuffer"
 			));
-			assert.lengthOf(chart.data.datasets[0].data, OSApp.Sensors.LOG_CHART_MAX_RECORDS);
-			assert.include(page.find(".sensor-log-window-note").text(), "3 hours");
-			assert.lengthOf(page.find('input[value="1D"], input[value="1W"], input[value="1M"], input[value="All"]'), 0);
-			assert.lengthOf(page.find('input[value="Download 3H"]'), 1);
+			assert.lengthOf(page.find('input[value="3H"], input[value="1D"], input[value="1W"], input[value="1M"], input[value="All"]'), 5);
+			assert.lengthOf(page.find('input[value="Download"]'), 1);
+			page.find('input[value="All"]').trigger("click");
+			assert.lengthOf(chart.data.datasets[0].data, 20001);
 		} finally {
 			if (page) page.trigger("pagehide").remove();
 			sendToOS.restore();

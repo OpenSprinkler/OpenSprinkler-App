@@ -2029,19 +2029,10 @@ msgstr ""
 msgid "Delete All"
 msgstr ""
 
-msgid "Showing the last 3 hours (up to 20,000 records)."
-msgstr ""
-
 msgid "Failed to download sensor logs"
 msgstr ""
 
 msgid "No sensor logs found."
-msgstr ""
-
-msgid "No sensor logs found in the last 3 hours."
-msgstr ""
-
-msgid "Download 3H"
 msgstr ""
 
 msgid "Are you sure you want to delete the log for"

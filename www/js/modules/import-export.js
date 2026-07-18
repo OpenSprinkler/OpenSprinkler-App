@@ -513,9 +513,6 @@ OSApp.ImportExport.importConfig = function( data ) {
 		if ( typeof adjustment !== "object" || !Number.isInteger( adjustment.flag ) || adjustment.flag < 0 || adjustment.flag > 255 ) {
 			return true;
 		}
-		if ( ( adjustment.flag & 1 ) !== 1 ) {
-			return false;
-		}
 		if ( !Number.isInteger( adjustment.uuid ) || adjustment.uuid < 1 || adjustment.uuid > 65535 ||
 			!Array.isArray( adjustment.splits ) || adjustment.splits.length < 1 || adjustment.splits.length > 8 ) {
 			return true;
@@ -881,7 +878,7 @@ OSApp.ImportExport.importConfig = function( data ) {
 
 				var adjustment = prog[ 7 ],
 					mappedUUID = adjustment && typeof adjustment === "object" ? resolveSensorUUID( adjustment.uuid ) : 0;
-				if ( supportsSensors && mappedUUID > 0 && adjustment && ( ( Number( adjustment.flag ) || 0 ) & 1 ) === 1 &&
+				if ( supportsSensors && mappedUUID > 0 && adjustment &&
 					( typeof adjustment.flag !== "undefined" || typeof adjustment.uuid !== "undefined" || Array.isArray( adjustment.splits ) ) ) {
 					var adjustmentParts = [ adjustment.flag || 0, mappedUUID ];
 					if ( Array.isArray( adjustment.splits ) ) {

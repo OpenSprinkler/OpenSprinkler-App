@@ -2981,20 +2981,18 @@ OSApp.Programs.getSenAdjURL = function (id) {
         return error;
     }
 
-    const _pd = ( id !== "new" ) ? OSApp.currentSession.controller.programs.pd[ id ] : null;
-    const _existingFlag = ( _pd && _pd[ 7 ] && _pd[ 7 ].flag ) || 0;
-    const enabled = $( "#use-sn-" + id ).is( ":checked" );
+	const _pd = ( id !== "new" ) ? OSApp.currentSession.controller.programs.pd[ id ] : null;
+	const _existingFlag = ( _pd && _pd[ 7 ] && _pd[ 7 ].flag ) || 0;
+	const enabled = $( "#use-sn-" + id ).is( ":checked" );
+	const flag = enabled ? ( _existingFlag | 1 ) : ( _existingFlag & ~1 );
+	const uuid = $( "#sen-adj-sid-" + id ).val() || "0";
 
-    if ( !enabled ) {
-        return "&snadj=0,0";
-    }
-
-    const flag = _existingFlag | 1;
-    const uuid = $( "#sen-adj-sid-" + id ).val() || "0";
-
-    if ( uuid === "0" ) {
-        throw validationError( OSApp.Language._( "Error: Select a sensor before enabling sensor adjustment." ) );
-    }
+	if ( uuid === "0" ) {
+		if ( enabled ) {
+			throw validationError( OSApp.Language._( "Error: Select a sensor before enabling sensor adjustment." ) );
+		}
+		return `&snadj=${flag},0`;
+	}
 
     $( `#sensor-splits-body-${id}` ).find( "tr" ).each( function() {
         const x = parseFloat( $( this ).find( ".split-x" ).val() );

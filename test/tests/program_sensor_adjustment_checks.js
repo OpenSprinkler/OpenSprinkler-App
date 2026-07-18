@@ -237,13 +237,34 @@ describe("Program Sensor Adjustment Checks", function () {
 		}, "Add at least one sensor adjustment point");
 	});
 
-	it("serializes disabled adjustment as a clean reset despite stale incomplete rows", function () {
+	it("rejects incomplete configured points even when adjustment is disabled", function () {
 		fixture.append(
 			"<input type='checkbox' id='use-sn-new'>" +
 			"<select id='sen-adj-sid-new'><option value='42' selected>Sensor</option></select>" +
 			"<table><tbody id='sensor-splits-body-new'>" +
 			"<tr><td><input class='split-x' value='10'></td><td><input class='split-y'></td></tr>" +
 			"</tbody></table>"
+		);
+
+		assert.throws(function () {
+			OSApp.Programs.getSenAdjURL("new");
+		}, "Complete or remove every sensor adjustment point");
+	});
+
+	it("disables sensor adjustment without erasing its sensor, points, or other flags", function () {
+		OSApp.currentSession.controller.programs.pd[0][7].flag = 5;
+		var page = OSApp.Programs.makeProgram21(0, false);
+		fixture.append(page);
+		fixture.find("#use-sn-0").prop("checked", false);
+
+		assert.equal(OSApp.Programs.getSenAdjURL(0), "&snadj=4,42,0,1,10,0.5");
+	});
+
+	it("serializes an unconfigured disabled adjustment as a reset", function () {
+		fixture.append(
+			"<input type='checkbox' id='use-sn-new'>" +
+			"<select id='sen-adj-sid-new'><option value='0' selected>None</option></select>" +
+			"<table><tbody id='sensor-splits-body-new'></tbody></table>"
 		);
 
 		assert.equal(OSApp.Programs.getSenAdjURL("new"), "&snadj=0,0");

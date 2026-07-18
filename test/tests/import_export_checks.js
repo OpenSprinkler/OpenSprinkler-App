@@ -250,6 +250,7 @@ describe("Import/Export Checks", function () {
 			};
 			backup.programs.pd = [
 				program("Morning & East=West", { flag: 1, uuid: 42, splits: [ { x: 0, y: 50 } ] }),
+				program("Disabled adjustment", { flag: 0, uuid: 42, splits: [ { x: 10, y: 0.75 } ] }),
 				program("Empty adjustment", {})
 			];
 
@@ -268,8 +269,10 @@ describe("Import/Export Checks", function () {
 				assert.isBelow(dpIndex, cpIndex);
 				assert.include(commands[cpIndex], "&name=Morning%20%26%20East%3DWest");
 				assert.include(commands[cpIndex], "&endr=1&from=321&to=385&snadj=1,42,0,50");
-				assert.include(programCommands[1], "&name=Empty%20adjustment");
-				assert.include(programCommands[1], "&snadj=0,0");
+				assert.include(programCommands[1], "&name=Disabled%20adjustment");
+				assert.include(programCommands[1], "&snadj=0,42,10,0.75");
+				assert.include(programCommands[2], "&name=Empty%20adjustment");
+				assert.include(programCommands[2], "&snadj=0,0");
 				assert.notInclude(commands.join("\n"), "/csn?");
 				assert.notInclude(commands.join("\n"), "/dsn?");
 				assert.notInclude(commands.join("\n"), "/jsn?");

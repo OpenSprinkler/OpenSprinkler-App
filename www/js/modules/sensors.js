@@ -138,15 +138,8 @@ OSApp.Sensors.formatLogCsvRow = function (uuid, sensorName, timestamp, value, un
     return `${uuid},${csvText(sensorName)},${timestampSeconds},${value},${csvText(unit)}`;
 };
 
-OSApp.Sensors.LOG_CHART_WINDOW_SECONDS = 3 * 60 * 60;
-OSApp.Sensors.LOG_CHART_MAX_RECORDS = 20000;
-
-OSApp.Sensors.getChartLogURL = function (nowSeconds) {
-    const controllerNow = Number(nowSeconds);
-    const fallbackNow = Math.floor(Date.now() / 1000);
-    const after = Math.max(0, Math.floor(Number.isFinite(controllerNow) && controllerNow > 0 ? controllerNow : fallbackNow) -
-        OSApp.Sensors.LOG_CHART_WINDOW_SECONDS);
-    return `/jsl?pw=&fmt=binary&after=${after}&count=${OSApp.Sensors.LOG_CHART_MAX_RECORDS}`;
+OSApp.Sensors.getChartLogURL = function () {
+    return "/jsl?pw=&fmt=binary&count=max";
 };
 
 OSApp.Sensors.homeCardSignature = function () {
@@ -1947,12 +1940,8 @@ OSApp.Sensors.displayLogs = function (_callback) {
             </div>
         </div>
     `);
-    const $windowNote = $("<p class='sensor-log-window-note center'></p>").text(
-        OSApp.Language._("Showing the last 3 hours (up to 20,000 records).")
-    );
-    content.append($filterDiv);
-    content.append($windowNote);
-    content.append($cards);
+	content.append($filterDiv);
+	content.append($cards);
     page.append(content);
 
     const _dateFmt = new Intl.DateTimeFormat([], { month: 'short', day: 'numeric' });
@@ -2090,10 +2079,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
     function parseData(parent, buf, sensors) {
         const dv = new DataView(buf);
         let obj = {};
-        const maxBytes = Math.min(Math.floor(buf.byteLength / 10),
-            OSApp.Sensors.LOG_CHART_MAX_RECORDS) * 10;
-
-        for (let i = 0; i < maxBytes; i += 10) {
+		for (let i = 0; i < buf.byteLength; i += 10) {
             const key = dv.getUint16(i + 8, true);
             const timestamp = dv.getUint32(i, true);
             const value = dv.getFloat32(i + 4, true);
@@ -2116,10 +2102,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
         });
 
         if (keys.length === 0) {
-            const emptyMessage = buf.noLogHeader
-                ? OSApp.Language._("No sensor logs found.")
-                : OSApp.Language._("No sensor logs found in the last 3 hours.");
-            parent.append($("<p class='sensor-log-empty center'></p>").text(emptyMessage));
+			parent.append($("<p class='sensor-log-empty center'></p>").text(OSApp.Language._("No sensor logs found.")));
             return;
         }
 
@@ -2151,9 +2134,18 @@ OSApp.Sensors.displayLogs = function (_callback) {
             const chart = createChart($canvas[0], sn, unitLabel);
             activeCharts.push(chart);
 
-                chart.data = {
-                    datasets: [ { data: obj[key].data } ]
-                };
+				let chartSince = new Date();
+				chartSince.setDate(chartSince.getDate() - 1);
+
+				const update = function () {
+					chart.data = {
+						datasets: [ {
+							data: chartSince ? obj[key].data.filter((v) => v.x >= chartSince) : obj[key].data
+						} ]
+					};
+					chart.resetZoom();
+					chart.update();
+				};
 
                 var $controls = $("<div>", {
                     "data-role": "controlgroup",
@@ -2165,7 +2157,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
                     chart.resetZoom();
                 });
 
-                const $download = $('<input type="button">').val(OSApp.Language._("Download 3H"));
+				const $download = $('<input type="button">').val(OSApp.Language._("Download"));
                 $download.on("click", () => {
                     const sensorName = activeSensor ? activeSensor.name : OSApp.Language._("Unknown");
                     let unit = OSApp.Language._("Unknown");
@@ -2199,7 +2191,32 @@ OSApp.Sensors.displayLogs = function (_callback) {
                     );
                 });
 
-                $controls.append($resetZoom, $download, $deleteLogs);
+				const $threeHour = $('<input type="button" value="3H">').on("click", () => {
+					chartSince = new Date();
+					chartSince.setHours(chartSince.getHours() - 3);
+					update();
+				});
+				const $day = $('<input type="button" value="1D">').on("click", () => {
+					chartSince = new Date();
+					chartSince.setDate(chartSince.getDate() - 1);
+					update();
+				});
+				const $week = $('<input type="button" value="1W">').on("click", () => {
+					chartSince = new Date();
+					chartSince.setDate(chartSince.getDate() - 7);
+					update();
+				});
+				const $month = $('<input type="button" value="1M">').on("click", () => {
+					chartSince = new Date();
+					chartSince.setMonth(chartSince.getMonth() - 1);
+					update();
+				});
+				const $all = $('<input type="button">').val(OSApp.Language._("All")).on("click", () => {
+					chartSince = null;
+					update();
+				});
+
+				$controls.append($threeHour, $day, $week, $month, $all, $resetZoom, $download, $deleteLogs);
 
                 const $controlsWrap = $("<div>").addClass("sensor-chart-controls");
                 $controlsWrap.append($controls);
@@ -2211,7 +2228,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
                 $download.button();
                 $resetZoom.button();
 
-                chart.update();
+				update();
         }
     }
 
@@ -2241,9 +2258,8 @@ OSApp.Sensors.displayLogs = function (_callback) {
         const seq = ++requestSeq;
         $.mobile.loading("show");
 
-		const controllerNow = controller.settings && controller.settings.devt;
-        const jslRequest = OSApp.Firmware.sendToOS(
-            OSApp.Sensors.getChartLogURL(controllerNow),
+		const jslRequest = OSApp.Firmware.sendToOS(
+			OSApp.Sensors.getChartLogURL(),
             "arraybuffer"
         );
 		const jsdRequest = controller.sensor_desc
