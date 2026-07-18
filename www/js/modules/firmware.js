@@ -38,6 +38,10 @@ OSApp.Firmware.Constants = {
 	}
 };
 
+OSApp.Firmware.isChangeRequest = function( dest ) {
+	return /\/(?:cv|cs|csn|cr|cp|uwa|dp|dsn|dsl|co|cl|cu|up|cm)(?:\?|$)/.test( dest );
+};
+
 // Wrapper function to communicate with OpenSprinkler
 OSApp.Firmware.sendToOS = function( dest, type ) {
 
@@ -46,8 +50,7 @@ OSApp.Firmware.sendToOS = function( dest, type ) {
 	type = type || "text";
 
 	// Designate AJAX queue based on command type
-	var isSensorChange = /\/(?:csn|dsn|dsl)(?:\?|$)/.test( dest ),
-		isChange = isSensorChange || /\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu|up|cm)/.test( dest ),
+	var isChange = OSApp.Firmware.isChangeRequest( dest ),
 		queue = isChange ? "change" : "default",
 
 		// Use POST when sending data to the controller (requires firmware 2.1.8 or newer)
