@@ -555,12 +555,14 @@ describe("Program Sensor Adjustment Checks", function () {
 		var sendToOS = sandbox.stub(OSApp.Firmware, "sendToOS").returns(request.promise());
 		var changeHeader = sandbox.stub(OSApp.UIDom, "changeHeader").returns($());
 		OSApp.currentSession.controller.jpaData = [ { sa: 9 } ];
+		OSApp.currentSession.controller.jpaMaxRuntime = 123;
 
 		OSApp.Programs.displayPage();
 		$("#programs").trigger("pageshow");
 
 		assert.isTrue(sendToOS.calledWith("/jpa?pw=", "json"));
 		assert.deepEqual(OSApp.currentSession.controller.jpaData, []);
+		assert.notProperty(OSApp.currentSession.controller, "jpaMaxRuntime");
 
 		var replacement = makeController();
 		OSApp.currentSession.controller = replacement;
@@ -586,8 +588,16 @@ describe("Program Sensor Adjustment Checks", function () {
 		firstRequest.resolve({ jpa: [ { wa: 1, sa: 9, ta: 9 } ] });
 		assert.deepEqual(OSApp.currentSession.controller.jpaData, []);
 
-		secondRequest.resolve({ jpa: [ { wa: 1, sa: 0.5, ta: 0.5 } ] });
+		secondRequest.resolve({ jpa: [ { wa: 1, sa: 0.5, ta: 0.5 } ], maxrt: 604800 });
 		assert.deepEqual(OSApp.currentSession.controller.jpaData, [ { wa: 1, sa: 0.5, ta: 0.5 } ]);
+		assert.equal(OSApp.currentSession.controller.jpaMaxRuntime, 604800);
+	});
+
+	it("rejects malformed maxrt adjustment metadata", function () {
+		assert.isFalse(OSApp.Programs.isProgramAdjustmentDataValid(
+			{ jpa: [ { wa: 1, sa: 1, ta: 1 } ], maxrt: 0 },
+			OSApp.currentSession.controller
+		));
 	});
 
 	it("renders preview as unavailable when adjustment factors fail to load", function () {

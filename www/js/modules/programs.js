@@ -59,7 +59,7 @@ OSApp.Programs.displayPage = function(programId) {
 		var controller = OSApp.currentSession.controller,
 			request = OSApp.Firmware.sendToOS( "/jpa?pw=", "json" );
 
-		controller.jpaData = [];
+		OSApp.Programs.clearProgramAdjustmentData( controller );
 		adjustmentRequest = request;
 		OSApp.Programs.waitForProgramAdjustments( page.find( "[id^='run-']" ), controller, request );
 		function loadFailed() {
@@ -75,7 +75,7 @@ OSApp.Programs.displayPage = function(programId) {
 				loadFailed();
 				return;
 			}
-			controller.jpaData = data.jpa;
+			OSApp.Programs.cacheProgramAdjustmentData( controller, data );
 		} ).fail( function( error ) {
 			if ( !error || error.status !== 401 ) {
 				loadFailed();
@@ -819,13 +819,13 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 					request = OSApp.Firmware.sendToOS( "/jpa?pw=", "json" ),
 					loadError = null;
 
-				controller.jpaData = [];
+				OSApp.Programs.clearProgramAdjustmentData( controller );
 				adjustmentState = "loading";
 				adjustmentRequest = request;
 				showAdjustmentStatus( OSApp.Language._( "Loading program adjustments…" ), "preview-adjustment-loading" );
 				request.done( function( data ) {
 					if ( adjustmentRequest === request && OSApp.currentSession.controller === controller && OSApp.Programs.isProgramAdjustmentDataValid( data, controller ) ) {
-						controller.jpaData = data.jpa;
+						OSApp.Programs.cacheProgramAdjustmentData( controller, data );
 						adjustmentState = "ready";
 					}
 				} ).fail( function( error ) {
@@ -1008,6 +1008,10 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 									OSApp.Stations.getStationDuration( prog[ 4 ][ sid ], simt ) * weatherPercent / 100
 								);
 								waterTime = Math.floor( waterTime * sensorFactor );
+								let maxRuntime = Number( OSApp.currentSession.controller.jpaMaxRuntime );
+								if ( Number.isFinite( maxRuntime ) && maxRuntime > 0 ) {
+									waterTime = Math.min( waterTime, Math.floor( maxRuntime ) );
+								}
 								if ( weatherPercent < 20 && waterTime < 10 ) {
 									waterTime = 0;
 								}
@@ -2970,12 +2974,30 @@ OSApp.Programs.isProgramAdjustmentDataValid = function( data, controller ) {
 	if ( !Array.isArray( programs ) || !data || !Array.isArray( data.jpa ) || data.jpa.length !== programs.length ) {
 		return false;
 	}
+	if ( Object.prototype.hasOwnProperty.call( data, "maxrt" ) &&
+		( !Number.isInteger( data.maxrt ) || data.maxrt <= 0 ) ) {
+		return false;
+	}
 	return data.jpa.every( function( adjustment ) {
 		return adjustment &&
 			Number.isFinite( adjustment.wa ) && adjustment.wa >= 0 &&
 			Number.isFinite( adjustment.sa ) && adjustment.sa >= 0 &&
 			Number.isFinite( adjustment.ta ) && adjustment.ta >= 0;
 	} );
+};
+
+OSApp.Programs.clearProgramAdjustmentData = function( controller ) {
+	controller.jpaData = [];
+	delete controller.jpaMaxRuntime;
+};
+
+OSApp.Programs.cacheProgramAdjustmentData = function( controller, data ) {
+	controller.jpaData = data.jpa;
+	if ( Object.prototype.hasOwnProperty.call( data, "maxrt" ) ) {
+		controller.jpaMaxRuntime = data.maxrt;
+	} else {
+		delete controller.jpaMaxRuntime;
+	}
 };
 
 OSApp.Programs.getSenAdjURL = function (id) {

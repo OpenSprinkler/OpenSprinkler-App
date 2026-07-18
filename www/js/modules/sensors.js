@@ -134,12 +134,37 @@ OSApp.Sensors.formatLogCsvRow = function (uuid, sensorName, timestamp, value, un
         return `"${text.replace(/"/g, '""')}"`;
     }
 
-    const timestampSeconds = Math.floor(timestamp.getTime() / 1000);
+    const timestampMilliseconds = timestamp instanceof Date ? timestamp.getTime() : Number(timestamp);
+    const timestampSeconds = Math.floor(timestampMilliseconds / 1000);
     return `${uuid},${csvText(sensorName)},${timestampSeconds},${value},${csvText(unit)}`;
 };
 
-OSApp.Sensors.getChartLogURL = function () {
-    return "/jsl?pw=&fmt=binary&count=max";
+OSApp.Sensors.LOG_CHART_RANGES = { "3h": 0, "1d": 1, "1w": 2, "1m": 3, all: 4 };
+
+OSApp.Sensors.getChartRangeStart = function (range, nowSeconds) {
+    if (range === "all") return null;
+
+    const controllerNow = Number(nowSeconds);
+    const now = Number.isFinite(controllerNow) && controllerNow > 0 ? controllerNow : Date.now() / 1000;
+    switch (range) {
+    case "3h":
+        return Math.floor(now - 3 * 60 * 60);
+    case "1w":
+        return Math.floor(now - 7 * 24 * 60 * 60);
+    case "1m":
+        {
+            const monthStart = new Date(now * 1000);
+            monthStart.setMonth(monthStart.getMonth() - 1);
+            return Math.floor(monthStart.getTime() / 1000);
+        }
+    default:
+        return Math.floor(now - 24 * 60 * 60);
+    }
+};
+
+OSApp.Sensors.getChartLogURL = function (range, nowSeconds) {
+    const after = OSApp.Sensors.getChartRangeStart(range || "1d", nowSeconds);
+    return "/jsl?pw=&fmt=binary&" + (after == null ? "" : `after=${after}&`) + "count=max";
 };
 
 OSApp.Sensors.homeCardSignature = function () {
@@ -1922,6 +1947,9 @@ OSApp.Sensors.displayLogs = function (_callback) {
     let cachedData = null;
     let allCardsRendered = false;
     let disposed = false;
+    let defaultRange = "1d";
+    let chartRanges = {};
+    let loadedRange = null;
 
 	function isCurrentContext(seq) {
 		return !disposed && (seq == null || seq === requestSeq) &&
@@ -1958,6 +1986,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    parsing: false,
                     scales: {
                         x: {
                             type: 'time',
@@ -1989,6 +2018,11 @@ OSApp.Sensors.displayLogs = function (_callback) {
                         }
                     },
                     plugins: {
+                        decimation: {
+                            enabled: true,
+                            algorithm: 'min-max',
+                            threshold: 2000
+                        },
                         legend: {
                             display: false
                         },
@@ -2066,8 +2100,41 @@ OSApp.Sensors.displayLogs = function (_callback) {
     }
 
     function destroyActiveCharts() {
-        activeCharts.forEach((chart) => chart.destroy());
+        activeCharts.forEach((chart) => {
+            delete chart.sensorLogUpdateRange;
+            chart.destroy();
+        });
         activeCharts = [];
+    }
+
+    function getChartRange(key) {
+        return chartRanges[key] || defaultRange;
+    }
+
+    function selectRange(range, key, chart) {
+        const previousRange = key == null ? defaultRange : getChartRange(key);
+        if (key == null) {
+            defaultRange = range;
+        } else {
+            chartRanges[key] = range;
+        }
+        if (loadedRange != null &&
+            OSApp.Sensors.LOG_CHART_RANGES[range] <= OSApp.Sensors.LOG_CHART_RANGES[loadedRange]) {
+            if (chart && typeof chart.sensorLogUpdateRange === "function") {
+                chart.sensorLogUpdateRange(range);
+            }
+            return;
+        }
+        updateContent(range, () => {
+            if (key == null) {
+                defaultRange = previousRange;
+            } else {
+                chartRanges[key] = previousRange;
+            }
+            if (chart && typeof chart.sensorLogUpdateRange === "function") {
+                chart.sensorLogUpdateRange(previousRange);
+            }
+        });
     }
 
     /**
@@ -2083,13 +2150,18 @@ OSApp.Sensors.displayLogs = function (_callback) {
             const key = dv.getUint16(i + 8, true);
             const timestamp = dv.getUint32(i, true);
             const value = dv.getFloat32(i + 4, true);
+            const x = timestamp * 1000;
 
             if (typeof obj[key] === "undefined") {
                 const sensor = sensors.find((s) => s.uuid == key);
-                obj[key] = { sensor: sensor, data: [] };
+                obj[key] = { sensor: sensor, data: [], sorted: true };
             }
 
-            obj[key].data.push({ x: new Date(timestamp * 1000), y: value });
+            const sensorData = obj[key].data;
+            if (sensorData.length > 0 && x < sensorData[sensorData.length - 1].x) {
+                obj[key].sorted = false;
+            }
+            sensorData.push({ x: x, y: value });
         }
 
         const keys = Object.keys(obj).sort((a, b) => {
@@ -2100,9 +2172,24 @@ OSApp.Sensors.displayLogs = function (_callback) {
             }
             return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
         });
+        keys.forEach((key) => {
+            if (!obj[key].sorted) {
+                obj[key].data.sort((a, b) => a.x - b.x);
+            }
+        });
 
         if (keys.length === 0) {
 			parent.append($("<p class='sensor-log-empty center'></p>").text(OSApp.Language._("No sensor logs found.")));
+            if (!buf.noLogHeader && loadedRange !== "all") {
+                const $emptyControls = $("<div data-role='controlgroup' data-type='horizontal' class='sensor-log-empty-range-controls'></div>");
+                [ [ "1w", "1W" ], [ "1m", "1M" ], [ "all", OSApp.Language._("All") ] ].forEach((item) => {
+                    if (OSApp.Sensors.LOG_CHART_RANGES[item[0]] > OSApp.Sensors.LOG_CHART_RANGES[loadedRange]) {
+                        $("<input type='button'>").val(item[1]).on("click", () => selectRange(item[0], null, null)).appendTo($emptyControls);
+                    }
+                });
+                parent.append($emptyControls);
+                $emptyControls.controlgroup();
+            }
             return;
         }
 
@@ -2134,10 +2221,9 @@ OSApp.Sensors.displayLogs = function (_callback) {
             const chart = createChart($canvas[0], sn, unitLabel);
             activeCharts.push(chart);
 
-				let chartSince = new Date();
-				chartSince.setDate(chartSince.getDate() - 1);
-
-				const update = function () {
+				const update = function (range) {
+					const rangeStart = OSApp.Sensors.getChartRangeStart(range, controller.settings && controller.settings.devt);
+					const chartSince = rangeStart == null ? null : rangeStart * 1000;
 					chart.data = {
 						datasets: [ {
 							data: chartSince ? obj[key].data.filter((v) => v.x >= chartSince) : obj[key].data
@@ -2146,6 +2232,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
 					chart.resetZoom();
 					chart.update();
 				};
+				chart.sensorLogUpdateRange = update;
 
                 var $controls = $("<div>", {
                     "data-role": "controlgroup",
@@ -2192,28 +2279,19 @@ OSApp.Sensors.displayLogs = function (_callback) {
                 });
 
 				const $threeHour = $('<input type="button" value="3H">').on("click", () => {
-					chartSince = new Date();
-					chartSince.setHours(chartSince.getHours() - 3);
-					update();
+					selectRange("3h", key, chart);
 				});
 				const $day = $('<input type="button" value="1D">').on("click", () => {
-					chartSince = new Date();
-					chartSince.setDate(chartSince.getDate() - 1);
-					update();
+					selectRange("1d", key, chart);
 				});
 				const $week = $('<input type="button" value="1W">').on("click", () => {
-					chartSince = new Date();
-					chartSince.setDate(chartSince.getDate() - 7);
-					update();
+					selectRange("1w", key, chart);
 				});
 				const $month = $('<input type="button" value="1M">').on("click", () => {
-					chartSince = new Date();
-					chartSince.setMonth(chartSince.getMonth() - 1);
-					update();
+					selectRange("1m", key, chart);
 				});
 				const $all = $('<input type="button">').val(OSApp.Language._("All")).on("click", () => {
-					chartSince = null;
-					update();
+					selectRange("all", key, chart);
 				});
 
 				$controls.append($threeHour, $day, $week, $month, $all, $resetZoom, $download, $deleteLogs);
@@ -2228,7 +2306,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
                 $download.button();
                 $resetZoom.button();
 
-				update();
+				update(getChartRange(key));
         }
     }
 
@@ -2253,13 +2331,16 @@ OSApp.Sensors.displayLogs = function (_callback) {
         applyFilter();
     }
 
-    function updateContent() {
+    function updateContent(range, rollback) {
 		if (!isCurrentContext()) return;
-        const seq = ++requestSeq;
+        const requestedRange = typeof range === "string" &&
+            Object.prototype.hasOwnProperty.call(OSApp.Sensors.LOG_CHART_RANGES, range) ?
+            range : (loadedRange || defaultRange);
+		const seq = ++requestSeq;
         $.mobile.loading("show");
 
 		const jslRequest = OSApp.Firmware.sendToOS(
-			OSApp.Sensors.getChartLogURL(),
+			OSApp.Sensors.getChartLogURL(requestedRange, controller.settings && controller.settings.devt),
             "arraybuffer"
         );
 		const jsdRequest = controller.sensor_desc
@@ -2272,11 +2353,13 @@ OSApp.Sensors.displayLogs = function (_callback) {
                 $.mobile.loading("hide");
 				controller.sensor_desc = jsdData;
                 cachedData = buf;
+                loadedRange = requestedRange;
                 renderCards();
             })
             .fail(() => {
 				if (!isCurrentContext(seq)) return;
                 $.mobile.loading("hide");
+                if (typeof rollback === "function") rollback();
                 OSApp.Errors.showError(OSApp.Language._("Failed to load sensor logs"));
             });
     }

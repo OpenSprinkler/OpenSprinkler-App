@@ -148,6 +148,16 @@ describe("Program Preview Checks", function () {
 		assert.equal((run.end.getTime() - run.start.getTime()) / 1000, 29);
 	});
 
+	it("caps adjusted station runtimes using maxrt from the firmware", function () {
+		OSApp.currentSession.controller.programs.pd[0][4] = [ 64800, 0, 0, 0, 0, 0, 0, 0 ];
+		OSApp.currentSession.controller.jpaData = [ { wa: 2.5, sa: 4, ta: 10 } ];
+		OSApp.currentSession.controller.jpaMaxRuntime = 604800;
+		var timeline = showPreview();
+		var run = timeline.items.find(function (item) { return item.group === "station-0"; });
+
+		assert.equal((run.end.getTime() - run.start.getTime()) / 1000, 604800);
+	});
+
 	it("matches firmware's low-weather short-run suppression", function () {
 		OSApp.currentSession.controller.programs.pd[0][4] = [ 50, 0, 0, 0, 0, 0, 0, 0 ];
 		OSApp.currentSession.controller.jpaData = [ { wa: 0.1, sa: 1, ta: 0.1 } ];

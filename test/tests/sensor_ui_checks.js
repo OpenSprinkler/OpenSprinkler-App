@@ -14,15 +14,15 @@
  */
 
 describe("Sensor UI Checks", function () {
-	function sensorLogBuffer(recordCount) {
+	function sensorLogBuffer(recordCount, uuids, timestamps) {
 		recordCount = typeof recordCount === "number" ? recordCount : 1;
 		var buffer = new ArrayBuffer(recordCount * 10);
 		var view = new DataView(buffer);
 		for (var index = 0; index < recordCount; index++) {
 			var offset = index * 10;
-			view.setUint32(offset, 1700000000 + index, true);
+			view.setUint32(offset, Array.isArray(timestamps) ? timestamps[index] : 1700000000 + index, true);
 			view.setFloat32(offset + 4, 42, true);
-			view.setUint16(offset + 8, 7, true);
+			view.setUint16(offset + 8, Array.isArray(uuids) ? uuids[index % uuids.length] : 7, true);
 		}
 		return buffer;
 	}
@@ -448,14 +448,14 @@ describe("Sensor UI Checks", function () {
 		}
 	});
 
-	it("should request the complete binary sensor log for chart ranges", function () {
+	it("should request one day of binary sensor logs initially", function () {
 		assert.equal(
-			OSApp.Sensors.getChartLogURL(),
-			"/jsl?pw=&fmt=binary&count=max"
+			OSApp.Sensors.getChartLogURL("1d", 1700000000),
+			"/jsl?pw=&fmt=binary&after=1699913600&count=max"
 		);
 	});
 
-	it("should render the full log and expose all chart range controls", function () {
+	it("should fetch wider chart ranges on demand and cache the largest range", function () {
 		var controller = OSApp.currentSession.controller;
 		var originalSensors = controller.sensors;
 		var originalDescription = controller.sensor_desc;
@@ -481,13 +481,99 @@ describe("Sensor UI Checks", function () {
 			page = $("#sensor-logs");
 
 			assert.isTrue(sendToOS.firstCall.calledWith(
-				"/jsl?pw=&fmt=binary&count=max",
+				"/jsl?pw=&fmt=binary&after=1699913600&count=max",
 				"arraybuffer"
 			));
 			assert.lengthOf(page.find('input[value="3H"], input[value="1D"], input[value="1W"], input[value="1M"], input[value="All"]'), 5);
 			assert.lengthOf(page.find('input[value="Download"]'), 1);
+
+			page.find('input[value="3H"]').trigger("click");
+			assert.equal(sendToOS.callCount, 1);
+
+			page.find('input[value="1W"]').trigger("click");
+			assert.isTrue(sendToOS.secondCall.calledWith(
+				"/jsl?pw=&fmt=binary&after=1699395200&count=max",
+				"arraybuffer"
+			));
+
+			page.find('input[value="1D"]').trigger("click");
+			assert.equal(sendToOS.callCount, 2);
+
+			page.find('input[value="1M"]').trigger("click");
+			assert.match(sendToOS.thirdCall.args[0], /^\/jsl\?pw=&fmt=binary&after=\d+&count=max$/);
+			page.find('input[value="1W"]').trigger("click");
+			assert.equal(sendToOS.callCount, 3);
+
 			page.find('input[value="All"]').trigger("click");
+			assert.isTrue(sendToOS.getCall(3).calledWith(
+				"/jsl?pw=&fmt=binary&count=max",
+				"arraybuffer"
+			));
 			assert.lengthOf(chart.data.datasets[0].data, 20001);
+		} finally {
+			if (page) page.trigger("pagehide").remove();
+			sendToOS.restore();
+			changeHeader.restore();
+			loading.restore();
+			chartConstructor.restore();
+			controller.settings.devt = originalDevt;
+			controller.sensors = originalSensors;
+			controller.sensor_desc = originalDescription;
+		}
+	});
+
+	it("should keep each sensor chart range independent", function () {
+		var controller = OSApp.currentSession.controller;
+		var originalSensors = controller.sensors;
+		var originalDescription = controller.sensor_desc;
+		var originalDevt = controller.settings.devt;
+		var charts = [];
+		var chartConfigs = [];
+		var chartConstructor = sinon.stub(window, "Chart").callsFake(function (_canvas, config) {
+			var chart = { data: {}, destroy: sinon.spy(), resetZoom: sinon.spy(), update: sinon.spy() };
+			charts.push(chart);
+			chartConfigs.push(config);
+			return chart;
+		});
+		var loading = sinon.stub($.mobile, "loading");
+		var changeHeader = sinon.stub(OSApp.UIDom, "changeHeader");
+		var sendToOS = sinon.stub(OSApp.Firmware, "sendToOS")
+			.returns($.Deferred().resolve(sensorLogBuffer(
+				4,
+				[ 7, 8 ],
+				[ 1700000002, 1700000002, 1700000000, 1700000000 ]
+			)).promise());
+		var page;
+
+		try {
+			controller.settings.devt = 1700000000;
+			controller.sensors = { sn: [
+				{ uuid: 7, name: "Soil", unit: 1 },
+				{ uuid: 8, name: "Temperature", unit: 2 }
+			] };
+			controller.sensor_desc = { units: [ { value: 1, short: "%" }, { value: 2, short: "C" } ] };
+
+			OSApp.Sensors.displayLogs();
+			page = $("#sensor-logs");
+			assert.lengthOf(charts, 2);
+			assert.isTrue(charts[0].update.calledOnce);
+			assert.isTrue(charts[1].update.calledOnce);
+			assert.isFalse(chartConfigs[0].options.parsing);
+			assert.deepEqual(chartConfigs[0].options.plugins.decimation, {
+				enabled: true,
+				algorithm: "min-max",
+				threshold: 2000
+			});
+			assert.deepEqual(
+				charts[0].data.datasets[0].data.map(function (point) { return point.x; }),
+				[ 1700000000000, 1700000002000 ]
+			);
+
+			page.find(".sensor-log-card").first().find('input[value="3H"]').trigger("click");
+
+			assert.isTrue(charts[0].update.calledTwice);
+			assert.isTrue(charts[1].update.calledOnce);
+			assert.isTrue(sendToOS.calledOnce);
 		} finally {
 			if (page) page.trigger("pagehide").remove();
 			sendToOS.restore();
@@ -528,6 +614,47 @@ describe("Sensor UI Checks", function () {
 			changeHeader.restore();
 			loading.restore();
 			chartConstructor.restore();
+			controller.sensors = originalSensors;
+			controller.sensor_desc = originalDescription;
+		}
+	});
+
+	it("should allow a wider range when the initial day has no readings", function () {
+		var controller = OSApp.currentSession.controller;
+		var originalSensors = controller.sensors;
+		var originalDescription = controller.sensor_desc;
+		var originalDevt = controller.settings.devt;
+		var chart = { data: {}, destroy: sinon.spy(), resetZoom: sinon.spy(), update: sinon.spy() };
+		var chartConstructor = sinon.stub(window, "Chart").returns(chart);
+		var loading = sinon.stub($.mobile, "loading");
+		var changeHeader = sinon.stub(OSApp.UIDom, "changeHeader");
+		var sendToOS = sinon.stub(OSApp.Firmware, "sendToOS");
+		var page;
+
+		try {
+			controller.settings.devt = 1700000000;
+			controller.sensors = { sn: [ { uuid: 7, name: "Soil", unit: 1 } ] };
+			controller.sensor_desc = { units: [ { value: 1, short: "%" } ] };
+			sendToOS.onFirstCall().returns($.Deferred().resolve(sensorLogBuffer(0)).promise());
+			sendToOS.onSecondCall().returns($.Deferred().resolve(sensorLogBuffer()).promise());
+
+			OSApp.Sensors.displayLogs();
+			page = $("#sensor-logs");
+			assert.lengthOf(page.find(".sensor-log-empty-range-controls input[value='1W']"), 1);
+
+			page.find(".sensor-log-empty-range-controls input[value='1W']").trigger("click");
+			assert.isTrue(sendToOS.secondCall.calledWith(
+				"/jsl?pw=&fmt=binary&after=1699395200&count=max",
+				"arraybuffer"
+			));
+			assert.isTrue(chartConstructor.calledOnce);
+		} finally {
+			if (page) page.trigger("pagehide").remove();
+			sendToOS.restore();
+			changeHeader.restore();
+			loading.restore();
+			chartConstructor.restore();
+			controller.settings.devt = originalDevt;
 			controller.sensors = originalSensors;
 			controller.sensor_desc = originalDescription;
 		}
@@ -791,5 +918,9 @@ describe("Sensor UI Checks", function () {
 		);
 
 		assert.equal(row, '7,"\'  =cmd,""soil""",1700000000,-2.5,"\' \t+V"');
+		assert.equal(
+			OSApp.Sensors.formatLogCsvRow(7, "Soil", 1700000000123, 42, "%"),
+			'7,"Soil",1700000000,42,"%"'
+		);
 	});
 });
