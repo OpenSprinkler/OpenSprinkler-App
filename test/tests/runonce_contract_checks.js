@@ -142,13 +142,91 @@ describe( "Run-Once Request Contract Checks", function() {
 		clock.tick( 100 );
 		assert.isTrue( OSApp.Firmware.sendToOS.calledOnceWith( "/cv?pw=&rsn=1" ) );
 
+		$.mobile.loading.resetHistory();
 		OSApp.currentSession.controller = { marker: "replacement" };
 		clock.tick( 1000 );
 
 		assert.isTrue( OSApp.Firmware.sendToOS.calledOnce );
-		assert.isTrue( $.mobile.loading.calledWith( "hide" ) );
+		assert.isTrue( $.mobile.loading.notCalled );
 		assert.isFalse( OSApp.Status.refreshStatus.called );
 		assert.isFalse( OSApp.UIDom.goBack.called );
+	} );
+
+	it( "does not open the stop confirmation after the active controller changes", function() {
+		var clock = sandbox.useFakeTimers();
+		sandbox.stub( OSApp.UIDom, "areYouSure" );
+		sandbox.stub( OSApp.Stations, "getPID" ).returns( 1 );
+		sandbox.stub( OSApp.Programs, "pidToName" ).returns( "Program" );
+		OSApp.Firmware.checkOSVersion.callsFake( function( version ) {
+			return version !== 2214;
+		} );
+		OSApp.StationQueue.isActive.returns( 0 );
+
+		OSApp.Stations.submitRunonce( [ 60 ], 0, 0 );
+		OSApp.currentSession.controller = { marker: "replacement" };
+		clock.tick( 100 );
+
+		assert.isTrue( OSApp.UIDom.areYouSure.notCalled );
+		assert.isTrue( OSApp.Firmware.sendToOS.notCalled );
+	} );
+
+	it( "does not stop stations when a stale run-once confirmation is accepted", function() {
+		var clock = sandbox.useFakeTimers(),
+			confirm;
+		sandbox.stub( OSApp.UIDom, "areYouSure" ).callsFake( function( _question, _detail, callback ) {
+			confirm = callback;
+		} );
+		sandbox.stub( OSApp.Stations, "getPID" ).returns( 1 );
+		sandbox.stub( OSApp.Programs, "pidToName" ).returns( "Program" );
+		OSApp.Firmware.checkOSVersion.callsFake( function( version ) {
+			return version !== 2214;
+		} );
+		OSApp.StationQueue.isActive.returns( 0 );
+
+		OSApp.Stations.submitRunonce( [ 60 ], 0, 0 );
+		clock.tick( 100 );
+		assert.isFunction( confirm );
+
+		OSApp.currentSession.controller = { marker: "replacement" };
+		confirm();
+
+		assert.isTrue( OSApp.Firmware.sendToOS.notCalled );
+	} );
+
+	it( "does not refresh a replacement controller after run-once succeeds", function() {
+		var request = $.Deferred();
+		OSApp.Firmware.sendToOS.returns( request.promise() );
+
+		OSApp.Stations.submitRunonce( [ 60 ], 0, 0 );
+		$.mobile.loading.resetHistory();
+		OSApp.currentSession.controller = { marker: "replacement" };
+		request.resolve( { result: 1 } );
+
+		assert.isFalse( OSApp.Status.refreshStatus.called );
+		assert.isFalse( OSApp.UIDom.goBack.called );
+		assert.isTrue( $.mobile.loading.notCalled );
+	} );
+
+	it( "does not show a stale run-once success message after navigation", function() {
+		var request = $.Deferred(),
+			pageshow;
+		OSApp.Firmware.sendToOS.returns( request.promise() );
+		sandbox.stub( OSApp.Errors, "showError" );
+		sandbox.stub( $.mobile.document, "one" ).callsFake( function( event, callback ) {
+			if ( event === "pageshow" ) {
+				pageshow = callback;
+			}
+			return this;
+		} );
+
+		OSApp.Stations.submitRunonce( [ 60 ], 0, 0 );
+		request.resolve( { result: 1 } );
+		assert.isFunction( pageshow );
+
+		OSApp.currentSession.controller = { marker: "replacement" };
+		pageshow();
+
+		assert.isTrue( OSApp.Errors.showError.notCalled );
 	} );
 
 	it( "hides the loader when stopping all stations fails", function() {
@@ -164,6 +242,37 @@ describe( "Run-Once Request Contract Checks", function() {
 		assert.isTrue( OSApp.Firmware.sendToOS.calledOnceWith( "/cv?pw=&rsn=1" ) );
 		assert.isTrue( $.mobile.loading.calledWith( "show" ) );
 		assert.isTrue( $.mobile.loading.calledWith( "hide" ) );
+		assert.isFalse( OSApp.Status.refreshStatus.called );
+	} );
+
+	it( "does not stop a replacement controller from a stale confirmation", function() {
+		var confirm;
+		sandbox.stub( OSApp.currentSession, "isControllerConnected" ).returns( true );
+		sandbox.stub( OSApp.UIDom, "areYouSure" ).callsFake( function( _question, _detail, callback ) {
+			confirm = callback;
+		} );
+
+		OSApp.Stations.stopAllStations();
+		OSApp.currentSession.controller = { marker: "replacement" };
+		confirm();
+
+		assert.isTrue( OSApp.Firmware.sendToOS.notCalled );
+	} );
+
+	it( "does not hide a replacement controller loader after a stale stop completes", function() {
+		var request = $.Deferred();
+		sandbox.stub( OSApp.currentSession, "isControllerConnected" ).returns( true );
+		sandbox.stub( OSApp.UIDom, "areYouSure" ).callsFake( function( _question, _detail, confirm ) {
+			confirm();
+		} );
+		OSApp.Firmware.sendToOS.returns( request.promise() );
+
+		OSApp.Stations.stopAllStations();
+		$.mobile.loading.resetHistory();
+		OSApp.currentSession.controller = { marker: "replacement" };
+		request.resolve( { result: 1 } );
+
+		assert.isTrue( $.mobile.loading.notCalled );
 		assert.isFalse( OSApp.Status.refreshStatus.called );
 	} );
 } );

@@ -437,10 +437,14 @@ OSApp.ImportExport.sensorDefinitionMatches = function( source, actual, remapUUID
 };
 
 OSApp.ImportExport.importConfig = function( data ) {
-	var warning = "";
+	var warning = "",
+		hasSensorData = !!data && Object.prototype.hasOwnProperty.call( data, "sensors" );
 
 	if ( !data || typeof data !== "object" || !data.settings || !data.programs || !Array.isArray( data.programs.pd ) ||
-		!data.stations || !Array.isArray( data.stations.snames ) || !Array.isArray( data.stations.masop ) ) {
+		!data.stations || !Array.isArray( data.stations.snames ) || !Array.isArray( data.stations.masop ) ||
+		( hasSensorData && ( !data.sensors || typeof data.sensors !== "object" || !Array.isArray( data.sensors.sn ) ||
+			( Object.prototype.hasOwnProperty.call( data.sensors, "count" ) &&
+				( !Number.isInteger( data.sensors.count ) || data.sensors.count !== data.sensors.sn.length ) ) ) ) ) {
 		OSApp.Errors.showError( OSApp.Language._( "Invalid configuration" ) );
 		return;
 	}
@@ -941,7 +945,8 @@ OSApp.ImportExport.importConfig = function( data ) {
 							uuids[ key ] = uuid;
 							return true;
 						} );
-					if ( !valid || ( typeof snapshot.count === "number" && snapshot.count !== snapshot.sn.length ) ) {
+					if ( !valid || ( hasOwn( snapshot, "count" ) &&
+						( !Number.isInteger( snapshot.count ) || snapshot.count !== snapshot.sn.length ) ) ) {
 						return rejectImport( OSApp.Language._( "Unable to verify sensor definitions during import. The restore was stopped." ) );
 					}
 					return { sensors: snapshot.sn, uuids: uuids };

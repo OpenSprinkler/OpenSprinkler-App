@@ -14,24 +14,28 @@
  */
 
 describe( "Site Rendering Checks", function() {
-	it( "renders an auto-discovered address as an input value", function( done ) {
-		var autoIP = "192.168.1.2' onfocus='window.siteAddressInjected=true";
+	it( "renders an auto-discovered address as an input value", function() {
+		var sandbox = sinon.createSandbox(),
+			autoIP = "192.168.1.2' onfocus='window.siteAddressInjected=true";
 
-		$.mobile.document.one( "popupafteropen", "#addnew", function() {
-			try {
-				assert.equal( $( "#os_url" ).val(), autoIP );
-				assert.isUndefined( $( "#os_url" ).attr( "onfocus" ) );
-				assert.lengthOf( $( "#addnew #os_pw" ), 1 );
-				assert.equal( $( "#addnew label[for='os_pw']" ).length, 1 );
-			} finally {
-				$.mobile.document.one( "popupafterclose", "#addnew", function() {
-					done();
-				} );
-				$( "#addnew" ).popup( "close" ).remove();
-			}
-		} );
+		try {
+			sandbox.stub( $.fn, "popup" ).callsFake( function( options ) {
+				if ( options && typeof options === "object" ) {
+					this.appendTo( "body" );
+				}
+				return this;
+			} );
 
-		OSApp.Sites.showAddNew( autoIP );
+			OSApp.Sites.showAddNew( autoIP );
+
+			assert.equal( $( "#os_url" ).val(), autoIP );
+			assert.isUndefined( $( "#os_url" ).attr( "onfocus" ) );
+			assert.lengthOf( $( "#addnew #os_pw" ), 1 );
+			assert.equal( $( "#addnew label[for='os_pw']" ).length, 1 );
+		} finally {
+			$( "#addnew" ).remove();
+			sandbox.restore();
+		}
 	} );
 
 	it( "renders site names as literal option text", function() {

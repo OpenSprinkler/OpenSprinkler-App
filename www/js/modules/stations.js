@@ -141,18 +141,32 @@ OSApp.Stations.isDisabled = function( sid )  {
 };
 
 OSApp.Stations.stopAllStations = function() {
-	if ( !OSApp.currentSession.isControllerConnected() ) {
+	var session = OSApp.currentSession,
+		controller = session.controller,
+		isCurrentContext = function() {
+			return OSApp.currentSession === session && OSApp.currentSession.controller === controller;
+		};
+
+	if ( !session.isControllerConnected() ) {
 		return false;
 	}
 
 	OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to stop all stations?" ), "", function() {
+		if ( !isCurrentContext() ) {
+			return;
+		}
 		$.mobile.loading( "show" );
 		OSApp.Firmware.sendToOS( "/cv?pw=&rsn=1" ).done( function() {
+			if ( !isCurrentContext() ) {
+				return;
+			}
 			OSApp.Stations.removeStationTimers();
 			OSApp.Status.refreshStatus();
 			OSApp.Errors.showError( OSApp.Language._( "All stations have been stopped" ) );
 		} ).always( function() {
-			$.mobile.loading( "hide" );
+			if ( isCurrentContext() ) {
+				$.mobile.loading( "hide" );
+			}
 		} );
 	} );
 };
@@ -176,13 +190,15 @@ OSApp.Stations.stopStations = function( callback ) {
 	// It can take up to a second before stations actually stop
 	OSApp.Firmware.sendToOS( "/cv?pw=&rsn=1" ).done( function() {
 		setTimeout( function() {
-			$.mobile.loading( "hide" );
 			if ( OSApp.currentSession === session && OSApp.currentSession.controller === controller ) {
+				$.mobile.loading( "hide" );
 				callback();
 			}
 		}, 1000 );
 	} ).fail( function() {
-		$.mobile.loading( "hide" );
+		if ( OSApp.currentSession === session && OSApp.currentSession.controller === controller ) {
+			$.mobile.loading( "hide" );
+		}
 	} );
 };
 
@@ -255,7 +271,12 @@ OSApp.Stations.convertRemoteToExtender = function( data ) {
 };
 
 OSApp.Stations.submitRunonce = function( runonce, interval, repeat, annotation, qo ) {
-	var boundedInteger = function( value, minimum, maximum, fallback ) {
+	var session = OSApp.currentSession,
+		controller = session.controller,
+		isCurrentContext = function() {
+			return OSApp.currentSession === session && OSApp.currentSession.controller === controller;
+		},
+		boundedInteger = function( value, minimum, maximum, fallback ) {
 		value = Number( value );
 		if ( !Number.isFinite( value ) ) {
 			return fallback;
@@ -328,6 +349,9 @@ OSApp.Stations.submitRunonce = function( runonce, interval, repeat, annotation, 
 	}
 
 	var submit = function() {
+		if ( !isCurrentContext() ) {
+			return;
+		}
 		$.mobile.loading( "show" );
 		OSApp.Storage.set( { "runonce": JSON.stringify( originalRunonce || runonce ) } );
 
@@ -351,13 +375,20 @@ OSApp.Stations.submitRunonce = function( runonce, interval, repeat, annotation, 
 		}
 
 		OSApp.Firmware.sendToOS( request ).done( function() {
+			if ( !isCurrentContext() ) {
+				return;
+			}
 			$.mobile.document.one( "pageshow", function() {
-				OSApp.Errors.showError( OSApp.Language._( "Run-once program has been scheduled" ) );
+				if ( isCurrentContext() ) {
+					OSApp.Errors.showError( OSApp.Language._( "Run-once program has been scheduled" ) );
+				}
 			} );
 			OSApp.Status.refreshStatus();
 			OSApp.UIDom.goBack();
 		} ).always( function() {
-			$.mobile.loading( "hide" );
+			if ( isCurrentContext() ) {
+				$.mobile.loading( "hide" );
+			}
 		} );
 	},
 	isOn = OSApp.StationQueue.isActive();
@@ -366,7 +397,13 @@ OSApp.Stations.submitRunonce = function( runonce, interval, repeat, annotation, 
 		if ( !OSApp.Firmware.checkOSVersion ( 2214 ) && isOn !== -1 ){
 			// Add a short delay to allow the first popup to finish closing
 			setTimeout(function() {
+				if ( !isCurrentContext() ) {
+					return;
+				}
 				OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to stop the currently running program?" ), OSApp.Utils.htmlEscape( OSApp.Programs.pidToName( OSApp.Stations.getPID( isOn ) ) ), function() {
+					if ( !isCurrentContext() ) {
+						return;
+					}
 					$.mobile.loading( "show" );
 					OSApp.Stations.stopStations( submit );
 				} );

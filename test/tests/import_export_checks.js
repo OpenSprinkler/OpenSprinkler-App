@@ -469,7 +469,7 @@ describe("Import/Export Checks", function () {
 		}
 	});
 
-	it("should reject missing or malformed program data before confirmation", function () {
+	it("should reject missing or malformed backup collections before confirmation", function () {
 		var sandbox = sinon.createSandbox(),
 			controller = OSApp.currentSession.controller;
 		try {
@@ -485,14 +485,23 @@ describe("Import/Export Checks", function () {
 			sandbox.stub(OSApp.Firmware, "sendToOS");
 
 			var missingPrograms = baseBackup(),
-				malformedPrograms = baseBackup();
+				malformedPrograms = baseBackup(),
+				nullSensors = baseBackup(),
+				malformedSensors = baseBackup(),
+				mismatchedSensorCount = baseBackup();
 			delete missingPrograms.programs;
 			malformedPrograms.programs.pd = {};
+			nullSensors.sensors = null;
+			malformedSensors.sensors = { sn: {} };
+			mismatchedSensorCount.sensors = { sn: [], count: 1 };
 
 			OSApp.ImportExport.importConfig(missingPrograms);
 			OSApp.ImportExport.importConfig(malformedPrograms);
+			OSApp.ImportExport.importConfig(nullSensors);
+			OSApp.ImportExport.importConfig(malformedSensors);
+			OSApp.ImportExport.importConfig(mismatchedSensorCount);
 
-			assert.equal(OSApp.Errors.showError.callCount, 2);
+			assert.equal(OSApp.Errors.showError.callCount, 5);
 			assert.isTrue(OSApp.UIDom.areYouSure.notCalled);
 			assert.isTrue(OSApp.Firmware.sendToOS.notCalled);
 		} finally {
