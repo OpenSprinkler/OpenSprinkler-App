@@ -183,6 +183,20 @@ describe("Service Worker Fetch Checks", function () {
 		});
 	});
 
+	it("returns a successful network response when the runtime cache write fails", function () {
+		var harness = makeHarness();
+		harness.cache.put.rejects(new Error("cache quota exceeded"));
+
+		return harness.dispatchFetch({
+			method: "GET",
+			mode: "cors",
+			url: "https://app.opensprinkler.test/js/main.js"
+		}).then(function (response) {
+			assert.strictEqual(response, harness.response);
+			assert.isTrue(harness.cache.put.calledOnce);
+		});
+	});
+
 	it("never caches cross-origin or non-GET requests", function () {
 		var harness = makeHarness();
 		var crossOrigin = {

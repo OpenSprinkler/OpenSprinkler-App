@@ -126,12 +126,13 @@ OSApp.Programs.displayPage = function(programId) {
 
 				$.mobile.loading( "show" );
 
-				OSApp.Firmware.sendToOS( "/up?pw=&pid=" + pid ).done( function() {
-					OSApp.Sites.updateControllerPrograms( function() {
-						$.mobile.loading( "hide" );
+				OSApp.Firmware.sendToOS( "/up?pw=&pid=" + pid ).then( function() {
+					return OSApp.Sites.updateControllerPrograms( function() {
 						page.trigger( "programrefresh" );
 						OSApp.Programs.updateProgramHeader();
 					} );
+				} ).always( function() {
+					$.mobile.loading( "hide" );
 				} );
 
 				return false;
@@ -752,6 +753,44 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 		}
 	}
 
+	function toUtf8Bytes( value ) {
+		var bytes = [];
+		for ( var i = 0; i < value.length; i++ ) {
+			var codePoint = value.charCodeAt( i );
+			if ( codePoint >= 0xD800 && codePoint <= 0xDBFF && i + 1 < value.length ) {
+				var low = value.charCodeAt( i + 1 );
+				if ( low >= 0xDC00 && low <= 0xDFFF ) {
+					codePoint = 0x10000 + ( ( codePoint - 0xD800 ) << 10 ) + low - 0xDC00;
+					i++;
+				}
+			}
+
+			if ( codePoint <= 0x7F ) {
+				bytes.push( codePoint );
+			} else if ( codePoint <= 0x7FF ) {
+				bytes.push( 0xC0 | ( codePoint >> 6 ), 0x80 | ( codePoint & 0x3F ) );
+			} else if ( codePoint <= 0xFFFF ) {
+				bytes.push( 0xE0 | ( codePoint >> 12 ), 0x80 | ( ( codePoint >> 6 ) & 0x3F ), 0x80 | ( codePoint & 0x3F ) );
+			} else {
+				bytes.push( 0xF0 | ( codePoint >> 18 ), 0x80 | ( ( codePoint >> 12 ) & 0x3F ),
+					0x80 | ( ( codePoint >> 6 ) & 0x3F ), 0x80 | ( codePoint & 0x3F ) );
+			}
+		}
+		return bytes;
+	}
+
+	function compareStationNames( a, b ) {
+		var aBytes = a.utf8 || ( a.utf8 = toUtf8Bytes( a.name ) ),
+			bBytes = b.utf8 || ( b.utf8 = toUtf8Bytes( b.name ) ),
+			length = Math.min( aBytes.length, bBytes.length );
+		for ( var i = 0; i < length; i++ ) {
+			if ( aBytes[ i ] !== bBytes[ i ] ) {
+				return aBytes[ i ] - bBytes[ i ];
+			}
+		}
+		return aBytes.length - bBytes.length;
+	}
+
 	page.find( "#preview_date" ).on( "change", function() {
 		date = this.value.split( "-" );
 		day = new Date( date[ 0 ], date[ 1 ] - 1, date[ 2 ] );
@@ -842,19 +881,13 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 				case 'T':
 					{
 						let snames = OSApp.currentSession.controller.stations.snames;
-						let compareNames = function( a, b ) {
-							if ( a.name === b.name ) {
-								return 0;
-							}
-							return a.name < b.name ? -1 : 1;
-						};
 						if ( anno === 'n' || ( anno === 't' && runcount % 2 == 1 ) || ( anno === 'T' && runcount % 2 == 0 ) ) {
 							order = snames.map((name, index) => ({ name, index })) // Store names with their original indices
-							.sort(compareNames) // Match firmware strcmp ordering (ascending)
+							.sort(compareStationNames) // Match firmware strcmp ordering (ascending)
 							.map(item => item.index); // Extract the indices
 						} else {
 							order = snames.map((name, index) => ({ name, index })) // Store names with their original indices
-							.sort((a, b) => compareNames(b, a)) // Match firmware strcmp ordering (descending)
+							.sort((a, b) => compareStationNames(b, a)) // Match firmware strcmp ordering (descending)
 							.map(item => item.index); // Extract the indices
 						}
 					}
@@ -967,13 +1000,15 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 							if ( prog[ 4 ][ sid ] && endArray[ sid ] === 0 ) {
 								let cachedJpa = OSApp.currentSession.controller.jpaData;
 								let adjustment = cachedJpa && cachedJpa[ pid ] && simday === devday ? cachedJpa[ pid ] : null;
-								let weatherFactor = adjustment ? adjustment.wa : wl / 100;
+								let weatherPercent = adjustment ? Math.round( adjustment.wa * 100 ) : wl;
+								weatherPercent = Number.isFinite( weatherPercent ) ?
+									Math.min( 250, Math.max( 0, weatherPercent ) ) : 100;
 								let sensorFactor = adjustment ? adjustment.sa : 1;
 								let waterTime = Math.floor(
-									OSApp.Stations.getStationDuration( prog[ 4 ][ sid ], simt ) * weatherFactor
+									OSApp.Stations.getStationDuration( prog[ 4 ][ sid ], simt ) * weatherPercent / 100
 								);
 								waterTime = Math.floor( waterTime * sensorFactor );
-								if ( weatherFactor * 100 < 20 && waterTime < 10 ) {
+								if ( weatherPercent < 20 && waterTime < 10 ) {
 									waterTime = 0;
 								}
 
@@ -2523,10 +2558,26 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 
 	updateProgramTime();
 
-    var senAdjGraph = null;
-    var currentLineValue = null;
-    var currentLineColor = null;
+	var senAdjGraph = null;
+	var currentLineValue = null;
+	var currentLineColor = null;
 	var refreshSensorAdjustment = null;
+	function scheduleSensorAdjustmentResize() {
+		if ( !senAdjGraph ) { return; }
+		var $canvas = page.find( "#sensor-chart-" + id ),
+			chart = senAdjGraph,
+			pending = $canvas.data( "sensorAdjustmentResizeTimer" );
+		if ( pending != null ) {
+			clearTimeout( pending );
+		}
+		pending = setTimeout( function() {
+			$canvas.removeData( "sensorAdjustmentResizeTimer" );
+			if ( $canvas.data( "sensorAdjustmentChart" ) === chart ) {
+				chart.resize();
+			}
+		}, 0 );
+		$canvas.data( "sensorAdjustmentResizeTimer", pending );
+	}
 
 	if ( OSApp.Supported.sensors() ) {
     var $senSelect = page.find( "#sen-adj-sid-" + id );
@@ -2554,7 +2605,7 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
         }
 
         $splitsWrap.show();
-        if ( senAdjGraph ) { setTimeout( function() { senAdjGraph.resize(); }, 0 ); }
+		scheduleSensorAdjustmentResize();
 
         var sn = OSApp.currentSession.controller.sensors && OSApp.currentSession.controller.sensors.sn;
         var sensor = sn && sn.find( function( s ) { return String( s.uuid ) === String( uuid ); } );
@@ -2595,8 +2646,8 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 	page.find( "#use-sn-" + id ).on( "change", function() {
 		const showOptions = $( this ).is( ":checked" );
 		page.find( "#sensor-options-" + id ).toggle( showOptions );
-		if ( showOptions && senAdjGraph ) {
-			setTimeout( function() { senAdjGraph.resize(); }, 0 );
+		if ( showOptions ) {
+			scheduleSensorAdjustmentResize();
 		}
 	} );
 
@@ -2849,14 +2900,18 @@ OSApp.Programs.destroySensorAdjustmentCharts = function( root ) {
 		const $canvas = $( this );
 		const chart = $canvas.data( "sensorAdjustmentChart" );
 		const refreshHandler = $canvas.data( "sensorAdjustmentRefreshHandler" );
+		const resizeTimer = $canvas.data( "sensorAdjustmentResizeTimer" );
 
+		if ( resizeTimer != null ) {
+			clearTimeout( resizeTimer );
+		}
 		if ( chart && typeof chart.destroy === "function" ) {
 			chart.destroy();
 		}
 		if ( refreshHandler ) {
 			$( "html" ).off( "datarefresh", refreshHandler );
 		}
-		$canvas.removeData( "sensorAdjustmentChart sensorAdjustmentRefreshHandler" );
+		$canvas.removeData( "sensorAdjustmentChart sensorAdjustmentRefreshHandler sensorAdjustmentResizeTimer" );
 	} );
 };
 
@@ -3024,12 +3079,13 @@ OSApp.Programs.deleteProgram = function( id ) {
 
 	OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to delete program" ) + " " + OSApp.Utils.htmlEscape( program ) + "?", "", function() {
 		$.mobile.loading( "show" );
-		OSApp.Firmware.sendToOS( "/dp?pw=&pid=" + id ).done( function() {
-			$.mobile.loading( "hide" );
-			OSApp.Sites.updateControllerPrograms( function() {
+		OSApp.Firmware.sendToOS( "/dp?pw=&pid=" + id ).then( function() {
+			return OSApp.Sites.updateControllerPrograms( function() {
 				$( "#programs" ).trigger( "programrefresh" );
 				OSApp.Errors.showError( OSApp.Language._( "Program" ) + " " + program + " " + OSApp.Language._( "deleted" ) );
 			} );
+		} ).always( function() {
+			$.mobile.loading( "hide" );
 		} );
 	} );
 };
@@ -3383,28 +3439,34 @@ OSApp.Programs.openRunProgramDialog = function (pid, stationsDurations, uwt, isR
 	// Compute effective watering level and sensor adjustment factors
 	var jpaData = OSApp.currentSession.controller.jpaData;
 	var prog = pid != null ? OSApp.currentSession.controller.programs.pd[ pid ] : null;
-	var effectiveWL, wlFactor;
+	var effectiveWL, weatherPercent;
 
 	if ( OSApp.Supported.sensors() && jpaData && pid != null && jpaData[ pid ] ) {
-		wlFactor = jpaData[ pid ].wa;
-		effectiveWL = Math.round( wlFactor * 1000 ) / 10;
+		weatherPercent = Math.round( jpaData[ pid ].wa * 100 );
+		effectiveWL = weatherPercent;
 	} else if ( prog ) {
 		var wto = OSApp.currentSession.controller.settings.wto;
 		var wls = OSApp.currentSession.controller.settings.wls;
+		var weatherRestricted = OSApp.currentSession.controller.settings.wtrestr > 0 && ( prog[ 0 ] & 0x02 );
 		var progtype = ( prog[ 0 ] >> 4 ) & 0x03;
 		var intervalday = prog[ 2 ];
-		if ( wto && wto.mda === 100 &&
-			 progtype === OSApp.Constants.options.PROGRAM_TYPE_INTERVAL &&
-			 wls && wls.length > 0 ) {
+		if ( weatherRestricted ) {
+			effectiveWL = 0;
+		} else if ( wto && wto.mda === 100 &&
+				 progtype === OSApp.Constants.options.PROGRAM_TYPE_INTERVAL &&
+				 wls && wls.length > 0 ) {
 			effectiveWL = wls[ Math.min( intervalday - 1, wls.length - 1 ) ];
 		} else {
 			effectiveWL = OSApp.currentSession.controller.options.wl ?? 100;
 		}
-		wlFactor = effectiveWL / 100;
+		weatherPercent = effectiveWL;
 	} else {
 		effectiveWL = OSApp.currentSession.controller.options.wl ?? 100;
-		wlFactor = effectiveWL / 100;
+		weatherPercent = effectiveWL;
 	}
+	weatherPercent = Number.isFinite( Number( weatherPercent ) ) ?
+		Math.min( 250, Math.max( 0, Math.round( Number( weatherPercent ) ) ) ) : 100;
+	effectiveWL = weatherPercent;
 
 	$popup.find( "#rp-apply-wl-percent" ).text( "(" + effectiveWL + "%)" );
 
@@ -3429,7 +3491,7 @@ OSApp.Programs.openRunProgramDialog = function (pid, stationsDurations, uwt, isR
 	}
 
 	// Store factors so the run handler doesn't need to recompute
-	$popup.data( "wlFactor", wlFactor );
+	$popup.data( "weatherPercent", weatherPercent );
 	$popup.data( "saFactor", saFactor );
 
 	var apply = !!uwt;
@@ -3553,8 +3615,8 @@ OSApp.Programs.expandProgram = function( program, getAdjustmentRequest ) {
 
 			var $rpPopup = $( "#run-program-dialog" );
 			var applyWeather = $( "#rp-apply-wl" ).is( ":checked" );
-			var wlFactor = $rpPopup.data( "wlFactor" ) ?? 1;
-			applyWeather = applyWeather && Number.isFinite( wlFactor ) && wlFactor >= 0;
+			var weatherPercent = Number( $rpPopup.data( "weatherPercent" ) );
+			applyWeather = applyWeather && Number.isFinite( weatherPercent ) && weatherPercent >= 0;
 			var saFactor = $rpPopup.data( "saFactor" );
 			var applySensor = $( "#rp-apply-sa" ).is( ":checked" ) &&
 				Number.isFinite( saFactor ) && saFactor >= 0;
@@ -3564,7 +3626,7 @@ OSApp.Programs.expandProgram = function( program, getAdjustmentRequest ) {
 						OSApp.Stations.getStationDuration( runonce[ i ] ) : runonce[ i ];
 					var adjustedDuration = Math.max( 0, Number( baseDuration ) || 0 );
 					if ( applyWeather ) {
-						adjustedDuration = Math.floor( adjustedDuration * wlFactor );
+						adjustedDuration = Math.floor( adjustedDuration * weatherPercent / 100 );
 					}
 					if ( applySensor ) {
 						adjustedDuration = Math.floor( adjustedDuration * saFactor );

@@ -259,6 +259,19 @@ describe("Program Sensor Adjustment Checks", function () {
 		assert.isUndefined(fixture.find("#sensor-chart-new").data("sensorAdjustmentChart"));
 	});
 
+	it("cancels a deferred chart resize when the editor is destroyed", function () {
+		var clock = sandbox.useFakeTimers();
+		var page = OSApp.Programs.makeProgram21(0, true);
+		fixture.append(page);
+		fixture.find("#use-sn-new").prop("checked", true).trigger("change");
+
+		OSApp.Programs.destroySensorAdjustmentCharts(fixture);
+		clock.tick(1);
+
+		assert.isFalse(charts[0].resize.called);
+		assert.isTrue(charts[0].destroy.calledOnce);
+	});
+
 	it("destroys an expanded program chart before collapse empties its editor", function () {
 		sandbox.stub(OSApp.UIDom, "changeHeader").returns($());
 		OSApp.Programs.displayPage();
@@ -363,7 +376,7 @@ describe("Program Sensor Adjustment Checks", function () {
 			"<input type='checkbox' id='rp-apply-sa' checked>" +
 			"<input type='checkbox' id='rp-create-single'>" +
 			"</div>"
-		).data({ wlFactor: 0.6, saFactor: 0.6 }).appendTo(fixture);
+		).data({ weatherPercent: 60, saFactor: 0.6 }).appendTo(fixture);
 		var program = $("<fieldset id='program-0'><div class='ui-collapsible-content'></div></fieldset>").appendTo(fixture);
 		sandbox.stub(OSApp.Programs, "openRunProgramDialog");
 		var submitRunonce = sandbox.stub(OSApp.Stations, "submitRunonce");
@@ -375,6 +388,45 @@ describe("Program Sensor Adjustment Checks", function () {
 		popup.find("#rp-run").trigger("click");
 
 		assert.deepEqual(submitRunonce.firstCall.args[0], [ 0, 0 ]);
+	});
+
+	it("uses integer weather-percent arithmetic for manual runs", function () {
+		delete OSApp.currentSession.controller.sensors;
+		OSApp.currentSession.controller.programs.pd[0][4] = [ 25 ];
+		var popup = $(
+			"<div id='run-program-dialog'>" +
+			"<button id='rp-run'></button>" +
+			"<input type='checkbox' id='rp-apply-wl' checked>" +
+			"<input type='checkbox' id='rp-apply-sa'>" +
+			"<input type='checkbox' id='rp-create-single'>" +
+			"</div>"
+		).data({ weatherPercent: 116 }).appendTo(fixture);
+		var program = $("<fieldset id='program-0'><div class='ui-collapsible-content'></div></fieldset>").appendTo(fixture);
+		sandbox.stub(OSApp.Programs, "openRunProgramDialog");
+		var submitRunonce = sandbox.stub(OSApp.Stations, "submitRunonce");
+		sandbox.stub(OSApp.StationQueue, "isActive").returns(-1);
+		sandbox.stub($.fn, "popup").returnsThis();
+
+		OSApp.Programs.expandProgram(program);
+		program.find("#run-0").trigger("click");
+		popup.find("#rp-run").trigger("click");
+
+		assert.deepEqual(submitRunonce.firstCall.args[0], [ 29, 0 ]);
+	});
+
+	it("honors an active weather restriction in the no-jpa run dialog fallback", function () {
+		delete OSApp.currentSession.controller.sensors;
+		OSApp.currentSession.controller.settings.wtrestr = 1;
+		sandbox.stub($.fn, "popup").returnsThis();
+		sandbox.stub(OSApp.Storage, "get").callsFake(function (_key, callback) {
+			callback({});
+		});
+		sandbox.stub(OSApp.StationQueue, "isActive").returns(-1);
+
+		OSApp.Programs.openRunProgramDialog(0, [ 120 ], true, false);
+
+		assert.equal($("#run-program-dialog").data("weatherPercent"), 0);
+		assert.equal($("#rp-apply-wl-percent").text(), "(0%)");
 	});
 
 	it("resets the repeat run mode every time the dialog opens", function () {
@@ -415,7 +467,7 @@ describe("Program Sensor Adjustment Checks", function () {
 			"<input type='checkbox' id='rp-apply-sa'>" +
 			"<input type='checkbox' id='rp-create-single'>" +
 			"</div>"
-		).data({ wlFactor: 2.5 }).appendTo(fixture);
+		).data({ weatherPercent: 250 }).appendTo(fixture);
 		var program = $("<fieldset id='program-0'><div class='ui-collapsible-content'></div></fieldset>").appendTo(fixture);
 		sandbox.stub(OSApp.Programs, "openRunProgramDialog");
 		var submitRunonce = sandbox.stub(OSApp.Stations, "submitRunonce");
@@ -549,5 +601,73 @@ describe("Program Sensor Adjustment Checks", function () {
 		assert.isTrue(loading.calledWith("hide"));
 		assert.isFalse(updatePrograms.called);
 		assert.isFalse(goBack.called);
+	});
+
+	it("hides the loader when moving a program fails", function () {
+		var loading = sandbox.stub($.mobile, "loading");
+		var sendToOS = sandbox.stub(OSApp.Firmware, "sendToOS")
+			.returns($.Deferred().reject({ status: 500 }).promise());
+		var updatePrograms = sandbox.stub(OSApp.Sites, "updateControllerPrograms");
+		sandbox.stub(OSApp.UIDom, "changeHeader").returns($());
+
+		OSApp.Programs.displayPage();
+		$("#programs .move-up").first().trigger("click");
+
+		assert.isTrue(sendToOS.calledWith("/up?pw=&pid=0"));
+		assert.isTrue(loading.calledWith("show"));
+		assert.isTrue(loading.calledWith("hide"));
+		assert.isFalse(updatePrograms.called);
+	});
+
+	it("keeps move success handling chained to the program refresh", function () {
+		var loading = sandbox.stub($.mobile, "loading");
+		sandbox.stub(OSApp.Firmware, "sendToOS")
+			.returns($.Deferred().resolve({ result: 1 }).promise());
+		var updatePrograms = sandbox.stub(OSApp.Sites, "updateControllerPrograms")
+			.returns($.Deferred().reject({ status: 500 }).promise());
+		sandbox.stub(OSApp.UIDom, "changeHeader").returns($());
+
+		OSApp.Programs.displayPage();
+		$("#programs .move-up").first().trigger("click");
+
+		assert.isTrue(updatePrograms.calledOnce);
+		assert.isTrue(loading.calledWith("show"));
+		assert.isTrue(loading.calledWith("hide"));
+	});
+
+	it("hides the loader and skips refresh when deleting a program fails", function () {
+		var loading = sandbox.stub($.mobile, "loading");
+		var sendToOS = sandbox.stub(OSApp.Firmware, "sendToOS")
+			.returns($.Deferred().reject({ status: 500 }).promise());
+		var updatePrograms = sandbox.stub(OSApp.Sites, "updateControllerPrograms");
+		sandbox.stub(OSApp.UIDom, "areYouSure").callsFake(function (_question, _detail, confirm) {
+			confirm();
+		});
+
+		OSApp.Programs.deleteProgram(0);
+
+		assert.isTrue(sendToOS.calledWith("/dp?pw=&pid=0"));
+		assert.isTrue(loading.calledWith("show"));
+		assert.isTrue(loading.calledWith("hide"));
+		assert.isFalse(updatePrograms.called);
+	});
+
+	it("does not report deletion success when the program refresh fails", function () {
+		var loading = sandbox.stub($.mobile, "loading");
+		sandbox.stub(OSApp.Firmware, "sendToOS")
+			.returns($.Deferred().resolve({ result: 1 }).promise());
+		var updatePrograms = sandbox.stub(OSApp.Sites, "updateControllerPrograms")
+			.returns($.Deferred().reject({ status: 500 }).promise());
+		var showError = sandbox.stub(OSApp.Errors, "showError");
+		sandbox.stub(OSApp.UIDom, "areYouSure").callsFake(function (_question, _detail, confirm) {
+			confirm();
+		});
+
+		OSApp.Programs.deleteProgram(0);
+
+		assert.isTrue(updatePrograms.calledOnce);
+		assert.isTrue(loading.calledWith("show"));
+		assert.isTrue(loading.calledWith("hide"));
+		assert.isFalse(showError.called);
 	});
 });

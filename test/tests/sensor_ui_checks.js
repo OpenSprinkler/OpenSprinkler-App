@@ -261,7 +261,7 @@ describe("Sensor UI Checks", function () {
 		}
 	});
 
-	it("should reject a blank required sensor name without starting a /csn mutation", function () {
+	it("should reject blank and whitespace-only sensor names without starting a /csn mutation", function () {
 		var controller = OSApp.currentSession.controller;
 		var originalSensors = controller.sensors;
 		var originalDescription = controller.sensor_desc;
@@ -283,8 +283,14 @@ describe("Sensor UI Checks", function () {
 			name.val("");
 			headerOptions.rightBtn.on();
 
-			assert.isFalse(changeSensor.called);
-			assert.isTrue(showError.calledWith(OSApp.Language._("Please fill in all required fields")));
+				assert.isFalse(changeSensor.called);
+				assert.isTrue(showError.calledWith(OSApp.Language._("Please fill in all required fields")));
+
+				showError.resetHistory();
+				name.val("   ");
+				headerOptions.rightBtn.on();
+				assert.isFalse(changeSensor.called);
+				assert.isTrue(showError.calledWith(OSApp.Language._("Please fill in all required fields")));
 		} finally {
 			$("#add-sensor").trigger("pagehide").remove();
 			changeHeader.restore();
@@ -340,11 +346,54 @@ describe("Sensor UI Checks", function () {
 			assert.isFalse(changeSensor.called);
 			assert.isTrue(showError.calledWith(OSApp.Language._("Please fill in all required fields")));
 		} finally {
-			$("#sensors").remove();
+				$("#sensors").trigger("pagehide").remove();
 			changeHeader.restore();
 			loading.restore();
 			showError.restore();
 			changeSensor.restore();
+			controller.sensors = originalSensors;
+			controller.sensor_desc = originalDescription;
+		}
+	});
+
+	it("should clear a stale Edit Sensors reading when its refreshed value is unavailable", function () {
+		var controller = OSApp.currentSession.controller;
+		var originalSensors = controller.sensors;
+		var originalDescription = controller.sensor_desc;
+		var loading = sinon.stub($.mobile, "loading");
+		var changeHeader = sinon.stub(OSApp.UIDom, "changeHeader");
+
+		try {
+			controller.sensor_desc = sensorEditorData();
+			controller.sensors = { sn: [ {
+				uuid: 7,
+				name: "Available",
+				interval: 60,
+				min: 0,
+				max: 100,
+				unit: 0,
+				value: 42,
+				status: OSApp.Sensors.STATUS.VALID,
+				flag: 1,
+				extra: {}
+			} ] };
+
+			OSApp.Sensors.displayPage();
+			var value = $("#sensors .sensor-current-value-text");
+			assert.equal(value.text(), "42");
+			assert.isTrue(value.hasClass("sensor-value-valid"));
+
+			controller.sensors.sn[0].value = null;
+			$("html").trigger("datarefresh");
+
+			assert.equal(value.text(), "—");
+			assert.isFalse(value.hasClass("sensor-value-valid"));
+			assert.isFalse(value.hasClass("sensor-value-warning"));
+			assert.isFalse(value.hasClass("sensor-value-clamped"));
+		} finally {
+			$("#sensors").trigger("pagehide").remove();
+			changeHeader.restore();
+			loading.restore();
 			controller.sensors = originalSensors;
 			controller.sensor_desc = originalDescription;
 		}

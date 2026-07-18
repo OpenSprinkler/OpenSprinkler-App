@@ -118,6 +118,16 @@ describe("Program Preview Checks", function () {
 		assert.isBelow(zulu.start.getTime(), alpha.start.getTime());
 	});
 
+	it("orders Unicode station names by UTF-8 bytes like firmware strcmp", function () {
+		OSApp.currentSession.controller.stations.snames[0] = "\uE000";
+		OSApp.currentSession.controller.stations.snames[1] = "\u{10000}";
+		var timeline = showPreview();
+		var bmp = timeline.items.find(function (item) { return item.group === "station-0"; });
+		var astral = timeline.items.find(function (item) { return item.group === "station-1"; });
+
+		assert.isBelow(bmp.start.getTime(), astral.start.getTime());
+	});
+
 	it("matches firmware truncation between weather and sensor preview scaling", function () {
 		OSApp.currentSession.controller.programs.pd[0][4] = [ 3, 0, 0, 0, 0, 0, 0, 0 ];
 		OSApp.currentSession.controller.jpaData = [ { wa: 0.6, sa: 0.6, ta: 0.36 } ];
@@ -127,6 +137,15 @@ describe("Program Preview Checks", function () {
 
 		assert.lengthOf(instances, 0);
 		assert.include($("#timeline").text(), "No stations set to run on this day.");
+	});
+
+	it("uses integer weather-percent arithmetic at floating-point boundaries", function () {
+		OSApp.currentSession.controller.programs.pd[0][4] = [ 25, 0, 0, 0, 0, 0, 0, 0 ];
+		OSApp.currentSession.controller.jpaData = [ { wa: 1.16, sa: 1, ta: 1.16 } ];
+		var timeline = showPreview();
+		var run = timeline.items.find(function (item) { return item.group === "station-0"; });
+
+		assert.equal((run.end.getTime() - run.start.getTime()) / 1000, 29);
 	});
 
 	it("matches firmware's low-weather short-run suppression", function () {

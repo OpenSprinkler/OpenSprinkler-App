@@ -729,12 +729,19 @@ msgstr ""
 msgid "Are you sure you want to restore the configuration?"
 msgstr ""
 
+msgid "The active controller changed. Please restart the restore."
+msgstr ""
+
 msgid ""
 "Unable to import configuration. The restore stopped before completion; "
 "review the controller before retrying."
 msgstr ""
 
 msgid "Program"
+msgstr ""
+
+msgid ""
+"The active controller changed. The restore was stopped before completion."
 msgstr ""
 
 msgid ""
@@ -763,6 +770,11 @@ msgstr ""
 msgid ""
 "Restored sensor definitions did not pass verification. The restore was "
 "stopped before programs were changed."
+msgstr ""
+
+msgid ""
+"The active controller changed. The restore finished without refreshing the "
+"new controller."
 msgstr ""
 
 msgid "Backup restored to your device"

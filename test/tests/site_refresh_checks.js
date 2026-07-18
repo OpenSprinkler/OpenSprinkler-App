@@ -181,6 +181,42 @@ describe("Site Refresh Checks", function () {
 		});
 	});
 
+	it("should fetch and normalize the sensor description after a connected /ja bootstrap", function () {
+		var rawDescription = { units: [ [ 1, "Volt", "V" ] ], sensors: [] };
+		var normalizedDescription = { units: [ { value: 1, short: "V" } ], sensors: [] };
+		var controller = {};
+		originalSession.controller = controller;
+		sandbox.stub(originalSession, "isControllerConnected").returns(true);
+		sandbox.stub(OSApp.Firmware, "checkOSVersion").callsFake(function (version) { return version === 216; });
+		var sendToOS = sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (path) {
+			if (path === "/ja?pw=") {
+				return resolved({
+					sensors: { sn: [ { uuid: 7, unit: 1 } ] },
+					status: { sn: [ 0 ] }
+				});
+			}
+			if (path === "/jsd?pw=") {
+				return resolved(rawDescription);
+			}
+			return $.Deferred().reject(new Error("Unexpected request: " + path)).promise();
+		});
+		var normalizeJsd = sandbox.stub(OSApp.Sensors, "normalizeJsd").returns(normalizedDescription);
+
+		return new Promise(function (resolve, reject) {
+			OSApp.Sites.updateController(function () {
+				try {
+					assert.strictEqual(controller.sensor_desc, normalizedDescription);
+					assert.isTrue(sendToOS.calledWith("/ja?pw=", "json"));
+					assert.isTrue(sendToOS.calledWith("/jsd?pw=", "json"));
+					assert.isTrue(normalizeJsd.calledOnceWithExactly(rawDescription));
+					resolve();
+				} catch (error) {
+					reject(error);
+				}
+			}, reject);
+		});
+	});
+
 	it("should ignore a connected controller response after the controller changes", function () {
 		var request = $.Deferred();
 		var callback = sandbox.spy();
@@ -257,5 +293,62 @@ describe("Site Refresh Checks", function () {
 				}
 			}, 0);
 		});
+	});
+
+	it("should reject a late special-station refresh without changing the replacement controller", function () {
+		var request = $.Deferred();
+		var callback = sandbox.spy();
+		var controller = {};
+		var replacementController = { marker: "replacement-controller" };
+		originalSession.controller = controller;
+		sandbox.stub(OSApp.Firmware, "sendToOS").returns(request.promise());
+
+		var refresh = OSApp.Sites.updateControllerStationSpecial(callback);
+		originalSession.controller = replacementController;
+
+		return new Promise(function (resolve, reject) {
+			refresh.done(function () {
+				reject(new Error("Stale special-station refresh was reported as success"));
+			}).fail(function (error) {
+				try {
+					assert.equal(error.statusText, "stale");
+					assert.deepEqual(controller, {});
+					assert.deepEqual(replacementController, { marker: "replacement-controller" });
+					assert.isFalse(callback.called);
+					resolve();
+				} catch (assertionError) {
+					reject(assertionError);
+				}
+			});
+
+			request.resolve({ 0: { st: 1, sd: "0000" } });
+		});
+	});
+
+	it("should not report stale status refreshes as network failures", function () {
+		sandbox.stub(originalSession, "isControllerConnected").returns(true);
+		sandbox.stub(OSApp.Firmware, "checkOSVersion").returns(false);
+		var stale = { status: 0, statusText: "stale" };
+		sandbox.stub(OSApp.Sites, "updateControllerStatus").returns($.Deferred().reject(stale).promise());
+		sandbox.stub(OSApp.Sites, "updateControllerSettings").returns(resolved({}));
+		sandbox.stub(OSApp.Sites, "updateControllerOptions").returns(resolved({}));
+		var networkFail = sandbox.stub(OSApp.Network, "networkFail");
+
+		OSApp.Status.refreshStatus();
+
+		assert.isFalse(networkFail.called);
+	});
+
+	it("should not report stale background data refreshes as network failures", function () {
+		sandbox.stub(originalSession, "isControllerConnected").returns(true);
+		sandbox.stub(OSApp.Firmware, "checkOSVersion").returns(false);
+		var stale = { status: 0, statusText: "stale" };
+		sandbox.stub(OSApp.Sites, "updateControllerPrograms").returns($.Deferred().reject(stale).promise());
+		sandbox.stub(OSApp.Sites, "updateControllerStations").returns(resolved({}));
+		var networkFail = sandbox.stub(OSApp.Network, "networkFail");
+
+		OSApp.Sites.refreshData();
+
+		assert.isFalse(networkFail.called);
 	});
 });

@@ -266,9 +266,10 @@ self.addEventListener("fetch", function (e) {
 				return r || fetch(e.request).then(function (response) {
 					console.log("[Service Worker] Caching new resource: " + e.request.url);
 					if (response.ok && response.type === "basic") {
-						return cache.put(cacheRequest, response.clone()).then(function () {
-							return response;
-						});
+						return cache.put(cacheRequest, response.clone()).then(
+							function () { return response; },
+							function () { return response; }
+						);
 					}
 					return response;
 				});

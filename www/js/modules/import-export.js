@@ -280,8 +280,17 @@ OSApp.ImportExport.sensorDefinitionSupported = function( sensor, description, ta
 
 OSApp.ImportExport.validateProgramDefinition = function( program, sourceFirmwareVersion, stationCount, legacyBoardCount ) {
 	var isIntegerInRange = function( value, min, max ) {
-		return Number.isInteger( value ) && value >= min && value <= max;
-	},
+			return Number.isInteger( value ) && value >= min && value <= max;
+		},
+		isValidEncodedDate = function( value ) {
+			if ( !isIntegerInRange( value, 33, 415 ) ) {
+				return false;
+			}
+			var month = value >> 5,
+				day = value & 31,
+				monthDays = [ 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
+			return month >= 1 && month <= 12 && day >= 1 && day <= monthDays[ month - 1 ];
+		},
 		isCurrentFormat = sourceFirmwareVersion === null ?
 			Array.isArray( program && program[ 3 ] ) : sourceFirmwareVersion >= 210,
 		requiredStations = Number.isInteger( stationCount ) && stationCount >= 0 ? stationCount : 0,
@@ -307,11 +316,17 @@ OSApp.ImportExport.validateProgramDefinition = function( program, sourceFirmware
 			return false;
 		}
 
+		// The controller rejects interval programs whose interval-day field is
+		// zero. Catch that before import erases the existing program list.
+		if ( ( ( program[ 0 ] >> 4 ) & 0x03 ) === OSApp.Constants.options.PROGRAM_TYPE_INTERVAL && program[ 2 ] === 0 ) {
+			return false;
+		}
+
 		if ( typeof program[ 6 ] !== "undefined" && program[ 6 ] !== null &&
 			( !Array.isArray( program[ 6 ] ) || program[ 6 ].length < 3 ||
 				!isIntegerInRange( program[ 6 ][ 0 ], 0, 1 ) ||
-				!isIntegerInRange( program[ 6 ][ 1 ], -32768, 32767 ) ||
-				!isIntegerInRange( program[ 6 ][ 2 ], -32768, 32767 ) ) ) {
+				!isValidEncodedDate( program[ 6 ][ 1 ] ) ||
+				!isValidEncodedDate( program[ 6 ][ 2 ] ) ) ) {
 			return false;
 		}
 
@@ -424,22 +439,25 @@ OSApp.ImportExport.sensorDefinitionMatches = function( source, actual, remapUUID
 OSApp.ImportExport.importConfig = function( data ) {
 	var warning = "";
 
-	if ( typeof data !== "object" || !data.settings ) {
+	if ( !data || typeof data !== "object" || !data.settings || !data.programs || !Array.isArray( data.programs.pd ) ||
+		!data.stations || !Array.isArray( data.stations.snames ) || !Array.isArray( data.stations.masop ) ) {
 		OSApp.Errors.showError( OSApp.Language._( "Invalid configuration" ) );
 		return;
 	}
 
-	var programs = data.programs && Array.isArray( data.programs.pd ) ? data.programs.pd : [],
+	var importSession = OSApp.currentSession,
+		importController = importSession.controller,
+		programs = data.programs.pd,
 		backupSensors = data.sensors && Array.isArray( data.sensors.sn ) ? data.sensors.sn : [],
 		sourceFirmwareVersion = data.options && typeof data.options.fwv === "number" ? data.options.fwv : null,
 		sourceStationCount = data.stations && Array.isArray( data.stations.snames ) ? data.stations.snames.length : 0,
-		targetStationCount = OSApp.currentSession.controller.stations && Array.isArray( OSApp.currentSession.controller.stations.snames ) ?
-			OSApp.currentSession.controller.stations.snames.length : sourceStationCount,
-		targetLegacyBoardCount = OSApp.currentSession.controller.programs &&
-			Number.isInteger( OSApp.currentSession.controller.programs.nboards ) ?
-			OSApp.currentSession.controller.programs.nboards : Math.ceil( targetStationCount / 8 ),
-		targetSensors = OSApp.currentSession.controller.sensors && Array.isArray( OSApp.currentSession.controller.sensors.sn ) ?
-		OSApp.currentSession.controller.sensors.sn : [],
+		targetStationCount = importController.stations && Array.isArray( importController.stations.snames ) ?
+			importController.stations.snames.length : sourceStationCount,
+		targetLegacyBoardCount = importController.programs && Number.isInteger( importController.programs.nboards ) ?
+			importController.programs.nboards : Math.ceil( targetStationCount / 8 ),
+		targetProgramLimit = importController.programs && Number.isInteger( importController.programs.mnp ) ?
+			importController.programs.mnp : null,
+		targetSensors = importController.sensors && Array.isArray( importController.sensors.sn ) ? importController.sensors.sn : [],
 		backupSensorUUIDs = Object.create( null ),
 		activeSensorUUIDs = Object.create( null ),
 		sensorUUIDMap = Object.create( null ),
@@ -460,7 +478,7 @@ OSApp.ImportExport.importConfig = function( data ) {
 		},
 		i, sensorKey;
 
-	if ( programs.some( function( prog ) {
+	if ( ( targetProgramLimit !== null && programs.length > targetProgramLimit ) || programs.some( function( prog ) {
 		return !OSApp.ImportExport.validateProgramDefinition(
 			prog, sourceFirmwareVersion, targetStationCount, targetLegacyBoardCount
 		);
@@ -594,8 +612,8 @@ OSApp.ImportExport.importConfig = function( data ) {
 	}
 
 	if ( OSApp.Firmware.checkOSVersion( 210 ) && data.options !== null && typeof data.options === "object" && (
-		data.options.hp0 !== OSApp.currentSession.controller.options.hp0 || data.options.hp1 !== OSApp.currentSession.controller.options.hp1 ||
-		data.options.dhcp !== OSApp.currentSession.controller.options.dhcp || data.options.devid !== OSApp.currentSession.controller.options.devid ) ) {
+		data.options.hp0 !== importController.options.hp0 || data.options.hp1 !== importController.options.hp1 ||
+		data.options.dhcp !== importController.options.dhcp || data.options.devid !== importController.options.devid ) ) {
 
 		warning = OSApp.Language._( "Warning: Network changes will be made and the device may no longer be accessible from this address." );
 	}
@@ -619,6 +637,10 @@ OSApp.ImportExport.importConfig = function( data ) {
 	}
 
 	return OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to restore the configuration?" ), warning, function() {
+		if ( OSApp.currentSession !== importSession || OSApp.currentSession.controller !== importController ) {
+			OSApp.Errors.showError( OSApp.Language._( "The active controller changed. Please restart the restore." ) );
+			return;
+		}
 		$.mobile.loading( "show" );
 
 		var cs = "/cs?pw=",
@@ -642,7 +664,7 @@ OSApp.ImportExport.importConfig = function( data ) {
 					continue;
 				}
 				if ( key === 3 ) {
-					if ( OSApp.Firmware.checkOSVersion( 210 ) && OSApp.currentSession.controller.options.dhcp === 1 ) {
+					if ( OSApp.Firmware.checkOSVersion( 210 ) && importController.options.dhcp === 1 ) {
 						co += "&o3=1";
 					}
 					continue;
@@ -804,7 +826,9 @@ OSApp.ImportExport.importConfig = function( data ) {
 
 		var buildProgramCommand = function( sourceProgram, index ) {
 			var prog = sourceProgram.slice(),
-				dateRange = supportsDateRange ? "&endr=0&from=0&to=0" : "",
+				// ProgramStruct defaults to the full valid firmware date range. Use
+				// those values for older 2.1 backups that predate date metadata.
+				dateRange = supportsDateRange ? "&endr=0&from=33&to=415" : "",
 				name = "",
 				sensorAdjustment = supportsSensors ? "&snadj=0,0" : "";
 
@@ -876,23 +900,35 @@ OSApp.ImportExport.importConfig = function( data ) {
 			}
 		} );
 
-		var sendCommands = function( commands ) {
-			var commandSequence = $.Deferred().resolve().promise();
-			$.each( commands, function( index, command ) {
-				commandSequence = commandSequence.then( function() {
-					return OSApp.Firmware.sendToOS( command );
-				} );
-			} );
-			return commandSequence;
-		},
+		var isImportContextCurrent = function() {
+				return OSApp.currentSession === importSession && OSApp.currentSession.controller === importController;
+			},
 			rejectImport = function( message ) {
 				if ( message ) {
 					importFailureMessage = message;
 				}
 				return $.Deferred().reject().promise();
 			},
+			sendImportRequest = function( command, type ) {
+				var staleMessage = OSApp.Language._( "The active controller changed. The restore was stopped before completion." );
+				if ( !isImportContextCurrent() ) {
+					return rejectImport( staleMessage );
+				}
+				return OSApp.Firmware.sendToOS( command, type ).then( function( response ) {
+					return isImportContextCurrent() ? response : rejectImport( staleMessage );
+				} );
+			},
+			sendCommands = function( commands ) {
+			var commandSequence = $.Deferred().resolve().promise();
+			$.each( commands, function( index, command ) {
+				commandSequence = commandSequence.then( function() {
+					return sendImportRequest( command );
+				} );
+			} );
+			return commandSequence;
+		},
 			readSensors = function() {
-				return OSApp.Firmware.sendToOS( "/jsn?pw=", "json" ).then( function( snapshot ) {
+				return sendImportRequest( "/jsn?pw=", "json" ).then( function( snapshot ) {
 					if ( !snapshot || !Array.isArray( snapshot.sn ) ) {
 						return rejectImport( OSApp.Language._( "Unable to verify sensor definitions during import. The restore was stopped." ) );
 					}
@@ -915,7 +951,7 @@ OSApp.ImportExport.importConfig = function( data ) {
 				if ( backupSensors.length === 0 ) {
 					return $.Deferred().resolve().promise();
 				}
-				return OSApp.Firmware.sendToOS( "/jsd?pw=", "json" ).then( function( rawDescription ) {
+				return sendImportRequest( "/jsd?pw=", "json" ).then( function( rawDescription ) {
 					if ( !rawDescription || typeof rawDescription !== "object" ) {
 						return rejectImport( OSApp.Language._( "Unable to validate sensor definitions on this controller. No configuration changes were made." ) );
 					}
@@ -936,7 +972,7 @@ OSApp.ImportExport.importConfig = function( data ) {
 		// Make only the capacity-required deletions, and do them serially.
 		$.each( sensorsToDelete, function( index, sensor ) {
 			sequence = sequence.then( function() {
-				return OSApp.Firmware.sendToOS( "/dsn?pw=&uuid=" + sensor.uuid );
+				return sendImportRequest( "/dsn?pw=&uuid=" + sensor.uuid );
 			} ).then( function() {
 				delete activeSensorUUIDs[ String( sensor.uuid ) ];
 			} );
@@ -948,13 +984,13 @@ OSApp.ImportExport.importConfig = function( data ) {
 			var sourceUUID = String( sensor.uuid );
 			sequence = sequence.then( function() {
 				if ( hasOwn( sensorUUIDMap, sourceUUID ) ) {
-					return OSApp.Firmware.sendToOS( OSApp.ImportExport.buildSensorImportCommand(
+					return sendImportRequest( OSApp.ImportExport.buildSensorImportCommand(
 						sensor, sensorUUIDMap[ sourceUUID ], sensor.type !== 0, resolveSensorUUID
 					) );
 				}
 
 				var beforeCount = Object.keys( activeSensorUUIDs ).length;
-				return OSApp.Firmware.sendToOS( OSApp.ImportExport.buildSensorImportCommand(
+				return sendImportRequest( OSApp.ImportExport.buildSensorImportCommand(
 					sensor, -1, sensor.type !== 0, resolveSensorUUID
 				) ).then( readSensors ).then( function( snapshot ) {
 					var added = Object.keys( snapshot.uuids ).filter( function( uuid ) {
@@ -979,7 +1015,7 @@ OSApp.ImportExport.importConfig = function( data ) {
 				if ( mappedUUID === 0 ) {
 					return rejectImport( OSApp.Language._( "Unable to map an aggregate sensor during import. The restore was stopped." ) );
 				}
-				return OSApp.Firmware.sendToOS( OSApp.ImportExport.buildSensorImportCommand(
+				return sendImportRequest( OSApp.ImportExport.buildSensorImportCommand(
 					sensor, mappedUUID, true, resolveSensorUUID
 				) );
 			} );
@@ -1003,18 +1039,23 @@ OSApp.ImportExport.importConfig = function( data ) {
 
 		// Erase must settle before ordered /cp appends begin.
 		sequence = sequence.then( function() {
-			return OSApp.Firmware.sendToOS( "/dp?pw=&pid=-1" );
+			return sendImportRequest( "/dp?pw=&pid=-1" );
 		} );
 
 		$.each( programs, function( index, program ) {
 			sequence = sequence.then( function() {
-				return OSApp.Firmware.sendToOS( buildProgramCommand( program, index ) );
+				return sendImportRequest( buildProgramCommand( program, index ) );
 			} );
 		} );
 
 		return sequence.then(
 			function() {
 				setTimeout( function() {
+					if ( !isImportContextCurrent() ) {
+						$.mobile.loading( "hide" );
+						OSApp.Errors.showError( OSApp.Language._( "The active controller changed. The restore finished without refreshing the new controller." ) );
+						return;
+					}
 					OSApp.Sites.updateController(
 						function() {
 							$.mobile.loading( "hide" );

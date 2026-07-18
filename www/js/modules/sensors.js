@@ -1501,6 +1501,8 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
         getURL: function () {
             const params = new URLSearchParams();
             if (!baseOptions.every((v) => v.add(params))) return undefined;
+            const name = params.get("name");
+            if (name !== null && name.trim().length === 0) return undefined;
             const minimum = params.get("min");
             const maximum = params.get("max");
             if (minimum !== null && maximum !== null) {
@@ -1750,11 +1752,16 @@ OSApp.Sensors.displayPage = function (expandUuid) {
 		if (!isCurrentContext()) return;
 		const sn = controller.sensors && controller.sensors.sn;
         if ( !sn ) { return; }
-        page.find( "[data-sensor-uuid]" ).each( function() {
-            const $el = $( this );
-            const uuid = $el.attr( "data-sensor-uuid" );
-            const sensor = sn.find( function( s ) { return String( s.uuid ) === uuid; } );
-            if ( !sensor || typeof sensor.value === "undefined" || sensor.value === null ) { return; }
+		page.find( "[data-sensor-uuid]" ).each( function() {
+			const $el = $( this );
+			const uuid = $el.attr( "data-sensor-uuid" );
+			const sensor = sn.find( function( s ) { return String( s.uuid ) === uuid; } );
+			if ( !sensor ) { return; }
+			if ( typeof sensor.value === "undefined" || sensor.value === null ) {
+				$el.text( "—" )
+					.removeClass( "sensor-value-valid sensor-value-warning sensor-value-clamped" );
+				return;
+			}
             const unitShort = $el.attr( "data-unit" ) || "";
             const status = sensor.status != null ? sensor.status : 1;
             const { text, cls } = sensorValueDisplay( sensor.value, unitShort, status );

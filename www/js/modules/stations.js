@@ -148,10 +148,11 @@ OSApp.Stations.stopAllStations = function() {
 	OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to stop all stations?" ), "", function() {
 		$.mobile.loading( "show" );
 		OSApp.Firmware.sendToOS( "/cv?pw=&rsn=1" ).done( function() {
-			$.mobile.loading( "hide" );
 			OSApp.Stations.removeStationTimers();
 			OSApp.Status.refreshStatus();
 			OSApp.Errors.showError( OSApp.Language._( "All stations have been stopped" ) );
+		} ).always( function() {
+			$.mobile.loading( "hide" );
 		} );
 	} );
 };
@@ -168,14 +169,20 @@ OSApp.Stations.removeStationTimers = function() {
 
 OSApp.Stations.stopStations = function( callback ) {
 	callback = callback || function() {};
+	var session = OSApp.currentSession,
+		controller = session.controller;
 	$.mobile.loading( "show" );
 
 	// It can take up to a second before stations actually stop
 	OSApp.Firmware.sendToOS( "/cv?pw=&rsn=1" ).done( function() {
 		setTimeout( function() {
 			$.mobile.loading( "hide" );
-			callback();
+			if ( OSApp.currentSession === session && OSApp.currentSession.controller === controller ) {
+				callback();
+			}
 		}, 1000 );
+	} ).fail( function() {
+		$.mobile.loading( "hide" );
 	} );
 };
 

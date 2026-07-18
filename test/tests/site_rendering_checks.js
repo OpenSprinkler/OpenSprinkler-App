@@ -85,4 +85,41 @@ describe( "Site Rendering Checks", function() {
 			$( "#site-control, #addsite, #sure" ).remove();
 		}
 	} );
+
+	it( "renders the connecting site name as text in the loading indicator", function() {
+		var sandbox = sinon.createSandbox(),
+			maliciousName = "Home<img id='site-loading-injection' src='x'>",
+			select = $( "#site-selector" ),
+			originalOptions = select.children().detach(),
+			originalController = OSApp.currentSession.controller,
+			originalLocal = OSApp.currentSession.local,
+			originalTimers = OSApp.uiState.timers,
+			loadingOptions;
+
+		try {
+			$( "<option>" ).val( maliciousName ).text( maliciousName ).appendTo( select );
+			select.val( maliciousName );
+			OSApp.currentSession.local = false;
+			sandbox.stub( $.mobile, "loading" ).callsFake( function( action, options ) {
+				if ( action === "show" ) {
+					loadingOptions = options;
+				}
+			} );
+			sandbox.stub( $.ajaxq, "abort" );
+			sandbox.stub( OSApp.Notifications, "clearNotifications" );
+			sandbox.stub( OSApp.Sites, "updateController" );
+
+			OSApp.Sites.newLoad();
+
+			var rendered = $( "<div>" ).html( loadingOptions.html );
+			assert.equal( rendered.find( "h1" ).text(), "Connecting to " + maliciousName );
+			assert.lengthOf( rendered.find( "#site-loading-injection" ), 0 );
+		} finally {
+			sandbox.restore();
+			OSApp.currentSession.controller = originalController;
+			OSApp.currentSession.local = originalLocal;
+			OSApp.uiState.timers = originalTimers;
+			select.empty().append( originalOptions );
+		}
+	} );
 } );

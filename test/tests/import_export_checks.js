@@ -79,7 +79,7 @@ describe("Import/Export Checks", function () {
 			[ 60, -1, -1, -1 ],
 			[ 30 ],
 			name,
-			[ 1, 321, 654 ],
+			[ 1, 321, 385 ],
 			adjustment
 		];
 	}
@@ -267,7 +267,7 @@ describe("Import/Export Checks", function () {
 				assert.include(commands, "/cs?pw=&m0=0&u0=1&v0=2&o0=4&r0=8");
 				assert.isBelow(dpIndex, cpIndex);
 				assert.include(commands[cpIndex], "&name=Morning%20%26%20East%3DWest");
-				assert.include(commands[cpIndex], "&endr=1&from=321&to=654&snadj=1,42,0,50");
+				assert.include(commands[cpIndex], "&endr=1&from=321&to=385&snadj=1,42,0,50");
 				assert.include(programCommands[1], "&name=Empty%20adjustment");
 				assert.include(programCommands[1], "&snadj=0,0");
 				assert.notInclude(commands.join("\n"), "/csn?");
@@ -386,6 +386,12 @@ describe("Import/Export Checks", function () {
 		encodedStarts[3] = [ -1, 16444, 12318, 32767 ];
 		assert.isTrue(OSApp.ImportExport.validateProgramDefinition(encodedStarts, 300, 1, 1));
 		assert.isTrue(OSApp.ImportExport.validateProgramDefinition([ 1, 127, 0, 60, 60, 0, 30, 1 ], 209, 8, 1));
+		assert.isFalse(OSApp.ImportExport.validateProgramDefinition([
+			177, 127, 0, [ 60, -1, -1, -1 ], [ 30 ], "Zero interval", [ 0, 33, 415 ]
+		], 300, 1, 1));
+		assert.isFalse(OSApp.ImportExport.validateProgramDefinition([
+			129, 127, 0, [ 60, -1, -1, -1 ], [ 30 ], "Bad date", [ 1, 94, 415 ]
+		], 300, 1, 1));
 
 		var sandbox = sinon.createSandbox(),
 			controller = OSApp.currentSession.controller;
@@ -421,6 +427,105 @@ describe("Import/Export Checks", function () {
 		} finally {
 			sandbox.restore();
 			OSApp.currentSession.controller = controller;
+		}
+	});
+
+	it("should reject firmware-invalid programs and excess program counts before confirmation", function () {
+		var sandbox = sinon.createSandbox(),
+			controller = OSApp.currentSession.controller;
+		try {
+			OSApp.currentSession.controller = {
+				options: { fwv: 300 },
+				settings: {},
+				stations: { snames: [ "S1" ] },
+				programs: { nboards: 1, mnp: 1 },
+				sensors: { sn: [] }
+			};
+			sandbox.stub(OSApp.Errors, "showError");
+			sandbox.stub(OSApp.UIDom, "areYouSure");
+			sandbox.stub(OSApp.Firmware, "sendToOS");
+
+			var invalidDate = baseBackup(),
+				zeroInterval = baseBackup(),
+				excessPrograms = baseBackup(),
+				intervalProgram = program("Zero interval", null);
+			invalidDate.programs.pd = [ program("Bad date", null) ];
+			invalidDate.programs.pd[0][6] = [ 1, 321, 654 ];
+			intervalProgram[0] = ( intervalProgram[0] & ~0x30 ) | 0x30;
+			intervalProgram[2] = 0;
+			zeroInterval.programs.pd = [ intervalProgram ];
+			excessPrograms.programs.pd = [ program("First", null), program("Second", null) ];
+
+			OSApp.ImportExport.importConfig(invalidDate);
+			OSApp.ImportExport.importConfig(zeroInterval);
+			OSApp.ImportExport.importConfig(excessPrograms);
+
+			assert.equal(OSApp.Errors.showError.callCount, 3);
+			assert.isTrue(OSApp.UIDom.areYouSure.notCalled);
+			assert.isTrue(OSApp.Firmware.sendToOS.notCalled);
+		} finally {
+			sandbox.restore();
+			OSApp.currentSession.controller = controller;
+		}
+	});
+
+	it("should reject missing or malformed program data before confirmation", function () {
+		var sandbox = sinon.createSandbox(),
+			controller = OSApp.currentSession.controller;
+		try {
+			OSApp.currentSession.controller = {
+				options: { fwv: 300 },
+				settings: {},
+				stations: { snames: [ "S1" ] },
+				programs: { nboards: 1, mnp: 4 },
+				sensors: { sn: [] }
+			};
+			sandbox.stub(OSApp.Errors, "showError");
+			sandbox.stub(OSApp.UIDom, "areYouSure");
+			sandbox.stub(OSApp.Firmware, "sendToOS");
+
+			var missingPrograms = baseBackup(),
+				malformedPrograms = baseBackup();
+			delete missingPrograms.programs;
+			malformedPrograms.programs.pd = {};
+
+			OSApp.ImportExport.importConfig(missingPrograms);
+			OSApp.ImportExport.importConfig(malformedPrograms);
+
+			assert.equal(OSApp.Errors.showError.callCount, 2);
+			assert.isTrue(OSApp.UIDom.areYouSure.notCalled);
+			assert.isTrue(OSApp.Firmware.sendToOS.notCalled);
+		} finally {
+			sandbox.restore();
+			OSApp.currentSession.controller = controller;
+		}
+	});
+
+	it("should restore older 2.1 programs without date metadata using a valid full range", function () {
+		var sandbox = sinon.createSandbox(),
+			controller = installImportHarness(sandbox, []),
+			commands = [];
+
+		try {
+			sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (command) {
+				commands.push(command);
+				return resolved({ result: 1 });
+			});
+			var backup = baseBackup(),
+				oldProgram = program("Legacy 2.1", null).slice(0, 6);
+			backup.options.fwv = 210;
+			oldProgram[0] = 1;
+			backup.programs.pd = [ oldProgram ];
+
+			return cleanupAfter(asNative(OSApp.ImportExport.importConfig(backup)).then(function () {
+				var command = commands.find(function (item) { return item.indexOf("/cp?") === 0; });
+				assert.include(command, "&endr=0&from=33&to=415");
+				assert.notInclude(command, "&from=0&to=0");
+			}), sandbox, controller);
+		} catch (error) {
+			OSApp.currentSession.controller = controller;
+			sandbox.restore();
+			throw error;
 		}
 	});
 
@@ -474,6 +579,42 @@ describe("Import/Export Checks", function () {
 				assert.isTrue(errors.some(function (message) { return message.indexOf("restore stopped before completion") !== -1; }));
 			};
 			return cleanupAfter(asNative(OSApp.ImportExport.importConfig(baseBackup())).then(assertStopped, assertStopped), sandbox, controller);
+		} catch (error) {
+			OSApp.currentSession.controller = controller;
+			sandbox.restore();
+			throw error;
+		}
+	});
+
+	it("should stop queued import commands when the active controller changes", function () {
+		var sandbox = sinon.createSandbox(),
+			controller = installImportHarness(sandbox, []),
+			firstRequest = $.Deferred(),
+			commands = [],
+			errors = [];
+
+		try {
+			sandbox.stub(OSApp.Errors, "showError").callsFake(function (message) { errors.push(message); });
+			sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (command) {
+				commands.push(command);
+				return commands.length === 1 ? firstRequest.promise() : resolved({ result: 1 });
+			});
+
+			var restore = asNative(OSApp.ImportExport.importConfig(baseBackup()));
+			assert.lengthOf(commands, 1);
+			assert.match(commands[0], /^\/co\?/);
+
+			OSApp.currentSession.controller = { marker: "replacement-controller" };
+			firstRequest.resolve({ result: 1 });
+
+			var assertStopped = function () {
+				assert.lengthOf(commands, 1);
+				assert.notInclude(commands, "/dp?pw=&pid=-1");
+				assert.isTrue(errors.some(function (message) {
+					return message.indexOf("active controller changed") !== -1;
+				}));
+			};
+			return cleanupAfter(restore.then(assertStopped, assertStopped), sandbox, controller);
 		} catch (error) {
 			OSApp.currentSession.controller = controller;
 			sandbox.restore();
@@ -565,8 +706,10 @@ describe("Import/Export Checks", function () {
 			OSApp.currentSession.controller = { options: {}, sensors: { sn: [] } };
 			sandbox.stub(OSApp.Firmware, "checkOSVersion").returns(true);
 			sandbox.stub(OSApp.UIDom, "areYouSure");
+			var backup = baseBackup();
+			backup.options = null;
 			assert.doesNotThrow(function () {
-				OSApp.ImportExport.importConfig({ options: null, settings: {}, programs: { pd: [] } });
+				OSApp.ImportExport.importConfig(backup);
 			});
 			assert.isTrue(OSApp.UIDom.areYouSure.calledOnce);
 		} finally {

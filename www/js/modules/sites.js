@@ -879,15 +879,15 @@ OSApp.Sites.newLoad = function() {
 
 	// Get the current site name from the site select drop down
 	var name = $( "#site-selector" ).val(),
-		loading = "<div class='logo'></div>" +
-			"<h1 style='padding-top:5px'>" + OSApp.Language._( "Connecting to" ) + " " + name + "</h1>" +
-			"<p class='cancel tight center inline-icon'>" +
-				"<span class='btn-no-border ui-btn ui-icon-delete ui-btn-icon-notext'></span>" +
-				"Cancel" +
-			"</p>";
+		loading = $( "<div>" )
+			.append( $( "<div>" ).addClass( "logo" ) )
+			.append( $( "<h1>" ).css( "padding-top", "5px" ).text( OSApp.Language._( "Connecting to" ) + " " + name ) )
+			.append( $( "<p>" ).addClass( "cancel tight center inline-icon" )
+				.append( $( "<span>" ).addClass( "btn-no-border ui-btn ui-icon-delete ui-btn-icon-notext" ) )
+				.append( document.createTextNode( "Cancel" ) ) );
 
 	$.mobile.loading( "show", {
-		html: OSApp.currentSession.local ? "<h1>" + OSApp.Language._( "Loading" ) + "</h1>" : loading,
+		html: OSApp.currentSession.local ? $( "<h1>" ).text( OSApp.Language._( "Loading" ) )[ 0 ].outerHTML : loading.html(),
 		textVisible: true,
 		theme: "b"
 	} );
@@ -1037,6 +1037,16 @@ function rejectStaleSiteControllerRefresh() {
 	return $.Deferred().reject( { status: 0, statusText: "stale" } ).promise();
 }
 
+OSApp.Sites.isStaleControllerRefresh = function( error ) {
+	return !!error && error.statusText === "stale";
+};
+
+OSApp.Sites.handleControllerRefreshFailure = function( error ) {
+	if ( !OSApp.Sites.isStaleControllerRefresh( error ) ) {
+		OSApp.Network.networkFail( error );
+	}
+};
+
 OSApp.Sites.updateController = function( callback, fail ) {
 	callback = callback || function() {};
 	fail = fail || function() {};
@@ -1080,7 +1090,14 @@ OSApp.Sites.updateController = function( callback, fail ) {
 			// Fix the station status array
 			controller.status = controller.status.sn;
 
-			finish();
+			// /ja includes live sensor data, but the firmware intentionally keeps
+			// the larger sensor-description schema on /jsd. Prime that schema on
+			// first load so unit labels and sensor controls are immediately ready.
+			if ( Array.isArray( controller.sensors?.sn ) && !controller.sensor_desc ) {
+				OSApp.Sites.updateControllerSensorDescription( undefined, context ).then( finish, failCurrent );
+			} else {
+				finish();
+			}
 		}, failCurrent );
 	} else {
 		$.when(
@@ -1520,16 +1537,26 @@ OSApp.Sites.handleCorruptedWeatherOptions = function( wto ) {
 	OSApp.uiState.handleCorruptedWeatherOptions = true;
 };
 
-OSApp.Sites.updateControllerStationSpecial = function( callback ) {
+OSApp.Sites.updateControllerStationSpecial = function( callback, expectedContext ) {
 	callback = callback || function() {};
+	var context = getSiteControllerContext( expectedContext ),
+		controller = context.controller;
 
 	return OSApp.Firmware.sendToOS( "/je?pw=", "json" ).then(
 		function( special ) {
-			OSApp.currentSession.controller.special = special;
+			if ( !isSiteControllerContextCurrent( context ) ) {
+				return rejectStaleSiteControllerRefresh();
+			}
+			controller.special = special;
 			callback();
+			return special;
 		},
 		function() {
-			OSApp.currentSession.controller.special = {};
+			if ( !isSiteControllerContextCurrent( context ) ) {
+				return rejectStaleSiteControllerRefresh();
+			}
+			controller.special = {};
+			return controller.special;
 		} );
 };
 
@@ -1589,7 +1616,7 @@ OSApp.Sites.refreshData = function() {
 	}
 
 	if ( OSApp.Firmware.checkOSVersion( 216 ) ) {
-		OSApp.Sites.updateController( function() {}, OSApp.Network.networkFail );
+		OSApp.Sites.updateController( function() {}, OSApp.Sites.handleControllerRefreshFailure );
 	} else {
 		var refreshPromises = [
 			OSApp.Sites.updateControllerPrograms(),
@@ -1598,6 +1625,6 @@ OSApp.Sites.refreshData = function() {
 		if ( OSApp.Firmware.checkOSVersion( 2215 ) ) {
 			refreshPromises.push( OSApp.Sites.updateControllerSensors() );
 		}
-		$.when.apply( $, refreshPromises ).fail( OSApp.Network.networkFail );
+		$.when.apply( $, refreshPromises ).fail( OSApp.Sites.handleControllerRefreshFailure );
 	}
 };

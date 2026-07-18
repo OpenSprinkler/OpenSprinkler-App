@@ -33,13 +33,13 @@ OSApp.Status.refreshStatus = function( callback ) {
 	};
 
 	if ( OSApp.Firmware.checkOSVersion( 216 ) ) {
-		OSApp.Sites.updateController( finish, OSApp.Network.networkFail );
+		OSApp.Sites.updateController( finish, OSApp.Sites.handleControllerRefreshFailure );
 	} else {
 		$.when(
 			OSApp.Sites.updateControllerStatus(),
 			OSApp.Sites.updateControllerSettings(),
 			OSApp.Sites.updateControllerOptions()
-		).then( finish, OSApp.Network.networkFail );
+		).then( finish, OSApp.Sites.handleControllerRefreshFailure );
 	}
 };
 

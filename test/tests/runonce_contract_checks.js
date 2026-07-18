@@ -95,4 +95,75 @@ describe( "Run-Once Request Contract Checks", function() {
 		assert.isFalse( OSApp.Status.refreshStatus.called );
 		assert.isFalse( OSApp.UIDom.goBack.called );
 	} );
+
+	it( "hides the loader and does not schedule when stopping active stations fails", function() {
+		var clock = sandbox.useFakeTimers();
+		sandbox.stub( OSApp.UIDom, "areYouSure" ).callsFake( function( _question, _detail, confirm ) {
+			confirm();
+		} );
+		sandbox.stub( OSApp.Stations, "getPID" ).returns( 1 );
+		sandbox.stub( OSApp.Programs, "pidToName" ).returns( "Program" );
+		OSApp.Firmware.checkOSVersion.callsFake( function( version ) {
+			return version !== 2214;
+		} );
+		OSApp.StationQueue.isActive.returns( 0 );
+		OSApp.Firmware.sendToOS.callsFake( function( url ) {
+			if ( url === "/cv?pw=&rsn=1" ) {
+				return $.Deferred().reject( { status: 500 } ).promise();
+			}
+			return $.Deferred().resolve( { result: 1 } ).promise();
+		} );
+		$.mobile.loading.resetHistory();
+
+		OSApp.Stations.submitRunonce( [ 60 ], 0, 0 );
+		clock.tick( 100 );
+
+		assert.isTrue( OSApp.Firmware.sendToOS.calledOnceWith( "/cv?pw=&rsn=1" ) );
+		assert.isTrue( $.mobile.loading.calledWith( "show" ) );
+		assert.isTrue( $.mobile.loading.calledWith( "hide" ) );
+		assert.isFalse( OSApp.Status.refreshStatus.called );
+		assert.isFalse( OSApp.UIDom.goBack.called );
+	} );
+
+	it( "does not schedule a run on a replacement controller after the stop delay", function() {
+		var clock = sandbox.useFakeTimers();
+		sandbox.stub( OSApp.UIDom, "areYouSure" ).callsFake( function( _question, _detail, confirm ) {
+			confirm();
+		} );
+		sandbox.stub( OSApp.Stations, "getPID" ).returns( 1 );
+		sandbox.stub( OSApp.Programs, "pidToName" ).returns( "Program" );
+		OSApp.Firmware.checkOSVersion.callsFake( function( version ) {
+			return version !== 2214;
+		} );
+		OSApp.StationQueue.isActive.returns( 0 );
+		$.mobile.loading.resetHistory();
+
+		OSApp.Stations.submitRunonce( [ 60 ], 0, 0 );
+		clock.tick( 100 );
+		assert.isTrue( OSApp.Firmware.sendToOS.calledOnceWith( "/cv?pw=&rsn=1" ) );
+
+		OSApp.currentSession.controller = { marker: "replacement" };
+		clock.tick( 1000 );
+
+		assert.isTrue( OSApp.Firmware.sendToOS.calledOnce );
+		assert.isTrue( $.mobile.loading.calledWith( "hide" ) );
+		assert.isFalse( OSApp.Status.refreshStatus.called );
+		assert.isFalse( OSApp.UIDom.goBack.called );
+	} );
+
+	it( "hides the loader when stopping all stations fails", function() {
+		sandbox.stub( OSApp.currentSession, "isControllerConnected" ).returns( true );
+		sandbox.stub( OSApp.UIDom, "areYouSure" ).callsFake( function( _question, _detail, confirm ) {
+			confirm();
+		} );
+		OSApp.Firmware.sendToOS.returns( $.Deferred().reject( { status: 500 } ).promise() );
+		$.mobile.loading.resetHistory();
+
+		OSApp.Stations.stopAllStations();
+
+		assert.isTrue( OSApp.Firmware.sendToOS.calledOnceWith( "/cv?pw=&rsn=1" ) );
+		assert.isTrue( $.mobile.loading.calledWith( "show" ) );
+		assert.isTrue( $.mobile.loading.calledWith( "hide" ) );
+		assert.isFalse( OSApp.Status.refreshStatus.called );
+	} );
 } );
