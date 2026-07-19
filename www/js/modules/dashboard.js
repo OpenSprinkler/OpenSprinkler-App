@@ -40,6 +40,7 @@ OSApp.Dashboard.displayPage = function() {
 					'</div>' +
 					'<div id="os-stations-list" class="card-group center"></div>' +
 					'<div id="os-sensor-show" class="card-group center"></div>' +
+					'<div id="os-sensors-home" class="card-group"></div>' +
 				'</div>' +
 			'</div>' +
 		'</div>';
@@ -61,6 +62,8 @@ OSApp.Dashboard.displayPage = function() {
 			var isScheduled = OSApp.Stations.getPID( sid ) > 0,
 				isRunning = OSApp.Stations.isRunning( sid ),
 				pname = isScheduled ? OSApp.Programs.pidToName( OSApp.Stations.getPID( sid ) ) : "",
+				escapedPname = OSApp.Utils.htmlEscape( pname ),
+				escapedStationName = OSApp.Utils.htmlEscape( OSApp.Stations.getName( sid ) ),
 				rem = OSApp.Stations.getRemainingRuntime( sid ),
 				qPause = OSApp.Supported.pausing() && OSApp.StationQueue.isPaused(),
 				hasImage = sites[ currentSite ].images[ sid ] ? true : false;
@@ -78,7 +81,7 @@ OSApp.Dashboard.displayPage = function() {
 			cards += "<img src='" + ( hasImage ? "data:image/jpeg;base64," + sites[ currentSite ].images[ sid ] : OSApp.UIDom.getAppURLPath() + "img/placeholder.png" ) + "' />";
 
 
-			cards += "<p class='station-name center inline-icon' id='station_" + sid + "'>" + OSApp.Stations.getName( sid) + "</p>";
+			cards += "<p class='station-name center inline-icon' id='station_" + sid + "'>" + escapedStationName + "</p>";
 			cards += "<span class='bno-border ui-btn ui-btn-icon-notext ui-corner-all card-icon station-status " +
 				( isRunning ? "on" : ( isScheduled ? "wait" : "off" ) ) + "'></span>";
 
@@ -94,9 +97,13 @@ OSApp.Dashboard.displayPage = function() {
 				" card-icon ui-btn-icon-notext station-settings' data-station='" + sid + "' id='attrib-" + sid + "' " +
 				( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ? ( "data-um='" + ( OSApp.StationAttributes.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_1 ) ) + "' " ) : "" ) +
 				( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ? ( "data-um2='" + ( OSApp.StationAttributes.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_2 ) ) + "' " ) : "" ) +
+				( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_3 ) ? ( "data-um3='" + ( OSApp.StationAttributes.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_3 ) ) + "' " ) : "" ) +
+				( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_4 ) ? ( "data-um4='" + ( OSApp.StationAttributes.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_4 ) ) + "' " ) : "" ) +
 				( OSApp.Supported.ignoreRain() ? ( "data-ir='" + ( OSApp.StationAttributes.getIgnoreRain( sid ) ) + "' " ) : "" ) +
 				( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_1 ) ? ( "data-sn1='" + ( OSApp.StationAttributes.getIgnoreSensor( sid, OSApp.Constants.options.IGNORE_SENSOR_1 ) ) + "' " ) : "" ) +
 				( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_2 ) ? ( "data-sn2='" + ( OSApp.StationAttributes.getIgnoreSensor( sid, OSApp.Constants.options.IGNORE_SENSOR_2 ) ) + "' " ) : "" ) +
+				( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_3 ) ? ( "data-sn3='" + ( OSApp.StationAttributes.getIgnoreSensor( sid, OSApp.Constants.options.IGNORE_SENSOR_3 ) ) + "' " ) : "" ) +
+				( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_4 ) ? ( "data-sn4='" + ( OSApp.StationAttributes.getIgnoreSensor( sid, OSApp.Constants.options.IGNORE_SENSOR_4 ) ) + "' " ) : "" ) +
 				( OSApp.Supported.actRelay() ? ( "data-ar='" + ( OSApp.StationAttributes.getActRelay( sid ) ) + "' " ) : "" ) +
 				( OSApp.Supported.disabled() ? ( "data-sd='" + ( OSApp.StationAttributes.getDisabled( sid ) ) + "' " ) : "" ) +
 				( OSApp.Supported.sequential() ? ( "data-us='" + ( OSApp.StationAttributes.getSequential( sid ) ) + "' " ) : "" ) +
@@ -108,8 +115,8 @@ OSApp.Dashboard.displayPage = function() {
 				if ( isScheduled || isRunning ) {
 
 					// Generate status line for station
-					cards += "<p class='rem center'>" + ( isRunning ? OSApp.Language._( "Running" ) + " " + pname : OSApp.Language._( "Scheduled" ) + " " +
-						( OSApp.Stations.getStartTime( sid ) ? OSApp.Language._( "for" ) + " " + OSApp.Dates.dateToString( new Date( OSApp.Stations.getStartTime( sid ) * 1000 ) ) : pname ) );
+					cards += "<p class='rem center'>" + ( isRunning ? OSApp.Language._( "Running" ) + " " + escapedPname : OSApp.Language._( "Scheduled" ) + " " +
+						( OSApp.Stations.getStartTime( sid ) ? OSApp.Language._( "for" ) + " " + OSApp.Dates.dateToString( new Date( OSApp.Stations.getStartTime( sid ) * 1000 ) ) : escapedPname ) );
 
 					if ( rem > 0 ) {
 
@@ -149,14 +156,14 @@ OSApp.Dashboard.displayPage = function() {
 
 						opts.append(
 							"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "RF Code" ) + ":</div>" +
-							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='rf-code' required='true' type='text' value='" + data + "'>"
+							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='rf-code' required='true' type='text' value='" + OSApp.Utils.htmlEscape( data ) + "'>"
 						).enhanceWithin();
 					} else if ( value === 2 ) {
 						data = OSApp.Stations.parseRemoteStationData( ( type === value ) ? data : "00000000005000" );
 
 						opts.append(
 							"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Remote Address" ) + ":</div>" +
-							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-address' required='true' type='text' pattern='^(?:[0-9]{1,3}.){3}[0-9]{1,3}$' value='" + data.ip + "'>" +
+							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-address' required='true' type='text' pattern='^(?:[0-9]{1,3}.){3}[0-9]{1,3}$' value='" + OSApp.Utils.htmlEscape( data.ip || "" ) + "'>" +
 							"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Remote Port" ) + ":</div>" +
 							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-port' required='true' type='number' placeholder='80' min='0' max='65535' value='" + data.port + "'>" +
 							"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Remote Station" ) + ":</div>" +
@@ -166,7 +173,7 @@ OSApp.Dashboard.displayPage = function() {
 						data = OSApp.Stations.parseRemoteStationData( ( type === value ) ? data : "OT000000000000000000000000000000,00" );
 						opts.append(
 							"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Remote OTC Token" ) + ":</div>" +
-							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-otc' required='true' type='text' pattern='^OT[a-fA-F0-9]{30}$' value='" + data.otc + "'>" +
+							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-otc' required='true' type='text' pattern='^OT[a-fA-F0-9]{30}$' value='" + OSApp.Utils.htmlEscape( data.otc || "" ) + "'>" +
 							"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Remote Station" ) + ":</div>" +
 							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-station' required='true' type='number' min='1' max='200' placeholder='1' value='" + ( data.station + 1 ) + "'>"
 						).enhanceWithin();
@@ -198,7 +205,11 @@ OSApp.Dashboard.displayPage = function() {
 							sel = "<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "GPIO Pin" ) + ":</div>" +
 								"<select class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='gpio-pin'>";
 							for ( var i = 0; i < freePins.length; i++ ) {
-								sel += "<option value='" + freePins[ i ] + "' " + ( freePins[ i ] === gpioPin ? "selected='selected'" : "" ) + ">" + freePins[ i ];
+								var freePin = parseInt( freePins[ i ], 10 );
+								if ( isNaN( freePin ) || freePin < 0 || freePin > 99 ) {
+									continue;
+								}
+								sel += "<option value='" + freePin + "' " + ( freePin === gpioPin ? "selected='selected'" : "" ) + ">" + freePin;
 							}
 							sel += "</select>";
 						} else {
@@ -217,13 +228,13 @@ OSApp.Dashboard.displayPage = function() {
 
 						opts.append(
 							"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Server Name" ) + ":</div>" +
-							"<input class='center  validate-length' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='http-server' required='true' type='text' value='" + data[ 0 ] + "'>" +
+							"<input class='center  validate-length' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='http-server' required='true' type='text' value='" + OSApp.Utils.htmlEscape( data[ 0 ] || "" ) + "'>" +
 							"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Server Port" ) + ":</div>" +
 							"<input class='center  validate-length' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='http-port' required='true' type='number' min='0' max='65535' value='" + parseInt( data[ 1 ] ) + "'>" +
 							"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "On Command" ) + ":</div>" +
-							"<input class='center validate-length' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='http-on' required='true' type='text' value='" + data[ 2 ] + "'>" +
+							"<input class='center validate-length' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='http-on' required='true' type='text' value='" + OSApp.Utils.htmlEscape( data[ 2 ] || "" ) + "'>" +
 							"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Off Command" ) + ":</div>" +
-							"<input class='center validate-length' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='http-off' required='true' type='text' value='" + data[ 3 ] + "'>" +
+							"<input class='center validate-length' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='http-off' required='true' type='text' value='" + OSApp.Utils.htmlEscape( data[ 3 ] || "" ) + "'>" +
 							"<div class='center smaller' id='character-tracking' style='color:#999;'>" +
 							"<p>" +	OSApp.Language._( "Note: There is a limit on the number of character used to configure this station type." ) + "</p>" +
 							"<span>" + OSApp.Language._( "Characters remaining" ) + ": </span><span id='character-count'>placeholder</span>" +
@@ -349,13 +360,17 @@ OSApp.Dashboard.displayPage = function() {
 
 					button.data( "um", select.find( "#um" ).is( ":checked" ) ? 1 : 0 );
 					button.data( "um2", select.find( "#um2" ).is( ":checked" ) ? 1 : 0 );
+					button.data( "um3", select.find( "#um3" ).is( ":checked" ) ? 1 : 0 );
+					button.data( "um4", select.find( "#um4" ).is( ":checked" ) ? 1 : 0 );
 					button.data( "ir", select.find( "#ir" ).is( ":checked" ) ? 1 : 0 );
 					button.data( "sn1", select.find( "#sn1" ).is( ":checked" ) ? 1 : 0 );
 					button.data( "sn2", select.find( "#sn2" ).is( ":checked" ) ? 1 : 0 );
+					button.data( "sn3", select.find( "#sn3" ).is( ":checked" ) ? 1 : 0 );
+					button.data( "sn4", select.find( "#sn4" ).is( ":checked" ) ? 1 : 0 );
 					button.data( "ar", select.find( "#ar" ).is( ":checked" ) ? 1 : 0 );
 					button.data( "sd", select.find( "#sd" ).is( ":checked" ) ? 1 : 0 );
 					button.data( "us", select.find( "#us" ).is( ":checked" ) ? 1 : 0 );
-					name.html( select.find( "#stn-name" ).val() );
+					name.text( select.find( "#stn-name" ).val() );
 
 					var seqGroupName = select.find( "span.seqgrp" ).text();
 					button.attr( "data-gid", OSApp.Groups.mapGIDNameToValue( seqGroupName ) );
@@ -387,22 +402,39 @@ OSApp.Dashboard.displayPage = function() {
 
 			select += "<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Station Name" ) + ":</div>" +
 				"<input class='bold center' data-corners='false' data-wrapper-class='tight stn-name ui-btn' id='stn-name' type='text' value=\"" +
-				OSApp.currentSession.controller.stations.snames[sid] + "\">";
+				OSApp.Utils.htmlEscape( OSApp.currentSession.controller.stations.snames[ sid ] ) + "\">";
 
 			select += "<button type='button' class='changeBackground'>" +
 				( typeof sites[ currentSite ].images[ sid ] !== "string" ? OSApp.Language._( "Add" ) : OSApp.Language._( "Change" ) ) + " " + OSApp.Language._( "Image" ) +
 				"</button>";
 
 			if ( !OSApp.Stations.isMaster( sid ) ) {
+				var hasAdditionalMaster =
+					OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ||
+					OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_3 ) ||
+					OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_4 );
+
 				if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ) {
 					select += "<label for='um'><input class='needsclick' data-iconpos='right' id='um' type='checkbox' " +
 						( ( button.data( "um" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Use Master" ) + " " +
-						( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ? "1" : "" ) + "</label>";
+						( hasAdditionalMaster ? "1" : "" ) + "</label>";
 				}
 
 				if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ) {
 					select += "<label for='um2'><input class='needsclick' data-iconpos='right' id='um2' type='checkbox' " +
 						( ( button.data( "um2" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Use Master" ) + " 2" +
+						"</label>";
+				}
+
+				if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_3 ) ) {
+					select += "<label for='um3'><input class='needsclick' data-iconpos='right' id='um3' type='checkbox' " +
+						( ( button.data( "um3" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Use Master" ) + " 3" +
+						"</label>";
+				}
+
+				if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_4 ) ) {
+					select += "<label for='um4'><input class='needsclick' data-iconpos='right' id='um4' type='checkbox' " +
+						( ( button.data( "um4" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Use Master" ) + " 4" +
 						"</label>";
 				}
 
@@ -421,6 +453,18 @@ OSApp.Dashboard.displayPage = function() {
 				if ( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_2 ) ) {
 					select += "<label for='sn2'><input class='needsclick' data-iconpos='right' id='sn2' type='checkbox' " +
 						( ( button.data( "sn2" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Ignore Sensor 2" ) +
+						"</label>";
+				}
+
+				if ( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_3 ) ) {
+					select += "<label for='sn3'><input class='needsclick' data-iconpos='right' id='sn3' type='checkbox' " +
+						( ( button.data( "sn3" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Ignore Sensor 3" ) +
+						"</label>";
+				}
+
+				if ( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_4 ) ) {
+					select += "<label for='sn4'><input class='needsclick' data-iconpos='right' id='sn4' type='checkbox' " +
+						( ( button.data( "sn4" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Ignore Sensor 4" ) +
 						"</label>";
 				}
 
@@ -445,7 +489,7 @@ OSApp.Dashboard.displayPage = function() {
 
 			select += "<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Station Notes" ) + ":</div>" +
 				"<textarea data-corners='false' class='tight stn-notes' id='stn-notes'>" +
-				( sites[ currentSite ].notes[ sid ] ? sites[ currentSite ].notes[ sid ] : "" ) +
+				OSApp.Utils.htmlEscape( sites[ currentSite ].notes[ sid ] || "" ) +
 				"</textarea>";
 
 			select += "</div>";
@@ -590,11 +634,15 @@ OSApp.Dashboard.displayPage = function() {
 			var is208 = ( OSApp.Firmware.checkOSVersion( 208 ) === true ),
 				master = {},
 				master2 = {},
+				master3 = {},
+				master4 = {},
 				sequential = {},
 				special = {},
 				rain = {},
 				sensor1 = {},
 				sensor2 = {},
+				sensor3 = {},
+				sensor4 = {},
 				relay = {},
 				disable = {},
 				names = {},
@@ -606,6 +654,12 @@ OSApp.Dashboard.displayPage = function() {
 				}
 				if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ) {
 					master2[ "n" + bid ] = 0;
+				}
+				if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_3 ) ) {
+					master3[ "u" + bid ] = 0;
+				}
+				if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_4 ) ) {
+					master4[ "v" + bid ] = 0;
 				}
 				if ( OSApp.Supported.sequential() ) {
 					sequential[ "q" + bid ] = 0;
@@ -621,6 +675,12 @@ OSApp.Dashboard.displayPage = function() {
 				}
 				if ( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_2 ) ) {
 					sensor2[ "k" + bid ] = 0;
+				}
+				if ( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_3 ) ) {
+					sensor3[ "o" + bid ] = 0;
+				}
+				if ( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_4 ) ) {
+					sensor4[ "r" + bid ] = 0;
 				}
 				if ( OSApp.Supported.actRelay() ) {
 					relay[ "a" + bid ] = 0;
@@ -641,6 +701,14 @@ OSApp.Dashboard.displayPage = function() {
 						master2[ "n" + bid ] = ( master2[ "n" + bid ] ) + ( attrib.data( "um2" ) << s );
 					}
 
+					if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_3 ) ) {
+						master3[ "u" + bid ] = ( master3[ "u" + bid ] ) + ( attrib.data( "um3" ) << s );
+					}
+
+					if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_4 ) ) {
+						master4[ "v" + bid ] = ( master4[ "v" + bid ] ) + ( attrib.data( "um4" ) << s );
+					}
+
 					if ( OSApp.Supported.sequential() ) {
 						sequential[ "q" + bid ] = ( sequential[ "q" + bid ] ) + ( attrib.data( "us" ) << s );
 					}
@@ -659,6 +727,14 @@ OSApp.Dashboard.displayPage = function() {
 
 					if ( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_2 ) ) {
 						sensor2[ "k" + bid ] = ( sensor2[ "k" + bid ] ) + ( attrib.data( "sn2" ) << s );
+					}
+
+					if ( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_3 ) ) {
+						sensor3[ "o" + bid ] = ( sensor3[ "o" + bid ] ) + ( attrib.data( "sn3" ) << s );
+					}
+
+					if ( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_4 ) ) {
+						sensor4[ "r" + bid ] = ( sensor4[ "r" + bid ] ) + ( attrib.data( "sn4" ) << s );
 					}
 
 					if ( OSApp.Supported.actRelay() ) {
@@ -696,11 +772,15 @@ OSApp.Dashboard.displayPage = function() {
 			OSApp.Firmware.sendToOS( "/cs?pw=&" + $.param( names ) +
 				( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ? "&" + $.param( master ) : "" ) +
 				( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ? "&" + $.param( master2 ) : "" ) +
+				( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_3 ) ? "&" + $.param( master3 ) : "" ) +
+				( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_4 ) ? "&" + $.param( master4 ) : "" ) +
 				( OSApp.Supported.sequential() ? "&" + $.param( sequential ) : "" ) +
 				( OSApp.Supported.special() ? "&" + $.param( special ) : "" ) +
 				( OSApp.Supported.ignoreRain() ? "&" + $.param( rain ) : "" ) +
 				( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_1 ) ? "&" + $.param( sensor1 ) : "" ) +
 				( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_2 ) ? "&" + $.param( sensor2 ) : "" ) +
+				( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_3 ) ? "&" + $.param( sensor3 ) : "" ) +
+				( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_4 ) ? "&" + $.param( sensor4 ) : "" ) +
 				( OSApp.Supported.actRelay() ? "&" + $.param( relay ) : "" ) +
 				( OSApp.Supported.disabled() ? "&" + $.param( disable ) : "" ) +
 				( OSApp.Supported.groups() ? "&g" + id + "=" + gid : "" )
@@ -907,6 +987,7 @@ OSApp.Dashboard.displayPage = function() {
 			OSApp.Dashboard.updateWaterLevel();
 			OSApp.Dashboard.updateRestrictNotice();
 			OSApp.Analog.updateSensorShowArea( page );
+			OSApp.Sensors.updateHomeCards( page.find( "#os-sensors-home" ) );
 
 			page.find( ".sitename" ).text( OSApp.currentSession.local ? OSApp.currentSession.controller.settings?.dname || "" : siteSelect.val() );
 
@@ -953,9 +1034,13 @@ OSApp.Dashboard.displayPage = function() {
 					card.find( ".station-settings" ).data( {
 						um: OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ? OSApp.StationAttributes.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_1 ) : undefined,
 						um2: OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ? OSApp.StationAttributes.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_2 ) : undefined,
+						um3: OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_3 ) ? OSApp.StationAttributes.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_3 ) : undefined,
+						um4: OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_4 ) ? OSApp.StationAttributes.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_4 ) : undefined,
 						ir: OSApp.Supported.ignoreRain() ? OSApp.StationAttributes.getIgnoreRain( sid ) : undefined,
 						sn1: OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_1 ) ? OSApp.StationAttributes.getIgnoreSensor( sid, OSApp.Constants.options.IGNORE_SENSOR_1 ) : undefined,
 						sn2: OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_2 ) ? OSApp.StationAttributes.getIgnoreSensor( sid, OSApp.Constants.options.IGNORE_SENSOR_2 ) : undefined,
+						sn3: OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_3 ) ? OSApp.StationAttributes.getIgnoreSensor( sid, OSApp.Constants.options.IGNORE_SENSOR_3 ) : undefined,
+						sn4: OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_4 ) ? OSApp.StationAttributes.getIgnoreSensor( sid, OSApp.Constants.options.IGNORE_SENSOR_4 ) : undefined,
 						ar: OSApp.Supported.actRelay() ? OSApp.StationAttributes.getActRelay( sid ) : undefined,
 						sd: OSApp.Supported.disabled() ? OSApp.StationAttributes.getDisabled( sid ) : undefined,
 						us: OSApp.Supported.sequential() ? OSApp.StationAttributes.getSequential( sid ) : undefined,
@@ -964,8 +1049,9 @@ OSApp.Dashboard.displayPage = function() {
 					} );
 
 					if ( !OSApp.Stations.isMaster( sid ) && ( isScheduled || isRunning ) ) {
-						line = ( isRunning ? OSApp.Language._( "Running" ) + " " + pname : OSApp.Language._( "Scheduled" ) + " " +
-							( OSApp.Stations.getStartTime( sid ) ? OSApp.Language._( "for" ) + " " + OSApp.Dates.dateToString( new Date( OSApp.Stations.getStartTime( sid ) * 1000 ) ) : pname ) );
+						var escapedPname = OSApp.Utils.htmlEscape( pname );
+						line = ( isRunning ? OSApp.Language._( "Running" ) + " " + escapedPname : OSApp.Language._( "Scheduled" ) + " " +
+							( OSApp.Stations.getStartTime( sid ) ? OSApp.Language._( "for" ) + " " + OSApp.Dates.dateToString( new Date( OSApp.Stations.getStartTime( sid ) * 1000 ) ) : escapedPname ) );
 						if ( rem > 0 ) {
 
 							// Show the remaining time if it's greater than 0
@@ -1049,6 +1135,7 @@ OSApp.Dashboard.displayPage = function() {
 		page.find( ".waterlevel" ).text( OSApp.currentSession.controller.options.wl );
 
 		OSApp.Analog.updateSensorShowArea( page );
+		OSApp.Sensors.updateHomeCards( page.find( "#os-sensors-home" ) );
 		updateClock();
 
 		page.on( "click", ".station-settings", showAttributes );
@@ -1116,7 +1203,7 @@ OSApp.Dashboard.displayPage = function() {
 				}
 			}
 
-			OSApp.UIDom.areYouSure( question, OSApp.Stations.getName( sid ), function() {
+			OSApp.UIDom.areYouSure( question, OSApp.Utils.htmlEscape( OSApp.Stations.getName( sid ) ), function() {
 
 				var shiftStations = OSApp.uiState.popupData.shift === true ? 1 : 0;
 

@@ -338,6 +338,12 @@ msgstr ""
 msgid "Ignore Sensor 2"
 msgstr ""
 
+msgid "Ignore Sensor 3"
+msgstr ""
+
+msgid "Ignore Sensor 4"
+msgstr ""
+
 msgid "Activate Relay"
 msgstr ""
 
@@ -567,6 +573,30 @@ msgstr ""
 msgid "Check device password and try again."
 msgstr ""
 
+msgid "Item mismatch."
+msgstr ""
+
+msgid "A required field is missing."
+msgstr ""
+
+msgid "A value is out of range."
+msgstr ""
+
+msgid "A field has an invalid format."
+msgstr ""
+
+msgid "RF code error."
+msgstr ""
+
+msgid "Operation not permitted."
+msgstr ""
+
+msgid "Upload failed."
+msgstr ""
+
+msgid "Internal firmware error."
+msgstr ""
+
 msgid "The selected station is already running or is scheduled to run."
 msgstr ""
 
@@ -577,9 +607,6 @@ msgid "Connection timed-out. Please try again."
 msgstr ""
 
 msgid "Firmware update available"
-msgstr ""
-
-msgid "Latest"
 msgstr ""
 
 msgid "This Controller"
@@ -595,6 +622,9 @@ msgid "Update Now"
 msgstr ""
 
 msgid "Dismiss"
+msgstr ""
+
+msgid "Latest"
 msgstr ""
 
 msgid "Update successful"
@@ -652,24 +682,102 @@ msgstr ""
 msgid "Invalid configuration"
 msgstr ""
 
-msgid ""
-"Warning: Network changes will be made and the device may no longer be "
-"accessible from this address."
+msgid "Invalid program configuration in backup."
 msgstr ""
 
-msgid "Are you sure you want to restore the configuration?"
+msgid "Invalid program sensor adjustment in backup."
+msgstr ""
+
+msgid ""
+"This backup contains sensor definitions that this controller does not "
+"support."
+msgstr ""
+
+msgid "Invalid sensor configuration in backup."
+msgstr ""
+
+msgid ""
+"This backup contains more sensor definitions than this controller supports."
+msgstr ""
+
+msgid ""
+"This backup cannot be restored without removing sensors referenced by its "
+"aggregate definitions."
+msgstr ""
+
+msgid "Sensor definitions in this backup reference unavailable child sensors."
 msgstr ""
 
 msgid "Program data is newer than the device firmware and cannot be imported"
 msgstr ""
 
+msgid ""
+"Warning: Network changes will be made and the device may no longer be "
+"accessible from this address."
+msgstr ""
+
+msgid ""
+"The controller is at its sensor limit. Restoring this backup will delete "
+"sensor definitions that exist only on this controller."
+msgstr ""
+
+msgid ""
+"Program sensor adjustments that reference a sensor absent from both the "
+"backup and this controller will be disabled."
+msgstr ""
+
+msgid "Are you sure you want to restore the configuration?"
+msgstr ""
+
+msgid "The active controller changed. Please restart the restore."
+msgstr ""
+
+msgid ""
+"Unable to import configuration. The restore stopped before completion; "
+"review the controller before retrying."
+msgstr ""
+
 msgid "Program"
 msgstr ""
 
-msgid "Backup restored to your device"
+msgid ""
+"The active controller changed. The restore was stopped before completion."
 msgstr ""
 
-msgid "Unable to import configuration."
+msgid ""
+"Unable to verify sensor definitions during import. The restore was stopped."
+msgstr ""
+
+msgid ""
+"Unable to validate sensor definitions on this controller. No configuration "
+"changes were made."
+msgstr ""
+
+msgid ""
+"This backup contains sensor definitions that are not supported by this "
+"controller."
+msgstr ""
+
+msgid ""
+"Unable to determine the UUID assigned to a restored sensor. The restore was "
+"stopped."
+msgstr ""
+
+msgid ""
+"Unable to map an aggregate sensor during import. The restore was stopped."
+msgstr ""
+
+msgid ""
+"Restored sensor definitions did not pass verification. The restore was "
+"stopped before programs were changed."
+msgstr ""
+
+msgid ""
+"The active controller changed. The restore finished without refreshing the "
+"new controller."
+msgstr ""
+
+msgid "Backup restored to your device"
 msgstr ""
 
 msgid "Localization"
@@ -932,18 +1040,6 @@ msgstr ""
 msgid "Clear"
 msgstr ""
 
-msgid "None"
-msgstr ""
-
-msgid "Flow"
-msgstr ""
-
-msgid "Soil"
-msgstr ""
-
-msgid "Program Switch"
-msgstr ""
-
 msgid "A valid IP address is required when DHCP is not used"
 msgstr ""
 
@@ -1014,13 +1110,7 @@ msgstr ""
 msgid "Configure Master"
 msgstr ""
 
-msgid "Master Station"
-msgstr ""
-
-msgid "Master On Adjustment"
-msgstr ""
-
-msgid "Master Off Adjustment"
+msgid "Tap to Configure Master"
 msgstr ""
 
 msgid "Station Handling"
@@ -1096,35 +1186,13 @@ msgstr ""
 msgid "The watering percentage scales station run times by the set value."
 msgstr ""
 
-msgid "Use Rain Sensor"
+msgid "Flow"
 msgstr ""
 
-msgid "Normally Open"
+msgid "Soil"
 msgstr ""
 
-msgid "Flow Pulse Rate"
-msgstr ""
-
-msgid "Sensor 1 Delayed On Time"
-msgstr ""
-
-msgid "Sensor 1 Delayed Off Time"
-msgstr ""
-
-msgid ""
-"When using program switch, a switch is connected to the sensor port to "
-"trigger Program 1 every time the switch is pressed for at least 1 second."
-msgstr ""
-
-msgid "Sensor 2 Delayed On Time"
-msgstr ""
-
-msgid "Sensor 2 Delayed Off Time"
-msgstr ""
-
-msgid ""
-"When using program switch, a switch is connected to the sensor port to "
-"trigger Program 2 every time the switch is pressed for at least 1 second."
+msgid "Program Switch"
 msgstr ""
 
 msgid "Integrations"
@@ -1216,6 +1284,17 @@ msgstr ""
 msgid ""
 "Boost time changes how long the boost converter is activated with a range "
 "from 0 to 1000 milliseconds."
+msgstr ""
+
+msgid "Target PD Voltage"
+msgstr ""
+
+msgid ""
+"The holding current of your solenoid multiplied by its coil resistance (e.g. "
+"0.25A×30Ω=7.5V). Set to 0 to use system default."
+msgstr ""
+
+msgid "Actual"
 msgstr ""
 
 msgid "Undercurrent Threshold"
@@ -1319,7 +1398,7 @@ msgid ""
 "temperature is below:"
 msgstr ""
 
-msgid "Set to -40 (either F or C) to disable."
+msgid "Set to -40 (either °F or °C) to disable."
 msgstr ""
 
 msgid "Enable California Restriction"
@@ -1344,13 +1423,10 @@ msgid ""
 "manual on restoring connectivity."
 msgstr ""
 
-msgid "Seconds"
-msgstr ""
-
 msgid "Milliseconds"
 msgstr ""
 
-msgid "Minutes"
+msgid "Seconds"
 msgstr ""
 
 msgid "Milliamperes"
@@ -1390,6 +1466,59 @@ msgid "Under/Overcurrent Fault"
 msgstr ""
 
 msgid "Select Notification Events"
+msgstr ""
+
+msgid "None"
+msgstr ""
+
+msgid "Flow Pulse Rate"
+msgstr ""
+
+msgid ""
+"When using program switch, a switch is connected to the sensor port to "
+"trigger Program 1 every time the switch is pressed for at least 1 second."
+msgstr ""
+
+msgid ""
+"When using program switch, a switch is connected to the sensor port to "
+"trigger Program 2 every time the switch is pressed for at least 1 second."
+msgstr ""
+
+msgid ""
+"When using program switch, a switch is connected to the sensor port to "
+"trigger Program 3 every time the switch is pressed for at least 1 second."
+msgstr ""
+
+msgid ""
+"When using program switch, a switch is connected to the sensor port to "
+"trigger Program 4 every time the switch is pressed for at least 1 second."
+msgstr ""
+
+msgid "Option"
+msgstr ""
+
+msgid "Normally Open"
+msgstr ""
+
+msgid "Delayed On Time"
+msgstr ""
+
+msgid "Delayed Off Time"
+msgstr ""
+
+msgid "Master Station"
+msgstr ""
+
+msgid "Zone"
+msgstr ""
+
+msgid "On Adj."
+msgstr ""
+
+msgid "Off Adj."
+msgstr ""
+
+msgid "On/Off adjustments are in 5-second increments."
 msgstr ""
 
 msgid "MQTT Settings"
@@ -1476,6 +1605,9 @@ msgstr ""
 msgid "Attempting to retrieve your current location"
 msgstr ""
 
+msgid "Unable to load program adjustments. Try again."
+msgstr ""
+
 msgid "Do you want to save your changes?"
 msgstr ""
 
@@ -1520,16 +1652,60 @@ msgstr ""
 msgid "Quick Programs"
 msgstr ""
 
-msgid "Use Weather Adjustment"
-msgstr ""
-
 msgid "Repeat Every"
 msgstr ""
 
 msgid "Repeat Count"
 msgstr ""
 
+msgid "Adjustment Option"
+msgstr ""
+
+msgid "No Adjustment"
+msgstr ""
+
+msgid "Apply Current Weather Adjustment"
+msgstr ""
+
+msgid "Apply Custom Adjustment"
+msgstr ""
+
+msgid "Custom Adjustment"
+msgstr ""
+
+msgid "Scheduling Option"
+msgstr ""
+
+msgid "Run After Others (Append)"
+msgstr ""
+
+msgid "Run Now and Pause Others (Insert to front)"
+msgstr ""
+
+msgid "Run Now and Cancel Others (Replace)"
+msgstr ""
+
 msgid "Run-Once"
+msgstr ""
+
+msgid "Zoom in"
+msgstr ""
+
+msgid "Zoom out"
+msgstr ""
+
+msgid "Move left"
+msgstr ""
+
+msgid "Move right"
+msgstr ""
+
+msgid "Loading program adjustments…"
+msgstr ""
+
+msgid ""
+"Program preview is unavailable because sensor adjustments could not be "
+"loaded."
 msgstr ""
 
 msgid "No stations set to run on this day."
@@ -1556,6 +1732,9 @@ msgid ""
 msgstr ""
 
 msgid "Click any program below to expand/edit. Be sure to save changes."
+msgstr ""
+
+msgid "Number of Programs"
 msgstr ""
 
 msgid "copy"
@@ -1633,6 +1812,30 @@ msgstr ""
 msgid "To (mm/dd)"
 msgstr ""
 
+msgid "Use Weather Adjustment"
+msgstr ""
+
+msgid "Use Sensor Adjustment"
+msgstr ""
+
+msgid "Select Sensor"
+msgstr ""
+
+msgid "Current Sensor Value"
+msgstr ""
+
+msgid "Point"
+msgstr ""
+
+msgid "Sensor Value"
+msgstr ""
+
+msgid "Watering %"
+msgstr ""
+
+msgid "Add a Point"
+msgstr ""
+
 msgid "Program Type"
 msgstr ""
 
@@ -1664,6 +1867,21 @@ msgid "Save Changes to"
 msgstr ""
 
 msgid "Run"
+msgstr ""
+
+msgid "Program adjustments are unavailable."
+msgstr ""
+
+msgid "Error: Select a sensor before enabling sensor adjustment."
+msgstr ""
+
+msgid "Error: Complete or remove every sensor adjustment point."
+msgstr ""
+
+msgid "Error: Watering percentages cannot be negative."
+msgstr ""
+
+msgid "Error: Add at least one sensor adjustment point."
 msgstr ""
 
 msgid "Add Program"
@@ -1725,13 +1943,108 @@ msgid ""
 "result in the program not running at all."
 msgstr ""
 
-msgid "Are you sure you want to start"
+msgid "Run this program?"
 msgstr ""
 
-msgid "now?"
+msgid "Apply Weather Adjustment"
 msgstr ""
 
-msgid "Do you wish to apply the current watering level?"
+msgid "Apply Sensor Adjustment"
+msgstr ""
+
+msgid "Create a single-run program for repeats"
+msgstr ""
+
+msgid "Run After Others"
+msgstr ""
+
+msgid "Run Now and Pause Others"
+msgstr ""
+
+msgid "Run Now and Cancel Others"
+msgstr ""
+
+msgid "Sensors"
+msgstr ""
+
+msgid "The required hardware for this type was not detected."
+msgstr ""
+
+msgid "Configure Child Sensor"
+msgstr ""
+
+msgid "Sensor added successfully"
+msgstr ""
+
+msgid "Sensor updated successfully"
+msgstr ""
+
+msgid "Sensor deleted successfully"
+msgstr ""
+
+msgid "Current Value"
+msgstr ""
+
+msgid "Update Sensor"
+msgstr ""
+
+msgid "Please fill in all required fields"
+msgstr ""
+
+msgid "Delete Sensor"
+msgstr ""
+
+msgid "Are you sure you want to delete this sensor?"
+msgstr ""
+
+msgid "Click below to expand/edit. Be sure to save changes."
+msgstr ""
+
+msgid "Number of Sensors"
+msgstr ""
+
+msgid "Note: this page is for external (e.g. analog) and virtual sensors."
+msgstr ""
+
+msgid ""
+"To edit built-in sensors (e.g. rain, flow), open the {0} section under Edit "
+"Options."
+msgstr ""
+
+msgid "Failed to load sensor descriptions"
+msgstr ""
+
+msgid "Edit Sensors"
+msgstr ""
+
+msgid "Add a Sensor"
+msgstr ""
+
+msgid "Show Inactive"
+msgstr ""
+
+msgid "Download All"
+msgstr ""
+
+msgid "Delete All"
+msgstr ""
+
+msgid "Failed to download sensor logs"
+msgstr ""
+
+msgid "No sensor logs found."
+msgstr ""
+
+msgid "Are you sure you want to delete the log for"
+msgstr ""
+
+msgid "Failed to load sensor logs"
+msgstr ""
+
+msgid "Sensor Logs"
+msgstr ""
+
+msgid "Are you sure you want to delete all sensor logs?"
 msgstr ""
 
 msgid "Scan For Device"
@@ -1854,9 +2167,6 @@ msgstr ""
 msgid "Do you want to stop the currently running program?"
 msgstr ""
 
-msgid "Create a single-run program for repeat functionality?"
-msgstr ""
-
 msgid "Current"
 msgstr ""
 
@@ -1890,8 +2200,11 @@ msgstr ""
 msgid ""
 "The controller detected one or more zones drawing too much current, "
 "exceeding the limit. Please check your wiring and perform a <b>solenoid "
-"resistance test</b>. After fixing, reboot the controller to clear the fault "
-"message. For more instructions, visit our support site"
+"resistance test</b>. After fixing, you can clear the alert here. For more "
+"instructions, visit our support site"
+msgstr ""
+
+msgid "Clear this alert"
 msgstr ""
 
 msgid "Rain delay until"
@@ -1900,10 +2213,7 @@ msgstr ""
 msgid "Do you want to turn off rain delay?"
 msgstr ""
 
-msgid "Rain detected"
-msgstr ""
-
-msgid ") Activated"
+msgid "Activated"
 msgstr ""
 
 msgid "Manual mode enabled"
@@ -2005,28 +2315,22 @@ msgstr ""
 msgid "Preview Programs"
 msgstr ""
 
-msgid "View Logs"
+msgid "Sprinkler Logs"
 msgstr ""
 
-msgid "Programs and Settings"
-msgstr ""
-
-msgid "Change Rain Delay"
+msgid "Show Sensor Log"
 msgstr ""
 
 msgid "Change Pause"
 msgstr ""
 
-msgid "Pause Station Runs"
+msgid "Pause Runs"
 msgstr ""
 
-msgid "Run-Once Program"
+msgid "Configuration"
 msgstr ""
 
 msgid "Edit Programs"
-msgstr ""
-
-msgid "Show Sensor Log"
 msgstr ""
 
 msgid "Hide"
@@ -2080,10 +2384,16 @@ msgstr ""
 msgid "Duration"
 msgstr ""
 
+msgid "Run immediately (preempt other zones in this group)"
+msgstr ""
+
 msgid "Days"
 msgstr ""
 
 msgid "Hours"
+msgstr ""
+
+msgid "Minutes"
 msgstr ""
 
 msgid "Yes"
@@ -2212,6 +2522,9 @@ msgstr ""
 msgid "Unrecognised weather provider"
 msgstr ""
 
+msgid "Change Rain Delay"
+msgstr ""
+
 msgid ""
 "Enable manual rain delay by entering a value into the input below. To turn "
 "off a currently enabled rain delay use a value of 0."
@@ -2257,6 +2570,9 @@ msgid "Operation"
 msgstr ""
 
 msgid "Reboot OpenSprinkler"
+msgstr ""
+
+msgid "Update Firmware"
 msgstr ""
 
 msgid "Downgrade UI"

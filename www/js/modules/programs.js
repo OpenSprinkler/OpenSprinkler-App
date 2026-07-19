@@ -19,7 +19,8 @@ OSApp.Programs = OSApp.Programs || {};
 
 OSApp.Programs.displayPage = function(programId) {
 	// Program management functions
-	var page = $(`
+	var adjustmentRequest = null,
+		page = $(`
 		<div data-role="page" id="programs">
 			<div class="ui-content" role="main" id="programs_list">
 			</div>
@@ -27,10 +28,16 @@ OSApp.Programs.displayPage = function(programId) {
 	`);
 
 	page
-		.on( "programrefresh", updateContent )
+		.on( "programrefresh", function() {
+			updateContent();
+			updateAdjustmentData();
+		} )
 		.on( "pagehide", function() {
+			adjustmentRequest = null;
+			OSApp.Programs.destroySensorAdjustmentCharts( page );
 			page.detach();
 		} )
+		.on( "pageshow", updateAdjustmentData )
 		.on( "pagebeforeshow", function() {
 			OSApp.Programs.updateProgramHeader();
 
@@ -44,6 +51,38 @@ OSApp.Programs.displayPage = function(programId) {
 			}
 		} );
 
+	function updateAdjustmentData() {
+		if ( !OSApp.Supported.sensors() ) {
+			return;
+		}
+
+		var controller = OSApp.currentSession.controller,
+			request = OSApp.Firmware.sendToOS( "/jpa?pw=", "json" );
+
+		OSApp.Programs.clearProgramAdjustmentData( controller );
+		adjustmentRequest = request;
+		OSApp.Programs.waitForProgramAdjustments( page.find( "[id^='run-']" ), controller, request );
+		function loadFailed() {
+			if ( adjustmentRequest === request && OSApp.currentSession.controller === controller ) {
+				OSApp.Errors.showError( OSApp.Language._( "Unable to load program adjustments. Try again." ) );
+			}
+		}
+		request.done( function( data ) {
+			if ( adjustmentRequest !== request || OSApp.currentSession.controller !== controller ) {
+				return;
+			}
+			if ( !OSApp.Programs.isProgramAdjustmentDataValid( data, controller ) ) {
+				loadFailed();
+				return;
+			}
+			OSApp.Programs.cacheProgramAdjustmentData( controller, data );
+		} ).fail( function( error ) {
+			if ( !error || error.status !== 401 ) {
+				loadFailed();
+			}
+		} );
+	}
+
 	function updateContent() {
 		var list = $( OSApp.Programs.makeAllPrograms() );
 
@@ -55,6 +94,7 @@ OSApp.Programs.displayPage = function(programId) {
 					select.selectmenu( "destroy" );
 				}
 				$( "#d-" + pid + "-listbox" ).remove();
+				OSApp.Programs.destroySensorAdjustmentCharts( this );
 				$( this ).find( ".ui-collapsible-content" ).empty();
 			},
 			collapsiblebeforecollapse: function( e ) {
@@ -73,7 +113,9 @@ OSApp.Programs.displayPage = function(programId) {
 				}
 			},
 			collapsibleexpand: function() {
-				OSApp.Programs.expandProgram( $( this ) );
+				OSApp.Programs.expandProgram( $( this ), function() {
+					return adjustmentRequest;
+				} );
 			}
 		} );
 
@@ -84,12 +126,13 @@ OSApp.Programs.displayPage = function(programId) {
 
 				$.mobile.loading( "show" );
 
-				OSApp.Firmware.sendToOS( "/up?pw=&pid=" + pid ).done( function() {
-					OSApp.Sites.updateControllerPrograms( function() {
-						$.mobile.loading( "hide" );
+				OSApp.Firmware.sendToOS( "/up?pw=&pid=" + pid ).then( function() {
+					return OSApp.Sites.updateControllerPrograms( function() {
 						page.trigger( "programrefresh" );
 						OSApp.Programs.updateProgramHeader();
 					} );
+				} ).always( function() {
+					$.mobile.loading( "hide" );
 				} );
 
 				return false;
@@ -106,6 +149,7 @@ OSApp.Programs.displayPage = function(programId) {
 			return false;
 		} );
 
+		OSApp.Programs.destroySensorAdjustmentCharts( page.find( "#programs_list" ) );
 		page.find( "#programs_list" ).html( list.enhanceWithin() );
 		OSApp.Programs.updateProgramHeader();
 	}
@@ -313,12 +357,11 @@ OSApp.Programs.displayPageRunOnce = function() {
 		},
 		resetRunonce = function() {
 			page.find( "[id^='zone-']" ).val( 0 ).text( "0s" ).removeClass( "green" );
-			page.find( "#uwt-runonce" ).prop( "checked", false ).checkboxradio( "refresh" );
 			page.find( "#interval-runonce" ).val( 0 ).text( OSApp.Dates.dhms2str(0) );
 			page.find( "#repeat-runonce" ).val( 0 ).text( 0 );
 			return false;
 		},
-		fillRunonce = function( data, repeat, interval, weather ) {
+		fillRunonce = function( data, repeat, interval ) {
 			resetRunonce();
 			page.find( "[id^='zone-']" ).each( function( a, b ) {
 				if ( OSApp.Stations.isMaster( a ) ) {
@@ -341,12 +384,9 @@ OSApp.Programs.displayPageRunOnce = function() {
 				if(typeof interval === "number"){
 					page.find("#interval-runonce").val( interval * 60 ).text( OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( interval * 60 ) ) );
 				}
-				if(typeof weather === "number"){
-					page.find("#uwt-runonce").prop( "checked", weather ? true : false).checkboxradio( "refresh" );
-				}
 			}
 		},
-		i, list, quickPick, progs, rprogs, repeats, intervals, weathers, z, program, name;
+		i, list, quickPick, progs, rprogs, repeats, intervals, z, program, name;
 
 	page.on( "pagehide", function() {
 		page.detach();
@@ -357,7 +397,7 @@ OSApp.Programs.displayPageRunOnce = function() {
 		progs = [];
 		repeats = [];
 		intervals = [];
-		weathers = [];
+
 		if ( OSApp.currentSession.controller.programs.pd.length ) {
 			for ( z = 0; z < OSApp.currentSession.controller.programs.pd.length; z++ ) {
 				program = OSApp.Programs.readProgram( OSApp.currentSession.controller.programs.pd[ z ] );
@@ -377,7 +417,7 @@ OSApp.Programs.displayPageRunOnce = function() {
 				if ( OSApp.Supported.repeatedRunonce() ){
 					repeats.push( program.repeat );
 					intervals.push( program.interval );
-					weathers.push ( program.weather );
+
 				}
 			}
 		}
@@ -392,18 +432,18 @@ OSApp.Programs.displayPageRunOnce = function() {
 			} else {
 				name = OSApp.Language._( "Program" ) + " " + ( i + 1 );
 			}
-			quickPick += "<option value='" + i + "'>" + name + "</option>";
+			quickPick += "<option value='" + i + "'>" + OSApp.Utils.htmlEscape( name ) + "</option>";
 		}
 		quickPick += "</select>";
 		list += quickPick + "<form>";
 		$.each( OSApp.currentSession.controller.stations.snames, function( i ) {
 			if ( OSApp.Stations.isMaster( i ) ) {
 				list += "<div class='ui-field-contain duration-input" + ( OSApp.Stations.isDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" +
-					"<label for='zone-" + i + "'>" + OSApp.Stations.getName(i) + ":</label>" +
-					"<button disabled='true' data-mini='true' name='zone-" + i + "' id='zone-" + i + "' value='0'>Master</button></div>";
+					"<label for='zone-" + i + "'>" + OSApp.Utils.htmlEscape( OSApp.Stations.getName( i ) ) + ":</label>" +
+					"<button disabled='true' data-mini='true' name='zone-" + i + "' id='zone-" + i + "' value='0'>" + OSApp.Language._( "Master" ) + "</button></div>";
 			} else {
 				list += "<div class='ui-field-contain duration-input" + ( OSApp.Stations.isDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" +
-					"<label for='zone-" + i + "'>" + OSApp.Stations.getName(i) + ":</label>" +
+					"<label for='zone-" + i + "'>" + OSApp.Utils.htmlEscape( OSApp.Stations.getName( i ) ) + ":</label>" +
 					"<button data-mini='true' name='zone-" + i + "' id='zone-" + i + "' value='0'>0s</button></div>";
 			}
 		} );
@@ -411,11 +451,6 @@ OSApp.Programs.displayPageRunOnce = function() {
 		list += "</form>";
 
 		if( OSApp.Supported.repeatedRunonce() ){
-			// Program weather control flag
-			list += "<label for='uwt-runonce'><input data-mini='true' type='checkbox' name='uwt-runonce' id='uwt-runonce'>" + OSApp.Language._( "Use Weather Adjustment" ) + "</label>";
-
-			// Show repeating start time options
-			list += "<div id='input_stype_repeat-runonce'>";
 			// Show repeating start time options
 			list += "<div id='input_stype_repeat-runonce'>";
 			list += "<div class='ui-grid-a'>";
@@ -425,9 +460,40 @@ OSApp.Programs.displayPageRunOnce = function() {
 			list += "<div class='ui-block-b'><label class='pad_buttons center' for='repeat-runonce'>" + OSApp.Language._( "Repeat Count" ) + "</label>" +
 				"<button class='pad_buttons' data-mini='true' name='repeat-runonce' id='repeat-runonce' value='0'>0</button></div>";
 			list += "</div></div>";
+		}
 
+		var currentWL = OSApp.currentSession.controller.options.wl ?? 100;
+		list += "<hr class='section-divider'>";
+		list += "<fieldset data-role='controlgroup' data-mini='true' style='margin:0;'>" +
+			"<legend class='center'><b>" + OSApp.Language._( "Adjustment Option" ) + "</b></legend>" +
+			"<label for='wl-none'>" +
+				"<input type='radio' name='wl-runonce' id='wl-none' value='none' checked='checked'>" +
+				OSApp.Language._( "No Adjustment" ) +
+			"</label>" +
+			"<label for='wl-current'>" +
+				"<input type='radio' name='wl-runonce' id='wl-current' value='current'>" +
+				OSApp.Language._( "Apply Current Weather Adjustment" ) + " <span id='wl-current-pct'>(" + currentWL + "%)</span>" +
+			"</label>" +
+			"<label for='wl-custom'>" +
+				"<input type='radio' name='wl-runonce' id='wl-custom' value='custom'>" +
+				OSApp.Language._( "Apply Custom Adjustment" ) +
+			"</label>" +
+		"</fieldset>" +
+		"<div id='wl-custom-wrap' style='display:none;'>" +
+			"<div style='display:flex; align-items:center; gap:8px; padding:4px 16px;'>" +
+				"<div class='full-width-slider' style='flex:1;'>" +
+					"<label for='wl-custom-slider' class='ui-hidden-accessible'>" + OSApp.Language._( "Custom Adjustment" ) + "</label>" +
+					"<input type='range' id='wl-custom-slider' min='1' max='250' value='100' data-highlight='true'>" +
+				"</div>" +
+				"<input type='number' id='wl-custom-val' min='1' max='250' value='100' style='width:75px; text-align:center;'>" +
+				"<span>%</span>" +
+			"</div>" +
+		"</div>";
+
+		if( OSApp.Supported.repeatedRunonce() ){
 			if ( OSApp.StationQueue.isActive() !== -1 && OSApp.Firmware.checkOSVersion ( 2214 ) ) {
-				list += "<fieldset data-role='controlgroup' data-mini='true' id='queue-option' style='margin:12px 0 20px 0;'>" +
+				list += "<hr class='section-divider'>";
+				list += "<fieldset data-role='controlgroup' data-mini='true' id='queue-option' style='margin:0 0 20px 0;'>" +
 						"<legend class='center'><b>" + OSApp.Language._("Scheduling Option") + "</b></legend>" +
 						"<label for='qo-append'>" +
 							"<input type='radio' name='qo-runonce' id='qo-append' value='0'>" +
@@ -493,7 +559,19 @@ OSApp.Programs.displayPageRunOnce = function() {
 				}
 			}
 		} );
-		// ----- END: Add code to cache Run-once Scheduling Option -----
+		OSApp.Storage.get( [ "runOnceAdj", "runOnceAdjPct" ], function( data ) {
+			var adj = data.runOnceAdj;
+			if ( adj === "current" || adj === "custom" ) {
+				page.find( "input[name='wl-runonce']" ).prop( "checked", false ).checkboxradio( "refresh" );
+				page.find( "#wl-" + adj ).prop( "checked", true ).checkboxradio( "refresh" );
+				if ( adj === "custom" ) {
+					var pct = Math.min( 250, Math.max( 1, parseInt( data.runOnceAdjPct ) || 100 ) );
+					page.find( "#wl-custom-slider" ).val( pct ).slider( "refresh" );
+					page.find( "#wl-custom-val" ).val( pct );
+					page.find( "#wl-custom-wrap" ).show();
+				}
+			}
+		} );
 
 		page.find( "#rprog" ).on( "change", function() {
 			var prog = $( this ).val();
@@ -519,14 +597,42 @@ OSApp.Programs.displayPageRunOnce = function() {
 			}
 
 			if ( OSApp.Supported.repeatedRunonce() ) {
-				fillRunonce( rprogs[ prog ], repeats [ prog ], intervals[ prog ], weathers[ prog ]);
+				fillRunonce( rprogs[ prog ], repeats[ prog ], intervals[ prog ] );
 			} else {
 				fillRunonce( rprogs[ prog ] );
 			}
 		} );
 
 		page.find( ".rsubmit" ).on( "click", OSApp.Stations.submitRunonce );
-		page.find( ".rreset" ).on( "click", resetRunonce );
+		page.find( ".rreset" ).on( "click", function() {
+			resetRunonce();
+			page.find( "input[name='wl-runonce']" ).prop( "checked", false ).checkboxradio( "refresh" );
+			page.find( "#wl-none" ).prop( "checked", true ).checkboxradio( "refresh" );
+			page.find( "#wl-custom-wrap" ).hide();
+			page.find( "#wl-custom-slider" ).val( 100 ).slider( "refresh" );
+			page.find( "#wl-custom-val" ).val( 100 );
+			OSApp.Storage.set( { "runOnceAdj": "none", "runOnceAdjPct": "100" } );
+			return false;
+		} );
+
+		page.find( "input[name='wl-runonce']" ).on( "change", function() {
+			page.find( "#wl-custom-wrap" ).toggle( $( this ).val() === "custom" );
+			OSApp.Storage.set( { "runOnceAdj": $( this ).val() } );
+		} );
+
+		page.find( "#wl-custom-slider" ).on( "input change slide", function( event, ui ) {
+			page.find( "#wl-custom-val" ).val( ui && ui.value != null ? ui.value : this.value );
+		} ).on( "slidestop", function() {
+			page.find( "#wl-custom-val" ).val( this.value );
+			OSApp.Storage.set( { "runOnceAdjPct": String( this.value ) } );
+		} );
+
+		page.find( "#wl-custom-val" ).on( "input change", function() {
+			var v = Math.min( 250, Math.max( 1, Math.round( parseFloat( this.value ) ) || 100 ) );
+			$( this ).val( v );
+			page.find( "#wl-custom-slider" ).val( v ).slider( "refresh" );
+			OSApp.Storage.set( { "runOnceAdjPct": String( v ) } );
+		} );
 
 		page.find( "[id^='zone-']" ).on( "click", function() {
 			var dur = $( this ),
@@ -628,8 +734,62 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 		placeholder = page.find( "#timeline" ),
 		navi = page.find( "#timeline-navigation" ),
 		nextID = 0,
+		adjustmentRequest = null,
+		adjustmentState = "ready",
+		timeline = null,
+		timelineResize = null,
 		previewData, previewGroups, processPrograms, checkMatch, checkMatch183, checkMatch21, checkDayMatch, checkMatch216, runSched, runSched216,
 		timeToText, changeday, render, date, day, now, is21, is211, is216;
+
+	function destroyTimeline() {
+		$.mobile.window.off( ".programPreview" );
+		timelineResize = null;
+		placeholder.off( ".programPreview" );
+		navi.find( "a" ).off( ".programPreview" );
+
+		if ( timeline ) {
+			timeline.destroy();
+			timeline = null;
+		}
+	}
+
+	function toUtf8Bytes( value ) {
+		var bytes = [];
+		for ( var i = 0; i < value.length; i++ ) {
+			var codePoint = value.charCodeAt( i );
+			if ( codePoint >= 0xD800 && codePoint <= 0xDBFF && i + 1 < value.length ) {
+				var low = value.charCodeAt( i + 1 );
+				if ( low >= 0xDC00 && low <= 0xDFFF ) {
+					codePoint = 0x10000 + ( ( codePoint - 0xD800 ) << 10 ) + low - 0xDC00;
+					i++;
+				}
+			}
+
+			if ( codePoint <= 0x7F ) {
+				bytes.push( codePoint );
+			} else if ( codePoint <= 0x7FF ) {
+				bytes.push( 0xC0 | ( codePoint >> 6 ), 0x80 | ( codePoint & 0x3F ) );
+			} else if ( codePoint <= 0xFFFF ) {
+				bytes.push( 0xE0 | ( codePoint >> 12 ), 0x80 | ( ( codePoint >> 6 ) & 0x3F ), 0x80 | ( codePoint & 0x3F ) );
+			} else {
+				bytes.push( 0xF0 | ( codePoint >> 18 ), 0x80 | ( ( codePoint >> 12 ) & 0x3F ),
+					0x80 | ( ( codePoint >> 6 ) & 0x3F ), 0x80 | ( codePoint & 0x3F ) );
+			}
+		}
+		return bytes;
+	}
+
+	function compareStationNames( a, b ) {
+		var aBytes = a.utf8 || ( a.utf8 = toUtf8Bytes( a.name ) ),
+			bBytes = b.utf8 || ( b.utf8 = toUtf8Bytes( b.name ) ),
+			length = Math.min( aBytes.length, bBytes.length );
+		for ( var i = 0; i < length; i++ ) {
+			if ( aBytes[ i ] !== bBytes[ i ] ) {
+				return aBytes[ i ] - bBytes[ i ];
+			}
+		}
+		return aBytes.length - bBytes.length;
+	}
 
 	page.find( "#preview_date" ).on( "change", function() {
 		date = this.value.split( "-" );
@@ -649,10 +809,44 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 
 	page.on( {
 		pagehide: function() {
+			adjustmentRequest = null;
+			destroyTimeline();
 			page.detach();
 		},
 		pageshow: function() {
-			render();
+			if ( OSApp.Supported.sensors() ) {
+				var controller = OSApp.currentSession.controller,
+					request = OSApp.Firmware.sendToOS( "/jpa?pw=", "json" ),
+					loadError = null;
+
+				OSApp.Programs.clearProgramAdjustmentData( controller );
+				adjustmentState = "loading";
+				adjustmentRequest = request;
+				showAdjustmentStatus( OSApp.Language._( "Loading program adjustments…" ), "preview-adjustment-loading" );
+				request.done( function( data ) {
+					if ( adjustmentRequest === request && OSApp.currentSession.controller === controller && OSApp.Programs.isProgramAdjustmentDataValid( data, controller ) ) {
+						OSApp.Programs.cacheProgramAdjustmentData( controller, data );
+						adjustmentState = "ready";
+					}
+				} ).fail( function( error ) {
+					loadError = error;
+				} ).always( function() {
+					if ( adjustmentRequest !== request || OSApp.currentSession.controller !== controller ) {
+						return;
+					}
+					adjustmentRequest = null;
+					if ( adjustmentState !== "ready" ) {
+						adjustmentState = "failed";
+						if ( !loadError || loadError.status !== 401 ) {
+							OSApp.Errors.showError( OSApp.Language._( "Unable to load program adjustments. Try again." ) );
+						}
+					}
+					render();
+				} );
+			} else {
+				adjustmentState = "ready";
+				render();
+			}
 		}
 	} );
 
@@ -689,11 +883,11 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 						let snames = OSApp.currentSession.controller.stations.snames;
 						if ( anno === 'n' || ( anno === 't' && runcount % 2 == 1 ) || ( anno === 'T' && runcount % 2 == 0 ) ) {
 							order = snames.map((name, index) => ({ name, index })) // Store names with their original indices
-							.sort((a, b) => a.name.localeCompare(b.name)) // Sort by name (ascending)
+							.sort(compareStationNames) // Match firmware strcmp ordering (ascending)
 							.map(item => item.index); // Extract the indices
 						} else {
 							order = snames.map((name, index) => ({ name, index })) // Store names with their original indices
-							.sort((a, b) => b.name.localeCompare(a.name)) // Sort by name (descending)
+							.sort((a, b) => compareStationNames(b, a)) // Match firmware strcmp ordering (descending)
 							.map(item => item.index); // Extract the indices
 						}
 					}
@@ -804,7 +998,23 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 
 							// Skip if water time is zero, or station is already scheduled
 							if ( prog[ 4 ][ sid ] && endArray[ sid ] === 0 ) {
-								let waterTime = OSApp.Stations.getStationDuration( prog[ 4 ][ sid ], simt ) * wl / 100 >> 0;
+								let cachedJpa = OSApp.currentSession.controller.jpaData;
+								let adjustment = cachedJpa && cachedJpa[ pid ] && simday === devday ? cachedJpa[ pid ] : null;
+								let weatherPercent = adjustment ? Math.round( adjustment.wa * 100 ) : wl;
+								weatherPercent = Number.isFinite( weatherPercent ) ?
+									Math.min( 250, Math.max( 0, weatherPercent ) ) : 100;
+								let sensorFactor = adjustment ? adjustment.sa : 1;
+								let waterTime = Math.floor(
+									OSApp.Stations.getStationDuration( prog[ 4 ][ sid ], simt ) *
+									weatherPercent / 100 * sensorFactor
+								);
+								let maxRuntime = Number( OSApp.currentSession.controller.jpaMaxRuntime );
+								if ( Number.isFinite( maxRuntime ) && maxRuntime > 0 ) {
+									waterTime = Math.min( waterTime, Math.floor( maxRuntime ) );
+								}
+								if ( weatherPercent < 20 && waterTime < 10 ) {
+									waterTime = 0;
+								}
 
 								// After weather scaling, we maybe getting 0 water time
 								if ( waterTime > 0 ) {
@@ -1048,6 +1258,39 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 		} while ( simminutes < 24 * 60 );
 	};
 
+	// Push a preview entry per active master that this station is bound to.
+	// Covers all four masters (mas, mas2, mas3, mas4); silently skips any
+	// that aren't enabled or whose masop bitmap doesn't include sid.
+	var pushMasterPreviews = function( sid, startTs, endTs ) {
+		var masters = [
+			{ num: 1, mas: "mas", mton: "mton", mtof: "mtof", mop: "masop" },
+			{ num: 2, mas: "mas2", mton: "mton2", mtof: "mtof2", mop: "masop2" },
+			{ num: 3, mas: "mas3", mton: "mton3", mtof: "mtof3", mop: "masop3" },
+			{ num: 4, mas: "mas4", mton: "mton4", mtof: "mtof4", mop: "masop4" }
+		];
+		var opts = OSApp.currentSession.controller.options,
+			stations = OSApp.currentSession.controller.stations;
+		masters.forEach( function( m ) {
+			if ( typeof opts[ m.mas ] === "undefined" || opts[ m.mas ] <= 0 ) { return; }
+			var mop = stations[ m.mop ];
+			if ( !mop || !( mop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) ) ) { return; }
+			var groupName = OSApp.Language._( "Master" ) + ( m.num === 1 ? "" : " " + m.num );
+			previewData.push( {
+				"start": startTs + opts[ m.mton ],
+				"end": endTs + opts[ m.mtof ],
+				"content": "",
+				"className": "master",
+				"group": groupName
+			} );
+			if ( !previewGroups.some( function( g ) { return g.id === groupName; } ) ) {
+				previewGroups.push( {
+					"id": groupName,
+					"content": groupName
+				} );
+			}
+		} );
+	};
+
 	runSched216 = function( simseconds, rtQueue, qidArray, simt ) {
 		for ( var sid = 0; sid < OSApp.currentSession.controller.settings.nbrd * 8; sid++ ) {
 			var sqi = qidArray[ sid ];
@@ -1058,43 +1301,8 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 			if ( q.pl ) {
 
 				// If this one hasn't been plotted
-				var mas2 = typeof OSApp.currentSession.controller.options.mas2 !== "undefined" ? true : false,
-					useMas1 = OSApp.currentSession.controller.stations.masop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ),
-					useMas2 = mas2 ? OSApp.currentSession.controller.stations.masop2[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) : false;
-
 				if ( !OSApp.Stations.isMaster( sid ) ) {
-					if ( OSApp.currentSession.controller.options.mas > 0 && useMas1 ) {
-						previewData.push( {
-							"start": ( q.st + OSApp.currentSession.controller.options.mton ),
-							"end": ( q.st + q.dur + OSApp.currentSession.controller.options.mtof ),
-							"content":"",
-							"className":"master",
-							"group":"Master"
-						} );
-						if ( !previewGroups.some( group => group.id === "Master" ) ) {
-							previewGroups.push( {
-								"id":"Master",
-								"content":"Master"
-							} );
-						}
-
-					}
-
-					if ( mas2 && OSApp.currentSession.controller.options.mas2 > 0 && useMas2 ) {
-						previewData.push( {
-							"start": ( q.st + OSApp.currentSession.controller.options.mton2 ),
-							"end": ( q.st + q.dur + OSApp.currentSession.controller.options.mtof2 ),
-							"content":"",
-							"className":"master",
-							"group":"Master 2",
-						} );
-						if ( !previewGroups.some( group => group.id === "Master 2" ) ) {
-							previewGroups.push( {
-								"id":"Master 2",
-								"content":"Master 2"
-							} );
-						}
-					}
+					pushMasterPreviews( sid, q.st, q.st + q.dur );
 				}
 				timeToText( sid, q.st, q.pid, q.st + q.dur, simt );
 				q.pl = 0;
@@ -1108,42 +1316,8 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 			if ( programArray[ sid ] ) {
 				if ( is211 ) {
 					if ( plArray[ sid ] ) {
-						var mas2 = typeof OSApp.currentSession.controller.options.mas2 !== "undefined" ? true : false,
-							useMas1 = OSApp.currentSession.controller.stations.masop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ),
-							useMas2 = mas2 ? OSApp.currentSession.controller.stations.masop2[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) : false;
-
 						if ( !OSApp.Stations.isMaster( sid ) ) {
-							if ( OSApp.currentSession.controller.options.mas > 0 && useMas1 ) {
-								previewData.push( {
-									"start": ( startArray[ sid ] + OSApp.currentSession.controller.options.mton ),
-									"end": ( endArray[ sid ] + OSApp.currentSession.controller.options.mtof ),
-									"content":"",
-									"className":"master",
-									"group":"Master",
-								} );
-								if ( !previewGroups.some( group => group.id === "Master" ) ) {
-									previewGroups.push( {
-										"id":"Master",
-										"content":"Master"
-									} );
-								}
-							}
-
-							if ( mas2 && OSApp.currentSession.controller.options.mas2 > 0 && useMas2 ) {
-								previewData.push( {
-									"start": ( startArray[ sid ] + OSApp.currentSession.controller.options.mton2 ),
-									"end": ( endArray[ sid ] + OSApp.currentSession.controller.options.mtof2 ),
-									"content":"",
-									"className":"master",
-									"group":"Master 2",
-								} );
-								if ( !previewGroups.some( group => group.id === "Master 2" ) ) {
-									previewGroups.push( {
-										"id":"Master 2",
-										"content":"Master 2"
-									} );
-								}
-							}
+							pushMasterPreviews( sid, startArray[ sid ], endArray[ sid ] );
 						}
 
 						timeToText( sid, startArray[ sid ], programArray[ sid ], endArray[ sid ], simt );
@@ -1160,12 +1334,12 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 								"end": ( endArray[ sid ] + OSApp.currentSession.controller.options.mtof ),
 								"content":"",
 								"className":"master",
-								"group":"Master",
+								"group": OSApp.Language._( "Master" ),
 							} );
-							if ( !previewGroups.some( group => group.id === "Master" ) ) {
+							if ( !previewGroups.some( group => group.id === OSApp.Language._( "Master" ) ) ) {
 								previewGroups.push( {
-									"id":"Master",
-									"content":"Master"
+									"id": OSApp.Language._( "Master" ),
+									"content": OSApp.Language._( "Master" )
 								} );
 							}
 						}
@@ -1187,12 +1361,12 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 					"end": endtime,
 					"content":"",
 					"className":"master",
-					"group":"Master",
+					"group": OSApp.Language._( "Master" ),
 				} );
-				if ( !previewGroups.some( group => group.id === "Master" ) ) {
+				if ( !previewGroups.some( group => group.id === OSApp.Language._( "Master" ) ) ) {
 					previewGroups.push( {
-						"id":"Master",
-						"content":"Master"
+						"id": OSApp.Language._( "Master" ),
+						"content": OSApp.Language._( "Master" )
 					} );
 				}
 			}
@@ -1202,7 +1376,9 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 
 	timeToText = function( sid, start, pid, end, simt ) {
 		var className = "program-" + ( ( pid + 3 ) % 4 ),
-			pname = "P" + pid;
+			pname = "P" + pid,
+			groupID = "station-" + sid,
+			stationName = OSApp.Stations.getName( sid );
 
 		if ( ( ( OSApp.currentSession.controller.settings.rd !== 0 ) &&
 				( simt + start + ( OSApp.currentSession.controller.options.tz - 48 ) * 900 <= OSApp.currentSession.controller.settings.rdst * 1000 ) ||
@@ -1221,15 +1397,15 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 			"start": start,
 			"end": end,
 			"className": className,
-			"content":pname,
+			"content": OSApp.Utils.htmlEscape( pname ),
 			"pid": pid - 1,
-			"group": OSApp.Stations.getName(sid),
+			"group": groupID,
 			"id": nextID
 		} );
-		if ( !previewGroups.some( group => group.id === OSApp.Stations.getName(sid) ) ) {
+		if ( !previewGroups.some( group => group.id === groupID ) ) {
 			previewGroups.push( {
-				"id": OSApp.Stations.getName(sid),
-				"content": OSApp.Stations.getName(sid)
+				"id": groupID,
+				"content": OSApp.Utils.htmlEscape( stationName )
 			} );
 		}
 		nextID++;
@@ -1477,6 +1653,13 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 		return 0;
 	};
 
+	function showAdjustmentStatus( message, className ) {
+		navi.hide();
+		placeholder.empty().append(
+			$( "<p class='center'></p>" ).addClass( className ).text( message )
+		);
+	}
+
 	changeday = function( dir ) {
 		day.setDate( day.getDate() + dir );
 
@@ -1490,6 +1673,19 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 	};
 
 	render = function() {
+		destroyTimeline();
+
+		if ( adjustmentState === "loading" ) {
+			showAdjustmentStatus( OSApp.Language._( "Loading program adjustments…" ), "preview-adjustment-loading" );
+			return;
+		}
+		if ( adjustmentState === "failed" ) {
+			showAdjustmentStatus(
+				OSApp.Language._( "Program preview is unavailable because sensor adjustments could not be loaded." ),
+				"preview-adjustment-unavailable"
+			);
+			return;
+		}
 		processPrograms( date[ 1 ], date[ 2 ], date[ 0 ] );
 
 		navi.hide();
@@ -1552,11 +1748,14 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 				"groupEditable": false,
 				"format": format
 			},
-			resize = function() {
-				timeline.redraw();
-			},
-			timeline = new vis.Timeline( placeholder[ 0 ], previewData, options ),
 			currentTime = new Date( now );
+
+		timeline = new vis.Timeline( placeholder[ 0 ], previewData, options );
+		timelineResize = function() {
+			if ( timeline ) {
+				timeline.redraw();
+			}
+		};
 
 		currentTime.setMinutes( currentTime.getMinutes() + currentTime.getTimezoneOffset() );
 
@@ -1577,22 +1776,18 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 			}
 		} );
 
-		$.mobile.window.on( "resize", resize );
-
-		page.one( "pagehide", function() {
-			$.mobile.window.off( "resize", resize );
-		} );
+		$.mobile.window.on( "resize.programPreview", timelineResize );
 
 		if ( OSApp.currentDevice.isAndroid ) {
-			navi.find( ".ui-icon-plus" ).off( "click" ).on( "click", function() {
+			navi.find( ".ui-icon-plus" ).on( "click.programPreview", function() {
 				timeline.zoomIn( 0.4 );
 				return false;
 			} );
-			navi.find( ".ui-icon-minus" ).off( "click" ).on( "click", function() {
+			navi.find( ".ui-icon-minus" ).on( "click.programPreview", function() {
 				timeline.zoomOut( 0.4 );
 				return false;
 			} );
-			navi.find( ".ui-icon-carat-l" ).off( "click" ).on( "click", function() {
+			navi.find( ".ui-icon-carat-l" ).on( "click.programPreview", function() {
 				const times = timeline.getWindow();
 				const difference = times.end - times.start;
 				// Move center to 1/4 of the current visual window
@@ -1600,7 +1795,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 				timeline.moveTo( times.start );
 				return false;
 			} );
-			navi.find( ".ui-icon-carat-r" ).off( "click" ).on( "click", function() {
+			navi.find( ".ui-icon-carat-r" ).on( "click.programPreview", function() {
 				const times = timeline.getWindow();
 				const difference = times.end - times.start;
 				// Move center to 3/4 of the current visual window
@@ -1614,7 +1809,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 			navi.hide();
 		}
 
-		placeholder.on( "swiperight swipeleft", function( e ) {
+		placeholder.on( "swiperight.programPreview swipeleft.programPreview", function( e ) {
 			e.stopImmediatePropagation();
 		} );
 
@@ -1853,13 +2048,16 @@ OSApp.Programs.makeAllPrograms = function() {
 		return "<p class='center'>" + OSApp.Language._( "You have no programs currently added. Tap the Add button on the top right corner to get started." ) + "</p>";
 	}
 
-	var list = "<p class='center'>" + OSApp.Language._( "Click any program below to expand/edit. Be sure to save changes." ) + "</p><div data-role='collapsible-set'>";
+	var count = OSApp.currentSession.controller.programs.pd.length;
+	var list = "<p class='center'>" + OSApp.Language._( "Click any program below to expand/edit. Be sure to save changes." ) + "</p>" +
+		"<p class='center'>" + OSApp.Language._( "Number of Programs" ) + ": " + count + "</p>" +
+		"<div data-role='collapsible-set'>";
 
 	var numDisabledPrograms = 0;
 
 	for ( var i = 0; i < OSApp.currentSession.controller.programs.pd.length; i++ ) {
 		var program = OSApp.Programs.readProgram( OSApp.currentSession.controller.programs.pd[ i ] );
-		var name = program.name || OSApp.Language._( "Program" ) + " " + ( i + 1 );
+		var name = OSApp.Utils.htmlEscape( program.name || OSApp.Language._( "Program" ) + " " + ( i + 1 ) );
 
 		if ( program.en === 0) {
 			numDisabledPrograms++;
@@ -1933,14 +2131,14 @@ OSApp.Programs.makeProgram183 = function( n, isCopy ) {
 	list += "</fieldset><div id='input_days_week-" + id + "' " + ( ( program.type === OSApp.Constants.options.PROGRAM_TYPE_INTERVAL ) ? "style='display:none'" : "" ) + ">";
 
 	list += "<div class='center'><p class='tight'>" + OSApp.Language._( "Restrictions" ) + "</p>" +
-		"<select data-inline='true' data-iconpos='left' data-mini='true' id='days_rst-" + id + "'>";
+		"<select data-inline='true' data-mini='true' id='days_rst-" + id + "'>";
 	list += "<option value='none' " + ( ( !program.is_even && !program.is_odd ) ? "selected='selected'" : "" ) + ">" + OSApp.Language._( "None" ) + "</option>";
 	list += "<option value='odd' " + ( ( !program.is_even && program.is_odd ) ? "selected='selected'" : "" ) + ">" + OSApp.Language._( "Odd Days Only" ) + "</option>";
 	list += "<option value='even' " + ( ( !program.is_odd && program.is_even ) ? "selected='selected'" : "" ) + ">" + OSApp.Language._( "Even Days Only" ) + "</option>";
 	list += "</select></div>";
 
 	list += "<div class='center'><p class='tight'>" + OSApp.Language._( "Days of the Week" ) + "</p>" +
-		"<select " + ( $.mobile.window.width() > 560 ? "data-inline='true' " : "" ) + "data-iconpos='left' data-mini='true' " +
+		"<select " + ( $.mobile.window.width() > 560 ? "data-inline='true' " : "" ) + "data-mini='true' " +
 			"multiple='multiple' data-native-menu='false' id='d-" + id + "'><option>" + OSApp.Language._( "Choose day(s)" ) + "</option>";
 
 	for ( j = 0; j < week.length; j++ ) {
@@ -1963,7 +2161,7 @@ OSApp.Programs.makeProgram183 = function( n, isCopy ) {
 		list += "<label for='station_" + j + "-" + id + "'><input " +
 			( OSApp.Stations.isDisabled( j ) ? "data-wrapper-class='station-hidden hidden' " : "" ) +
 			"data-mini='true' type='checkbox' " + ( ( ( typeof setStations !== "undefined" ) && setStations[ j ] ) ? "checked='checked'" : "" ) +
-			" name='station_" + j + "-" + id + "' id='station_" + j + "-" + id + "'>" + OSApp.Stations.getName(j) + "</label>";
+			" name='station_" + j + "-" + id + "' id='station_" + j + "-" + id + "'>" + OSApp.Utils.htmlEscape( OSApp.Stations.getName( j ) ) + "</label>";
 	}
 
 	list += "</fieldset>";
@@ -2070,13 +2268,24 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 	var week = [ OSApp.Language._( "Monday" ), OSApp.Language._( "Tuesday" ), OSApp.Language._( "Wednesday" ), OSApp.Language._( "Thursday" ), OSApp.Language._( "Friday" ), OSApp.Language._( "Saturday" ), OSApp.Language._( "Sunday" ) ],
 		list = "",
 		id = isCopy ? "new" : n,
-		days, i, j, program, page, times, time, unchecked;
+		days, escapedProgramName, i, j, program, page, times, time, unchecked;
 
 	if ( n === "new" ) {
 		program = { "name":"", "en":0, "weather":0, "type":0, "is_even":0, "is_odd":0, "interval":0, "start":0, "days":[ 1, 0 ], "repeat":0, "stations":[] };
 	} else {
 		program = OSApp.Programs.readProgram( OSApp.currentSession.controller.programs.pd[ n ] );
 	}
+	escapedProgramName = OSApp.Utils.htmlEscape( program.name || "" );
+
+    const _pd = ( n !== "new" ) ? OSApp.currentSession.controller.programs.pd[ n ] : null;
+    const _rawAdj = ( _pd && _pd[ 7 ] ) || {};
+    const adjustment = {
+        flag: _rawAdj.flag ?? 0,
+        uuid: _rawAdj.uuid ?? 0,
+        splits: Array.isArray( _rawAdj.splits ) ? _rawAdj.splits : [],
+        maxSplits: _rawAdj.maxSplits
+    };
+    const senAdjEnabled = ( adjustment.flag & 1 ) === 1;
 
 	if ( typeof program.days === "string" ) {
 		days = program.days.split( "" );
@@ -2101,27 +2310,24 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 	// Program name
 	list += "<label for='name-" + id + "'>" + OSApp.Language._( "Program Name" ) + "</label>" +
 		"<input data-mini='true' type='text' name='name-" + id + "' id='name-" + id + "' maxlength='" + OSApp.currentSession.controller.programs.pnsize + "' " +
-		"placeholder='" + OSApp.Language._( "Program" ) + " " + ( OSApp.currentSession.controller.programs.pd.length + 1 ) + "' value=\"" + program.name + "\">";
+		"placeholder='" + OSApp.Language._( "Program" ) + " " + ( OSApp.currentSession.controller.programs.pd.length + 1 ) + "' value=\"" + escapedProgramName + "\">";
 
 	// Program enable/disable flag
 	list += "<label for='en-" + id + "'><input data-mini='true' type='checkbox' " +
 		( ( program.en || n === "new" ) ? "checked='checked'" : "" ) + " name='en-" + id + "' id='en-" + id + "'>" + OSApp.Language._( "Enabled" ) + "</label>";
 
-	// Program weather control flag
-	list += "<label for='uwt-" + id + "'><input data-mini='true' type='checkbox' " +
-		( ( program.weather ) ? "checked='checked'" : "" ) + " name='uwt-" + id + "' id='uwt-" + id + "'>" + OSApp.Language._( "Use Weather Adjustment" ) + "</label>";
-
 	if ( OSApp.Supported.dateRange() ) {
-		var from = OSApp.Dates.getDateRangeStart( id ),
-			to = OSApp.Dates.getDateRangeEnd( id );
+		var from = OSApp.Dates.getDateRangeStart( n ),
+			to = OSApp.Dates.getDateRangeEnd( n ),
+			dateRangeEnabled = OSApp.Dates.isDateRangeEnabled( n );
 
 		list += "<label for='use-dr-" + id + "'>" +
 					"<input data-mini='true' type='checkbox' " +
-					( ( OSApp.Dates.isDateRangeEnabled( id ) ) ? "checked='checked'" : "" ) + " name='use-dr-" + id + "' id='use-dr-" + id + "'>" +
+						( dateRangeEnabled ? "checked='checked'" : "" ) + " name='use-dr-" + id + "' id='use-dr-" + id + "'>" +
 					 OSApp.Language._( "Enable Date Range" ) +
 				"</label>";
 
-		list += "<div id='date-range-options-" + id + "'" + ( ( OSApp.Dates.isDateRangeEnabled( id ) ) ? "" : "style='display:none'" ) + ">";
+		list += "<div id='date-range-options-" + id + "'" + ( dateRangeEnabled ? "" : " style='display:none'" ) + ">";
 		list += "<div class='ui-grid-a' style=''>" +
 						"<div class='ui-block-a drfrom'>" +
 							"<label class='center' for='from-dr-" + id + "'>" + OSApp.Language._( "From (mm/dd)" ) + "</label>" +
@@ -2142,6 +2348,51 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 	// Show start time menu
 	list += "<label class='center' for='start_1-" + id + "'>" + OSApp.Language._( "Start Time" ) + "</label><button class='timefield' data-mini='true' id='start_1-" + id +
 		"' value='" + times[ 0 ] + "'>" + OSApp.Programs.readStartTime( times[ 0 ] ) + "</button>";
+
+	list += "<hr class='program-section-divider'>";
+
+	// Program weather control flag
+	list += "<label for='uwt-" + id + "'><input data-mini='true' type='checkbox' " +
+		( ( program.weather ) ? "checked='checked'" : "" ) + " name='uwt-" + id + "' id='uwt-" + id + "'>" + OSApp.Language._( "Use Weather Adjustment" ) + "</label>";
+
+	// Sensor adjustments
+	if ( OSApp.Supported.sensors() ) {
+		list += "<label for='use-sn-" + id + "'>" +
+					"<input data-mini='true' type='checkbox' " +
+					( senAdjEnabled ? "checked='checked'" : "" ) + " data-sensor-adjustment-flag='" + adjustment.flag +
+					"' name='use-sn-" + id + "' id='use-sn-" + id + "'>" +
+					OSApp.Language._( "Use Sensor Adjustment" ) +
+				"</label>";
+
+		list += "<div id='sensor-options-" + id + "'" + ( senAdjEnabled ? "" : " style='display:none'" ) + ">";
+        list += "<div class='ui-field-contain' style='align-items:flex-start'>" +
+                    "<label for='sen-adj-sid-" + id + "'>" + OSApp.Language._( "Select Sensor" ) + "</label>" +
+                    "<div style='flex:1;min-width:0'>" +
+                        "<select data-mini='true' id='sen-adj-sid-" + id + "'></select>" +
+                        "<div id='sen-adj-current-" + id + "' style='display:none;margin-top:4px;font-size:0.875em'>" +
+                            OSApp.Language._( "Current Sensor Value" ) + ": " +
+                            "<span class='sensor-current-value-text' id='sen-adj-current-text-" + id + "'></span>" +
+                        "</div>" +
+                    "</div>" +
+                "</div>";
+        list += "<div id='sensor-splits-wrap-" + id + "'>";
+        list += "<table class='sensor-splits-table'>" +
+                "<thead><tr>" +
+                "<th scope='col'>" + OSApp.Language._( "Point" ) + "</th>" +
+                "<th scope='col'>" + OSApp.Language._( "Sensor Value" ) + "</th>" +
+                "<th scope='col'>" + OSApp.Language._( "Watering %" ) + "</th>" +
+                "<th scope='col'></th>" +
+                "</tr></thead>" +
+                "<tbody id='sensor-splits-body-" + id + "'></tbody>" +
+                "<tfoot><tr>" +
+                "<td colspan='4' style='text-align:right;padding-right:0'><button type='button' id='sensor-add-split-" + id + "' data-mini='true' data-icon='plus' data-inline='true'>" + OSApp.Language._( "Add a Point" ) + "</button></td>" +
+                "</tr></tfoot>" +
+                "</table>";
+        list += `<canvas id="sensor-chart-${id}" width="400" height="200"></canvas>`;
+        list += "</div>";
+		list += "</div>";
+	}
+
 
 	// Close basic settings group
 	list += "</div></div></div></div>";
@@ -2172,7 +2423,7 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 	// Show weekly program options
 	list += "<div id='input_days_week-" + id + "' " + ( ( program.type === OSApp.Constants.options.PROGRAM_TYPE_WEEKLY ) ? "" : "style='display:none'" ) + ">";
 	list += "<div class='center'><p class='tight'>" + OSApp.Language._( "Days of the Week" ) + "</p>" +
-		"<select " + ( $.mobile.window.width() > 560 ? "data-inline='true' " : "" ) + "data-iconpos='left' data-mini='true' " +
+		"<select " + ( $.mobile.window.width() > 560 ? "data-inline='true' " : "" ) + "data-mini='true' " +
 			"multiple='multiple' data-native-menu='false' id='d-" + id + "'>" +
 		"<option>" + OSApp.Language._( "Choose day(s)" ) + "</option>";
 	for ( j = 0; j < week.length; j++ ) {
@@ -2203,7 +2454,7 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 	list += "</div>";
 
 	// Show restriction options
-	list += "<div class='center'><p class='tight'>" + OSApp.Language._( "Restrictions" ) + "</p><select data-inline='true' data-iconpos='left' data-mini='true' id='days_rst-" + id + "'>";
+	list += "<div class='center'><p class='tight'>" + OSApp.Language._( "Restrictions" ) + "</p><select data-inline='true' data-mini='true' id='days_rst-" + id + "'>";
 	list += "<option value='none' " + ( ( !program.is_even && !program.is_odd ) ? "selected='selected'" : "" ) + ">" + OSApp.Language._( "None" ) + "</option>";
 	list += "<option value='odd' " + ( ( !program.is_even && program.is_odd ) ? "selected='selected'" : "" ) + ">" + OSApp.Language._( "Odd Days Only" ) + "</option>";
 	list += "<option value='even' " + ( ( !program.is_odd && program.is_even ) ? "selected='selected'" : "" ) + ">" + OSApp.Language._( "Even Days Only" ) + "</option>";
@@ -2226,13 +2477,13 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 	for ( j = 0; j < OSApp.currentSession.controller.stations.snames.length; j++ ) {
 		if ( OSApp.Stations.isMaster( j ) ) {
 			list += "<div class='ui-field-contain duration-input" + ( OSApp.Stations.isDisabled( j ) ? " station-hidden" + hideDisabled : "" ) + "'>" +
-				"<label for='station_" + j + "-" + id + "'>" + OSApp.Stations.getName(j) + ":</label>" +
+				"<label for='station_" + j + "-" + id + "'>" + OSApp.Utils.htmlEscape( OSApp.Stations.getName( j ) ) + ":</label>" +
 				"<button disabled='true' data-mini='true' name='station_" + j + "-" + id + "' id='station_" + j + "-" + id + "' value='0'>" +
 				OSApp.Language._( "Master" ) + "</button></div>";
 		} else {
 			time = program.stations[ j ] || 0;
 			list += "<div class='ui-field-contain duration-input" + ( OSApp.Stations.isDisabled( j ) ? " station-hidden" + hideDisabled : "" ) + "'>" +
-				"<label for='station_" + j + "-" + id + "'>" + OSApp.Stations.getName(j) + ":</label>" +
+				"<label for='station_" + j + "-" + id + "'>" + OSApp.Utils.htmlEscape( OSApp.Stations.getName( j ) ) + ":</label>" +
 				"<button " + ( time > 0 ? "class='green' " : "" ) + "data-mini='true' name='station_" + j + "-" + id + "' " +
 					"id='station_" + j + "-" + id + "' value='" + time + "'>" + OSApp.Dates.getDurationText( time ) + "</button></div>";
 		}
@@ -2284,9 +2535,9 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 	if ( isCopy === true || n === "new" ) {
 		list += "<button data-mini='true' data-icon='check' data-theme='b' id='submit-" + id + "'>" + OSApp.Language._( "Save New Program" ) + "</button>";
 	} else {
-		list += "<button data-mini='true' data-icon='check' data-theme='b' id='submit-" + id + "'>" + OSApp.Language._( "Save Changes to" ) + " <span class='program-name'>" + program.name + "</span></button>";
-		list += "<button data-mini='true' data-icon='arrow-r' id='run-" + id + "'>" + OSApp.Language._( "Run" ) + " <span class='program-name'>" + program.name + "</span></button>";
-		list += "<button data-mini='true' data-icon='delete' class='bold red' data-theme='b' id='delete-" + id + "'>" + OSApp.Language._( "Delete" ) + " <span class='program-name'>" + program.name + "</span></button>";
+		list += "<button data-mini='true' data-icon='check' data-theme='b' id='submit-" + id + "'>" + OSApp.Language._( "Save Changes to" ) + " <span class='program-name'>" + escapedProgramName + "</span></button>";
+		list += "<button data-mini='true' data-icon='arrow-r' id='run-" + id + "'>" + OSApp.Language._( "Run" ) + " <span class='program-name'>" + escapedProgramName + "</span></button>";
+		list += "<button data-mini='true' data-icon='delete' class='bold red' data-theme='b' id='delete-" + id + "'>" + OSApp.Language._( "Delete" ) + " <span class='program-name'>" + escapedProgramName + "</span></button>";
 	}
 
 	// Take HTML string and convert to jQuery object
@@ -2312,6 +2563,101 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 
 	updateProgramTime();
 
+	var senAdjGraph = null;
+	var currentLineValue = null;
+	var currentLineColor = null;
+	var refreshSensorAdjustment = null;
+	function scheduleSensorAdjustmentResize() {
+		if ( !senAdjGraph ) { return; }
+		var $canvas = page.find( "#sensor-chart-" + id ),
+			chart = senAdjGraph,
+			pending = $canvas.data( "sensorAdjustmentResizeTimer" );
+		if ( pending != null ) {
+			clearTimeout( pending );
+		}
+		pending = setTimeout( function() {
+			$canvas.removeData( "sensorAdjustmentResizeTimer" );
+			if ( $canvas.data( "sensorAdjustmentChart" ) === chart ) {
+				chart.resize();
+			}
+		}, 0 );
+		$canvas.data( "sensorAdjustmentResizeTimer", pending );
+	}
+
+	if ( OSApp.Supported.sensors() ) {
+    var $senSelect = page.find( "#sen-adj-sid-" + id );
+    OSApp.Sensors.makeSensorSelect( $senSelect );
+    $senSelect.val( adjustment.uuid );
+    if ( $senSelect.val() === null ) { $senSelect.val( "0" ); }
+
+    var SEN_ADJ_COLOR = {
+        "sensor-value-valid": "#27ae60",
+        "sensor-value-warning": "#e67e22",
+        "sensor-value-clamped": "#5D99C3"
+    };
+
+    function updateSenAdjCurrentValue( uuid ) {
+        var $splitsWrap = page.find( "#sensor-splits-wrap-" + id );
+        var $wrap = page.find( "#sen-adj-current-" + id );
+        var $text = page.find( "#sen-adj-current-text-" + id );
+
+        if ( String( uuid ) === "0" ) {
+            $splitsWrap.hide();
+            $wrap.hide();
+            currentLineValue = null;
+            if ( senAdjGraph ) { senAdjGraph.update(); }
+            return;
+        }
+
+        $splitsWrap.show();
+		scheduleSensorAdjustmentResize();
+
+        var sn = OSApp.currentSession.controller.sensors && OSApp.currentSession.controller.sensors.sn;
+        var sensor = sn && sn.find( function( s ) { return String( s.uuid ) === String( uuid ); } );
+
+        if ( !sensor || typeof sensor.value === "undefined" || sensor.value === null ) {
+            $wrap.hide();
+            currentLineValue = null;
+            if ( senAdjGraph ) { senAdjGraph.update(); }
+            return;
+        }
+
+        var unitShort = OSApp.Sensors.unitShort( sensor.unit );
+        var status = sensor.status != null ? sensor.status : 1;
+        var formatted = OSApp.Sensors.formatValue( sensor.value, unitShort, status );
+        var text = formatted.text;
+        var cls = formatted.cls;
+
+        if ( !( status & OSApp.Sensors.STATUS.VALID ) ) {
+            currentLineValue = null;
+        } else {
+            currentLineValue = sensor.value;
+            currentLineColor = SEN_ADJ_COLOR[ cls ] || "#27ae60";
+        }
+
+        $text.text( text ).removeClass( "sensor-value-valid sensor-value-warning sensor-value-clamped" ).addClass( cls );
+        $wrap.show();
+        if ( senAdjGraph ) { senAdjGraph.update(); }
+    }
+
+    $senSelect.on( "change", function() {
+        updateSenAdjCurrentValue( $( this ).val() );
+    } );
+    updateSenAdjCurrentValue( $senSelect.val() );
+	refreshSensorAdjustment = function() {
+		updateSenAdjCurrentValue( $senSelect.val() );
+	};
+
+	page.find( "#use-sn-" + id ).on( "change", function() {
+		const showOptions = $( this ).is( ":checked" );
+		page.find( "#sensor-options-" + id ).toggle( showOptions );
+		if ( showOptions ) {
+			scheduleSensorAdjustmentResize();
+		}
+	} );
+
+	} // end if ( OSApp.Supported.sensors() )
+
 	// When controlgroup buttons are toggled change relevant options
 	page.find( "input[name^='rad_days'],input[name^='stype']" ).on( "change", function() {
 		var input = $( this ).val().split( "-" )[ 0 ].split( "_" );
@@ -2325,6 +2671,133 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 		page.find( "#use-dr-" + id ).on( "click", function() {
 			page.find( "#date-range-options-" + id ).toggle();
 		} );
+	}
+
+	if ( OSApp.Supported.sensors() ) {
+        const splitPoints = adjustment.splits.map( v => ({ x: v.x, y: Math.round( v.y * 1000 ) / 10 }) );
+        const maxSplits = adjustment.maxSplits != null ? adjustment.maxSplits : 8;
+        const $tbody = page.find( `#sensor-splits-body-${id}` );
+
+        const currentValueLinePlugin = {
+            id: "currentValueLine",
+            afterDraw: function( chart ) {
+                if ( currentLineValue === null ) { return; }
+                const xAxis = chart.scales.x;
+                const yAxis = chart.scales.y;
+                if ( !xAxis || !yAxis ) { return; }
+                const xPixel = xAxis.getPixelForValue( currentLineValue );
+                if ( xPixel < xAxis.left || xPixel > xAxis.right ) { return; }
+                const ctx = chart.ctx;
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo( xPixel, yAxis.top );
+                ctx.lineTo( xPixel, yAxis.bottom );
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = currentLineColor || "#27ae60";
+                ctx.setLineDash( [ 6, 3 ] );
+                ctx.stroke();
+                ctx.restore();
+            }
+        };
+
+        const $senAdjCanvas = page.find( `#sensor-chart-${id}` );
+        senAdjGraph = new Chart( $senAdjCanvas[ 0 ], {
+            type: "line",
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        type: "linear",
+                        title: { display: true, text: OSApp.Language._( "Sensor Value" ) }
+                    },
+                    y: {
+                        min: 0,
+                        suggestedMax: 200,
+                        title: { display: true, text: OSApp.Language._( "Watering %" ) },
+                        ticks: { callback: function( v ) { return v + "%"; } }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    title: { display: false }
+                }
+            },
+            plugins: [ currentValueLinePlugin ]
+        } );
+        $senAdjCanvas.data( "sensorAdjustmentChart", senAdjGraph );
+		$( "html" ).on( "datarefresh", refreshSensorAdjustment );
+		$senAdjCanvas.data( "sensorAdjustmentRefreshHandler", refreshSensorAdjustment );
+
+        function updateGraph() {
+            const valid = splitPoints
+                .filter( p => Number.isFinite( p.x ) && Number.isFinite( p.y ) )
+                .sort( ( a, b ) => a.x - b.x );
+            const chartData = valid.slice();
+            if ( chartData.length > 0 ) {
+                chartData.unshift( { x: chartData[ 0 ].x - 10, y: chartData[ 0 ].y } );
+                chartData.push( { x: chartData[ chartData.length - 1 ].x + 10, y: chartData[ chartData.length - 1 ].y } );
+            }
+            senAdjGraph.data = {
+                datasets: [ { label: OSApp.Language._( "Watering %" ), data: chartData } ]
+            };
+            senAdjGraph.update();
+        }
+
+        function renderSplitRows() {
+            $tbody.empty();
+
+            splitPoints.forEach( function( point, idx ) {
+                const $xInput = $( "<input type='number' class='split-x' step='any'>" ).attr( "placeholder", OSApp.Language._( "Sensor Value" ) );
+                const $yInput = $( "<input type='number' class='split-y' min='0' step='0.1'>" ).attr( "placeholder", "%" );
+                const deleteLabel = OSApp.Language._( "Delete" ) + " " + OSApp.Language._( "Point" ) + " " + ( idx + 1 );
+                const $removeBtn = $( "<button type='button' class='ui-btn ui-btn-icon-notext ui-icon-delete ui-btn-corner-all split-remove'></button>" )
+                    .attr( "aria-label", deleteLabel )
+                    .attr( "title", deleteLabel );
+
+                if ( Number.isFinite( point.x ) ) { $xInput.val( point.x ); }
+                if ( Number.isFinite( point.y ) ) { $yInput.val( point.y ); }
+
+                $xInput.on( "change", function() {
+                    const val = parseFloat( $( this ).val() );
+                    splitPoints[ idx ].x = Number.isFinite( val ) ? val : NaN;
+                    updateGraph();
+                } );
+
+                $yInput.on( "change", function() {
+                    const val = parseFloat( $( this ).val() );
+                    splitPoints[ idx ].y = Number.isFinite( val ) ? val : NaN;
+                    updateGraph();
+                } );
+
+                $removeBtn.on( "click", function( e ) {
+                    e.preventDefault();
+                    splitPoints.splice( idx, 1 );
+                    renderSplitRows();
+                } );
+
+                $tbody.append(
+                    $( "<tr></tr>" ).append(
+                        $( "<th scope='row'></th>" ).text( idx + 1 ),
+                        $( "<td></td>" ).append( $xInput ),
+                        $( "<td></td>" ).append( $yInput ),
+                        $( "<td></td>" ).append( $removeBtn )
+                    )
+                );
+            } );
+
+            $tbody.enhanceWithin();
+            updateGraph();
+        }
+
+        const $addSplitBtn = page.find( `#sensor-add-split-${id}` );
+        $addSplitBtn.on( "click", function() {
+            if ( splitPoints.length >= maxSplits ) { return; }
+            splitPoints.push( { x: NaN, y: NaN } );
+            renderSplitRows();
+            $tbody.find( "tr" ).last().find( ".split-x" ).focus();
+        } );
+
+        renderSplitRows();
 	}
 
 	// Handle interval duration input
@@ -2384,7 +2857,8 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 			callback: function( result ) {
 				page.find( "[id^=station_]" ).each( function() {
 					var dur = $( this );
-					if ( dur.text() === "Master"){
+					var stationId = parseInt( dur.attr( "id" ).split( "_" )[ 1 ].split( "-" )[ 0 ] );
+					if ( OSApp.Stations.isMaster( stationId ) ) {
 						return;
 					}
 					dur.val( result ).addClass( "green" );
@@ -2426,6 +2900,169 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 	return page;
 };
 
+OSApp.Programs.destroySensorAdjustmentCharts = function( root ) {
+	$( root ).find( "canvas[id^='sensor-chart-']" ).each( function() {
+		const $canvas = $( this );
+		const chart = $canvas.data( "sensorAdjustmentChart" );
+		const refreshHandler = $canvas.data( "sensorAdjustmentRefreshHandler" );
+		const resizeTimer = $canvas.data( "sensorAdjustmentResizeTimer" );
+
+		if ( resizeTimer != null ) {
+			clearTimeout( resizeTimer );
+		}
+		if ( chart && typeof chart.destroy === "function" ) {
+			chart.destroy();
+		}
+		if ( refreshHandler ) {
+			$( "html" ).off( "datarefresh", refreshHandler );
+		}
+		$canvas.removeData( "sensorAdjustmentChart sensorAdjustmentRefreshHandler sensorAdjustmentResizeTimer" );
+	} );
+};
+
+OSApp.Programs.waitForProgramAdjustments = function( runButton, controller, request ) {
+	if ( !request || typeof request.done !== "function" || typeof request.fail !== "function" ) {
+		return;
+	}
+
+	runButton
+		.data( "programAdjustmentRequest", request )
+		.prop( "disabled", true )
+		.addClass( "ui-state-disabled" )
+		.removeAttr( "title" )
+		.attr( "aria-busy", "true" );
+
+	function getCurrentButtons() {
+		if ( OSApp.currentSession.controller !== controller ) {
+			return $();
+		}
+		return runButton.filter( function() {
+			return $.contains( document, this ) && $( this ).data( "programAdjustmentRequest" ) === request;
+		} );
+	}
+
+	function releaseButtons( buttons, adjustmentsAvailable ) {
+		buttons
+			.prop( "disabled", false )
+			.removeClass( "ui-state-disabled" )
+			.removeAttr( "aria-busy" )
+			.removeData( "programAdjustmentRequest" );
+		if ( adjustmentsAvailable ) {
+			buttons.removeAttr( "title" );
+		} else {
+			buttons.attr( "title", OSApp.Language._( "Program adjustments are unavailable." ) );
+		}
+	}
+
+	request.done( function( data ) {
+		var currentButtons = getCurrentButtons();
+		if ( !currentButtons.length ) {
+			return;
+		}
+		if ( !OSApp.Programs.isProgramAdjustmentDataValid( data, controller ) ) {
+			releaseButtons( currentButtons, false );
+			return;
+		}
+		releaseButtons( currentButtons, true );
+	} ).fail( function() {
+		releaseButtons( getCurrentButtons(), false );
+	} );
+};
+
+OSApp.Programs.isProgramAdjustmentDataValid = function( data, controller ) {
+	var programs = controller && controller.programs && controller.programs.pd;
+	if ( !Array.isArray( programs ) || !data || !Array.isArray( data.jpa ) || data.jpa.length !== programs.length ) {
+		return false;
+	}
+	if ( Object.prototype.hasOwnProperty.call( data, "maxrt" ) &&
+		( !Number.isInteger( data.maxrt ) || data.maxrt <= 0 ) ) {
+		return false;
+	}
+	return data.jpa.every( function( adjustment ) {
+		return adjustment &&
+			Number.isFinite( adjustment.wa ) && adjustment.wa >= 0 &&
+			Number.isFinite( adjustment.sa ) && adjustment.sa >= 0 &&
+			Number.isFinite( adjustment.ta ) && adjustment.ta >= 0;
+	} );
+};
+
+OSApp.Programs.clearProgramAdjustmentData = function( controller ) {
+	controller.jpaData = [];
+	delete controller.jpaMaxRuntime;
+};
+
+OSApp.Programs.cacheProgramAdjustmentData = function( controller, data ) {
+	controller.jpaData = data.jpa;
+	if ( Object.prototype.hasOwnProperty.call( data, "maxrt" ) ) {
+		controller.jpaMaxRuntime = data.maxrt;
+	} else {
+		delete controller.jpaMaxRuntime;
+	}
+};
+
+OSApp.Programs.getSenAdjURL = function (id) {
+    const vals = [];
+
+    function validationError( message ) {
+        const error = new Error( message );
+        error.name = "SensorAdjustmentValidationError";
+        return error;
+    }
+
+	const _pd = ( id !== "new" ) ? OSApp.currentSession.controller.programs.pd[ id ] : null;
+	const $enabled = $( "#use-sn-" + id );
+	const _formFlag = Number( $enabled.attr( "data-sensor-adjustment-flag" ) );
+	const _existingFlag = Number.isInteger( _formFlag ) ? _formFlag : ( ( _pd && _pd[ 7 ] && _pd[ 7 ].flag ) || 0 );
+	const enabled = $enabled.is( ":checked" );
+	const flag = enabled ? ( _existingFlag | 1 ) : ( _existingFlag & ~1 );
+	const uuid = $( "#sen-adj-sid-" + id ).val() || "0";
+
+	if ( uuid === "0" ) {
+		if ( enabled ) {
+			throw validationError( OSApp.Language._( "Error: Select a sensor before enabling sensor adjustment." ) );
+		}
+		return `&snadj=${flag},0`;
+	}
+
+    $( `#sensor-splits-body-${id}` ).find( "tr" ).each( function() {
+        const x = parseFloat( $( this ).find( ".split-x" ).val() );
+        const y = parseFloat( $( this ).find( ".split-y" ).val() );
+
+        // When adjustment is disabled the editor is hidden, so invalid rows are
+        // skipped rather than blocking the save with errors the user cannot see.
+        if ( !Number.isFinite( x ) || !Number.isFinite( y ) ) {
+            if ( enabled ) {
+                throw validationError( OSApp.Language._( "Error: Complete or remove every sensor adjustment point." ) );
+            }
+            return;
+        }
+        if ( y < 0 ) {
+            if ( enabled ) {
+                throw validationError( OSApp.Language._( "Error: Watering percentages cannot be negative." ) );
+            }
+            return;
+        }
+
+        vals.push( [ x, y / 100, vals.length ] );
+    } );
+
+    if ( vals.length === 0 ) {
+		if ( !enabled ) {
+			return `&snadj=${flag},${uuid}`;
+		}
+        throw validationError( OSApp.Language._( "Error: Add at least one sensor adjustment point." ) );
+    }
+
+    vals.sort( ( a, b ) => a[ 0 ] - b[ 0 ] || a[ 2 ] - b[ 2 ] );
+
+    const parts = [ flag, uuid ];
+    vals.forEach( ( v ) => {
+        parts.push( v[ 0 ], v[ 1 ] );
+    } );
+
+    return `&snadj=${parts.join( "," )}`;
+};
+
 OSApp.Programs.addProgram = function( copyID ) {
 	copyID = ( copyID >= 0 ) ? copyID : "new";
 
@@ -2464,6 +3101,7 @@ OSApp.Programs.addProgram = function( copyID ) {
 	} );
 
 	page.one( "pagehide", function() {
+		OSApp.Programs.destroySensorAdjustmentCharts( page );
 		page.remove();
 	} );
 
@@ -2478,14 +3116,15 @@ OSApp.Programs.addProgram = function( copyID ) {
 OSApp.Programs.deleteProgram = function( id ) {
 	var program = OSApp.Programs.pidToName( parseInt( id ) + 1 );
 
-	OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to delete program" ) + " " + program + "?", "", function() {
+	OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to delete program" ) + " " + OSApp.Utils.htmlEscape( program ) + "?", "", function() {
 		$.mobile.loading( "show" );
-		OSApp.Firmware.sendToOS( "/dp?pw=&pid=" + id ).done( function() {
-			$.mobile.loading( "hide" );
-			OSApp.Sites.updateControllerPrograms( function() {
+		OSApp.Firmware.sendToOS( "/dp?pw=&pid=" + id ).then( function() {
+			return OSApp.Sites.updateControllerPrograms( function() {
 				$( "#programs" ).trigger( "programrefresh" );
 				OSApp.Errors.showError( OSApp.Language._( "Program" ) + " " + program + " " + OSApp.Language._( "deleted" ) );
 			} );
+		} ).always( function() {
+			$.mobile.loading( "hide" );
 		} );
 	} );
 };
@@ -2560,22 +3199,24 @@ OSApp.Programs.submitProgram183 = function( id ) {
 	$.mobile.loading( "show" );
 	if ( id === "new" ) {
 		OSApp.Firmware.sendToOS( "/cp?pw=&pid=-1&v=" + program ).done( function() {
-			$.mobile.loading( "hide" );
 			OSApp.Sites.updateControllerPrograms( function() {
 				$.mobile.document.one( "pageshow", function() {
 					OSApp.Errors.showError( OSApp.Language._( "Program added successfully" ) );
 				} );
 				OSApp.UIDom.goBack();
 			} );
+		} ).always( function() {
+			$.mobile.loading( "hide" );
 		} );
 	} else {
 		OSApp.Firmware.sendToOS( "/cp?pw=&pid=" + id + "&v=" + program ).done( function() {
-			$.mobile.loading( "hide" );
 			OSApp.Sites.updateControllerPrograms( function() {
 				$( "#programs" ).trigger( "programrefresh" );
 				OSApp.Programs.updateProgramHeader();
 			} );
 			OSApp.Errors.showError( OSApp.Language._( "Program has been updated" ) );
+		} ).always( function() {
+			$.mobile.loading( "hide" );
 		} );
 	}
 };
@@ -2715,6 +3356,18 @@ OSApp.Programs.submitProgram21 = function( id, ignoreWarning ) {
 
 	url = "&v=" + JSON.stringify( program ) + "&name=" + encodeURIComponent( name );
 
+    if ( OSApp.Supported.sensors() ) {
+        try {
+            url += OSApp.Programs.getSenAdjURL( id );
+        } catch ( error ) {
+            if ( error.name !== "SensorAdjustmentValidationError" ) {
+                throw error;
+            }
+            OSApp.Errors.showError( error.message );
+            return;
+        }
+    }
+
 	if ( stationSelected === 0 ) {
 		OSApp.Errors.showError( OSApp.Language._( "Error: You have not selected any stations." ) );
 		return;
@@ -2742,23 +3395,25 @@ OSApp.Programs.submitProgram21 = function( id, ignoreWarning ) {
 	$.mobile.loading( "show" );
 	if ( id === "new" ) {
 		OSApp.Firmware.sendToOS( "/cp?pw=&pid=-1" + url + daterange ).done( function() {
-			$.mobile.loading( "hide" );
 			OSApp.Sites.updateControllerPrograms( function() {
 				$.mobile.document.one( "pageshow", function() {
 					OSApp.Errors.showError( OSApp.Language._( "Program added successfully" ) );
 				} );
 				OSApp.UIDom.goBack();
 			} );
+		} ).always( function() {
+			$.mobile.loading( "hide" );
 		} );
 	} else {
 		OSApp.Firmware.sendToOS( "/cp?pw=&pid=" + id + url + daterange ).done( function() {
-			$.mobile.loading( "hide" );
 			OSApp.Sites.updateControllerPrograms( function() {
 				$( "#programs" ).trigger( "programrefresh" );
 				OSApp.Programs.updateProgramHeader();
 				$( "#program-" + id ).find( ".program-name" ).text( name );
 			} );
 			OSApp.Errors.showError( OSApp.Language._( "Program has been updated" ) );
+		} ).always( function() {
+			$.mobile.loading( "hide" );
 		} );
 	}
 };
@@ -2769,19 +3424,25 @@ OSApp.Programs.openRunProgramDialog = function (pid, stationsDurations, uwt, isR
 	if (!$popup.length) {
 		$popup = $(`
 			<div data-role="popup" id="run-program-dialog" data-position-to="window" data-tolerance="15,15,15,15"
-					 data-overlay-theme="b" data-theme="a" data-dismissible="false"
-					 style="max-width:480px;">
+					 data-overlay-theme="b" data-theme="a" data-dismissible="false">
 				<div class="ui-content">
 					<h3 class="center" style="margin-top:0">${OSApp.Language._("Run this program?")}</h3>
 
 					<fieldset data-role="controlgroup" data-mini="true">
 						<label>
 							<input type="checkbox" id="rp-apply-wl">
-							${OSApp.Language._("Apply current watering level")} <span id="rp-apply-wl-percent">
+							${OSApp.Language._("Apply Weather Adjustment")} <span id="rp-apply-wl-percent"></span>
 						</label>
 					</fieldset>
 
-					<fieldset data-role="controlgroup" data-mini="true" id="rp-repeat-wrap" style="display:none;margin-top:6px;">
+				<fieldset data-role="controlgroup" data-mini="true" id="rp-sa-wrap" style="margin-top:6px;">
+						<label>
+							<input type="checkbox" id="rp-apply-sa">
+							${OSApp.Language._("Apply Sensor Adjustment")} <span id="rp-apply-sa-percent"></span>
+						</label>
+					</fieldset>
+
+<fieldset data-role="controlgroup" data-mini="true" id="rp-repeat-wrap" style="display:none;margin-top:6px;">
 						<label>
 							<input type="checkbox" id="rp-create-single" checked>
 							${OSApp.Language._("Create a single-run program for repeats")}
@@ -2814,19 +3475,76 @@ OSApp.Programs.openRunProgramDialog = function (pid, stationsDurations, uwt, isR
 		$popup.popup(); // init
 	}
 
-	// Inherit program setting's uwt flag
-	var apply = !!uwt;
-	var currentWL = OSApp.currentSession.controller.options.wl ?? 100;
-	var percentText = "(" + currentWL + "%)";
-	$popup.find("#rp-apply-wl-percent").text(percentText);
+	// Compute effective watering level and sensor adjustment factors
+	var jpaData = OSApp.currentSession.controller.jpaData;
+	var prog = pid != null ? OSApp.currentSession.controller.programs.pd[ pid ] : null;
+	var effectiveWL, weatherPercent;
 
+	if ( OSApp.Supported.sensors() && jpaData && pid != null && jpaData[ pid ] ) {
+		weatherPercent = Math.round( jpaData[ pid ].wa * 100 );
+		effectiveWL = weatherPercent;
+	} else if ( prog ) {
+		var wto = OSApp.currentSession.controller.settings.wto;
+		var wls = OSApp.currentSession.controller.settings.wls;
+		var weatherRestricted = OSApp.currentSession.controller.settings.wtrestr > 0 && ( prog[ 0 ] & 0x02 );
+		var progtype = ( prog[ 0 ] >> 4 ) & 0x03;
+		var intervalday = prog[ 2 ];
+		if ( weatherRestricted ) {
+			effectiveWL = 0;
+		} else if ( wto && wto.mda === 100 &&
+				 progtype === OSApp.Constants.options.PROGRAM_TYPE_INTERVAL &&
+				 wls && wls.length > 0 ) {
+			effectiveWL = wls[ Math.min( intervalday - 1, wls.length - 1 ) ];
+		} else {
+			effectiveWL = OSApp.currentSession.controller.options.wl ?? 100;
+		}
+		weatherPercent = effectiveWL;
+	} else {
+		effectiveWL = OSApp.currentSession.controller.options.wl ?? 100;
+		weatherPercent = effectiveWL;
+	}
+	weatherPercent = Number.isFinite( Number( weatherPercent ) ) ?
+		Math.min( 250, Math.max( 0, Math.round( Number( weatherPercent ) ) ) ) : 100;
+	effectiveWL = weatherPercent;
+
+	$popup.find( "#rp-apply-wl-percent" ).text( "(" + effectiveWL + "%)" );
+
+	// Sensor adjustment — only available when jpaData exists and program has sensor adjustment enabled
+	var progAdj = prog && prog[ 7 ];
+	var saFactor = null;
+	if ( OSApp.Supported.sensors() && jpaData && pid != null && jpaData[ pid ] &&
+		 progAdj && ( ( progAdj.flag ?? 0 ) & 1 ) === 1 && ( progAdj.uuid ?? 0 ) !== 0 ) {
+		saFactor = jpaData[ pid ].sa;
+	}
+
+	var $saCheckbox = $popup.find( "#rp-apply-sa" );
+	if ( saFactor !== null ) {
+		$popup.find( "#rp-apply-sa-percent" ).text( "(" + ( Math.round( saFactor * 1000 ) / 10 ) + "%)" );
+		$saCheckbox.prop( { "checked": true, "disabled": false } );
+		if ( $saCheckbox.closest( ".ui-checkbox" ).length ) {
+			$saCheckbox.checkboxradio( "refresh" );
+		}
+		$popup.find( "#rp-sa-wrap" ).show();
+	} else {
+		$popup.find( "#rp-sa-wrap" ).hide();
+	}
+
+	// Store factors so the run handler doesn't need to recompute
+	$popup.data( "weatherPercent", weatherPercent );
+	$popup.data( "saFactor", saFactor );
+
+	var apply = !!uwt;
 	$("#rp-apply-wl").prop("checked", apply);
 	if ($("#rp-apply-wl").closest(".ui-checkbox").length) {
 		$("#rp-apply-wl").checkboxradio("refresh");
 	}
 
 	// Show/hide checkbox for repeating
-	$("#rp-repeat-wrap").toggle(!!isRepeatProgram);
+	var $createSingle = $popup.find( "#rp-create-single" ).prop( "checked", true );
+	if ( $createSingle.closest( ".ui-checkbox" ).length ) {
+		$createSingle.checkboxradio( "refresh" );
+	}
+	$popup.find( "#rp-repeat-wrap" ).toggle( !!isRepeatProgram );
 
 	// Show/hide scheduling options
 	var supportsQO = OSApp.Firmware.checkOSVersion(2214);
@@ -2866,7 +3584,7 @@ OSApp.Programs.openRunProgramDialog = function (pid, stationsDurations, uwt, isR
 	} );
 };
 
-OSApp.Programs.expandProgram = function( program ) {
+OSApp.Programs.expandProgram = function( program, getAdjustmentRequest ) {
 	var id = parseInt( program.attr( "id" ).split( "-" )[ 1 ] );
 
 	program.find( ".ui-collapsible-content" ).html( OSApp.Programs.makeProgram( id ) ).enhanceWithin().on( "change input click", function( e ) {
@@ -2888,7 +3606,15 @@ OSApp.Programs.expandProgram = function( program ) {
 		return false;
 	} );
 
-	program.find( "[id^='run-']" ).on( "click", function(e) {
+	var runButton = program.find( "[id^='run-']" );
+	var controller = OSApp.currentSession.controller;
+	var adjustmentRequest = typeof getAdjustmentRequest === "function" ? getAdjustmentRequest() : null;
+	OSApp.Programs.waitForProgramAdjustments( runButton, controller, adjustmentRequest );
+
+	runButton.on( "click", function(e) {
+		if ( $( this ).prop( "disabled" ) ) {
+			return false;
+		}
 		e.stopPropagation();
 		var name = OSApp.Firmware.checkOSVersion( 210 ) ? OSApp.currentSession.controller.programs.pd[ id ][ 5 ] : "Program " + id;
 		var annotation = name.slice(-2);
@@ -2908,7 +3634,7 @@ OSApp.Programs.expandProgram = function( program ) {
 		}
 
 		// detect repeat and interval in the program data
-		var repeat = 0, interval = 0; 
+		var repeat = 0, interval = 0;
 		if (OSApp.Supported.repeatedRunonce()) {
 			const prog = OSApp.currentSession.controller.programs.pd[id];
 			// startType bit: 0 => "repeating" style start times in current code path
@@ -2922,11 +3648,31 @@ OSApp.Programs.expandProgram = function( program ) {
 		var uwtChecked = ( OSApp.currentSession.controller.programs.pd[ id ][ 0 ] >> 1 ) & 1;
 		var isRepeatProgram = ( interval > 0 ) && ( repeat > 0 );
 		OSApp.Programs.openRunProgramDialog( id, runonce, uwtChecked, isRepeatProgram );
-		$(document).one("click.runprog", "#rp-run", function (e) {
+		$( "#rp-run" ).off( "click.runprog" ).one( "click.runprog", function (e) {
 			e.preventDefault();
 			$("#run-program-dialog").popup("close");
 
-			var uwt = $("#rp-apply-wl").is(":checked") ? 1 : 0;
+			var $rpPopup = $( "#run-program-dialog" );
+			var applyWeather = $( "#rp-apply-wl" ).is( ":checked" );
+			var weatherPercent = Number( $rpPopup.data( "weatherPercent" ) );
+			applyWeather = applyWeather && Number.isFinite( weatherPercent ) && weatherPercent >= 0;
+			var saFactor = $rpPopup.data( "saFactor" );
+			var applySensor = $( "#rp-apply-sa" ).is( ":checked" ) &&
+				Number.isFinite( saFactor ) && saFactor >= 0;
+			if ( applyWeather || applySensor ) {
+				for ( var i = 0; i < runonce.length; i++ ) {
+					var baseDuration = runonce[ i ] === 65534 || runonce[ i ] === 65535 ?
+						OSApp.Stations.getStationDuration( runonce[ i ] ) : runonce[ i ];
+					var adjustedDuration = Math.max( 0, Number( baseDuration ) || 0 );
+					if ( applyWeather ) {
+						adjustedDuration = Math.floor( adjustedDuration * weatherPercent / 100 );
+					}
+					if ( applySensor ) {
+						adjustedDuration = Math.floor( adjustedDuration * saFactor );
+					}
+					runonce[ i ] = Number.isFinite( adjustedDuration ) ? Math.min( 65533, adjustedDuration ) : 65533;
+				}
+			}
 			if ( !$("#rp-create-single").is(":checked") || !isRepeatProgram ) {
 				interval = 0;
 				repeat = 0;
@@ -2938,13 +3684,7 @@ OSApp.Programs.expandProgram = function( program ) {
 
 			runonce.push(0); // for legacy firmwares, need an extra element at the end
 
-			if ( uwt && !OSApp.Supported.repeatedRunonce() ) { // if the /cr endpoint doesn't support uwt flag, we apply uwt manually here
-				var wl = OSApp.currentSession.controller.options.wl ?? 100;  // fallback to 100% if undefined or null
-				for (var i = 0; i < runonce.length; i++) {
-					runonce[i] = Math.floor(runonce[i] * wl / 100);
-				}
-			}
-			OSApp.Stations.submitRunonce(runonce, uwt, interval, repeat, annotation, qo);
+			OSApp.Stations.submitRunonce(runonce, interval, repeat, annotation, qo);
 		} );
 	} );
 };

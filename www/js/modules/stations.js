@@ -109,7 +109,9 @@ OSApp.Stations.isRunning = function( sid ) {
 
 OSApp.Stations.isMaster = function( sid ) {
 	var m1 = typeof OSApp.currentSession.controller.options.mas === "number" ? OSApp.currentSession.controller.options.mas : 0,
-		m2 = typeof OSApp.currentSession.controller.options.mas2 === "number" ? OSApp.currentSession.controller.options.mas2 : 0;
+		m2 = typeof OSApp.currentSession.controller.options.mas2 === "number" ? OSApp.currentSession.controller.options.mas2 : 0,
+		m3 = typeof OSApp.currentSession.controller.options.mas3 === "number" ? OSApp.currentSession.controller.options.mas3 : 0,
+		m4 = typeof OSApp.currentSession.controller.options.mas4 === "number" ? OSApp.currentSession.controller.options.mas4 : 0;
 
 	sid++;
 
@@ -117,6 +119,10 @@ OSApp.Stations.isMaster = function( sid ) {
 		return 1;
 	} else if ( m2 === sid ) {
 		return 2;
+	} else if ( m3 === sid ) {
+		return 3;
+	} else if ( m4 === sid ) {
+		return 4;
 	} else {
 		return 0;
 	}
@@ -135,17 +141,32 @@ OSApp.Stations.isDisabled = function( sid )  {
 };
 
 OSApp.Stations.stopAllStations = function() {
-	if ( !OSApp.currentSession.isControllerConnected() ) {
+	var session = OSApp.currentSession,
+		controller = session.controller,
+		isCurrentContext = function() {
+			return OSApp.currentSession === session && OSApp.currentSession.controller === controller;
+		};
+
+	if ( !session.isControllerConnected() ) {
 		return false;
 	}
 
 	OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to stop all stations?" ), "", function() {
+		if ( !isCurrentContext() ) {
+			return;
+		}
 		$.mobile.loading( "show" );
 		OSApp.Firmware.sendToOS( "/cv?pw=&rsn=1" ).done( function() {
-			$.mobile.loading( "hide" );
+			if ( !isCurrentContext() ) {
+				return;
+			}
 			OSApp.Stations.removeStationTimers();
 			OSApp.Status.refreshStatus();
 			OSApp.Errors.showError( OSApp.Language._( "All stations have been stopped" ) );
+		} ).always( function() {
+			if ( isCurrentContext() ) {
+				$.mobile.loading( "hide" );
+			}
 		} );
 	} );
 };
@@ -162,14 +183,22 @@ OSApp.Stations.removeStationTimers = function() {
 
 OSApp.Stations.stopStations = function( callback ) {
 	callback = callback || function() {};
+	var session = OSApp.currentSession,
+		controller = session.controller;
 	$.mobile.loading( "show" );
 
 	// It can take up to a second before stations actually stop
 	OSApp.Firmware.sendToOS( "/cv?pw=&rsn=1" ).done( function() {
 		setTimeout( function() {
-			$.mobile.loading( "hide" );
-			callback();
+			if ( OSApp.currentSession === session && OSApp.currentSession.controller === controller ) {
+				$.mobile.loading( "hide" );
+				callback();
+			}
 		}, 1000 );
+	} ).fail( function() {
+		if ( OSApp.currentSession === session && OSApp.currentSession.controller === controller ) {
+			$.mobile.loading( "hide" );
+		}
 	} );
 };
 
@@ -241,22 +270,65 @@ OSApp.Stations.convertRemoteToExtender = function( data ) {
 	} );
 };
 
-OSApp.Stations.submitRunonce = function( runonce, uwt, interval, repeat, annotation, qo ) {
-	// This block is for the Run-Once Page *only*.
-	// It detects if `runonce` is not an array, meaning it's being called from the page.
-	if ( !( runonce instanceof Array ) ) {
-		runonce = [];
-		$( "#runonce" ).find( "[id^='zone-']" ).each( function() {
-			runonce.push( parseInt( this.value ) || 0 );
-		} );
-		runonce.push( 0 );
+OSApp.Stations.submitRunonce = function( runonce, interval, repeat, annotation, qo ) {
+	var session = OSApp.currentSession,
+		controller = session.controller,
+		isCurrentContext = function() {
+			return OSApp.currentSession === session && OSApp.currentSession.controller === controller;
+		},
+		boundedInteger = function( value, minimum, maximum, fallback ) {
+		value = Number( value );
+		if ( !Number.isFinite( value ) ) {
+			return fallback;
+		}
 
-		if( OSApp.Supported.repeatedRunonce() ){
-			// Set up all parameters if needed
-			if( uwt == null ) {
-				uwt = $( "#runonce" ).find( "#uwt-runonce" ).prop( "checked" ) ? 1 : 0;
+		return Math.min( maximum, Math.max( minimum, Math.floor( value ) ) );
+	},
+		normalizeDuration = function( value ) {
+			value = boundedInteger( value, 0, 65535, 0 );
+			return value === 65534 || value === 65535 ? value : Math.min( value, 65533 );
+		},
+		adjustDuration = function( value, percentage ) {
+			value = normalizeDuration( value );
+			if ( value === 65534 || value === 65535 ) {
+				if ( percentage === 100 ) {
+					return value;
+				}
+				value = OSApp.Stations.getStationDuration( value );
 			}
 
+			return Math.min( 65533, Math.floor( value * percentage / 100 ) );
+		},
+		originalRunonce;
+
+	// This block is for the Run-Once Page *only*.
+	// It detects if `runonce` is not an array, meaning it's being called from the page.
+	if ( !Array.isArray( runonce ) ) {
+		if ( runonce && typeof runonce.preventDefault === "function" ) {
+			runonce.preventDefault();
+		}
+		runonce = [];
+		$( "#runonce" ).find( "[id^='zone-']" ).each( function() {
+			runonce.push( normalizeDuration( this.value ) );
+		} );
+		runonce.push( 0 );
+		originalRunonce = runonce.slice();
+
+		var wlMode = $( "#runonce" ).find( "input[name='wl-runonce']:checked" ).val() || "none";
+		var i;
+		if ( wlMode === "custom" ) {
+			var customPct = boundedInteger( $( "#runonce" ).find( "#wl-custom-slider" ).val(), 1, 250, 100 );
+			for ( i = 0; i < runonce.length - 1; i++ ) {
+				runonce[ i ] = adjustDuration( runonce[ i ], customPct );
+			}
+		} else if ( wlMode === "current" ) {
+			var wlPct = boundedInteger( OSApp.currentSession.controller.options.wl, 0, 250, 100 );
+			for ( i = 0; i < runonce.length - 1; i++ ) {
+				runonce[ i ] = adjustDuration( runonce[ i ], wlPct );
+			}
+		}
+
+		if( OSApp.Supported.repeatedRunonce() ){
 			if( interval == null ) {
 				interval = $( "#runonce" ).find( "#interval-runonce").val() / 60;
 			}
@@ -270,33 +342,53 @@ OSApp.Stations.submitRunonce = function( runonce, uwt, interval, repeat, annotat
 				qo = $("input[name='qo-runonce']:checked").val();
 			}
 		}
+	} else {
+		runonce = runonce.map( function( duration ) {
+			return normalizeDuration( duration );
+		} );
 	}
 
 	var submit = function() {
+		if ( !isCurrentContext() ) {
+			return;
+		}
 		$.mobile.loading( "show" );
-		OSApp.Storage.set( { "runonce": JSON.stringify( runonce ) } );
+		OSApp.Storage.set( { "runonce": JSON.stringify( originalRunonce || runonce ) } );
 
 		let request = "/cr?pw=&t=" + JSON.stringify( runonce );
 
 		if ( OSApp.Supported.repeatedRunonce() ) {
-			request += "&int=" + interval + "&cnt=" + repeat + "&uwt=" + uwt;
-			if ( annotation?.length > 0 ) {
-				request += "&anno=" + annotation;
+			interval = boundedInteger( interval, 0, 1439, 0 );
+			repeat = boundedInteger( repeat, 0, 1440, 0 );
+			if ( interval > 0 && repeat > 0 ) {
+				request += "&int=" + interval + "&cnt=" + repeat;
+			}
+			if ( typeof annotation === "string" && annotation.length > 0 ) {
+				request += "&anno=" + encodeURIComponent( annotation );
 			}
 		}
 		if ( OSApp.Firmware.checkOSVersion ( 2214 ) ) {
 			if ( qo != null ) {
-				request += "&qo=" + qo;
+				qo = Number( qo );
+				request += "&qo=" + ( Number.isInteger( qo ) && qo >= 0 && qo <= 2 ? qo : 2 );
 			}
 		}
 
 		OSApp.Firmware.sendToOS( request ).done( function() {
-			$.mobile.loading( "hide" );
+			if ( !isCurrentContext() ) {
+				return;
+			}
 			$.mobile.document.one( "pageshow", function() {
-				OSApp.Errors.showError( OSApp.Language._( "Run-once program has been scheduled" ) );
+				if ( isCurrentContext() ) {
+					OSApp.Errors.showError( OSApp.Language._( "Run-once program has been scheduled" ) );
+				}
 			} );
 			OSApp.Status.refreshStatus();
 			OSApp.UIDom.goBack();
+		} ).always( function() {
+			if ( isCurrentContext() ) {
+				$.mobile.loading( "hide" );
+			}
 		} );
 	},
 	isOn = OSApp.StationQueue.isActive();
@@ -305,7 +397,13 @@ OSApp.Stations.submitRunonce = function( runonce, uwt, interval, repeat, annotat
 		if ( !OSApp.Firmware.checkOSVersion ( 2214 ) && isOn !== -1 ){
 			// Add a short delay to allow the first popup to finish closing
 			setTimeout(function() {
-				OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to stop the currently running program?" ), OSApp.Programs.pidToName( OSApp.Stations.getPID( isOn ) ), function() {
+				if ( !isCurrentContext() ) {
+					return;
+				}
+				OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to stop the currently running program?" ), OSApp.Utils.htmlEscape( OSApp.Programs.pidToName( OSApp.Stations.getPID( isOn ) ) ), function() {
+					if ( !isCurrentContext() ) {
+						return;
+					}
 					$.mobile.loading( "show" );
 					OSApp.Stations.stopStations( submit );
 				} );
@@ -316,6 +414,7 @@ OSApp.Stations.submitRunonce = function( runonce, uwt, interval, repeat, annotat
 	};
 
 	checkIsOnAndSubmit();
+	return false;
 };
 
 OSApp.Stations.getStationDuration = function( duration, date ) {

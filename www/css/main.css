@@ -222,6 +222,12 @@ hr.divider {
     opacity: 0.2;
     margin: 15px auto;
 }
+hr.section-divider {
+    border: none;
+    border-top: 1px solid currentColor;
+    opacity: 0.2;
+    margin: 16px 0;
+}
 .content-divider {
     border: 0;
     height: 0;
@@ -277,6 +283,9 @@ hr.divider {
 	color:#FFF!important;
 	font-weight:400;
 	text-shadow:none!important;
+}
+.blue.ui-btn {
+	border-color:#5D99C3!important;
 }
 .blue-text {
 	color: #5D99C3!important;
@@ -588,6 +597,16 @@ input[type=number] {
     border-bottom-right-radius: 0 !important;
     border-top-right-radius: 0 !important;
     border-right: none;
+}
+
+#run-program-dialog {
+    width: min(300px, calc(100vw - 30px));
+    box-sizing: border-box;
+}
+
+#run-program-dialog .ui-checkbox .ui-btn,
+#run-program-dialog .ui-radio .ui-btn {
+    white-space: normal;
 }
 
 #verify-api {
@@ -943,6 +962,7 @@ div.running-text{
   text-align: center;
 }
 
+
 .ocs-popup .ui-content {
   padding: 6px 8px;
 }
@@ -1138,6 +1158,12 @@ div.running-text{
 	bottom: calc(env(safe-area-inset-bottom) + 10%) !important;
 }
 
+.program-section-divider {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 16px 0 8px;
+}
+
 /* temporary fix for Start Time input box in edit program menu*/
 button[id^="start_1-"] {
 	margin-left: 0em;
@@ -1169,4 +1195,358 @@ button[id^="start_1-"] {
     .ui-field-contain .sensor-options {
         width: 100%;
     }
+}
+
+#sensors_list input:invalid,
+#add-sensor input:invalid,
+#sensorSettings input:invalid,
+#masterSettings input:invalid,
+[id^="sensor-options-"] input:invalid {
+  background-color: #fff4f4 !important;
+  color: #111 !important;
+  outline: 2px solid #b00020 !important;
+  text-shadow: none !important;
+}
+
+#sensors_list,
+#add-sensor .ui-content {
+    max-width: 600px;
+}
+
+.sensor-add-card {
+    background-color: #f9f9f9;
+    border: 1px solid #d8d8d8;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+    padding: 12px 14px;
+    margin: 16px 0;
+}
+
+.sensor-page-notice {
+    margin: 1.5em 0 0 0;
+    padding-top: 1em;
+    border-top: 1px solid #d8d8d8;
+}
+
+.sensor-hw-missing {
+    margin: 0.25em 0 0.75em 0;
+    font-size: 0.9em;
+    color: #888;
+    font-style: italic;
+}
+
+.sensor-home-header {
+    max-width: 500px;
+    margin: 1.5em auto 0.5em auto;
+    padding-top: 0.75em;
+    border-top: 1px solid #d8d8d8;
+    text-align: center;
+    font-size: 0.9em;
+}
+
+.sensors-home-combined {
+    display: block;
+    color: inherit !important;
+    font-size: 0.9em;
+    text-decoration: none;
+}
+
+.sensor-home-list {
+    column-gap: 16px;
+    -webkit-column-gap: 16px;
+    -moz-column-gap: 16px;
+}
+
+@media (min-width: 1032px) {
+    .sensor-home-list {
+        column-count: 2;
+        -webkit-column-count: 2;
+        -moz-column-count: 2;
+    }
+    /* Widen the sensor card and its header to span both station-card columns
+       so each sensor row has enough room for long names. */
+    .sensors-home-combined,
+    .sensor-home-header {
+        max-width: 1010px;
+    }
+}
+
+.sensor-home-row {
+    /* Don't let a row split across columns. */
+    -webkit-column-break-inside: avoid;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    padding: 2px 0;
+    display: flex;
+    gap: 12px;
+}
+
+.sensor-home-name {
+    min-width: 0;
+    font-weight: bold;
+}
+
+/* App Settings: lay all toggle buttons in a single wrap-friendly row so
+   they sit side-by-side on wide screens and stack onto extra rows as the
+   viewport narrows. */
+.app-settings-row .ui-controlgroup-controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+}
+
+.app-settings-row .ui-checkbox {
+    flex: 0 0 auto;
+}
+
+/* JQM's horizontal controlgroup strips inner borders/radii because adjacent
+   buttons share an edge — but with a 6px gap each button stands alone, so
+   restore a full outline on every button. */
+.app-settings-row .ui-checkbox .ui-btn {
+    border-right-width: 1px;
+    border-radius: 0.3125em;
+}
+
+.sensor-home-value {
+    white-space: nowrap;
+}
+
+@media (min-width: 28em) {
+    .sensor-hw-missing {
+        margin-left: calc(30% + 0.5em);
+    }
+}
+
+.master-config-button {
+    margin: 0.75em 0;
+}
+
+#masterSettings .ui-field-contain > label,
+#sensorSettings .ui-field-contain > label {
+    padding-right: 14px;
+}
+
+#masterSettings .master-step-hint {
+    margin: 1em 0 0.75em 0;
+    font-size: 0.85em;
+    color: #666;
+}
+
+#sensorSettings .sn-prg-hint {
+    margin: 1em 0 0.75em 0;
+    font-size: 0.85em;
+    color: #666;
+}
+
+#sensorSettings .ui-select .ui-btn,
+#sensorSettings input[type='number'] {
+    font-size: 1.05em;
+    padding-top: 0.6em;
+    padding-bottom: 0.6em;
+}
+
+#sensors_list .ui-field-contain > label {
+    padding-right: 14px;
+}
+
+
+.sensor-flags-label {
+    display: none;
+}
+
+.sensor-flags-checkboxes {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 6px;
+    align-items: center;
+    padding: 4px 0;
+}
+
+.sensor-flags-checkboxes .ui-checkbox {
+    margin: 0;
+}
+
+.sensor-flags-checkboxes .ui-checkbox label.ui-btn {
+    padding-top: 0.4em;
+    padding-bottom: 0.4em;
+    font-size: 0.9em;
+    margin: 0;
+    min-height: 0;
+}
+
+.sensor-current-value-text {
+    font-size: 1em;
+    color: inherit;
+}
+
+.sensor-value-valid {
+    color: #27ae60;
+}
+
+.sensor-value-warning {
+    color: #e67e22;
+}
+
+.sensor-value-clamped {
+    color: #5D99C3;
+}
+
+.sensor-array-buttons {
+    overflow: hidden;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 4px 0;
+}
+
+.sensor-child-popup {
+    min-width: 280px;
+    overflow: auto;
+}
+
+.sensor-child-popup-title {
+    text-align: center;
+}
+
+@media all and (min-width: 28em) {
+    .sensor-flags-label {
+        display: inline-block;
+        float: left;
+        width: 20%;
+    }
+    .sensor-flags-checkboxes {
+        display: inline-flex;
+        width: 79%;
+    }
+}
+
+
+.sensor-chart-controls {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 4px;
+}
+
+.sensor-log-chart-container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 5 / 2;
+    min-height: 250px;
+    max-height: 450px;
+}
+
+.sensor-log-filter-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 0 16px;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 8px;
+}
+
+.sensor-log-filter-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sensor-log-filter-toggle label {
+    font-weight: bold;
+}
+
+.sensor-log-filter-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+@media (max-width: 27.99em) {
+    .sensor-log-filter-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+
+.sensor-log-download-btn {
+    background-color: #5D99C3 !important;
+    border-color: #5D99C3 !important;
+    color: #fff !important;
+    text-shadow: 0 1px 0 #059 !important;
+    font-weight: bold !important;
+}
+
+.sensor-log-delete-btn {
+    background-color: #444 !important;
+    border-color: #555 !important;
+    color: #fff !important;
+    text-shadow: 0 1px 0 #333 !important;
+}
+
+.sensor-log-delete-all-btn {
+    background-color: #444 !important;
+    border-color: #555 !important;
+    color: #fff !important;
+    text-shadow: 0 1px 0 #333 !important;
+    font-weight: bold !important;
+}
+
+.sensor-splits-table {
+    table-layout: fixed;
+    margin: 0 auto;
+}
+
+.sensor-splits-table th:nth-child(1),
+.sensor-splits-table td:nth-child(1) {
+    width: 54px;
+    text-align: center;
+}
+
+.sensor-splits-table th:nth-child(2) {
+    width: 150px;
+}
+
+.sensor-splits-table th:nth-child(3) {
+    width: 150px;
+}
+
+.sensor-splits-table th:nth-child(4),
+.sensor-splits-table td:nth-child(4) {
+    width: 40px;
+    text-align: center;
+}
+
+.sensor-splits-table td .ui-input-text {
+    margin: 2px 0;
+}
+
+.split-remove {
+    width: 32px !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Points editor (sensors.js) — keep the label at the top of its column rather
+   than vertically centered against the growing table, and allow the table to
+   scroll horizontally if it exceeds its parent's width on narrow viewports. */
+.sensor-points-field {
+    align-items: flex-start !important;
+}
+
+.sensor-points-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.sensor-log-card {
+    background-color: #f2f2f2;
+    border: 1px solid #d8d8d8;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    padding: 12px 14px;
+    margin: 24px 0;
 }

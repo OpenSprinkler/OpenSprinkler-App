@@ -15,8 +15,31 @@
 
 describe("Popup Checks", function () {
 
-	it( "Show main menu popup", function( done ) {
+	it( "Show main menu popup with legacy analog sensor links", function( done ) {
+		var controller = OSApp.currentSession.controller,
+			hadSensors = Object.prototype.hasOwnProperty.call( controller, "sensors" ),
+			originalSensors = controller.sensors,
+			originalFeature = controller.options.feature;
+
+		delete controller.sensors;
+		controller.options.feature = "ASB";
+
 		$.mobile.document.one( "popupafteropen", "#mainMenu", function() {
+			try {
+				assert.lengthOf( $( "#mainMenu a[href='#analogsensorconfig']" ), 1 );
+				assert.lengthOf( $( "#mainMenu a[href='#analogsensorchart']" ), 1 );
+				assert.lengthOf( $( "#mainMenu a[href='#sensors']" ), 0 );
+				assert.lengthOf( $( "#mainMenu a[href='#sensor-logs']" ), 0 );
+			} finally {
+				if ( hadSensors ) {
+					controller.sensors = originalSensors;
+				}
+				if ( originalFeature === undefined ) {
+					delete controller.options.feature;
+				} else {
+					controller.options.feature = originalFeature;
+				}
+			}
 			done();
 		} );
 		assert.doesNotThrow( function() {

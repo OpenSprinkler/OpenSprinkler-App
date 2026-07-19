@@ -110,6 +110,10 @@ OSApp.Sites.displayPage = function() {
 					siteNames.push( a );
 
 					a = OSApp.Utils.htmlEscape( a );
+					var escapedIP = OSApp.Utils.htmlEscape( b.os_ip || "" ),
+						escapedToken = OSApp.Utils.htmlEscape( b.os_token || "" ),
+						escapedAuthUser = OSApp.Utils.htmlEscape( b.auth_user || "" ),
+						escapedAuthPassword = OSApp.Utils.htmlEscape( b.auth_pw || "" );
 
 					list += "<fieldset " + ( ( total === 1 ) ? "data-collapsed='false'" : "" ) + " id='site-" + i + "' data-role='collapsible'>" +
 						"<h3>" +
@@ -122,12 +126,12 @@ OSApp.Sites.displayPage = function() {
 						"<label for='cnm-" + i + "'>" + OSApp.Language._( "Change Name" ) + "</label><input id='cnm-" + i + "' type='text' value='" + a + "'>" +
 						"</div>" +
 						( b.os_token ? "" : "<div class='ui-field-contain'>" +
-							"<label for='cip-" + i + "'>" + OSApp.Language._( "Change IP/URL" ) + "</label><input id='cip-" + i + "' type='text' inputmode='url' value='" + b.os_ip +
-							"' autocomplete='off' autocorrect='off' autocapitalize='off' pattern='' spellcheck='false'>" +
+							"<label for='cip-" + i + "'>" + OSApp.Language._( "Change IP/URL" ) + "</label><input id='cip-" + i + "' type='text' inputmode='url' value='" + escapedIP +
+							"' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'>" +
 							"</div>" ) +
 						( b.os_token ? "<div class='ui-field-contain'>" +
-							"<label for='ctoken-" + i + "'>" + OSApp.Language._( "Change Token" ) + "</label><input id='ctoken-" + i + "' type='text' value='" + b.os_token +
-							"' autocomplete='off' autocorrect='off' autocapitalize='off' pattern='' spellcheck='false'>" +
+							"<label for='ctoken-" + i + "'>" + OSApp.Language._( "Change Token" ) + "</label><input id='ctoken-" + i + "' type='text' value='" + escapedToken +
+							"' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'>" +
 							"</div>" : "" ) +
 						"<div class='ui-field-contain'>" +
 						"<label for='cpw-" + i + "'>" + OSApp.Language._( "Change Password" ) + "</label><input id='cpw-" + i + "' type='password'>" +
@@ -145,7 +149,7 @@ OSApp.Sites.displayPage = function() {
 							OSApp.Language._( "Use SSL" ) +
 							"</label>" +
 							"<label for='useauth-" + i + "'>" +
-							"<input class='useauth' data-user='" + b.auth_user + "' data-pw='" + b.auth_pw +
+							"<input class='useauth' data-user='" + escapedAuthUser + "' data-pw='" + escapedAuthPassword +
 							"' data-mini='true' type='checkbox' id='useauth-" + i + "' name='useauth-" + i + "'" +
 							( typeof b.auth_user !== "undefined" && typeof b.auth_pw !== "undefined" ? " checked='checked'" : "" ) + ">" +
 							OSApp.Language._( "Use Auth" ) +
@@ -308,7 +312,7 @@ OSApp.Sites.displayPage = function() {
 
 				list.find( ".deletesite" ).on( "click", function() {
 					var site = siteNames[ $( this ).data( "site" ) ];
-					OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to delete " ) + site + "?", "", function() {
+					OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to delete " ) + OSApp.Utils.htmlEscape( site ) + "?", "", function() {
 						if ( $( "#site-selector" ).val() === site ) {
 							makeStart();
 						}
@@ -416,16 +420,19 @@ OSApp.Sites.testSite = function( site, id, callback ) {
 
 // Update the panel list of sites
 OSApp.Sites.updateSiteList = function( names, current ) {
-	var list = "",
-		select = $( "#site-selector" );
+	var select = $( "#site-selector" ).empty();
 
 	$.each( names, function() {
-		list += "<option " + ( this.toString() === current ? "selected " : "" ) + "value='" + OSApp.Utils.htmlEscape( this ) + "'>" + this + "</option>";
+		var name = this.toString();
+		$( "<option>" )
+			.val( name )
+			.text( name )
+			.prop( "selected", name === current )
+			.appendTo( select );
 	} );
 
 	$( "#info-list" ).find( "li[data-role='list-divider']" ).text( current );
 
-	select.html( list );
 	if ( select.parent().parent().hasClass( "ui-select" ) ) {
 		select.selectmenu( "refresh" );
 	}
@@ -565,8 +572,8 @@ OSApp.Sites.showAddNew = function( autoIP, closeOld ) {
 					"</p>" ) +
 						"<input data-wrapper-class='url-field' " + ( isAuto ? "data-role='none' style='display:none' " : "" ) +
 							"autocomplete='off' autocorrect='off' autocapitalize='off' " +
-							"spellcheck='false' type='text' inputmode='url' pattern='' name='os_url' id='os_url' " +
-							"value='" + ( isAuto ? autoIP : "" ) + "'" +
+							"spellcheck='false' type='text' inputmode='url' name='os_url' id='os_url' " +
+							"value='" + OSApp.Utils.htmlEscape( isAuto ? autoIP : "" ) + "'>" +
 					"<label for='os_pw'>" + OSApp.Language._( "Device Password:" ) + "</label>" +
 					"<input type='password' name='os_pw' id='os_pw' value=''>" +
 					"<label for='save_pw'>" + OSApp.Language._( "Save Password" ) + "</label>" +
@@ -872,15 +879,15 @@ OSApp.Sites.newLoad = function() {
 
 	// Get the current site name from the site select drop down
 	var name = $( "#site-selector" ).val(),
-		loading = "<div class='logo'></div>" +
-			"<h1 style='padding-top:5px'>" + OSApp.Language._( "Connecting to" ) + " " + name + "</h1>" +
-			"<p class='cancel tight center inline-icon'>" +
-				"<span class='btn-no-border ui-btn ui-icon-delete ui-btn-icon-notext'></span>" +
-				"Cancel" +
-			"</p>";
+		loading = $( "<div>" )
+			.append( $( "<div>" ).addClass( "logo" ) )
+			.append( $( "<h1>" ).css( "padding-top", "5px" ).text( OSApp.Language._( "Connecting to" ) + " " + name ) )
+			.append( $( "<p>" ).addClass( "cancel tight center inline-icon" )
+				.append( $( "<span>" ).addClass( "btn-no-border ui-btn ui-icon-delete ui-btn-icon-notext" ) )
+				.append( document.createTextNode( "Cancel" ) ) );
 
 	$.mobile.loading( "show", {
-		html: OSApp.currentSession.local ? "<h1>" + OSApp.Language._( "Loading" ) + "</h1>" : loading,
+		html: OSApp.currentSession.local ? $( "<h1>" ).text( OSApp.Language._( "Loading" ) )[ 0 ].outerHTML : loading.html(),
 		textVisible: true,
 		theme: "b"
 	} );
@@ -1015,54 +1022,119 @@ OSApp.Sites.newLoad = function() {
 };
 
 // Update controller information
+function getSiteControllerContext( expectedContext ) {
+	return expectedContext || {
+		session: OSApp.currentSession,
+		controller: OSApp.currentSession.controller
+	};
+}
+
+function isSiteControllerContextCurrent( context ) {
+	return OSApp.currentSession === context.session && OSApp.currentSession.controller === context.controller;
+}
+
+function rejectStaleSiteControllerRefresh() {
+	return $.Deferred().reject( { status: 0, statusText: "stale" } ).promise();
+}
+
+OSApp.Sites.isStaleControllerRefresh = function( error ) {
+	return !!error && error.statusText === "stale";
+};
+
+OSApp.Sites.handleControllerRefreshFailure = function( error ) {
+	if ( !OSApp.Sites.isStaleControllerRefresh( error ) ) {
+		OSApp.Network.networkFail( error );
+	}
+};
+
 OSApp.Sites.updateController = function( callback, fail ) {
 	callback = callback || function() {};
 	fail = fail || function() {};
+	var context = getSiteControllerContext(),
+		session = context.session,
+		controller = context.controller;
+
+	function isCurrentContext() {
+		return isSiteControllerContextCurrent( context );
+	}
+
 	var finish = function() {
+		if ( !isCurrentContext() ) {
+			return;
+		}
 		$( "html" ).trigger( "datarefresh" );
 		OSApp.Status.checkStatus();
 		callback();
 	};
+	var failCurrent = function( error ) {
+		if ( isCurrentContext() ) {
+			fail( error );
+		}
+	};
 
-	if ( OSApp.currentSession.isControllerConnected() && OSApp.Firmware.checkOSVersion( 216 ) ) {
+	if ( session.isControllerConnected() && OSApp.Firmware.checkOSVersion( 216 ) ) {
 		OSApp.Firmware.sendToOS( "/ja?pw=", "json" ).then( function( data ) {
-
-			if ( typeof data === "undefined" || $.isEmptyObject( data ) ) {
-				fail();
+			if ( !isCurrentContext() ) {
 				return;
 			}
 
-			// The /ja call does not contain special station data, so let's cache it
-			var special = OSApp.currentSession.controller.special;
+			if ( typeof data === "undefined" || $.isEmptyObject( data ) ) {
+				failCurrent();
+				return;
+			}
 
-			OSApp.currentSession.controller = data;
-
-			// Restore the station cache to the object
-			OSApp.currentSession.controller.special = special;
+			// Merge /ja data into the existing controller object so that cached fields
+			// from separate endpoints (special, sensor_desc, jpaData) are preserved automatically.
+			$.extend( controller, data );
 
 			// Fix the station status array
-			OSApp.currentSession.controller.status = OSApp.currentSession.controller.status.sn;
+			controller.status = controller.status.sn;
 
-			finish();
-		}, fail );
+			// /ja includes live sensor data, but the firmware intentionally keeps
+			// the larger sensor-description schema on /jsd. Prime that schema on
+			// first load so unit labels and sensor controls are immediately ready.
+			if ( Array.isArray( controller.sensors?.sn ) && !controller.sensor_desc ) {
+				OSApp.Sites.updateControllerSensorDescription( undefined, context ).then( finish, failCurrent );
+			} else {
+				finish();
+			}
+		}, failCurrent );
 	} else {
 		$.when(
-			OSApp.Sites.updateControllerPrograms(),
-			OSApp.Sites.updateControllerStations(),
-			OSApp.Sites.updateControllerOptions(),
-			OSApp.Sites.updateControllerStatus(),
-			OSApp.Sites.updateControllerSettings()
-		).then( finish, fail );
+			OSApp.Sites.updateControllerPrograms( undefined, context ),
+			OSApp.Sites.updateControllerStations( undefined, context ),
+			OSApp.Sites.updateControllerOptions( undefined, context ),
+			OSApp.Sites.updateControllerStatus( undefined, context ),
+			OSApp.Sites.updateControllerSettings( undefined, context ),
+		).then( function() {
+			if ( !isCurrentContext() ) {
+				return;
+			}
+			if ( OSApp.Firmware.checkOSVersion( 2215 ) ) {
+				$.when(
+					OSApp.Sites.updateControllerSensors( undefined, context ),
+					OSApp.Sites.updateControllerSensorDescription( undefined, context ),
+				).then( finish, failCurrent );
+			} else {
+				finish();
+			}
+		}, failCurrent );
 	}
 };
 
-OSApp.Sites.updateControllerPrograms = function( callback ) {
+OSApp.Sites.updateControllerPrograms = function( callback, expectedContext ) {
 	callback = callback || function() {};
+	var context = getSiteControllerContext( expectedContext ),
+		session = context.session,
+		controller = context.controller;
 
-	if ( OSApp.currentSession.fw183 === true ) {
+	if ( session.fw183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
-		return OSApp.Firmware.sendToOS( "/gp?d=0" ).done( function( programs ) {
+		return OSApp.Firmware.sendToOS( "/gp?d=0" ).then( function( programs ) {
+			if ( !isSiteControllerContextCurrent( context ) ) {
+				return rejectStaleSiteControllerRefresh();
+			}
 			var vars = programs.match( /(nprogs|nboards|mnp)=[\w|\d|."]+/g ),
 				progs = /pd=\[\];(.*);/.exec( programs ),
 				newdata = {}, tmp, prog;
@@ -1086,23 +1158,34 @@ OSApp.Sites.updateControllerPrograms = function( callback ) {
 				}
 			}
 
-			OSApp.currentSession.controller.programs = newdata;
+			controller.programs = newdata;
 			callback();
+			return newdata;
 		} );
 	} else {
-		return OSApp.Firmware.sendToOS( "/jp?pw=", "json" ).done( function( programs ) {
-			OSApp.currentSession.controller.programs = programs;
+		return OSApp.Firmware.sendToOS( "/jp?pw=", "json" ).then( function( programs ) {
+			if ( !isSiteControllerContextCurrent( context ) ) {
+				return rejectStaleSiteControllerRefresh();
+			}
+			controller.programs = programs;
 			callback();
+			return programs;
 		} );
 	}
 };
 
-OSApp.Sites.updateControllerStations = function( callback ) {
+OSApp.Sites.updateControllerStations = function( callback, expectedContext ) {
 	callback = callback || function() {};
-	if ( OSApp.currentSession.fw183 === true ) {
+	var context = getSiteControllerContext( expectedContext ),
+		session = context.session,
+		controller = context.controller;
+	if ( session.fw183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
-		return OSApp.Firmware.sendToOS( "/vs" ).done( function( stations ) {
+		return OSApp.Firmware.sendToOS( "/vs" ).then( function( stations ) {
+			if ( !isSiteControllerContextCurrent( context ) ) {
+				return rejectStaleSiteControllerRefresh();
+			}
 			var names = /snames=\[(.*?)\];/.exec( stations ),
 				masop = stations.match( /(?:masop|mo)\s?[=|:]\s?\[(.*?)\]/ );
 
@@ -1115,27 +1198,38 @@ OSApp.Sites.updateControllerStations = function( callback ) {
 
 			masop = OSApp.Utils.parseIntArray( masop[ 1 ].split( "," ) );
 
-			OSApp.currentSession.controller.stations = {
+			controller.stations = {
 				"snames": names,
 				"masop": masop,
 				"maxlen": names.length
 			};
 			callback();
+			return controller.stations;
 		} );
 	} else {
-		return OSApp.Firmware.sendToOS( "/jn?pw=", "json" ).done( function( stations ) {
-			OSApp.currentSession.controller.stations = stations;
+		return OSApp.Firmware.sendToOS( "/jn?pw=", "json" ).then( function( stations ) {
+			if ( !isSiteControllerContextCurrent( context ) ) {
+				return rejectStaleSiteControllerRefresh();
+			}
+			controller.stations = stations;
 			callback();
+			return stations;
 		} );
 	}
 };
 
-OSApp.Sites.updateControllerOptions = function( callback ) {
+OSApp.Sites.updateControllerOptions = function( callback, expectedContext ) {
 	callback = callback || function() {};
-	if ( OSApp.currentSession.fw183 === true ) {
+	var context = getSiteControllerContext( expectedContext ),
+		session = context.session,
+		controller = context.controller;
+	if ( session.fw183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
-		return OSApp.Firmware.sendToOS( "/vo" ).done( function( options ) {
+		return OSApp.Firmware.sendToOS( "/vo" ).then( function( options ) {
+			if ( !isSiteControllerContextCurrent( context ) ) {
+				return rejectStaleSiteControllerRefresh();
+			}
 			var isOSPi = options.match( /var sd\s*=/ ),
 				vars = {}, tmp, i, o;
 
@@ -1162,53 +1256,83 @@ OSApp.Sites.updateControllerOptions = function( callback ) {
 				}
 				vars.fwv = 183;
 			}
-			OSApp.currentSession.controller.options = vars;
+			controller.options = vars;
 			callback();
+			return vars;
 		} );
 	} else {
-		return OSApp.Firmware.sendToOS( "/jo?pw=", "json" ).done( function( options ) {
-			OSApp.currentSession.controller.options = options;
+		return OSApp.Firmware.sendToOS( "/jo?pw=", "json" ).then( function( options ) {
+			if ( !isSiteControllerContextCurrent( context ) ) {
+				return rejectStaleSiteControllerRefresh();
+			}
+			controller.options = options;
 			callback();
+			return options;
 		} );
 	}
 };
 
-OSApp.Sites.updateControllerStatus = function( callback ) {
+OSApp.Sites.updateControllerStatus = function( callback, expectedContext ) {
 	callback = callback || function() {};
-	if ( OSApp.currentSession.fw183 === true ) {
+	var context = getSiteControllerContext( expectedContext ),
+		session = context.session,
+		controller = context.controller;
+	if ( session.fw183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
 		return OSApp.Firmware.sendToOS( "/sn0" ).then(
 			function( status ) {
+				if ( !isSiteControllerContextCurrent( context ) ) {
+					return rejectStaleSiteControllerRefresh();
+				}
 				var tmp = status.toString().match( /\d+/ );
 
 				tmp = OSApp.Utils.parseIntArray( tmp[ 0 ].split( "" ) );
 
-				OSApp.currentSession.controller.status = tmp;
+				controller.status = tmp;
 				callback();
+				return tmp;
 			},
 			function() {
-				OSApp.currentSession.controller.status = [];
+				if ( !isSiteControllerContextCurrent( context ) ) {
+					return rejectStaleSiteControllerRefresh();
+				}
+				controller.status = [];
+				return controller.status;
 			} );
 	} else {
 		return OSApp.Firmware.sendToOS( "/js?pw=", "json" ).then(
 			function( status ) {
-				OSApp.currentSession.controller.status = status.sn;
+				if ( !isSiteControllerContextCurrent( context ) ) {
+					return rejectStaleSiteControllerRefresh();
+				}
+				controller.status = status.sn;
 				callback();
+				return controller.status;
 			},
 			function() {
-				OSApp.currentSession.controller.status = [];
+				if ( !isSiteControllerContextCurrent( context ) ) {
+					return rejectStaleSiteControllerRefresh();
+				}
+				controller.status = [];
+				return controller.status;
 			} );
 	}
 };
 
-OSApp.Sites.updateControllerSettings = function( callback ) {
+OSApp.Sites.updateControllerSettings = function( callback, expectedContext ) {
 	callback = callback || function() {};
-	if ( OSApp.currentSession.fw183 === true ) {
+	var context = getSiteControllerContext( expectedContext ),
+		session = context.session,
+		controller = context.controller;
+	if ( session.fw183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
 		return OSApp.Firmware.sendToOS( "" ).then(
 			function( settings ) {
+				if ( !isSiteControllerContextCurrent( context ) ) {
+					return rejectStaleSiteControllerRefresh();
+				}
 				var varsRegex = /(ver|devt|nbrd|tz|en|rd|rs|mm|rdst|urs)\s?[=|:]\s?([\w|\d|."]+)/gm,
 					loc = settings.match( /loc\s?[=|:]\s?["|'](.*)["|']/ ),
 					lrun = settings.match( /lrun=\[(.*)\]/ ),
@@ -1228,20 +1352,29 @@ OSApp.Sites.updateControllerSettings = function( callback ) {
 				vars.ps = ps;
 				vars.lrun = OSApp.Utils.parseIntArray( lrun[ 1 ].split( "," ) );
 
-				OSApp.currentSession.controller.settings = vars;
+				controller.settings = vars;
+				callback();
+				return vars;
 			},
 			function() {
-				if ( OSApp.currentSession.controller.settings && OSApp.currentSession.controller.stations ) {
+				if ( !isSiteControllerContextCurrent( context ) ) {
+					return rejectStaleSiteControllerRefresh();
+				}
+				if ( controller.settings && controller.stations ) {
 					var ps = [], i;
-					for ( i = 0; i < OSApp.currentSession.controller.stations.maxlen; i++ ) {
+					for ( i = 0; i < controller.stations.maxlen; i++ ) {
 						ps.push( [ 0, 0 ] );
 					}
-					OSApp.currentSession.controller.settings.ps = ps;
+					controller.settings.ps = ps;
 				}
+				return controller.settings;
 			} );
 	} else {
 		return OSApp.Firmware.sendToOS( "/jc?pw=" ).then(
 			function( settings ) {
+				if ( !isSiteControllerContextCurrent( context ) ) {
+					return rejectStaleSiteControllerRefresh();
+				}
 				if ( typeof settings !== "object" ) {
 					try {
 						settings = JSON.parse( settings );
@@ -1256,7 +1389,7 @@ OSApp.Sites.updateControllerSettings = function( callback ) {
 							//eslint-disable-next-line no-unused-vars
 						} catch ( e ) {
 							// Corrupted JSON returned. Display error modal with fw update links
-							OSApp.Errors.showCorruptedJsonModal( settings, OSApp.currentSession );
+							OSApp.Errors.showCorruptedJsonModal( settings, session );
 							return false;
 						}
 					}
@@ -1269,21 +1402,84 @@ OSApp.Sites.updateControllerSettings = function( callback ) {
 				// Update the current coordinates if the user's location is using them
 				if ( settings.loc.match( OSApp.Constants.regex.GPS ) ) {
 					var location = settings.loc.split( "," );
-					OSApp.currentSession.coordinates = [ parseFloat( location[ 0 ] ), parseFloat( location[ 1 ] ) ];
+					session.coordinates = [ parseFloat( location[ 0 ] ), parseFloat( location[ 1 ] ) ];
 				}
 
-				OSApp.currentSession.controller.settings = settings;
+				controller.settings = settings;
 				callback();
+				return settings;
 			},
 			function() {
-				if ( OSApp.currentSession.controller.settings && OSApp.currentSession.controller.stations ) {
+				if ( !isSiteControllerContextCurrent( context ) ) {
+					return rejectStaleSiteControllerRefresh();
+				}
+				if ( controller.settings && controller.stations ) {
 					var ps = [], i;
-					for ( i = 0; i < OSApp.currentSession.controller.stations.maxlen; i++ ) {
+					for ( i = 0; i < controller.stations.maxlen; i++ ) {
 						ps.push( [ 0, 0 ] );
 					}
-					OSApp.currentSession.controller.settings.ps = ps;
+					controller.settings.ps = ps;
 				}
+				return controller.settings;
 			} );
+	}
+};
+
+OSApp.Sites.updateControllerSensors = function( callback, expectedContext ) {
+	callback = callback || function() {};
+	var context = getSiteControllerContext( expectedContext ),
+		session = context.session,
+		controller = context.controller;
+
+	function isCurrentContext() {
+		return isSiteControllerContextCurrent( context );
+	}
+
+	if ( session.fw183 === true ) {
+		if ( !isCurrentContext() ) {
+			return rejectStaleSiteControllerRefresh();
+		}
+		controller.sensors = { sn: [] };
+		callback();
+		return $.Deferred().resolve( controller.sensors ).promise();
+	} else {
+		return OSApp.Firmware.sendToOS( "/jsn?pw=", "json" ).then( function( sensors ) {
+			if ( !isCurrentContext() ) {
+				return rejectStaleSiteControllerRefresh();
+			}
+			controller.sensors = sensors;
+			callback();
+			return sensors;
+		} );
+	}
+};
+
+OSApp.Sites.updateControllerSensorDescription = function( callback, expectedContext ) {
+	callback = callback || function() {};
+	var context = getSiteControllerContext( expectedContext ),
+		session = context.session,
+		controller = context.controller;
+
+	function isCurrentContext() {
+		return isSiteControllerContextCurrent( context );
+	}
+
+	if ( session.fw183 === true ) {
+		if ( !isCurrentContext() ) {
+			return rejectStaleSiteControllerRefresh();
+		}
+		controller.sensor_desc = null;
+		callback();
+		return $.Deferred().resolve( controller.sensor_desc ).promise();
+	} else {
+		return OSApp.Firmware.sendToOS( "/jsd?pw=", "json" ).then( function( desc ) {
+			if ( !isCurrentContext() ) {
+				return rejectStaleSiteControllerRefresh();
+			}
+			controller.sensor_desc = OSApp.Sensors.normalizeJsd( desc );
+			callback();
+			return desc;
+		} );
 	}
 };
 
@@ -1341,16 +1537,26 @@ OSApp.Sites.handleCorruptedWeatherOptions = function( wto ) {
 	OSApp.uiState.handleCorruptedWeatherOptions = true;
 };
 
-OSApp.Sites.updateControllerStationSpecial = function( callback ) {
+OSApp.Sites.updateControllerStationSpecial = function( callback, expectedContext ) {
 	callback = callback || function() {};
+	var context = getSiteControllerContext( expectedContext ),
+		controller = context.controller;
 
 	return OSApp.Firmware.sendToOS( "/je?pw=", "json" ).then(
 		function( special ) {
-			OSApp.currentSession.controller.special = special;
+			if ( !isSiteControllerContextCurrent( context ) ) {
+				return rejectStaleSiteControllerRefresh();
+			}
+			controller.special = special;
 			callback();
+			return special;
 		},
 		function() {
-			OSApp.currentSession.controller.special = {};
+			if ( !isSiteControllerContextCurrent( context ) ) {
+				return rejectStaleSiteControllerRefresh();
+			}
+			controller.special = {};
+			return controller.special;
 		} );
 };
 
@@ -1410,11 +1616,15 @@ OSApp.Sites.refreshData = function() {
 	}
 
 	if ( OSApp.Firmware.checkOSVersion( 216 ) ) {
-		OSApp.Sites.updateController( function() {}, OSApp.Network.networkFail );
+		OSApp.Sites.updateController( function() {}, OSApp.Sites.handleControllerRefreshFailure );
 	} else {
-		$.when(
+		var refreshPromises = [
 			OSApp.Sites.updateControllerPrograms(),
-			OSApp.Sites.updateControllerStations()
-		).fail( OSApp.Network.networkFail );
+			OSApp.Sites.updateControllerStations(),
+		];
+		if ( OSApp.Firmware.checkOSVersion( 2215 ) ) {
+			refreshPromises.push( OSApp.Sites.updateControllerSensors() );
+		}
+		$.when.apply( $, refreshPromises ).fail( OSApp.Sites.handleControllerRefreshFailure );
 	}
 };

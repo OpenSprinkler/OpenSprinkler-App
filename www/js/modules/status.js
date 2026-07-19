@@ -33,13 +33,13 @@ OSApp.Status.refreshStatus = function( callback ) {
 	};
 
 	if ( OSApp.Firmware.checkOSVersion( 216 ) ) {
-		OSApp.Sites.updateController( finish, OSApp.Network.networkFail );
+		OSApp.Sites.updateController( finish, OSApp.Sites.handleControllerRefreshFailure );
 	} else {
 		$.when(
 			OSApp.Sites.updateControllerStatus(),
 			OSApp.Sites.updateControllerSettings(),
 			OSApp.Sites.updateControllerOptions()
-		).then( finish, OSApp.Network.networkFail );
+		).then( finish, OSApp.Sites.handleControllerRefreshFailure );
 	}
 };
 
@@ -159,7 +159,7 @@ OSApp.Status.checkStatus = function() {
 		pname  = OSApp.Programs.pidToName( pid );
 		line   = "<div><div class='running-icon'></div><div class='running-text pointer'>";
 
-		line += pname + " " + OSApp.Language._( "is running on" ) + " " + Object.keys( open ).length + " " + OSApp.Language._( "stations" ) + " ";
+		line += OSApp.Utils.htmlEscape( pname ) + " " + OSApp.Language._( "is running on" ) + " " + Object.keys( open ).length + " " + OSApp.Language._( "stations" ) + " ";
 		if ( ptotal > 0 ) {
 			line += "<span id='countdown' class='nobr'>(" + OSApp.Dates.sec2hms( ptotal ) + " " + OSApp.Language._( "remaining" ) + ")</span>";
 		}
@@ -176,7 +176,8 @@ OSApp.Status.checkStatus = function() {
 			pid = OSApp.Stations.getPID( i );
 			pname = OSApp.Programs.pidToName( pid );
 			line = "<div><div class='running-icon'></div><div class='running-text pointer'>";
-			line += pname + " " + OSApp.Language._( "is running on station" ) + " <span class='nobr'>" + OSApp.Stations.getName( i ) + "</span> ";
+			line += OSApp.Utils.htmlEscape( pname ) + " " + OSApp.Language._( "is running on station" ) + " <span class='nobr'>" +
+				OSApp.Utils.htmlEscape( OSApp.Stations.getName( i ) ) + "</span> ";
 			if ( OSApp.Stations.getRemainingRuntime( i ) > 0 ) {
 				line += "<span id='countdown' class='nobr'>(" + OSApp.Dates.sec2hms( OSApp.Stations.getRemainingRuntime( i ) ) + " " + OSApp.Language._( "remaining" ) + ")</span>";
 			}
@@ -252,20 +253,40 @@ OSApp.Status.checkStatus = function() {
 		return;
 	}
 
-	// Handle rain sensor triggered
+	// Tapping a sensor-active footer opens Edit Options at the Weather and
+	// Sensors section so users can adjust sensor configuration.
+	var openSensorOptions = function() {
+		OSApp.UIDom.changePage( "#os-options", { expandItem: "weather" } );
+	};
+
+	// Map a sensor type code to a short display name for the footer alert.
+	var sensorTypeShort = function( t ) {
+		switch ( t ) {
+			case 1: return OSApp.Language._( "Rain" );
+			case 2: return OSApp.Language._( "Flow" );
+			case 3: return OSApp.Language._( "Soil" );
+			case 240: return OSApp.Language._( "Program Switch" );
+			default: return OSApp.Language._( "Rain" );
+		}
+	};
+
+	// Build a sensor-active footer message: "{Type} (SN{N}) Activated".
+	var sensorActivatedMsg = function( num, typeCode ) {
+		return "<p class='running-text center pointer'>" + sensorTypeShort( typeCode ) + " (SN" + num + ") " + OSApp.Language._( "Activated" ) + "</p>";
+	};
+
+	// Handle rain sensor triggered (legacy urs/rs scheme — sensor 1 only).
 	if ( OSApp.currentSession.controller.options.urs === 1 && OSApp.currentSession.controller.settings.rs === 1 ) {
-		OSApp.Status.changeStatus( 0, "blue", "<p class='running-text center'>" + OSApp.Language._( "Rain detected" ) + "</p>" );
+		OSApp.Status.changeStatus( 0, "blue", sensorActivatedMsg( 1, 1 ), openSensorOptions );
 		return;
 	}
 
-	if ( OSApp.currentSession.controller.settings.sn1 === 1 ) {
-		OSApp.Status.changeStatus( 0, "blue", "<p class='running-text center'>Sensor 1 (" + ( OSApp.currentSession.controller.options.sn1t === 3 ? OSApp.Language._( "Soil" ) : OSApp.Language._( "Rain" ) ) + OSApp.Language._( ") Activated" ) + "</p>" );
-		return;
-	}
-
-	if ( OSApp.currentSession.controller.settings.sn2 === 1 ) {
-		OSApp.Status.changeStatus( 0, "blue", "<p class='running-text center'>Sensor 2 (" + ( OSApp.currentSession.controller.options.sn2t === 3 ? OSApp.Language._( "Soil" ) : OSApp.Language._( "Rain" ) ) + OSApp.Language._( ") Activated" ) + "</p>" );
-		return;
+	// Modern sensor activation flags settings.sn1..sn4, with type from options.sn{N}t.
+	for ( var sni = 1; sni <= 4; sni++ ) {
+		if ( OSApp.currentSession.controller.settings[ "sn" + sni ] === 1 ) {
+			OSApp.Status.changeStatus( 0, "blue", sensorActivatedMsg( sni, OSApp.currentSession.controller.options[ "sn" + sni + "t" ] ), openSensorOptions );
+			return;
+		}
 	}
 
 	// Handle manual mode enabled
@@ -281,6 +302,17 @@ OSApp.Status.checkStatus = function() {
 		return;
 	}
 
+	// Tapping the idle/last-ran footer: go home from any other page, but
+	// open Edit Options when already on the homepage (more useful next step
+	// than a no-op).
+	var homeOrOptions = function() {
+		if ( $( ".ui-page-active" ).attr( "id" ) === "sprinklers" ) {
+			OSApp.UIDom.changePage( "#os-options" );
+		} else {
+			OSApp.UIDom.goHome();
+		}
+	};
+
 	var lrdur = OSApp.currentSession.controller.settings.lrun[ 2 ];
 
 	// If last run duration is given, add it to the footer
@@ -288,11 +320,11 @@ OSApp.Status.checkStatus = function() {
 		var lrpid = OSApp.currentSession.controller.settings.lrun[ 1 ];
 		pname = OSApp.Programs.pidToName( lrpid );
 
-		OSApp.Status.changeStatus( 0, "transparent", "<p class='running-text smaller center pointer'>" + pname + " " + OSApp.Language._( "last ran station" ) + " " +
-		OSApp.Stations.getName( OSApp.currentSession.controller.settings.lrun[ 0 ] ) + " " + OSApp.Language._( "for" ) + " " + ( lrdur / 60 >> 0 ) + "m " + ( lrdur % 60 ) + "s " +
-			OSApp.Language._( "on" ) + " " + OSApp.Dates.dateToString( new Date( ( OSApp.currentSession.controller.settings.lrun[ 3 ] - lrdur ) * 1000 ) ) + "</p>", OSApp.UIDom.goHome );
+		OSApp.Status.changeStatus( 0, "transparent", "<p class='running-text smaller center pointer'>" + OSApp.Utils.htmlEscape( pname ) + " " + OSApp.Language._( "last ran station" ) + " " +
+		OSApp.Utils.htmlEscape( OSApp.Stations.getName( OSApp.currentSession.controller.settings.lrun[ 0 ] ) ) + " " + OSApp.Language._( "for" ) + " " + ( lrdur / 60 >> 0 ) + "m " + ( lrdur % 60 ) + "s " +
+			OSApp.Language._( "on" ) + " " + OSApp.Dates.dateToString( new Date( ( OSApp.currentSession.controller.settings.lrun[ 3 ] - lrdur ) * 1000 ) ) + "</p>", homeOrOptions );
 		return;
 	}
 
-	OSApp.Status.changeStatus( 0, "transparent", "<p class='running-text smaller center pointer'>" + OSApp.Language._( "System Idle" ) + "</p>", OSApp.UIDom.goHome );
+	OSApp.Status.changeStatus( 0, "transparent", "<p class='running-text smaller center pointer'>" + OSApp.Language._( "System Idle" ) + "</p>", homeOrOptions );
 };

@@ -25,6 +25,10 @@ OSApp.Supported.master = function( masid ) {
 			return OSApp.currentSession.controller.options.mas ? true : false;
 		case OSApp.Constants.options.MASTER_STATION_2:
 			return OSApp.currentSession.controller.options.mas2 ? true : false;
+		case OSApp.Constants.options.MASTER_STATION_3:
+			return OSApp.currentSession.controller.options.mas3 ? true : false;
+		case OSApp.Constants.options.MASTER_STATION_4:
+			return OSApp.currentSession.controller.options.mas4 ? true : false;
 		default:
 			return false;
 	}
@@ -35,14 +39,11 @@ OSApp.Supported.ignoreRain = function() {
 };
 
 OSApp.Supported.ignoreSensor = function( sensorID ) {
-	switch ( sensorID ) {
-		case OSApp.Constants.options.IGNORE_SENSOR_1:
-			return ( typeof OSApp.currentSession.controller.stations.ignore_sn1 === "object" ) ? true : false;
-		case OSApp.Constants.options.IGNORE_SENSOR_2:
-			return ( typeof OSApp.currentSession.controller.stations.ignore_sn2 === "object" ) ? true : false;
-		default:
-			return false;
+	if ( sensorID < OSApp.Constants.options.IGNORE_SENSOR_1 || sensorID > OSApp.Constants.options.IGNORE_SENSOR_4 ) {
+		return false;
 	}
+
+	return typeof OSApp.currentSession.controller.stations[ "ignore_sn" + sensorID ] === "object";
 };
 
 OSApp.Supported.actRelay = function() {
@@ -74,6 +75,10 @@ OSApp.Supported.groups = function() {
 
 OSApp.Supported.dateRange = function() {
 	return OSApp.Firmware.checkOSVersion( 220 );
+};
+
+OSApp.Supported.sensors = function() {
+	return Array.isArray( OSApp.currentSession.controller?.sensors?.sn );
 };
 
 OSApp.Supported.changePause = function() {

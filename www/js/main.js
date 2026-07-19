@@ -36,16 +36,21 @@ OSApp.Constants = {
 		"ntp3":34, "ntp4":35, "lg":36, "mas2":37, "mton2":38, "mtof2":39, "fpr0":41, "fpr1":42, "re":43, "dns1": 44,
 		"dns2":45, "dns3":46, "dns4":47, "sar":48, "ife":49, "sn1t":50, "sn1o":51, "sn2t":52, "sn2o":53, "sn1on":54,
 		"sn1of":55, "sn2on":56, "sn2of":57, "subn1":58, "subn2":59, "subn3":60, "subn4":61, "fwire":62, "laton":63, "latof":64,
-		"ife2":65, "imin":66, "imax":67, "tpdv":68
+		"ife2":65, "imin":66, "imax":67, "tpdv":68, "mas3":73, "mton3":74, "mtof3":75, "mas4":76, "mton4":77, "mtof4":78,
+		"sn3t":79, "sn3o":80, "sn3on":81, "sn3of":82, "sn4t":83, "sn4o":84, "sn4on":85, "sn4of":86
 	},
 	options: { // Option constants
 		IGNORE_SENSOR_1: 1,
 		IGNORE_SENSOR_2: 2,
+		IGNORE_SENSOR_3: 3,
+		IGNORE_SENSOR_4: 4,
 		MANUAL_STATION_PID: 99,
 		MASTER_GID_VALUE: 254,
 		MASTER_GROUP_NAME: "M",
 		MASTER_STATION_1: 1,
 		MASTER_STATION_2: 2,
+		MASTER_STATION_3: 3,
+		MASTER_STATION_4: 4,
 		NUM_SEQ_GROUPS: 4,
 		PARALLEL_GID_VALUE: 255,
 		PARALLEL_GROUP_NAME: "P",

@@ -1,4 +1,3 @@
-/* eslint-disable */
 import globals from "globals";
 import pluginJs from "@eslint/js";
 
@@ -9,17 +8,17 @@ export default [
   {
 	  files: ["**/*.js"],
 	  languageOptions: {
-		  sourceType: "script"
+		  sourceType: "script",
+		  globals: {
+			  ...globals.browser,
+			  Chart: "readonly"
+		  }
 	  },
 	  rules: {
 		  "no-useless-escape": "warn",
 		  "no-prototype-builtins": "warn",
-			"semi": ["error", "always"], // require semicolons
-	  },
-  },
-  {
-	  languageOptions: {
-		  globals: globals.browser
+		  "semi": ["error", "always"],
+		  "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
 	  },
   },
 ];
