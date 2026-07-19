@@ -1005,9 +1005,9 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 									Math.min( 250, Math.max( 0, weatherPercent ) ) : 100;
 								let sensorFactor = adjustment ? adjustment.sa : 1;
 								let waterTime = Math.floor(
-									OSApp.Stations.getStationDuration( prog[ 4 ][ sid ], simt ) * weatherPercent / 100
+									OSApp.Stations.getStationDuration( prog[ 4 ][ sid ], simt ) *
+									weatherPercent / 100 * sensorFactor
 								);
-								waterTime = Math.floor( waterTime * sensorFactor );
 								let maxRuntime = Number( OSApp.currentSession.controller.jpaMaxRuntime );
 								if ( Number.isFinite( maxRuntime ) && maxRuntime > 0 ) {
 									waterTime = Math.min( waterTime, Math.floor( maxRuntime ) );

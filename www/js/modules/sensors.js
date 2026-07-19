@@ -167,6 +167,13 @@ OSApp.Sensors.getChartLogURL = function (range, nowSeconds) {
     return "/jsl?pw=&fmt=binary&" + (after == null ? "" : `after=${after}&`) + "count=max";
 };
 
+OSApp.Sensors.filterLogPointsByRange = function (points, range, nowSeconds) {
+    const rangeStart = OSApp.Sensors.getChartRangeStart(range, nowSeconds);
+    if (rangeStart == null) return points;
+    const rangeStartMilliseconds = rangeStart * 1000;
+    return points.filter((point) => point.x >= rangeStartMilliseconds);
+};
+
 OSApp.Sensors.homeCardSignature = function () {
     const sensors = OSApp.currentSession.controller.sensors && OSApp.currentSession.controller.sensors.sn;
     if (!Array.isArray(sensors)) return "[]";
@@ -1950,6 +1957,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
     let defaultRange = "1d";
     let chartRanges = {};
     let loadedRange = null;
+	let pendingRange = null;
 
 	function isCurrentContext(seq) {
 		return !disposed && (seq == null || seq === requestSeq) &&
@@ -2125,6 +2133,10 @@ OSApp.Sensors.displayLogs = function (_callback) {
             }
             return;
         }
+		if (pendingRange != null &&
+			OSApp.Sensors.LOG_CHART_RANGES[range] <= OSApp.Sensors.LOG_CHART_RANGES[pendingRange]) {
+			return;
+		}
         updateContent(range, () => {
             if (key == null) {
                 defaultRange = previousRange;
@@ -2222,11 +2234,13 @@ OSApp.Sensors.displayLogs = function (_callback) {
             activeCharts.push(chart);
 
 				const update = function (range) {
-					const rangeStart = OSApp.Sensors.getChartRangeStart(range, controller.settings && controller.settings.devt);
-					const chartSince = rangeStart == null ? null : rangeStart * 1000;
 					chart.data = {
 						datasets: [ {
-							data: chartSince ? obj[key].data.filter((v) => v.x >= chartSince) : obj[key].data
+							data: OSApp.Sensors.filterLogPointsByRange(
+								obj[key].data,
+								range,
+								controller.settings && controller.settings.devt
+							)
 						} ]
 					};
 					chart.resetZoom();
@@ -2251,10 +2265,15 @@ OSApp.Sensors.displayLogs = function (_callback) {
 					if (activeSensor && controller.sensor_desc) {
 						const unitObj = controller.sensor_desc.units.find(u => u.value === activeSensor.unit);
                         unit = unitObj ? (unitObj.short || unitObj.name) : OSApp.Language._("Unknown");
-                    }
+					}
 
                     const csvRows = [ "sensor_uuid,sensor_name,timestamp,value,unit" ];
-                    obj[key].data.forEach((v) => {
+					const downloadPoints = OSApp.Sensors.filterLogPointsByRange(
+						obj[key].data,
+						getChartRange(key),
+						controller.settings && controller.settings.devt
+					);
+                    downloadPoints.forEach((v) => {
                         csvRows.push(OSApp.Sensors.formatLogCsvRow(key, sensorName, v.x, v.y, unit));
                     });
 
@@ -2337,6 +2356,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
             Object.prototype.hasOwnProperty.call(OSApp.Sensors.LOG_CHART_RANGES, range) ?
             range : (loadedRange || defaultRange);
 		const seq = ++requestSeq;
+		pendingRange = requestedRange;
         $.mobile.loading("show");
 
 		const jslRequest = OSApp.Firmware.sendToOS(
@@ -2348,16 +2368,18 @@ OSApp.Sensors.displayLogs = function (_callback) {
 			: OSApp.Firmware.sendToOS("/jsd?pw=", "json").then((data) => OSApp.Sensors.normalizeJsd(data));
 
         $.when(jslRequest, jsdRequest)
-            .done((buf, jsdData) => {
+			.done((buf, jsdData) => {
 				if (!isCurrentContext(seq)) return;
+				pendingRange = null;
                 $.mobile.loading("hide");
 				controller.sensor_desc = jsdData;
                 cachedData = buf;
                 loadedRange = requestedRange;
                 renderCards();
             })
-            .fail(() => {
+			.fail(() => {
 				if (!isCurrentContext(seq)) return;
+				pendingRange = null;
                 $.mobile.loading("hide");
                 if (typeof rollback === "function") rollback();
                 OSApp.Errors.showError(OSApp.Language._("Failed to load sensor logs"));

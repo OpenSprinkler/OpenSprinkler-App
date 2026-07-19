@@ -128,15 +128,13 @@ describe("Program Preview Checks", function () {
 		assert.isBelow(bmp.start.getTime(), astral.start.getTime());
 	});
 
-	it("matches firmware truncation between weather and sensor preview scaling", function () {
+	it("matches firmware single truncation after weather and sensor preview scaling", function () {
 		OSApp.currentSession.controller.programs.pd[0][4] = [ 3, 0, 0, 0, 0, 0, 0, 0 ];
 		OSApp.currentSession.controller.jpaData = [ { wa: 0.6, sa: 0.6, ta: 0.36 } ];
+		var timeline = showPreview();
+		var run = timeline.items.find(function (item) { return item.group === "station-0"; });
 
-		OSApp.Programs.displayPagePreviewPrograms();
-		$("#preview").trigger("pageshow");
-
-		assert.lengthOf(instances, 0);
-		assert.include($("#timeline").text(), "No stations set to run on this day.");
+		assert.equal((run.end.getTime() - run.start.getTime()) / 1000, 1);
 	});
 
 	it("uses integer weather-percent arithmetic at floating-point boundaries", function () {

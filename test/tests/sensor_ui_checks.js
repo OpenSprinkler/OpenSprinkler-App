@@ -455,6 +455,24 @@ describe("Sensor UI Checks", function () {
 		);
 	});
 
+	it("should filter raw sensor log downloads to the selected chart range", function () {
+		var points = [
+			{ x: 1699300000000, y: 10 },
+			{ x: 1699950000000, y: 20 },
+			{ x: 1699995000000, y: 30 }
+		];
+
+		assert.deepEqual(
+			OSApp.Sensors.filterLogPointsByRange(points, "3h", 1700000000),
+			[ points[2] ]
+		);
+		assert.deepEqual(
+			OSApp.Sensors.filterLogPointsByRange(points, "1d", 1700000000),
+			[ points[1], points[2] ]
+		);
+		assert.strictEqual(OSApp.Sensors.filterLogPointsByRange(points, "all", 1700000000), points);
+	});
+
 	it("should fetch wider chart ranges on demand and cache the largest range", function () {
 		var controller = OSApp.currentSession.controller;
 		var originalSensors = controller.sensors;
@@ -574,6 +592,61 @@ describe("Sensor UI Checks", function () {
 			assert.isTrue(charts[0].update.calledTwice);
 			assert.isTrue(charts[1].update.calledOnce);
 			assert.isTrue(sendToOS.calledOnce);
+		} finally {
+			if (page) page.trigger("pagehide").remove();
+			sendToOS.restore();
+			changeHeader.restore();
+			loading.restore();
+			chartConstructor.restore();
+			controller.settings.devt = originalDevt;
+			controller.sensors = originalSensors;
+			controller.sensor_desc = originalDescription;
+		}
+	});
+
+	it("should not let a narrower chart request supersede a wider pending request", function () {
+		var controller = OSApp.currentSession.controller;
+		var originalSensors = controller.sensors;
+		var originalDescription = controller.sensor_desc;
+		var originalDevt = controller.settings.devt;
+		var allRequest = $.Deferred();
+		var charts = [];
+		var chartConstructor = sinon.stub(window, "Chart").callsFake(function () {
+			var chart = { data: {}, destroy: sinon.spy(), resetZoom: sinon.spy(), update: sinon.spy() };
+			charts.push(chart);
+			return chart;
+		});
+		var loading = sinon.stub($.mobile, "loading");
+		var changeHeader = sinon.stub(OSApp.UIDom, "changeHeader");
+		var records = sensorLogBuffer(
+			4,
+			[ 7, 8 ],
+			[ 1699300000, 1699300000, 1699995000, 1699995000 ]
+		);
+		var sendToOS = sinon.stub(OSApp.Firmware, "sendToOS");
+		var page;
+
+		try {
+			controller.settings.devt = 1700000000;
+			controller.sensors = { sn: [
+				{ uuid: 7, name: "Soil", unit: 1 },
+				{ uuid: 8, name: "Temperature", unit: 2 }
+			] };
+			controller.sensor_desc = { units: [ { value: 1, short: "%" }, { value: 2, short: "C" } ] };
+			sendToOS.onFirstCall().returns($.Deferred().resolve(records).promise());
+			sendToOS.onSecondCall().returns(allRequest.promise());
+
+			OSApp.Sensors.displayLogs();
+			page = $("#sensor-logs");
+			page.find(".sensor-log-card").first().find('input[value="All"]').trigger("click");
+			page.find(".sensor-log-card").eq(1).find('input[value="1W"]').trigger("click");
+
+			assert.equal(sendToOS.callCount, 2);
+			allRequest.resolve(records);
+
+			assert.lengthOf(charts, 4);
+			assert.lengthOf(charts[2].data.datasets[0].data, 2);
+			assert.lengthOf(charts[3].data.datasets[0].data, 1);
 		} finally {
 			if (page) page.trigger("pagehide").remove();
 			sendToOS.restore();
