@@ -318,12 +318,26 @@ OSApp.Firmware.versionCompare = function( ver, check ) {
 
 OSApp.Firmware.getUrlVars = function( url ) {
 	var hash,
+		separator,
 		json = {},
-		hashes = url.slice( url.indexOf( "?" ) + 1 ).split( "&" );
+		queryIndex = url.indexOf( "?" ),
+		hashes = queryIndex === -1 ? [] : url.slice( queryIndex + 1 ).split( "&" );
 
 	for ( var i = 0; i < hashes.length; i++ ) {
-		hash = hashes[ i ].split( "=" );
-		json[ hash[ 0 ] ] = decodeURIComponent( hash[ 1 ].replace( /\+/g, "%20" ) );
+		hash = hashes[ i ];
+		if ( !hash ) {
+			continue;
+		}
+
+		separator = hash.indexOf( "=" );
+		if ( separator === -1 ) {
+			json[ hash ] = "";
+			continue;
+		}
+
+		json[ hash.slice( 0, separator ) ] = decodeURIComponent(
+			hash.slice( separator + 1 ).replace( /\+/g, "%20" )
+		);
 	}
 	return json;
 };

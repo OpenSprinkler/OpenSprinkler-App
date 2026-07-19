@@ -40,6 +40,59 @@ describe("Sensor Mutation Checks", function () {
 			});
 		});
 
+		it("should parse empty query segments and preserve embedded equals", function () {
+			assert.deepEqual(OSApp.Firmware.getUrlVars("/sn?pw=&"), { pw: "" });
+			assert.deepEqual(
+				OSApp.Firmware.getUrlVars("/sc?pw=&name=Tank=North&unit=L%2Fmin%2Bavg"),
+				{ pw: "", name: "Tank=North", unit: "L/min+avg" }
+			);
+		});
+
+		it("should POST clear-log requests without phantom parameters", function () {
+			checkOSVersion.returns(true);
+			ajaxq.callsFake(function () {
+				return $.Deferred().resolve({ deleted: 0 }).promise();
+			});
+
+			return OSApp.Firmware.sendToOS("/sn?pw=&").then(function () {
+				var request = ajaxq.firstCall.args[1];
+				assert.equal(ajaxq.firstCall.args[0], "change");
+				assert.equal(request.type, "POST");
+				assert.deepEqual(request.data, { pw: OSApp.currentSession.pass });
+			});
+		});
+
+		it("should round-trip encoded analog sensor text through POST data", function () {
+			var sensor = {
+				nr: 1,
+				type: OSApp.Analog.Constants.USERDEF_SENSOR,
+				group: 2,
+				name: "Tank=North & South+\u96ea",
+				ip: 0,
+				port: 80,
+				id: 3,
+				ri: 60,
+				fac: 1.5,
+				div: 2,
+				unit: "\u00b5S/cm=&+",
+				enable: 1,
+				log: 1,
+				show: 1
+			};
+			checkOSVersion.returns(true);
+			ajaxq.callsFake(function () {
+				return $.Deferred().resolve({ result: 1 }).promise();
+			});
+
+			return OSApp.Firmware.sendToOS(OSApp.Analog.buildSensorConfigCommand(sensor)).then(function () {
+				var request = ajaxq.firstCall.args[1];
+				assert.equal(ajaxq.firstCall.args[0], "change");
+				assert.equal(request.type, "POST");
+				assert.equal(request.data.name, sensor.name);
+				assert.equal(request.data.unit, sensor.unit);
+			});
+		});
+
 		[ "/csn?pw=&uuid=-1", "/dsn?pw=&uuid=7", "/dsl?pw=&uuid=7" ].forEach(function (endpoint) {
 			it("should reject firmware errors from " + endpoint.split("?")[0], function () {
 				return new Promise(function (resolve, reject) {

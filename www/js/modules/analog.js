@@ -110,6 +110,32 @@ OSApp.Analog.intFromBytes = function( x ) {
 	}
 };
 
+OSApp.Analog.buildSensorConfigCommand = function( sensor ) {
+	var params = new URLSearchParams();
+
+	params.append( "pw", "" );
+	params.append( "nr", sensor.nr );
+	params.append( "type", sensor.type );
+	params.append( "group", sensor.group );
+	params.append( "name", sensor.name );
+	params.append( "ip", sensor.ip );
+	params.append( "port", sensor.port );
+	params.append( "id", sensor.id );
+	params.append( "ri", sensor.ri );
+
+	if ( sensor.type === OSApp.Analog.Constants.USERDEF_SENSOR ) {
+		params.append( "fac", sensor.fac );
+		params.append( "div", sensor.div );
+		params.append( "unit", sensor.unit );
+	}
+
+	params.append( "enable", sensor.enable );
+	params.append( "log", sensor.log );
+	params.append( "show", sensor.show );
+
+	return "/sc?" + params.toString();
+};
+
 //Program adjustments editor
 OSApp.Analog.showAdjustmentsEditor = function( progAdjust, callback ) {
 
@@ -518,23 +544,7 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 				sensorOut.nativedata = sensor.nativedata;
 				sensorOut.data = sensor.data;
 				sensorOut.last = sensor.last;
-				OSApp.Firmware.sendToOS( "/sc?pw=&nr=" + sensorOut.nr +
-					"&type=" + sensorOut.type +
-					"&group=" + sensorOut.group +
-					"&name=" + sensorOut.name +
-					"&ip=" + sensorOut.ip +
-					"&port=" + sensorOut.port +
-					"&id=" + sensorOut.id +
-					"&ri=" + sensorOut.ri +
-					( ( sensorOut.type === OSApp.Analog.Constants.USERDEF_SENSOR ) ?
-						( "&fac=" + sensorOut.fac +
-						"&div=" + sensorOut.div +
-						"&unit=" + sensorOut.unit
-						) : "" ) +
-					"&enable=" + sensorOut.enable +
-					"&log=" + sensorOut.log +
-					"&show=" + sensorOut.show
-				).done( function() {
+				OSApp.Firmware.sendToOS( OSApp.Analog.buildSensorConfigCommand( sensorOut ) ).done( function() {
 					OSApp.Analog.analogSensors[ row ] = sensorOut;
 					updateSensorContent();
 				} );
@@ -552,23 +562,7 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 			};
 
 			OSApp.Analog.showSensorEditor( sensor, function( sensorOut ) {
-				OSApp.Firmware.sendToOS( "/sc?pw=&nr=" + sensorOut.nr +
-					"&type=" + sensorOut.type +
-					"&group=" + sensorOut.group +
-					"&name=" + sensorOut.name +
-					"&ip=" + sensorOut.ip +
-					"&port=" + sensorOut.port +
-					"&id=" + sensorOut.id +
-					"&ri=" + sensorOut.ri +
-				( ( sensorOut.type === OSApp.Analog.Constants.USERDEF_SENSOR ) ?
-					( "&fac=" + sensorOut.fac +
-					"&div=" + sensorOut.div +
-					"&unit=" + sensorOut.unit
-				) : "" ) +
-					"&enable=" + sensorOut.enable +
-					"&log=" + sensorOut.log +
-					"&show=" + sensorOut.show
-				).done( function() {
+				OSApp.Firmware.sendToOS( OSApp.Analog.buildSensorConfigCommand( sensorOut ) ).done( function() {
 					OSApp.Analog.analogSensors.push( sensorOut );
 					updateSensorContent();
 				} );
@@ -647,7 +641,7 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 		// Clear sensor log
 		list.find( "#clear-log" ).on( "click", function() {
 			OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to clear the sensor log?" ), "", function() {
-				OSApp.Firmware.sendToOS( "/sn?pw=&" ).done( function( result ) {
+				OSApp.Firmware.sendToOS( "/sn?pw=" ).done( function( result ) {
 					window.alert( OSApp.Language._( "Log cleared:" ) + " " + result.deleted + " " + OSApp.Language._( "records" ) );
 					updateSensorContent();
 				} );
