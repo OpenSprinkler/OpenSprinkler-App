@@ -39,7 +39,7 @@ OSApp.Firmware.Constants = {
 };
 
 OSApp.Firmware.isChangeRequest = function( dest ) {
-	return /\/(?:cv|cs|csn|cr|cp|uwa|dp|dsn|dsl|co|cl|cu|up|cm)(?:\?|$)/.test( dest );
+	return /\/(?:cv|cs|csn|cr|cp|uwa|dp|dsn|dsl|co|cl|cu|up|cm|sp|pq|dl|sa|sc|sb|sn)(?:\?|$)/.test( dest );
 };
 
 // Wrapper function to communicate with OpenSprinkler
@@ -121,6 +121,9 @@ OSApp.Firmware.sendToOS = function( dest, type ) {
 
 		// Handle page not found by triggering fail
 		} else if ( data.result === 32 ) {
+			if ( isChange ) {
+				OSApp.Errors.showError( OSApp.Language._( "Please check input and try again." ) );
+			}
 
 			return $.Deferred().reject( { "status":404 } );
 		}
@@ -231,6 +234,10 @@ OSApp.Firmware.sendToOS = function( dest, type ) {
 
 				//Handle unauthorized requests
 				OSApp.Errors.showError( OSApp.Language._( "Check device password and try again." ) );
+			} else if ( isChange ) {
+				// Ensure every rejected mutation replaces any active loader with
+				// visible feedback that will dismiss itself.
+				OSApp.Errors.showError( OSApp.Language._( "Network Error" ) );
 			}
 			// Preserve transport failure semantics for reads as well as writes. Callers
 			// must not treat a failed /jsn (or any other read) as resolved undefined.

@@ -33,6 +33,13 @@ describe("Sensor Mutation Checks", function () {
 			showError.restore();
 		});
 
+		[ "/sp?pw=&npw=new", "/pq?pw=&dur=60", "/dl?pw=&day=all", "/sa?pw=&nr=1", "/sc?pw=&nr=1",
+			"/sb?pw=&nr=1", "/sn?pw=" ].forEach(function (endpoint) {
+			it("should classify " + endpoint.split("?")[0] + " as a mutation", function () {
+				assert.isTrue(OSApp.Firmware.isChangeRequest(endpoint));
+			});
+		});
+
 		[ "/csn?pw=&uuid=-1", "/dsn?pw=&uuid=7", "/dsl?pw=&uuid=7" ].forEach(function (endpoint) {
 			it("should reject firmware errors from " + endpoint.split("?")[0], function () {
 				return new Promise(function (resolve, reject) {
@@ -91,6 +98,44 @@ describe("Sensor Mutation Checks", function () {
 						try {
 							assert.strictEqual(actual, error);
 							assert.equal(ajaxq.firstCall.args[0], "change");
+							resolve();
+						} catch (assertionError) {
+							reject(assertionError);
+						}
+					});
+			});
+		});
+
+		it("should show feedback for otherwise silent mutation transport failures", function () {
+			var error = { status: 500 };
+			ajaxq.callsFake(function () { return $.Deferred().reject(error).promise(); });
+
+			return new Promise(function (resolve, reject) {
+				OSApp.Firmware.sendToOS("/sp?pw=&npw=new&cpw=old", "json")
+					.done(function () { reject(new Error("Password transport failure was reported as success")); })
+					.fail(function (actual) {
+						try {
+							assert.strictEqual(actual, error);
+							assert.equal(ajaxq.firstCall.args[0], "change");
+							assert.isTrue(showError.calledOnceWith("Network Error"));
+							resolve();
+						} catch (assertionError) {
+							reject(assertionError);
+						}
+					});
+			});
+		});
+
+		it("should show feedback when a mutation endpoint is missing", function () {
+			ajaxq.callsFake(function () { return $.Deferred().resolve({ result: 32 }).promise(); });
+
+			return new Promise(function (resolve, reject) {
+				OSApp.Firmware.sendToOS("/sp?pw=&npw=new&cpw=old", "json")
+					.done(function () { reject(new Error("Missing mutation endpoint was reported as success")); })
+					.fail(function (actual) {
+						try {
+							assert.equal(actual.status, 404);
+							assert.isTrue(showError.calledOnceWith("Please check input and try again."));
 							resolve();
 						} catch (assertionError) {
 							reject(assertionError);
