@@ -1654,20 +1654,18 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 	// Build station <option> nodes for a master-zone <select>. Station names are
 	// controller data, so assign them with .text() rather than treating them as HTML.
-	var buildMasterStationOptions = function( current ) {
+	var buildMasterStationOptions = function() {
 		var options = $( "<select></select>" ),
 			snames = OSApp.currentSession.controller.stations.snames;
 		$( "<option></option>" )
 			.val( 0 )
 			.text( OSApp.Language._( "None" ) )
-			.prop( "selected", current === 0 )
 			.appendTo( options );
 		for ( var si = 0; si < snames.length; si++ ) {
 			var val = si + 1;
 			$( "<option></option>" )
 				.val( val )
 				.text( OSApp.Stations.getName( si ) )
-				.prop( "selected", current === val )
 				.appendTo( options );
 			if ( !OSApp.Firmware.checkOSVersion( 214 ) && si === 7 ) { break; }
 		}
@@ -1848,7 +1846,12 @@ OSApp.Options.showOptions = function( expandItem ) {
 					"<button class='submit' data-theme='b'>" + OSApp.Language._( "Submit" ) + "</button>" +
 				"</div>" +
 			"</div>" );
-		popup.find( "#mas-zone" ).append( buildMasterStationOptions( parseInt( conf.mas ) || 0 ) );
+		var masterZone = popup.find( "#mas-zone" ),
+			configuredZone = String( parseInt( conf.mas ) || 0 );
+		masterZone.append( buildMasterStationOptions() ).val( configuredZone );
+		if ( masterZone.val() === null ) {
+			masterZone.val( "0" );
+		}
 
 		// Hide on/off adjustments when no zone is selected.
 		var toggleAdjustments = function() {

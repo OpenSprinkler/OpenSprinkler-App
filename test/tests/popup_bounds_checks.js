@@ -168,4 +168,33 @@ describe("Options Popup Bounds Checks", function () {
 			names[ 0 ] = originalName;
 		}
 	});
+
+	it("selects each configured master zone when opening its dialog", function () {
+		var options = OSApp.currentSession.controller.options,
+			original = {
+				mas: options.mas,
+				mas2: options.mas2,
+				mas3: options.mas3,
+				mas4: options.mas4
+			};
+
+		try {
+			options.mas = 1;
+			options.mas2 = 2;
+			options.mas3 = 3;
+			options.mas4 = 4;
+			OSApp.Options.showOptions();
+
+			[ 1, 2, 3, 4 ].forEach(function (zone, index) {
+				$("#master" + (index + 1)).trigger("click");
+				assert.equal($("#masterSettings #mas-zone").val(), String(zone));
+				$("#masterSettings").popup("close").remove();
+			});
+		} finally {
+			options.mas = original.mas;
+			options.mas2 = original.mas2;
+			options.mas3 = original.mas3;
+			options.mas4 = original.mas4;
+		}
+	});
 });
