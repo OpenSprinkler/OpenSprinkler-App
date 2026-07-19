@@ -3028,17 +3028,28 @@ OSApp.Programs.getSenAdjURL = function (id) {
         const x = parseFloat( $( this ).find( ".split-x" ).val() );
         const y = parseFloat( $( this ).find( ".split-y" ).val() );
 
+        // When adjustment is disabled the editor is hidden, so invalid rows are
+        // skipped rather than blocking the save with errors the user cannot see.
         if ( !Number.isFinite( x ) || !Number.isFinite( y ) ) {
-            throw validationError( OSApp.Language._( "Error: Complete or remove every sensor adjustment point." ) );
+            if ( enabled ) {
+                throw validationError( OSApp.Language._( "Error: Complete or remove every sensor adjustment point." ) );
+            }
+            return;
         }
         if ( y < 0 ) {
-            throw validationError( OSApp.Language._( "Error: Watering percentages cannot be negative." ) );
+            if ( enabled ) {
+                throw validationError( OSApp.Language._( "Error: Watering percentages cannot be negative." ) );
+            }
+            return;
         }
 
         vals.push( [ x, y / 100, vals.length ] );
     } );
 
     if ( vals.length === 0 ) {
+		if ( !enabled ) {
+			return `&snadj=${flag},${uuid}`;
+		}
         throw validationError( OSApp.Language._( "Error: Add at least one sensor adjustment point." ) );
     }
 

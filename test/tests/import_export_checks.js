@@ -472,6 +472,38 @@ describe("Import/Export Checks", function () {
 		}
 	});
 
+	it("should validate backup programs against the source station count", function () {
+		var sandbox = sinon.createSandbox(),
+			controller = OSApp.currentSession.controller;
+		try {
+			OSApp.currentSession.controller = {
+				options: { fwv: 300 },
+				settings: {},
+				stations: { snames: Array(16).fill("Target station") },
+				programs: { nboards: 2, mnp: 4 },
+				sensors: { sn: [] }
+			};
+			sandbox.stub(OSApp.Errors, "showError");
+			sandbox.stub(OSApp.UIDom, "areYouSure");
+			sandbox.stub(OSApp.Firmware, "sendToOS");
+
+			var backup = baseBackup();
+			backup.stations.snames = Array(8).fill("Source station");
+			backup.stations.masop = [ 0 ];
+			backup.programs.pd = [ program("Eight stations", null) ];
+			backup.programs.pd[0][4] = Array(8).fill(30);
+
+			OSApp.ImportExport.importConfig(backup);
+
+			assert.isTrue(OSApp.Errors.showError.notCalled);
+			assert.isTrue(OSApp.UIDom.areYouSure.calledOnce);
+			assert.isTrue(OSApp.Firmware.sendToOS.notCalled);
+		} finally {
+			sandbox.restore();
+			OSApp.currentSession.controller = controller;
+		}
+	});
+
 	it("should reject missing or malformed backup collections before confirmation", function () {
 		var sandbox = sinon.createSandbox(),
 			controller = OSApp.currentSession.controller;

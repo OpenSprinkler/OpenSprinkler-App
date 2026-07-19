@@ -238,18 +238,28 @@ describe("Program Sensor Adjustment Checks", function () {
 		}, "Add at least one sensor adjustment point");
 	});
 
-	it("rejects incomplete configured points even when adjustment is disabled", function () {
+	it("skips invalid points instead of blocking the save when adjustment is disabled", function () {
 		fixture.append(
 			"<input type='checkbox' id='use-sn-new'>" +
 			"<select id='sen-adj-sid-new'><option value='42' selected>Sensor</option></select>" +
 			"<table><tbody id='sensor-splits-body-new'>" +
 			"<tr><td><input class='split-x' value='10'></td><td><input class='split-y'></td></tr>" +
+			"<tr><td><input class='split-x' value='20'></td><td><input class='split-y' value='-5'></td></tr>" +
+			"<tr><td><input class='split-x' value='30'></td><td><input class='split-y' value='75'></td></tr>" +
 			"</tbody></table>"
 		);
 
-		assert.throws(function () {
-			OSApp.Programs.getSenAdjURL("new");
-		}, "Complete or remove every sensor adjustment point");
+		assert.equal(OSApp.Programs.getSenAdjURL("new"), "&snadj=0,42,30,0.75");
+	});
+
+	it("allows a disabled selected sensor before adjustment points are configured", function () {
+		fixture.append(
+			"<input type='checkbox' id='use-sn-new' data-sensor-adjustment-flag='4'>" +
+			"<select id='sen-adj-sid-new'><option value='42' selected>Sensor</option></select>" +
+			"<table><tbody id='sensor-splits-body-new'></tbody></table>"
+		);
+
+		assert.equal(OSApp.Programs.getSenAdjURL("new"), "&snadj=4,42");
 	});
 
 	it("disables sensor adjustment without erasing its sensor, points, or other flags", function () {

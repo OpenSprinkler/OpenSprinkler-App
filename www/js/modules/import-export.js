@@ -455,10 +455,8 @@ OSApp.ImportExport.importConfig = function( data ) {
 		backupSensors = data.sensors && Array.isArray( data.sensors.sn ) ? data.sensors.sn : [],
 		sourceFirmwareVersion = data.options && typeof data.options.fwv === "number" ? data.options.fwv : null,
 		sourceStationCount = data.stations && Array.isArray( data.stations.snames ) ? data.stations.snames.length : 0,
-		targetStationCount = importController.stations && Array.isArray( importController.stations.snames ) ?
-			importController.stations.snames.length : sourceStationCount,
-		targetLegacyBoardCount = importController.programs && Number.isInteger( importController.programs.nboards ) ?
-			importController.programs.nboards : Math.ceil( targetStationCount / 8 ),
+		sourceLegacyBoardCount = Number.isInteger( data.settings.nbrd ) && data.settings.nbrd >= 0 ?
+			data.settings.nbrd : Math.ceil( sourceStationCount / 8 ),
 		targetProgramLimit = importController.programs && Number.isInteger( importController.programs.mnp ) ?
 			importController.programs.mnp : null,
 		targetSensors = importController.sensors && Array.isArray( importController.sensors.sn ) ? importController.sensors.sn : [],
@@ -484,7 +482,7 @@ OSApp.ImportExport.importConfig = function( data ) {
 
 	if ( ( targetProgramLimit !== null && programs.length > targetProgramLimit ) || programs.some( function( prog ) {
 		return !OSApp.ImportExport.validateProgramDefinition(
-			prog, sourceFirmwareVersion, targetStationCount, targetLegacyBoardCount
+			prog, sourceFirmwareVersion, sourceStationCount, sourceLegacyBoardCount
 		);
 	} ) ) {
 		OSApp.Errors.showError( OSApp.Language._( "Invalid program configuration in backup." ) );
