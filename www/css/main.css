@@ -465,7 +465,7 @@ input[type=number] {
     overflow: hidden;
 }
 #footer {
-    min-height: 24px;
+    min-height: 32px;
     border: none !important;
 }
 .logo {
@@ -785,8 +785,9 @@ input[type=number] {
     font-weight:400;
     font-size:medium;
     width: 100%;
-	min-height: 24px;
-    padding: 2px 0;
+	min-height: 32px;
+	box-sizing: border-box;
+    padding: 4px 2px;
 }
 #footer-menu {
     border: 0;
@@ -1151,7 +1152,7 @@ div.running-text{
 
 /* iPhone X rules */
 #footer-running {
-	padding: 0 2px env(safe-area-inset-bottom) 2px;
+	padding-bottom: calc(4px + env(safe-area-inset-bottom));
 }
 
 #footer-menu {
@@ -1231,7 +1232,7 @@ button[id^="start_1-"] {
 .sensor-hw-missing {
     margin: 0.25em 0 0.75em 0;
     font-size: 0.9em;
-    color: #888;
+    color: #8b1e2d;
     font-style: italic;
 }
 
@@ -1355,12 +1356,19 @@ button[id^="start_1-"] {
     display: none;
 }
 
+/* Wrap between whole buttons on narrow screens; never inside a label. Flag
+   names come from the firmware /jsd schema, so their length is not ours to
+   control (nor is it fixed across translations). */
 .sensor-flags-checkboxes {
     display: flex;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     gap: 6px;
     align-items: center;
     padding: 4px 0;
+}
+
+.sensor-flags-checkboxes .ui-checkbox label.ui-btn {
+    white-space: nowrap;
 }
 
 .sensor-flags-checkboxes .ui-checkbox {

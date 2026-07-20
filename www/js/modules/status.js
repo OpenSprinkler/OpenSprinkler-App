@@ -253,10 +253,9 @@ OSApp.Status.checkStatus = function() {
 		return;
 	}
 
-	// Tapping a sensor-active footer opens Edit Options at the Weather and
-	// Sensors section so users can adjust sensor configuration.
+	// Tapping a sensor-active footer opens the built-in sensor options.
 	var openSensorOptions = function() {
-		OSApp.UIDom.changePage( "#os-options", { expandItem: "weather" } );
+		OSApp.UIDom.changePage( "#os-options", { expandItem: "sensors" } );
 	};
 
 	// Map a sensor type code to a short display name for the footer alert.

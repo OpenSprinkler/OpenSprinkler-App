@@ -71,6 +71,23 @@ describe("Options Popup Bounds Checks", function () {
 		assert.equal(config.off, 0);
 	});
 
+	it("separates weather adjustment from built-in sensor options", function () {
+		OSApp.Options.showOptions("sensors");
+		var groups = $("#os-options-list fieldset"),
+			weather = groups.filter(function () {
+				return $(this).children("legend").text() === "Weather Adjustment";
+			}),
+			sensors = groups.filter(function () {
+				return $(this).children("legend").text() === "Built-in Sensors";
+			});
+
+		assert.lengthOf(weather, 1);
+		assert.lengthOf(sensors, 1);
+		assert.lengthOf(weather.find("#sensor1"), 0);
+		assert.lengthOf(sensors.find("#sensor1"), 1);
+		assert.equal(sensors.attr("data-collapsed"), "false");
+	});
+
 	it("rejects flow pulse rates that cannot fit the firmware option bytes", function () {
 		OSApp.Options.showOptions();
 		var button = $("#sensor1"),
@@ -84,6 +101,43 @@ describe("Options Popup Bounds Checks", function () {
 
 		assert.isTrue(showError.calledOnceWith("Please check input and try again."));
 		assert.equal(button.val(), original);
+	});
+
+	it("preserves normally-open mode when switching to a flow sensor", function () {
+		OSApp.Options.showOptions();
+		var button = $("#sensor1"),
+			config = OSApp.Utils.unescapeJSON(button.val());
+		config.type = 1;
+		config.no = 1;
+		button.val(OSApp.Utils.escapeJSON(config)).trigger("click");
+
+		var popup = $("#sensorSettings");
+		assert.isTrue(popup.find("#sn-no").prop("checked"));
+		popup.find("#sn-type").val("2").trigger("change");
+		popup.find("#sn-fpr").val("1");
+		popup.find(".submit").trigger("click");
+
+		config = OSApp.Utils.unescapeJSON(button.val());
+		assert.equal(config.type, 2);
+		assert.equal(config.no, 1);
+	});
+
+	it("defaults normally-open mode when configuring an unset sensor", function () {
+		OSApp.Options.showOptions();
+		var button = $("#sensor1"),
+			config = OSApp.Utils.unescapeJSON(button.val());
+		config.type = 0;
+		config.no = 0;
+		button.val(OSApp.Utils.escapeJSON(config)).trigger("click");
+
+		var popup = $("#sensorSettings");
+		assert.isTrue(popup.find("#sn-no").prop("checked"));
+		popup.find("#sn-type").val("2").trigger("change");
+		popup.find("#sn-fpr").val("1");
+		popup.find(".submit").trigger("click");
+
+		config = OSApp.Utils.unescapeJSON(button.val());
+		assert.equal(config.no, 1);
 	});
 
 	it("snaps modern master adjustments before enforcing the -600..600 bounds", function () {

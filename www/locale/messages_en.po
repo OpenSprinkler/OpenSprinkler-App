@@ -1128,7 +1128,10 @@ msgstr ""
 msgid "Station Delay"
 msgstr ""
 
-msgid "Weather and Sensors"
+msgid "Weather Adjustment"
+msgstr ""
+
+msgid "Built-in Sensors"
 msgstr ""
 
 msgid "Adjustment Method"

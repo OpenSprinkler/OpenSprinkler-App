@@ -1754,13 +1754,13 @@ OSApp.Sensors.displayPage = function (expandUuid) {
                     "Note: this page is for external (e.g. analog) and virtual sensors."
                 ) + " "));
                 // Translators: keep {0} as the placeholder for the link to the
-                // "Weather and Sensors" section.
+                // "Built-in Sensors" section.
                 const template = OSApp.Language._("To edit built-in sensors (e.g. rain, flow), open the {0} section under Edit Options.");
                 const [before, after = ""] = template.split("{0}");
-                const $link = $('<a href="#"></a>').text(OSApp.Language._("Weather and Sensors"));
+                const $link = $('<a href="#"></a>').text(OSApp.Language._("Built-in Sensors"));
                 $link.on("click", function(e) {
                     e.preventDefault();
-                    OSApp.UIDom.changePage("#os-options", { expandItem: "weather" });
+                    OSApp.UIDom.changePage("#os-options", { expandItem: "sensors" });
                 });
                 $notice.append(document.createTextNode(before), $link, document.createTextNode(after));
                 content.append($notice);
