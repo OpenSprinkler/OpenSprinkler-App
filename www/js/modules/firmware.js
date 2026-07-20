@@ -39,7 +39,7 @@ OSApp.Firmware.Constants = {
 };
 
 OSApp.Firmware.isChangeRequest = function( dest ) {
-	return /\/(?:cv|cs|csn|cr|cp|uwa|dp|dsn|dsl|co|cl|cu|up|cm)(?:\?|$)/.test( dest );
+	return /\/(?:cv|cs|csn|cr|cp|uwa|dp|dsn|dsl|co|cl|cu|up|cm|sp|pq|dl|sa|sc|sb|sn)(?:\?|$)/.test( dest );
 };
 
 // Wrapper function to communicate with OpenSprinkler
@@ -121,6 +121,9 @@ OSApp.Firmware.sendToOS = function( dest, type ) {
 
 		// Handle page not found by triggering fail
 		} else if ( data.result === 32 ) {
+			if ( isChange ) {
+				OSApp.Errors.showError( OSApp.Language._( "Please check input and try again." ) );
+			}
 
 			return $.Deferred().reject( { "status":404 } );
 		}
@@ -231,6 +234,10 @@ OSApp.Firmware.sendToOS = function( dest, type ) {
 
 				//Handle unauthorized requests
 				OSApp.Errors.showError( OSApp.Language._( "Check device password and try again." ) );
+			} else if ( isChange ) {
+				// Ensure every rejected mutation replaces any active loader with
+				// visible feedback that will dismiss itself.
+				OSApp.Errors.showError( OSApp.Language._( "Network Error" ) );
 			}
 			// Preserve transport failure semantics for reads as well as writes. Callers
 			// must not treat a failed /jsn (or any other read) as resolved undefined.
@@ -311,12 +318,26 @@ OSApp.Firmware.versionCompare = function( ver, check ) {
 
 OSApp.Firmware.getUrlVars = function( url ) {
 	var hash,
+		separator,
 		json = {},
-		hashes = url.slice( url.indexOf( "?" ) + 1 ).split( "&" );
+		queryIndex = url.indexOf( "?" ),
+		hashes = queryIndex === -1 ? [] : url.slice( queryIndex + 1 ).split( "&" );
 
 	for ( var i = 0; i < hashes.length; i++ ) {
-		hash = hashes[ i ].split( "=" );
-		json[ hash[ 0 ] ] = decodeURIComponent( hash[ 1 ].replace( /\+/g, "%20" ) );
+		hash = hashes[ i ];
+		if ( !hash ) {
+			continue;
+		}
+
+		separator = hash.indexOf( "=" );
+		if ( separator === -1 ) {
+			json[ hash ] = "";
+			continue;
+		}
+
+		json[ hash.slice( 0, separator ) ] = decodeURIComponent(
+			hash.slice( separator + 1 ).replace( /\+/g, "%20" )
+		);
 	}
 	return json;
 };

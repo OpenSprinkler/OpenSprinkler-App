@@ -512,7 +512,8 @@ OSApp.ImportExport.importConfig = function( data ) {
 			return true;
 		}
 		if ( !Number.isInteger( adjustment.uuid ) || adjustment.uuid < 1 || adjustment.uuid > 65535 ||
-			!Array.isArray( adjustment.splits ) || adjustment.splits.length < 1 || adjustment.splits.length > 8 ) {
+			!Array.isArray( adjustment.splits ) || adjustment.splits.length > 8 ||
+			( ( adjustment.flag & 1 ) !== 0 && adjustment.splits.length < 1 ) ) {
 			return true;
 		}
 		var lastX = -Infinity;

@@ -251,7 +251,8 @@ describe("Import/Export Checks", function () {
 			backup.programs.pd = [
 				program("Morning & East=West", { flag: 1, uuid: 42, splits: [ { x: 0, y: 50 } ] }),
 				program("Disabled adjustment", { flag: 0, uuid: 42, splits: [ { x: 10, y: 0.75 } ] }),
-				program("Empty adjustment", {})
+				program("Empty adjustment", {}),
+				program("Disabled without points", { flag: 4, uuid: 42, splits: [] })
 			];
 
 			return cleanupAfter(asNative(OSApp.ImportExport.importConfig(backup)).then(function () {
@@ -273,6 +274,8 @@ describe("Import/Export Checks", function () {
 				assert.include(programCommands[1], "&snadj=0,42,10,0.75");
 				assert.include(programCommands[2], "&name=Empty%20adjustment");
 				assert.include(programCommands[2], "&snadj=0,0");
+				assert.include(programCommands[3], "&name=Disabled%20without%20points");
+				assert.include(programCommands[3], "&snadj=4,42");
 				assert.notInclude(commands.join("\n"), "/csn?");
 				assert.notInclude(commands.join("\n"), "/dsn?");
 				assert.notInclude(commands.join("\n"), "/jsn?");
@@ -774,8 +777,13 @@ describe("Import/Export Checks", function () {
 			malformedNonEmptyAdjustment.programs.pd = [ program("Incomplete adjustment", { uuid: 1 }) ];
 			OSApp.ImportExport.importConfig(malformedNonEmptyAdjustment);
 			assert.isTrue(OSApp.UIDom.areYouSure.notCalled);
+
+			var enabledWithoutPoints = baseBackup();
+			enabledWithoutPoints.programs.pd = [ program("Enabled without points", { flag: 1, uuid: 1, splits: [] }) ];
+			OSApp.ImportExport.importConfig(enabledWithoutPoints);
+			assert.isTrue(OSApp.UIDom.areYouSure.notCalled);
 			assert.isTrue(OSApp.Firmware.sendToOS.notCalled);
-			assert.equal(OSApp.Errors.showError.callCount, 4);
+			assert.equal(OSApp.Errors.showError.callCount, 5);
 		} finally {
 			sandbox.restore();
 			OSApp.currentSession.controller = controller;
