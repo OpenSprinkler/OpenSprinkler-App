@@ -17,6 +17,35 @@
 var OSApp = OSApp || {};
 OSApp.Options = OSApp.Options || {};
 
+OSApp.Options.resetStationAttributes = function( attributes ) {
+	var operation = $.Deferred();
+
+	$.mobile.loading( "show" );
+	OSApp.Storage.get( "current_site", function( data ) {
+		var targetSite = data.current_site;
+
+		OSApp.Firmware.sendToOS( "/cs?pw=&" + attributes ).done( function( result ) {
+			OSApp.Storage.get( "sites", function( latestData ) {
+				var sites = OSApp.Sites.parseSites( latestData.sites );
+
+				if ( sites[ targetSite ] ) {
+					sites[ targetSite ].notes = {};
+					sites[ targetSite ].images = {};
+					sites[ targetSite ].lastRunTime = {};
+					OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
+				}
+				OSApp.Errors.showError( OSApp.Language._( "Stations have been updated" ) );
+				OSApp.Sites.updateController();
+				operation.resolve( result );
+			} );
+		} ).fail( function( error ) {
+			operation.reject( error );
+		} );
+	} );
+
+	return operation.promise();
+};
+
 // FIXME: please, please, please refactor me!
 // Device setting management functions
 OSApp.Options.showOptions = function( expandItem ) {
@@ -1372,20 +1401,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 		}
 
 		OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to reset station attributes?" ), OSApp.Language._( "This will reset all station attributes" ), function() {
-			$.mobile.loading( "show" );
-			OSApp.Storage.get( [ "sites", "current_site" ], function( data ) {
-				var sites = OSApp.Sites.parseSites( data.sites );
-
-				sites[ data.current_site ].notes = {};
-				sites[ data.current_site ].images = {};
-				sites[ data.current_site ].lastRunTime = {};
-
-				OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
-			} );
-			OSApp.Firmware.sendToOS( "/cs?pw=&" + cs ).done( function() {
-				OSApp.Errors.showError( OSApp.Language._( "Stations have been updated" ) );
-				OSApp.Sites.updateController();
-			} );
+			OSApp.Options.resetStationAttributes( cs );
 		} );
 	} );
 
