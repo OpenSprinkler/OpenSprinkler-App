@@ -2050,6 +2050,18 @@ msgstr ""
 msgid "Are you sure you want to delete all sensor logs?"
 msgstr ""
 
+msgid "Are you sure you want to download all log data?"
+msgstr ""
+
+msgid "This action can take a while depending on the number of log records."
+msgstr ""
+
+msgid "Retrieving sensor logs"
+msgstr ""
+
+msgid "Sensor log progress"
+msgstr ""
+
 msgid "Scan For Device"
 msgstr ""
 

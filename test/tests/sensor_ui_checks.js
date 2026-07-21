@@ -27,6 +27,20 @@ describe("Sensor UI Checks", function () {
 		return buffer;
 	}
 
+	function pagedLogResponse(buffer, nextCursor, totalSlots, done) {
+		var values = {
+			"x-os-next-cursor": String(nextCursor),
+			"x-os-total-slots": String(totalSlots),
+			"x-os-page-done": done ? "1" : "0"
+		};
+		return {
+			data: buffer,
+			headers: {
+				get: function (name) { return values[name.toLowerCase()] || null; }
+			}
+		};
+	}
+
 	function sensorEditorData() {
 		return {
 			enums: {},
@@ -388,6 +402,7 @@ describe("Sensor UI Checks", function () {
 
 			OSApp.Sensors.displayPage();
 			var page = $("#sensors");
+			page.find("[data-uuid='7']").collapsible("expand");
 			page.find('input[type="button"]').filter(function () {
 				return $(this).val() === OSApp.Language._("Update Sensor");
 			}).first().trigger("click");
@@ -400,6 +415,97 @@ describe("Sensor UI Checks", function () {
 			loading.restore();
 			showError.restore();
 			changeSensor.restore();
+			controller.sensors = originalSensors;
+			controller.sensor_desc = originalDescription;
+		}
+	});
+
+	it("should build sensor editors only when their collapsibles are first expanded", function () {
+		var controller = OSApp.currentSession.controller;
+		var originalSensors = controller.sensors;
+		var originalDescription = controller.sensor_desc;
+		var loading = sinon.stub($.mobile, "loading");
+		var changeHeader = sinon.stub(OSApp.UIDom, "changeHeader");
+		var editors = [];
+		var createSensorPage = sinon.stub(OSApp.Sensors, "createSensorPage").callsFake(function (_parent, uuid) {
+			var editor = { uuid: uuid, update: sinon.spy(), getURL: sinon.stub().returns("/csn?pw=") };
+			editors.push(editor);
+			return editor;
+		});
+
+		try {
+			controller.sensor_desc = sensorEditorData();
+			controller.sensors = { sn: Array.from({ length: 20 }, function (_value, index) {
+				return {
+					uuid: index + 1,
+					name: "Sensor " + (index + 1),
+					unit: 0,
+					value: index,
+					status: OSApp.Sensors.STATUS.VALID,
+					flag: 1,
+					extra: {}
+				};
+			}) };
+
+			OSApp.Sensors.displayPage();
+			var page = $("#sensors");
+			var collapsibles = page.find("[data-uuid]");
+
+			assert.lengthOf(collapsibles, 20);
+			assert.isFalse(createSensorPage.called);
+			assert.lengthOf(page.find(".sensor-current-value-text"), 20);
+
+			collapsibles.eq(0).collapsible("expand");
+			assert.isTrue(createSensorPage.calledOnceWith(sinon.match.any, 1, controller.sensor_desc));
+			assert.isTrue(editors[0].update.calledOnceWith(controller.sensors.sn[0]));
+
+			collapsibles.eq(0).collapsible("collapse").collapsible("expand");
+			assert.isTrue(createSensorPage.calledOnce);
+
+			collapsibles.eq(1).collapsible("expand");
+			assert.equal(createSensorPage.callCount, 2);
+			assert.equal(createSensorPage.secondCall.args[1], 2);
+		} finally {
+			$("#sensors").trigger("pagehide").remove();
+			createSensorPage.restore();
+			changeHeader.restore();
+			loading.restore();
+			controller.sensors = originalSensors;
+			controller.sensor_desc = originalDescription;
+		}
+	});
+
+	it("should lazily build the homepage-selected sensor before auto-expanding it", function () {
+		var controller = OSApp.currentSession.controller;
+		var originalSensors = controller.sensors;
+		var originalDescription = controller.sensor_desc;
+		var loading = sinon.stub($.mobile, "loading");
+		var changeHeader = sinon.stub(OSApp.UIDom, "changeHeader");
+		var createSensorPage = sinon.stub(OSApp.Sensors, "createSensorPage").returns({
+			update: sinon.spy(),
+			getURL: sinon.stub().returns("/csn?pw=")
+		});
+
+		try {
+			controller.sensor_desc = sensorEditorData();
+			controller.sensors = { sn: [
+				{ uuid: 7, name: "First", flag: 1, extra: {} },
+				{ uuid: 8, name: "Selected", flag: 1, extra: {} }
+			] };
+
+			OSApp.Sensors.displayPage(8);
+			var page = $("#sensors");
+			var selected = page.find("[data-uuid='8']");
+
+			assert.isTrue(createSensorPage.calledOnce);
+			assert.equal(createSensorPage.firstCall.args[1], 8);
+			assert.isFalse(selected.hasClass("ui-collapsible-collapsed"));
+			assert.isFalse(page.find("[data-uuid='7']").data("sensor-editor-built") === true);
+		} finally {
+			$("#sensors").trigger("pagehide").remove();
+			createSensorPage.restore();
+			changeHeader.restore();
+			loading.restore();
 			controller.sensors = originalSensors;
 			controller.sensor_desc = originalDescription;
 		}
@@ -455,6 +561,85 @@ describe("Sensor UI Checks", function () {
 		);
 	});
 
+	it("should paginate all logs by physical cursor and continue through empty pages", function () {
+		var firstPage = sensorLogBuffer();
+		var progress = [];
+		var sendToOS = sinon.stub(OSApp.Firmware, "sendToOS");
+		sendToOS.onFirstCall().returns($.Deferred().resolve(
+			pagedLogResponse(firstPage, 5000, 10000, false)
+		).promise());
+		sendToOS.onSecondCall().returns($.Deferred().resolve(
+			pagedLogResponse(sensorLogBuffer(0), 10000, 10000, true)
+		).promise());
+
+		return new Promise(function (resolve, reject) {
+			OSApp.Sensors.fetchAllLogPages({
+				onProgress: function (value) { progress.push(value); }
+			}).done(function (buffer) {
+				try {
+					assert.equal(buffer.byteLength, firstPage.byteLength);
+					assert.deepEqual(progress, [ 0.5, 1 ]);
+					assert.equal(
+						sendToOS.firstCall.args[0],
+						"/jsl?pw=&page=1&cursor=0&count=5000&fmt=binary"
+					);
+					assert.equal(
+						sendToOS.secondCall.args[0],
+						"/jsl?pw=&page=1&cursor=5000&count=5000&fmt=binary"
+					);
+					assert.equal(sendToOS.firstCall.args[1], "arraybuffer-response");
+					assert.equal(sendToOS.secondCall.args[1], "arraybuffer-response");
+					resolve();
+				} catch (error) {
+					reject(error);
+				}
+			}).fail(reject);
+		}).finally(function () { sendToOS.restore(); });
+	});
+
+	it("should reject pagination metadata that cannot advance", function () {
+		var sendToOS = sinon.stub(OSApp.Firmware, "sendToOS").returns($.Deferred().resolve(
+			pagedLogResponse(sensorLogBuffer(0), 0, 10, false)
+		).promise());
+
+		return new Promise(function (resolve, reject) {
+			OSApp.Sensors.fetchAllLogPages()
+				.done(function () { reject(new Error("Invalid pagination metadata was accepted")); })
+				.fail(function (error) {
+					try {
+						assert.deepEqual(error, { status: 0, statusText: "parsererror" });
+						assert.isTrue(sendToOS.calledOnce);
+						resolve();
+					} catch (assertionError) {
+						reject(assertionError);
+					}
+				});
+		}).finally(function () { sendToOS.restore(); });
+	});
+
+	it("should preserve the empty-log marker without requiring pagination headers", function () {
+		var emptyLog = new ArrayBuffer(0);
+		emptyLog.noLogHeader = true;
+		var sendToOS = sinon.stub(OSApp.Firmware, "sendToOS").returns(
+			$.Deferred().resolve({ data: emptyLog, headers: { get: function () { return null; } } }).promise()
+		);
+
+		return new Promise(function (resolve, reject) {
+			OSApp.Sensors.fetchAllLogPages()
+				.done(function (buffer) {
+					try {
+						assert.strictEqual(buffer, emptyLog);
+						assert.isTrue(buffer.noLogHeader);
+						assert.isTrue(sendToOS.calledOnce);
+						resolve();
+					} catch (error) {
+						reject(error);
+					}
+				})
+				.fail(reject);
+		}).finally(function () { sendToOS.restore(); });
+	});
+
 	it("should filter raw sensor log downloads to the selected chart range", function () {
 		var points = [
 			{ x: 1699300000000, y: 10 },
@@ -487,8 +672,12 @@ describe("Sensor UI Checks", function () {
 		var chartConstructor = sinon.stub(window, "Chart").returns(chart);
 		var loading = sinon.stub($.mobile, "loading");
 		var changeHeader = sinon.stub(OSApp.UIDom, "changeHeader");
-		var sendToOS = sinon.stub(OSApp.Firmware, "sendToOS")
-			.returns($.Deferred().resolve(sensorLogBuffer(20001)).promise());
+		var allRecords = sensorLogBuffer(20001);
+		var sendToOS = sinon.stub(OSApp.Firmware, "sendToOS").callsFake(function (_url, type) {
+			return $.Deferred().resolve(type === "arraybuffer-response"
+				? pagedLogResponse(allRecords, 20001, 20001, true)
+				: allRecords).promise();
+		});
 		var page;
 
 		try {
@@ -524,8 +713,8 @@ describe("Sensor UI Checks", function () {
 
 			page.find('input[value="All"]').trigger("click");
 			assert.isTrue(sendToOS.getCall(3).calledWith(
-				"/jsl?pw=&fmt=binary&count=max",
-				"arraybuffer"
+				"/jsl?pw=&page=1&cursor=0&count=5000&fmt=binary",
+				"arraybuffer-response"
 			));
 			assert.lengthOf(chart.data.datasets[0].data, 20001);
 		} finally {
@@ -638,15 +827,22 @@ describe("Sensor UI Checks", function () {
 
 			OSApp.Sensors.displayLogs();
 			page = $("#sensor-logs");
+			loading.resetHistory();
 			page.find(".sensor-log-card").first().find('input[value="All"]').trigger("click");
+
+			assert.isFalse(loading.calledWith("show"));
+			assert.isFalse(page.find(".sensor-log-progress").prop("hidden"));
+			assert.include(page.find(".sensor-log-progress-label").text(), "0%");
+
 			page.find(".sensor-log-card").eq(1).find('input[value="1W"]').trigger("click");
 
 			assert.equal(sendToOS.callCount, 2);
-			allRequest.resolve(records);
+			allRequest.resolve(pagedLogResponse(records, 4, 4, true));
 
 			assert.lengthOf(charts, 4);
 			assert.lengthOf(charts[2].data.datasets[0].data, 2);
 			assert.lengthOf(charts[3].data.datasets[0].data, 1);
+			assert.isTrue(page.find(".sensor-log-progress").prop("hidden"));
 		} finally {
 			if (page) page.trigger("pagehide").remove();
 			sendToOS.restore();
@@ -733,14 +929,12 @@ describe("Sensor UI Checks", function () {
 		}
 	});
 
-	it("should download the server CSV Blob and restore the Download All UI", function () {
+	it("should build the full CSV from paginated binary data and restore the Download All UI", function () {
 		var controller = OSApp.currentSession.controller;
 		var originalSensors = controller.sensors;
 		var originalDescription = controller.sensor_desc;
 		var csvRequest = $.Deferred();
-		var csvBlob = new Blob([ "uuid,timestamp,value\n7,1700000000,42\n" ], {
-			type: "text/csv;charset=utf-8"
-		});
+		var downloadedBlob;
 		var chart = {
 			data: {},
 			destroy: sinon.spy(),
@@ -751,11 +945,17 @@ describe("Sensor UI Checks", function () {
 		var loading = sinon.stub($.mobile, "loading");
 		var changeHeader = sinon.stub(OSApp.UIDom, "changeHeader");
 		var showError = sinon.stub(OSApp.Errors, "showError");
-		var createObjectURL = sinon.stub(URL, "createObjectURL").returns("blob:sensor-log-download");
+		var createObjectURL = sinon.stub(URL, "createObjectURL").callsFake(function (blob) {
+			downloadedBlob = blob;
+			return "blob:sensor-log-download";
+		});
 		var revokeObjectURL = sinon.stub(URL, "revokeObjectURL");
 		var anchorClick = sinon.stub(HTMLAnchorElement.prototype, "click");
+		var areYouSure = sinon.stub(OSApp.UIDom, "areYouSure").callsFake(function (_t1, _t2, success) {
+			if (success) success();
+		});
 		var sendToOS = sinon.stub(OSApp.Firmware, "sendToOS").callsFake(function (_url, type) {
-			return type === "blob"
+			return type === "arraybuffer-response"
 				? csvRequest.promise()
 				: $.Deferred().resolve(sensorLogBuffer()).promise();
 		});
@@ -764,6 +964,7 @@ describe("Sensor UI Checks", function () {
 		function cleanup() {
 			if (page) page.trigger("pagehide").remove();
 			sendToOS.restore();
+			areYouSure.restore();
 			anchorClick.restore();
 			revokeObjectURL.restore();
 			createObjectURL.restore();
@@ -787,25 +988,98 @@ describe("Sensor UI Checks", function () {
 			loading.resetHistory();
 			downloadButton.trigger("click");
 			assert.isTrue(sendToOS.secondCall.calledWith(
-				"/jsl?pw=&fmt=csv&count=max",
-				"blob"
+				"/jsl?pw=&page=1&cursor=0&count=5000&fmt=binary",
+				"arraybuffer-response"
 			));
 			assert.isTrue(downloadButton.prop("disabled"));
-			assert.isTrue(loading.calledWith("show"));
+			assert.isFalse(loading.called);
+			assert.isFalse(page.find(".sensor-log-progress").prop("hidden"));
 
-			csvRequest.resolve(csvBlob);
+			csvRequest.resolve(pagedLogResponse(sensorLogBuffer(), 1, 1, true));
 			return new Promise(function (resolve) { setTimeout(resolve, 0); }).then(function () {
-				assert.isTrue(createObjectURL.calledOnceWithExactly(csvBlob));
+				assert.isTrue(createObjectURL.calledOnce);
+				assert.instanceOf(downloadedBlob, Blob);
 				assert.isTrue(anchorClick.calledOnce);
 				var link = anchorClick.firstCall.thisValue;
 				assert.equal(link.href, "blob:sensor-log-download");
-				assert.match(link.download, /^sensorlog-\d{4}-\d{2}-\d{2}\.csv$/);
-				assert.isFalse(document.body.contains(link));
-				assert.isTrue(revokeObjectURL.calledOnceWithExactly("blob:sensor-log-download"));
-				assert.isTrue(loading.calledWith("hide"));
+			assert.match(link.download, /^sensorlog-\d{4}-\d{2}-\d{2}\.csv$/);
+			assert.isFalse(document.body.contains(link));
+			assert.isTrue(revokeObjectURL.calledOnceWithExactly("blob:sensor-log-download"));
+			assert.isFalse(loading.called);
+				assert.isTrue(page.find(".sensor-log-progress").prop("hidden"));
 				assert.isFalse(downloadButton.prop("disabled"));
 				assert.isFalse(showError.called);
+				return downloadedBlob.text();
+			}).then(function (csv) {
+				assert.equal(
+					csv,
+					"sensor_uuid,sensor_name,timestamp,value,unit\r\n" +
+					"7,\"Soil\",1700000000,42,\"%\"\r\n"
+				);
 			}).finally(cleanup);
+		} catch (error) {
+			cleanup();
+			throw error;
+		}
+	});
+
+	it("should confirm before downloading all sensor logs", function () {
+		var controller = OSApp.currentSession.controller;
+		var originalSensors = controller.sensors;
+		var originalDescription = controller.sensor_desc;
+		var chart = {
+			data: {},
+			destroy: sinon.spy(),
+			resetZoom: sinon.spy(),
+			update: sinon.spy()
+		};
+		var chartConstructor = sinon.stub(window, "Chart").returns(chart);
+		var loading = sinon.stub($.mobile, "loading");
+		var changeHeader = sinon.stub(OSApp.UIDom, "changeHeader");
+		var confirmArgs = null;
+		var areYouSure = sinon.stub(OSApp.UIDom, "areYouSure").callsFake(function (t1, t2, success) {
+			confirmArgs = { title: t1, detail: t2, success: success };
+		});
+		var sendToOS = sinon.stub(OSApp.Firmware, "sendToOS").callsFake(function (_url, type) {
+			return type === "arraybuffer-response"
+				? $.Deferred().promise()
+				: $.Deferred().resolve(sensorLogBuffer()).promise();
+		});
+		var page;
+
+		function cleanup() {
+			if (page) page.trigger("pagehide").remove();
+			sendToOS.restore();
+			areYouSure.restore();
+			changeHeader.restore();
+			loading.restore();
+			chartConstructor.restore();
+			controller.sensors = originalSensors;
+			controller.sensor_desc = originalDescription;
+		}
+
+		function pageCalls() {
+			return sendToOS.getCalls().filter(function (call) { return call.args[1] === "arraybuffer-response"; });
+		}
+
+		try {
+			controller.sensors = { sn: [ { uuid: 7, name: "Soil", unit: 1 } ] };
+			controller.sensor_desc = { units: [ { value: 1, short: "%" } ] };
+			OSApp.Sensors.displayLogs();
+			page = $("#sensor-logs");
+
+			page.find("input.sensor-log-download-btn").trigger("click");
+
+			// The confirmation must be shown, and no CSV export may start yet.
+			assert.isTrue(areYouSure.calledOnce);
+			assert.equal(confirmArgs.title, "Are you sure you want to download all log data?");
+			assert.lengthOf(pageCalls(), 0);
+
+			// Confirming triggers the export.
+			confirmArgs.success();
+			assert.lengthOf(pageCalls(), 1);
+			assert.equal(pageCalls()[0].args[0], "/jsl?pw=&page=1&cursor=0&count=5000&fmt=binary");
+			cleanup();
 		} catch (error) {
 			cleanup();
 			throw error;

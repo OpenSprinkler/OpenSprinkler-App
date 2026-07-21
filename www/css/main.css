@@ -1471,6 +1471,32 @@ button[id^="start_1-"] {
     gap: 8px;
 }
 
+.sensor-log-progress {
+    padding: 8px 0 12px;
+}
+
+.sensor-log-progress-label {
+    margin-bottom: 6px;
+    font-size: 0.9em;
+}
+
+/* Neutral track that reads on both the light (a) and dark (b) themes; the
+   inset shadow (ui-shadow-inset) gives it a groove. Fill uses the app's
+   "active" accent (#16a085), matching running-station green. */
+.sensor-log-progress-track {
+    width: 100%;
+    height: 14px;
+    background: rgba(127, 127, 127, 0.25);
+    overflow: hidden;
+}
+
+.sensor-log-progress-fill {
+    width: 0;
+    height: 100%;
+    background: #16a085;
+    transition: width 0.2s ease;
+}
+
 @media (max-width: 27.99em) {
     .sensor-log-filter-actions {
         width: 100%;

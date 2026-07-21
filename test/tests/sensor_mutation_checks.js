@@ -627,6 +627,38 @@ describe("Sensor Mutation Checks", function () {
 			});
 		});
 
+		it("should preserve response headers for paginated binary logs", function () {
+			var body = new ArrayBuffer(10);
+			var headers = {
+				get: function (name) {
+					if (name === "Content-Type") return "application/octet-stream";
+					if (name === "X-OS-Next-Cursor") return "5000";
+					return null;
+				}
+			};
+			var fetchRequest = sinon.stub(window, "fetch").returns(Promise.resolve({
+				ok: true,
+				headers: headers,
+				arrayBuffer: function () { return Promise.resolve(body); }
+			}));
+
+			return new Promise(function (resolve, reject) {
+				OSApp.Firmware.sendToOS(
+					"/jsl?pw=&page=1&cursor=0&count=5000&fmt=binary",
+					"arraybuffer-response"
+				).done(function (responseData) {
+					try {
+						assert.strictEqual(responseData.data, body);
+						assert.strictEqual(responseData.headers, headers);
+						assert.equal(responseData.headers.get("X-OS-Next-Cursor"), "5000");
+						resolve();
+					} catch (error) {
+						reject(error);
+					}
+				}).fail(reject);
+			}).finally(function () { fetchRequest.restore(); });
+		});
+
 		it("should return a server CSV response as a Blob", function () {
 			var csvBlob = new Blob([ "uuid,timestamp,value\n7,1700000000,42\n" ], {
 				type: "text/csv;charset=utf-8"

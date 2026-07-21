@@ -161,7 +161,8 @@ OSApp.Firmware.sendToOS = function( dest, type ) {
 		return $.Deferred().reject( data );
 	}
 
-	if ( type === "arraybuffer" || type === "blob" ) {
+	if ( type === "arraybuffer" || type === "arraybuffer-response" || type === "blob" ) {
+		const includeResponse = type === "arraybuffer-response";
 		const fetchHeaders = {};
 		if ( OSApp.currentSession.auth ) {
 			fetchHeaders[ "Authorization" ] = "Basic " + btoa( OSApp.currentSession.authUser + ":" + OSApp.currentSession.authPass );
@@ -194,7 +195,7 @@ OSApp.Firmware.sendToOS = function( dest, type ) {
 							}
 							var emptyLog = new ArrayBuffer( 0 );
 							emptyLog.noLogHeader = true;
-							return emptyLog;
+							return includeResponse ? { data: emptyLog, headers: r.headers } : emptyLog;
 						}
 						// A JSON success response is not a valid binary log payload.
 						if ( data && data.result === 1 ) {
@@ -207,13 +208,16 @@ OSApp.Firmware.sendToOS = function( dest, type ) {
 						!/^application\/octet-stream(?:\s*;|$)/i.test( contentType ) ) ) {
 						return $.Deferred().reject( { status: 0, statusText: "parsererror" } );
 					}
-					return type === "blob" ? r.blob() : r.arrayBuffer();
+					return ( type === "blob" ? r.blob() : r.arrayBuffer() ).then( function( data ) {
+						return includeResponse ? { data: data, headers: r.headers } : data;
+					} );
 			} )
-			.then( function( buf ) {
-				if ( type === "arraybuffer" && isSensorLog && ( !( buf instanceof ArrayBuffer ) || buf.byteLength % 10 !== 0 ) ) {
+			.then( function( response ) {
+				var buf = includeResponse ? response.data : response;
+				if ( type !== "blob" && isSensorLog && ( !( buf instanceof ArrayBuffer ) || buf.byteLength % 10 !== 0 ) ) {
 					return $.Deferred().reject( { status: 0, statusText: "parsererror" } );
 				}
-				return buf;
+				return response;
 			} )
 			.then( function( buf ) { defer.resolve( buf ); } )
 			.catch( function( err ) { defer.reject( err ); } )

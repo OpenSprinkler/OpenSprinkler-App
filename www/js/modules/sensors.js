@@ -140,6 +140,110 @@ OSApp.Sensors.formatLogCsvRow = function (uuid, sensorName, timestamp, value, un
 };
 
 OSApp.Sensors.LOG_CHART_RANGES = { "3h": 0, "1d": 1, "1w": 2, "1m": 3, all: 4 };
+OSApp.Sensors.LOG_PAGE_SIZE = 5000;
+
+OSApp.Sensors.fetchAllLogPages = function (options) {
+    options = options || {};
+    const deferred = $.Deferred();
+    const buffers = [];
+    let byteLength = 0;
+    let cursor = 0;
+    let totalSlots = null;
+
+    function reject(statusText) {
+        deferred.reject({ status: 0, statusText: statusText });
+    }
+
+    function isCurrent() {
+        return typeof options.isCurrent !== "function" || options.isCurrent();
+    }
+
+    function readIntegerHeader(headers, name) {
+        const value = headers && typeof headers.get === "function" ? headers.get(name) : null;
+        if (value == null || !/^\d+$/.test(value)) return null;
+        const parsed = Number(value);
+        return Number.isSafeInteger(parsed) ? parsed : null;
+    }
+
+    function combineBuffers() {
+        const combined = new Uint8Array(byteLength);
+        let offset = 0;
+        buffers.forEach((buffer) => {
+            combined.set(new Uint8Array(buffer), offset);
+            offset += buffer.byteLength;
+        });
+        return combined.buffer;
+    }
+
+    function requestPage() {
+        if (!isCurrent()) {
+            reject("stale");
+            return;
+        }
+
+        const url = `/jsl?pw=&page=1&cursor=${cursor}&count=${OSApp.Sensors.LOG_PAGE_SIZE}&fmt=binary`;
+        OSApp.Firmware.sendToOS(url, "arraybuffer-response")
+            .done((response) => {
+                if (!isCurrent()) {
+                    reject("stale");
+                    return;
+                }
+
+                const buffer = response && response.data;
+                if (!(buffer instanceof ArrayBuffer)) {
+                    reject("parsererror");
+                    return;
+                }
+                if (buffer.noLogHeader) {
+                    deferred.resolve(buffer);
+                    return;
+                }
+
+                const nextCursor = readIntegerHeader(response.headers, "X-OS-Next-Cursor");
+                const pageTotal = readIntegerHeader(response.headers, "X-OS-Total-Slots");
+                const doneValue = readIntegerHeader(response.headers, "X-OS-Page-Done");
+                if (nextCursor == null || pageTotal == null || (doneValue !== 0 && doneValue !== 1) ||
+                    nextCursor < cursor || (!doneValue && nextCursor === cursor)) {
+                    reject("parsererror");
+                    return;
+                }
+
+                if (totalSlots == null) totalSlots = pageTotal;
+                try {
+                    if (typeof options.onPage === "function") options.onPage(buffer);
+                } catch (error) {
+                    deferred.reject(error);
+                    return;
+                }
+                if (options.collect !== false) {
+                    buffers.push(buffer);
+                    byteLength += buffer.byteLength;
+                }
+
+                const progress = totalSlots === 0 ? (doneValue ? 1 : 0) : Math.min(nextCursor / totalSlots, 1);
+                try {
+                    if (typeof options.onProgress === "function") {
+                        options.onProgress(progress, nextCursor, totalSlots);
+                    }
+                } catch (error) {
+                    deferred.reject(error);
+                    return;
+                }
+
+                if (doneValue === 1) {
+                    deferred.resolve(options.collect === false ? new ArrayBuffer(0) : combineBuffers());
+                    return;
+                }
+
+                cursor = nextCursor;
+                setTimeout(requestPage, 0);
+            })
+            .fail((error) => deferred.reject(error));
+    }
+
+    requestPage();
+    return deferred.promise();
+};
 
 OSApp.Sensors.getChartRangeStart = function (range, nowSeconds) {
     if (range === "all") return null;
@@ -1653,7 +1757,7 @@ OSApp.Sensors.displayPage = function (expandUuid) {
      * @param {JQuery} parent
      * @param {Data} data
      * @param {object} sensorData
-     * @returns {SensorPage}
+     * @returns {JQuery}
      */
     function createSensorCollapse(parent, data, sensorData) {
         const $div = $("<div></div>").attr("data-uuid", sensorData["uuid"]);
@@ -1685,36 +1789,42 @@ OSApp.Sensors.displayPage = function (expandUuid) {
             $inner.append($fieldWrap);
         }
 
-        const page = OSApp.Sensors.createSensorPage($inner, sensorData["uuid"], data);
-        page.update(sensorData);
+        function buildEditor() {
+            if ($div.data("sensor-editor-built") || !isCurrentContext()) return;
+            $div.data("sensor-editor-built", true);
 
-        const $update = $('<input type="button" data-theme="b">').val(OSApp.Language._("Update Sensor"));
-        $inner.append($update);
-        $update.button({icon: "edit"});
-        $update.on("click", () => {
-            const url = page.getURL();
-            if (url) {
-                OSApp.Sensors.changeSensor(url, false);
-            } else {
-                OSApp.Errors.showError(OSApp.Language._("Please fill in all required fields"));
-            }
-        });
+            const editor = OSApp.Sensors.createSensorPage($inner, sensorData["uuid"], data);
+            editor.update(sensorData);
 
-        const $delete = $('<input type="button">').val(OSApp.Language._("Delete Sensor"));
-        $inner.append($delete);
-        $delete.button({icon: "delete"});
-        $delete.closest(".ui-btn").addClass("red bold");
-        $delete.on("click", () => {
-            OSApp.UIDom.areYouSure(
-                OSApp.Language._("Are you sure you want to delete this sensor?"),
-                OSApp.Utils.htmlEscape(sensorData["name"] + " (UUID: " + sensorData["uuid"] + ")"),
-                () => {
-                    OSApp.Sensors.deleteSensor(sensorData["uuid"]);
+            const $update = $('<input type="button" data-theme="b">').val(OSApp.Language._("Update Sensor"));
+            $inner.append($update);
+            $update.button({icon: "edit"});
+            $update.on("click", () => {
+                const url = editor.getURL();
+                if (url) {
+                    OSApp.Sensors.changeSensor(url, false);
+                } else {
+                    OSApp.Errors.showError(OSApp.Language._("Please fill in all required fields"));
                 }
-            );
-        });
+            });
 
-        return page;
+            const $delete = $('<input type="button">').val(OSApp.Language._("Delete Sensor"));
+            $inner.append($delete);
+            $delete.button({icon: "delete"});
+            $delete.closest(".ui-btn").addClass("red bold");
+            $delete.on("click", () => {
+                OSApp.UIDom.areYouSure(
+                    OSApp.Language._("Are you sure you want to delete this sensor?"),
+                    OSApp.Utils.htmlEscape(sensorData["name"] + " (UUID: " + sensorData["uuid"] + ")"),
+                    () => {
+                        OSApp.Sensors.deleteSensor(sensorData["uuid"]);
+                    }
+                );
+            });
+        }
+
+        $div.one("collapsibleexpand", buildEditor);
+        return $div;
     }
 
     function updateContent () {
@@ -1976,7 +2086,18 @@ OSApp.Sensors.displayLogs = function (_callback) {
             </div>
         </div>
     `);
+    const $progress = $(`
+        <div class="sensor-log-progress" hidden>
+            <div class="sensor-log-progress-label" aria-live="polite"></div>
+            <div class="sensor-log-progress-track ui-corner-all ui-shadow-inset" role="progressbar"
+                aria-label="${OSApp.Language._("Sensor log progress")}"
+                aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <div class="sensor-log-progress-fill ui-corner-all"></div>
+            </div>
+        </div>
+    `);
 	content.append($filterDiv);
+	content.append($progress);
 	content.append($cards);
     page.append(content);
 
@@ -2083,18 +2204,66 @@ OSApp.Sensors.displayLogs = function (_callback) {
         try { $button.button("refresh"); } catch { /* not enhanced yet */ }
     }
 
+    function setLogProgress(progress) {
+        const percentage = Math.round(Math.max(0, Math.min(progress, 1)) * 100);
+        $progress.prop("hidden", false);
+        $progress.find(".sensor-log-progress-label").text(OSApp.Language._("Retrieving sensor logs") + "... " + percentage + "%");
+        $progress.find(".sensor-log-progress-fill").css("width", percentage + "%");
+        $progress.find(".sensor-log-progress-track").attr("aria-valuenow", percentage);
+    }
+
+    function hideLogProgress() {
+        $progress.prop("hidden", true);
+    }
+
+    function sensorLogCsvRows(buffer, sensorByUuid, unitByValue) {
+        const rows = [];
+        const view = new DataView(buffer);
+        for (let offset = 0; offset < buffer.byteLength; offset += 10) {
+            const timestamp = view.getUint32(offset, true);
+            const value = view.getFloat32(offset + 4, true);
+            const uuid = view.getUint16(offset + 8, true);
+            const sensor = sensorByUuid[uuid];
+            const sensorName = sensor ? sensor.name : OSApp.Language._("Unknown");
+            let unit = OSApp.Language._("Unknown");
+            if (sensor) {
+                const unitObj = unitByValue[sensor.unit];
+                unit = unitObj ? (unitObj.short || unitObj.name) : unit;
+            }
+            rows.push(OSApp.Sensors.formatLogCsvRow(uuid, sensorName, timestamp * 1000, value, unit));
+        }
+        return rows;
+    }
+
     function downloadAllLogs() {
 		if (!isCurrentContext()) {
 			return $.Deferred().reject({ status: 0, statusText: "stale" }).promise();
-		}
+        }
         setDownloadAllEnabled(false);
-        $.mobile.loading("show");
-        return OSApp.Firmware.sendToOS("/jsl?pw=&fmt=csv&count=max", "blob")
-            .done((blob) => {
+        setLogProgress(0);
+        const csvParts = [ "sensor_uuid,sensor_name,timestamp,value,unit\r\n" ];
+        const sensorByUuid = {};
+        const unitByValue = {};
+        controller.sensors.sn.forEach((sensor) => { sensorByUuid[sensor.uuid] = sensor; });
+        if (controller.sensor_desc) {
+            controller.sensor_desc.units.forEach((unit) => { unitByValue[unit.value] = unit; });
+        }
+        return OSApp.Sensors.fetchAllLogPages({
+            collect: false,
+            isCurrent: isCurrentContext,
+            onProgress: setLogProgress,
+            onPage: (buffer) => {
+                const rows = sensorLogCsvRows(buffer, sensorByUuid, unitByValue);
+                if (rows.length) csvParts.push(rows.join("\r\n") + "\r\n");
+            }
+        })
+            .done(() => {
 				if (!isCurrentContext()) return;
-                if (!(blob instanceof Blob) || blob.size === 0) return;
                 const today = new Date().toISOString().slice(0, 10);
-                downloadBlob(blob, `sensorlog-${today}.csv`);
+                downloadBlob(
+                    new Blob(csvParts, { type: "text/csv;charset=utf-8;" }),
+                    `sensorlog-${today}.csv`
+                );
             })
             .fail(() => {
 				if (!isCurrentContext()) return;
@@ -2102,7 +2271,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
             })
             .always(() => {
 				if (!isCurrentContext()) return;
-				$.mobile.loading("hide");
+				hideLogProgress();
 				setDownloadAllEnabled(!(cachedData && cachedData.noLogHeader));
             });
     }
@@ -2357,12 +2526,22 @@ OSApp.Sensors.displayLogs = function (_callback) {
             range : (loadedRange || defaultRange);
 		const seq = ++requestSeq;
 		pendingRange = requestedRange;
-        $.mobile.loading("show");
+		const isPaginated = requestedRange === "all";
+		if (isPaginated) {
+			setLogProgress(0);
+		} else {
+			$.mobile.loading("show");
+		}
 
-		const jslRequest = OSApp.Firmware.sendToOS(
-			OSApp.Sensors.getChartLogURL(requestedRange, controller.settings && controller.settings.devt),
-            "arraybuffer"
-        );
+		const jslRequest = isPaginated
+			? OSApp.Sensors.fetchAllLogPages({
+				isCurrent: () => isCurrentContext(seq),
+				onProgress: setLogProgress
+			})
+			: OSApp.Firmware.sendToOS(
+				OSApp.Sensors.getChartLogURL(requestedRange, controller.settings && controller.settings.devt),
+				"arraybuffer"
+			);
 		const jsdRequest = controller.sensor_desc
 			? $.Deferred().resolve(controller.sensor_desc).promise()
 			: OSApp.Firmware.sendToOS("/jsd?pw=", "json").then((data) => OSApp.Sensors.normalizeJsd(data));
@@ -2371,7 +2550,11 @@ OSApp.Sensors.displayLogs = function (_callback) {
 			.done((buf, jsdData) => {
 				if (!isCurrentContext(seq)) return;
 				pendingRange = null;
-                $.mobile.loading("hide");
+				if (isPaginated) {
+					hideLogProgress();
+				} else {
+					$.mobile.loading("hide");
+				}
 				controller.sensor_desc = jsdData;
                 cachedData = buf;
                 loadedRange = requestedRange;
@@ -2380,7 +2563,11 @@ OSApp.Sensors.displayLogs = function (_callback) {
 			.fail(() => {
 				if (!isCurrentContext(seq)) return;
 				pendingRange = null;
-                $.mobile.loading("hide");
+				if (isPaginated) {
+					hideLogProgress();
+				} else {
+					$.mobile.loading("hide");
+				}
                 if (typeof rollback === "function") rollback();
                 OSApp.Errors.showError(OSApp.Language._("Failed to load sensor logs"));
             });
@@ -2398,6 +2585,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
 			requestSeq++;
 			destroyActiveCharts();
 			$.mobile.loading("hide");
+			hideLogProgress();
 			page.detach();
 		} )
 		.on( "pagebeforeshow", function() {} );
@@ -2424,7 +2612,13 @@ OSApp.Sensors.displayLogs = function (_callback) {
             applyFilter();
         });
 
-        $filterDiv.find("input.sensor-log-download-btn").on("click", downloadAllLogs).button()
+        $filterDiv.find("input.sensor-log-download-btn").on("click", () => {
+            OSApp.UIDom.areYouSure(
+                OSApp.Language._("Are you sure you want to download all log data?"),
+                OSApp.Language._("This action can take a while depending on the number of log records."),
+                downloadAllLogs
+            );
+        }).button()
             .parent().addClass("sensor-log-download-btn");
 
         $filterDiv.find(".sensor-log-delete-all-btn").on("click", () => {
