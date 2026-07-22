@@ -1471,13 +1471,60 @@ button[id^="start_1-"] {
     gap: 8px;
 }
 
+/* Pinned below the fixed JQM header so it stays visible while the user is
+   scrolled down among sensor cards. position:sticky does not work inside
+   jQuery Mobile's absolutely-positioned pages, so this is fixed to the
+   viewport; left/right + max-width keep it aligned with .ui-content. */
 .sensor-log-progress {
-    padding: 8px 0 12px;
+    background-color: #f9f9f9;
+    border-bottom: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+    box-sizing: border-box;
+    padding: 8px 10px 12px;
+    position: fixed;
+    top: 2.8125em;
+    left: 0;
+    right: 0;
+    max-width: 1000px;
+    margin: 0 auto;
+    z-index: 999;
+}
+
+.sensor-log-progress-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 6px;
 }
 
 .sensor-log-progress-label {
-    margin-bottom: 6px;
     font-size: 0.9em;
+}
+
+.sensor-log-stop-btn.ui-btn {
+    flex: 0 0 auto;
+    width: auto;
+    margin: 0;
+    padding: 5px 12px;
+}
+
+/* .ui-btn sets display, which overrides the [hidden] attribute, so the Stop
+   button would otherwise stay visible during non-deletion progress (e.g.
+   loading). Force [hidden] to win so it only shows while deleting. */
+.sensor-log-stop-btn[hidden] {
+    display: none !important;
+}
+
+.sensor-log-progress-estimate {
+    margin-top: 6px;
+    font-size: 0.85em;
+    opacity: 0.8;
+}
+
+.sensor-log-warning-label {
+    color: #800000;
+    text-decoration: underline;
 }
 
 /* Neutral track that reads on both the light (a) and dark (b) themes; the
@@ -1495,6 +1542,26 @@ button[id^="start_1-"] {
     height: 100%;
     background: #16a085;
     transition: width 0.2s ease;
+}
+
+/* Indeterminate mode (single-request loads with no measurable progress):
+   a full-width fill with a slow, low-contrast shimmer to signal activity
+   without a percentage. Kept gentle (long duration, soft peak) so it reads
+   as calm rather than flashing. */
+.sensor-log-progress-indeterminate .sensor-log-progress-fill {
+    width: 100%;
+    transition: none;
+    background: linear-gradient(90deg,
+        rgba(22, 160, 133, 0.2) 25%,
+        #16a085 50%,
+        rgba(22, 160, 133, 0.2) 75%);
+    background-size: 200% 100%;
+    animation: sensor-log-indeterminate 4s linear infinite;
+}
+
+@keyframes sensor-log-indeterminate {
+    from { background-position: 200% 0; }
+    to { background-position: -200% 0; }
 }
 
 @media (max-width: 27.99em) {

@@ -27,12 +27,14 @@ describe("Sensor UI Checks", function () {
 		return buffer;
 	}
 
-	function pagedLogResponse(buffer, nextCursor, totalSlots, done) {
+	function pagedLogResponse(buffer, nextCursor, totalSlots, done, windowStart, windowEnd) {
 		var values = {
 			"x-os-next-cursor": String(nextCursor),
 			"x-os-total-slots": String(totalSlots),
 			"x-os-page-done": done ? "1" : "0"
 		};
+		if (typeof windowStart === "number") values["x-os-window-start"] = String(windowStart);
+		if (typeof windowEnd === "number") values["x-os-window-end"] = String(windowEnd);
 		return {
 			data: buffer,
 			headers: {
@@ -597,6 +599,86 @@ describe("Sensor UI Checks", function () {
 		}).finally(function () { sendToOS.restore(); });
 	});
 
+	it("should paginate a fixed sensor-log time window using window progress", function () {
+		var firstPage = sensorLogBuffer();
+		var progress = [];
+		var sendToOS = sinon.stub(OSApp.Firmware, "sendToOS");
+		sendToOS.onFirstCall().returns($.Deferred().resolve(
+			pagedLogResponse(firstPage, 6000, 20000, false, 5000, 10000)
+		).promise());
+		sendToOS.onSecondCall().returns($.Deferred().resolve(
+			pagedLogResponse(sensorLogBuffer(0), 10000, 20000, true, 5000, 10000)
+		).promise());
+
+		return new Promise(function (resolve, reject) {
+			OSApp.Sensors.fetchAllLogPages({
+				after: 1699395200,
+				before: 1700000000,
+				onProgress: function (value, processed, total) {
+					progress.push([ value, processed, total ]);
+				}
+			}).done(function (buffer) {
+				try {
+					assert.equal(buffer.byteLength, firstPage.byteLength);
+					assert.deepEqual(progress, [ [ 0.2, 1000, 5000 ], [ 1, 5000, 5000 ] ]);
+					assert.equal(sendToOS.firstCall.args[0],
+						"/jsl?pw=&page=1&after=1699395200&before=1700000000&cursor=0&count=5000&fmt=binary");
+					assert.equal(sendToOS.secondCall.args[0],
+						"/jsl?pw=&page=1&after=1699395200&before=1700000000&cursor=6000&count=5000&fmt=binary");
+					resolve();
+				} catch (error) {
+					reject(error);
+				}
+			}).fail(reject);
+		}).finally(function () { sendToOS.restore(); });
+	});
+
+	it("should retry a transient sensor-log page failure at the same cursor", function () {
+		var sendToOS = sinon.stub(OSApp.Firmware, "sendToOS");
+		sendToOS.onFirstCall().returns($.Deferred().reject({ status: 0, statusText: "timeout" }).promise());
+		sendToOS.onSecondCall().returns($.Deferred().resolve(
+			pagedLogResponse(sensorLogBuffer(), 5000, 5000, true)
+		).promise());
+
+		return new Promise(function (resolve, reject) {
+			OSApp.Sensors.fetchAllLogPages()
+				.done(function () {
+					try {
+						assert.equal(sendToOS.callCount, 2);
+						assert.equal(sendToOS.firstCall.args[0], sendToOS.secondCall.args[0]);
+						resolve();
+					} catch (error) {
+						reject(error);
+					}
+				})
+				.fail(reject);
+		}).finally(function () { sendToOS.restore(); });
+	});
+
+	it("should use larger sensor-log pages on OSPi and Linux controllers", function () {
+		var isOSPi = sinon.stub(OSApp.Firmware, "isOSPi");
+		var getHWVersion = sinon.stub(OSApp.Firmware, "getHWVersion");
+
+		try {
+			isOSPi.returns(true);
+			getHWVersion.returns("OSPi");
+			assert.equal(OSApp.Sensors.getLogPageSize(), 100000);
+
+			isOSPi.returns(false);
+			getHWVersion.returns("Linux");
+			assert.equal(OSApp.Sensors.getLogPageSize(), 100000);
+
+			getHWVersion.returns("Demo");
+			assert.equal(OSApp.Sensors.getLogPageSize(), 100000);
+
+			getHWVersion.returns("3.3");
+			assert.equal(OSApp.Sensors.getLogPageSize(), 5000);
+		} finally {
+			getHWVersion.restore();
+			isOSPi.restore();
+		}
+	});
+
 	it("should reject pagination metadata that cannot advance", function () {
 		var sendToOS = sinon.stub(OSApp.Firmware, "sendToOS").returns($.Deferred().resolve(
 			pagedLogResponse(sensorLogBuffer(0), 0, 10, false)
@@ -614,6 +696,85 @@ describe("Sensor UI Checks", function () {
 						reject(assertionError);
 					}
 				});
+		}).finally(function () { sendToOS.restore(); });
+	});
+
+	it("should delete one sensor's logs using returned physical cursors", function () {
+		var progress = [];
+		var sendToOS = sinon.stub(OSApp.Firmware, "sendToOS");
+		sendToOS.onFirstCall().returns($.Deferred().resolve({
+			result: 1, next: 819, total: 20000, deleted: 0, done: 0
+		}).promise());
+		sendToOS.onSecondCall().returns($.Deferred().resolve({
+			result: 1, next: 17203, total: 21000, deleted: 5, done: 0
+		}).promise());
+		sendToOS.onThirdCall().returns($.Deferred().resolve({
+			result: 1, next: 20000, total: 21000, deleted: 2, done: 0
+		}).promise());
+
+		return new Promise(function (resolve, reject) {
+			OSApp.Sensors.deleteLogPages(42, {
+				onProgress: function (value) { progress.push(value); }
+			}).done(function (result) {
+				try {
+					assert.deepEqual(result, { deleted: 7, stopped: false });
+					assert.equal(sendToOS.firstCall.args[0],
+						"/dsl?pw=&uuid=42&page=1&cursor=0&count=16384");
+					assert.equal(sendToOS.secondCall.args[0],
+						"/dsl?pw=&uuid=42&page=1&cursor=819&count=16384");
+					assert.equal(sendToOS.thirdCall.args[0],
+						"/dsl?pw=&uuid=42&page=1&cursor=17203&count=2797");
+					assert.equal(sendToOS.firstCall.args[1], "json");
+					assert.deepEqual(progress.map(function (item) { return item.deleted; }), [ 0, 5, 7 ]);
+					assert.deepEqual(progress.map(function (item) { return item.total; }), [ 20000, 20000, 20000 ]);
+					assert.equal(progress[2].percent, 100);
+					resolve();
+				} catch (error) {
+					reject(error);
+				}
+			}).fail(reject);
+		}).finally(function () { sendToOS.restore(); });
+	});
+
+	it("should reject sensor log deletion when the returned cursor stalls", function () {
+		var sendToOS = sinon.stub(OSApp.Firmware, "sendToOS").returns($.Deferred().resolve({
+			result: 1, next: 0, total: 10, deleted: 0, done: 0
+		}).promise());
+
+		return new Promise(function (resolve, reject) {
+			OSApp.Sensors.deleteLogPages(42)
+				.done(function () { reject(new Error("A stalled deletion cursor was accepted")); })
+				.fail(function (error) {
+					try {
+						assert.equal(error.statusText, "stalled");
+						assert.isTrue(sendToOS.calledOnce);
+						resolve();
+					} catch (assertionError) {
+						reject(assertionError);
+					}
+				});
+		}).finally(function () { sendToOS.restore(); });
+	});
+
+	it("should stop sensor log deletion after the current page", function () {
+		var stopRequested = false;
+		var sendToOS = sinon.stub(OSApp.Firmware, "sendToOS").returns($.Deferred().resolve({
+			result: 1, next: 819, total: 20000, deleted: 3, done: 0
+		}).promise());
+
+		return new Promise(function (resolve, reject) {
+			OSApp.Sensors.deleteLogPages(42, {
+				shouldStop: function () { return stopRequested; },
+				onProgress: function () { stopRequested = true; }
+			}).done(function (result) {
+				try {
+					assert.deepEqual(result, { deleted: 3, stopped: true });
+					assert.isTrue(sendToOS.calledOnce);
+					resolve();
+				} catch (error) {
+					reject(error);
+				}
+			}).fail(reject);
 		}).finally(function () { sendToOS.restore(); });
 	});
 
@@ -672,11 +833,17 @@ describe("Sensor UI Checks", function () {
 		var chartConstructor = sinon.stub(window, "Chart").returns(chart);
 		var loading = sinon.stub($.mobile, "loading");
 		var changeHeader = sinon.stub(OSApp.UIDom, "changeHeader");
+		// The chart window must follow controller time even when the client clock differs.
+		var now = sinon.stub(Date, "now").returns(1800000000 * 1000);
 		var allRecords = sensorLogBuffer(20001);
-		var sendToOS = sinon.stub(OSApp.Firmware, "sendToOS").callsFake(function (_url, type) {
-			return $.Deferred().resolve(type === "arraybuffer-response"
-				? pagedLogResponse(allRecords, 20001, 20001, true)
-				: allRecords).promise();
+		var sendToOS = sinon.stub(OSApp.Firmware, "sendToOS").callsFake(function (url, type) {
+			var response = allRecords;
+			if (type === "arraybuffer-response") {
+				response = url.indexOf("after=") === -1
+					? pagedLogResponse(allRecords, 20001, 20001, true)
+					: pagedLogResponse(allRecords, 20001, 20001, true, 0, 20001);
+			}
+			return $.Deferred().resolve(response).promise();
 		});
 		var page;
 
@@ -691,7 +858,8 @@ describe("Sensor UI Checks", function () {
 				"/jsl?pw=&fmt=binary&after=1699913600&count=max",
 				"arraybuffer"
 			));
-			assert.lengthOf(page.find('input[value="3H"], input[value="1D"], input[value="1W"], input[value="1M"], input[value="All"]'), 5);
+			assert.lengthOf(page.find('input[value="3H"], input[value="1D"], input[value="1W"], input[value="All"]'), 4);
+			assert.lengthOf(page.find('input[value="1M"]'), 0);
 			assert.lengthOf(page.find('input[value="Download"]'), 1);
 
 			page.find('input[value="3H"]').trigger("click");
@@ -699,20 +867,15 @@ describe("Sensor UI Checks", function () {
 
 			page.find('input[value="1W"]').trigger("click");
 			assert.isTrue(sendToOS.secondCall.calledWith(
-				"/jsl?pw=&fmt=binary&after=1699395200&count=max",
-				"arraybuffer"
+				"/jsl?pw=&page=1&after=1699395200&before=1700000000&cursor=0&count=5000&fmt=binary",
+				"arraybuffer-response"
 			));
 
 			page.find('input[value="1D"]').trigger("click");
 			assert.equal(sendToOS.callCount, 2);
 
-			page.find('input[value="1M"]').trigger("click");
-			assert.match(sendToOS.thirdCall.args[0], /^\/jsl\?pw=&fmt=binary&after=\d+&count=max$/);
-			page.find('input[value="1W"]').trigger("click");
-			assert.equal(sendToOS.callCount, 3);
-
 			page.find('input[value="All"]').trigger("click");
-			assert.isTrue(sendToOS.getCall(3).calledWith(
+			assert.isTrue(sendToOS.getCall(2).calledWith(
 				"/jsl?pw=&page=1&cursor=0&count=5000&fmt=binary",
 				"arraybuffer-response"
 			));
@@ -723,6 +886,7 @@ describe("Sensor UI Checks", function () {
 			changeHeader.restore();
 			loading.restore();
 			chartConstructor.restore();
+			now.restore();
 			controller.settings.devt = originalDevt;
 			controller.sensors = originalSensors;
 			controller.sensor_desc = originalDescription;
@@ -793,7 +957,7 @@ describe("Sensor UI Checks", function () {
 		}
 	});
 
-	it("should not let a narrower chart request supersede a wider pending request", function () {
+	it("should cancel a wider pending request when another chart selects a narrower range", function () {
 		var controller = OSApp.currentSession.controller;
 		var originalSensors = controller.sensors;
 		var originalDescription = controller.sensor_desc;
@@ -807,6 +971,7 @@ describe("Sensor UI Checks", function () {
 		});
 		var loading = sinon.stub($.mobile, "loading");
 		var changeHeader = sinon.stub(OSApp.UIDom, "changeHeader");
+		var now = sinon.stub(Date, "now").returns(1700000000 * 1000);
 		var records = sensorLogBuffer(
 			4,
 			[ 7, 8 ],
@@ -824,6 +989,9 @@ describe("Sensor UI Checks", function () {
 			controller.sensor_desc = { units: [ { value: 1, short: "%" }, { value: 2, short: "C" } ] };
 			sendToOS.onFirstCall().returns($.Deferred().resolve(records).promise());
 			sendToOS.onSecondCall().returns(allRequest.promise());
+			sendToOS.onThirdCall().returns($.Deferred().resolve(
+				pagedLogResponse(records, 4, 4, true, 0, 4)
+			).promise());
 
 			OSApp.Sensors.displayLogs();
 			page = $("#sensor-logs");
@@ -832,11 +1000,16 @@ describe("Sensor UI Checks", function () {
 
 			assert.isFalse(loading.calledWith("show"));
 			assert.isFalse(page.find(".sensor-log-progress").prop("hidden"));
-			assert.include(page.find(".sensor-log-progress-label").text(), "0%");
+			assert.equal(page.find(".sensor-log-progress-label").text(), "Loading log data: 0 (0%)");
+			var allSignal = sendToOS.secondCall.args[2].signal;
+			assert.isFalse(allSignal.aborted);
 
 			page.find(".sensor-log-card").eq(1).find('input[value="1W"]').trigger("click");
 
-			assert.equal(sendToOS.callCount, 2);
+			assert.isTrue(allSignal.aborted);
+			assert.equal(sendToOS.callCount, 3);
+			assert.equal(sendToOS.thirdCall.args[0],
+				"/jsl?pw=&page=1&after=1699395200&before=1700000000&cursor=0&count=5000&fmt=binary");
 			allRequest.resolve(pagedLogResponse(records, 4, 4, true));
 
 			assert.lengthOf(charts, 4);
@@ -849,6 +1022,7 @@ describe("Sensor UI Checks", function () {
 			changeHeader.restore();
 			loading.restore();
 			chartConstructor.restore();
+			now.restore();
 			controller.settings.devt = originalDevt;
 			controller.sensors = originalSensors;
 			controller.sensor_desc = originalDescription;
@@ -897,6 +1071,7 @@ describe("Sensor UI Checks", function () {
 		var chartConstructor = sinon.stub(window, "Chart").returns(chart);
 		var loading = sinon.stub($.mobile, "loading");
 		var changeHeader = sinon.stub(OSApp.UIDom, "changeHeader");
+		var now = sinon.stub(Date, "now").returns(1700000000 * 1000);
 		var sendToOS = sinon.stub(OSApp.Firmware, "sendToOS");
 		var page;
 
@@ -905,16 +1080,19 @@ describe("Sensor UI Checks", function () {
 			controller.sensors = { sn: [ { uuid: 7, name: "Soil", unit: 1 } ] };
 			controller.sensor_desc = { units: [ { value: 1, short: "%" } ] };
 			sendToOS.onFirstCall().returns($.Deferred().resolve(sensorLogBuffer(0)).promise());
-			sendToOS.onSecondCall().returns($.Deferred().resolve(sensorLogBuffer()).promise());
+			sendToOS.onSecondCall().returns($.Deferred().resolve(
+				pagedLogResponse(sensorLogBuffer(), 1, 1, true, 0, 1)
+			).promise());
 
 			OSApp.Sensors.displayLogs();
 			page = $("#sensor-logs");
+			assert.include(page.find(".sensor-log-empty").text(), "No sensor data in the selected time range");
 			assert.lengthOf(page.find(".sensor-log-empty-range-controls input[value='1W']"), 1);
 
 			page.find(".sensor-log-empty-range-controls input[value='1W']").trigger("click");
 			assert.isTrue(sendToOS.secondCall.calledWith(
-				"/jsl?pw=&fmt=binary&after=1699395200&count=max",
-				"arraybuffer"
+				"/jsl?pw=&page=1&after=1699395200&before=1700000000&cursor=0&count=5000&fmt=binary",
+				"arraybuffer-response"
 			));
 			assert.isTrue(chartConstructor.calledOnce);
 		} finally {
@@ -923,6 +1101,7 @@ describe("Sensor UI Checks", function () {
 			changeHeader.restore();
 			loading.restore();
 			chartConstructor.restore();
+			now.restore();
 			controller.settings.devt = originalDevt;
 			controller.sensors = originalSensors;
 			controller.sensor_desc = originalDescription;
@@ -994,6 +1173,7 @@ describe("Sensor UI Checks", function () {
 			assert.isTrue(downloadButton.prop("disabled"));
 			assert.isFalse(loading.called);
 			assert.isFalse(page.find(".sensor-log-progress").prop("hidden"));
+			assert.equal(page.find(".sensor-log-progress-label").text(), "Loading log data: 0 (0%)");
 
 			csvRequest.resolve(pagedLogResponse(sensorLogBuffer(), 1, 1, true));
 			return new Promise(function (resolve) { setTimeout(resolve, 0); }).then(function () {
@@ -1073,6 +1253,9 @@ describe("Sensor UI Checks", function () {
 			// The confirmation must be shown, and no CSV export may start yet.
 			assert.isTrue(areYouSure.calledOnce);
 			assert.equal(confirmArgs.title, "Are you sure you want to download all log data?");
+			assert.include(confirmArgs.detail, "sensor-log-warning-label");
+			assert.include(confirmArgs.detail, ">Warning</span>:");
+			assert.include(confirmArgs.detail, "This action can take a while");
 			assert.lengthOf(pageCalls(), 0);
 
 			// Confirming triggers the export.
@@ -1083,6 +1266,178 @@ describe("Sensor UI Checks", function () {
 		} catch (error) {
 			cleanup();
 			throw error;
+		}
+	});
+
+	it("should show progress while deleting one sensor's logs and refresh afterward", function () {
+		var controller = OSApp.currentSession.controller;
+		var originalSensors = controller.sensors;
+		var originalDescription = controller.sensor_desc;
+		var firstDeletePage = $.Deferred();
+		var secondDeletePage = $.Deferred();
+		var thirdDeletePage = $.Deferred();
+		var confirmation;
+		var fakeNow = 0;
+		var chart = { data: {}, destroy: sinon.spy(), resetZoom: sinon.spy(), update: sinon.spy() };
+		var chartConstructor = sinon.stub(window, "Chart").returns(chart);
+		var loading = sinon.stub($.mobile, "loading");
+		var changeHeader = sinon.stub(OSApp.UIDom, "changeHeader");
+		var areYouSure = sinon.stub(OSApp.UIDom, "areYouSure").callsFake(function (t1, t2, success) {
+			confirmation = { title: t1, detail: t2 };
+			if (success) success();
+		});
+		var now = sinon.stub(Date, "now");
+		now.callsFake(function () { return fakeNow; });
+		var sendToOS = sinon.stub(OSApp.Firmware, "sendToOS");
+		var page;
+
+		function cleanup() {
+			if (page) page.trigger("pagehide").remove();
+			sendToOS.restore();
+			areYouSure.restore();
+			changeHeader.restore();
+			loading.restore();
+			chartConstructor.restore();
+			now.restore();
+			controller.sensors = originalSensors;
+			controller.sensor_desc = originalDescription;
+		}
+
+		try {
+			controller.sensors = { sn: [ { uuid: 7, name: "Soil", unit: 1 } ] };
+			controller.sensor_desc = { units: [ { value: 1, short: "%" } ] };
+			sendToOS.onFirstCall().returns($.Deferred().resolve(sensorLogBuffer()).promise());
+			sendToOS.onSecondCall().returns(firstDeletePage.promise());
+			sendToOS.onThirdCall().returns(secondDeletePage.promise());
+			sendToOS.onCall(3).returns(thirdDeletePage.promise());
+			sendToOS.onCall(4).returns($.Deferred().resolve(sensorLogBuffer(0)).promise());
+
+			OSApp.Sensors.displayLogs();
+			page = $("#sensor-logs");
+			loading.resetHistory();
+			page.find(".sensor-log-delete-btn input").trigger("click");
+
+			assert.equal(sendToOS.secondCall.args[0],
+				"/dsl?pw=&uuid=7&page=1&cursor=0&count=16384");
+			assert.equal(confirmation.title, "Delete the entire log of Soil?");
+			assert.include(confirmation.detail, "sensor-log-warning-label");
+			assert.include(confirmation.detail, ">Warning</span>:");
+			assert.include(confirmation.detail, "This may take several minutes");
+			assert.isFalse(page.find(".sensor-log-progress").prop("hidden"));
+			assert.equal(window.getComputedStyle(page.find(".sensor-log-progress")[0]).position, "fixed");
+			assert.include(page.find(".sensor-log-progress-label").text(), "Deleting sensor log");
+			assert.isFalse(page.find(".sensor-log-stop-btn").prop("hidden"));
+			assert.isTrue(page.find(".sensor-log-delete-btn input").prop("disabled"));
+			assert.isFalse(loading.calledWith("show"));
+
+			fakeNow = 6000;
+			firstDeletePage.resolve({ result: 1, next: 819, total: 40950, deleted: 4, done: 0 });
+			return new Promise(function (resolve) { setTimeout(resolve, 0); }).then(function () {
+				assert.equal(sendToOS.thirdCall.args[0],
+					"/dsl?pw=&uuid=7&page=1&cursor=819&count=16384");
+				fakeNow = 12000;
+				secondDeletePage.resolve({ result: 1, next: 1638, total: 40950, deleted: 1, done: 0 });
+				return new Promise(function (resolve) { setTimeout(resolve, 0); });
+			}).then(function () {
+				assert.include(page.find(".sensor-log-progress-estimate").text(), "About 5 minutes remaining");
+				assert.equal(sendToOS.getCall(3).args[0],
+					"/dsl?pw=&uuid=7&page=1&cursor=1638&count=16384");
+				thirdDeletePage.resolve({ result: 1, next: 40950, total: 40950, deleted: 1, done: 1 });
+				return new Promise(function (resolve) { setTimeout(resolve, 0); });
+			}).then(function () {
+				assert.match(sendToOS.getCall(4).args[0],
+					/^\/jsl\?pw=&fmt=binary&after=\d+&count=max$/);
+				assert.equal(sendToOS.getCall(4).args[1], "arraybuffer");
+				assert.isTrue(page.find(".sensor-log-progress").prop("hidden"));
+				assert.isFalse(page.find("input.sensor-log-delete-all-btn").prop("disabled"));
+			}).finally(cleanup);
+		} catch (error) {
+			cleanup();
+			throw error;
+		}
+	});
+
+	it("should abort a paginated sensor-log deletion when leaving the page", function () {
+		var controller = OSApp.currentSession.controller;
+		var originalSensors = controller.sensors;
+		var originalDescription = controller.sensor_desc;
+		var deletionRequest = $.Deferred();
+		var chart = { data: {}, destroy: sinon.spy(), resetZoom: sinon.spy(), update: sinon.spy() };
+		var chartConstructor = sinon.stub(window, "Chart").returns(chart);
+		var loading = sinon.stub($.mobile, "loading");
+		var changeHeader = sinon.stub(OSApp.UIDom, "changeHeader");
+		var areYouSure = sinon.stub(OSApp.UIDom, "areYouSure").callsFake(function (_t1, _t2, success) {
+			if (success) success();
+		});
+		var sendToOS = sinon.stub(OSApp.Firmware, "sendToOS");
+		var page;
+
+		try {
+			controller.sensors = { sn: [ { uuid: 7, name: "Soil", unit: 1 } ] };
+			controller.sensor_desc = { units: [ { value: 1, short: "%" } ] };
+			sendToOS.onFirstCall().returns($.Deferred().resolve(sensorLogBuffer()).promise());
+			sendToOS.onSecondCall().returns(deletionRequest.promise());
+
+			OSApp.Sensors.displayLogs();
+			page = $("#sensor-logs");
+			page.find(".sensor-log-delete-btn input").trigger("click");
+			var signal = sendToOS.secondCall.args[2].signal;
+			assert.isFalse(signal.aborted);
+			page.find(".sensor-log-stop-btn").trigger("click");
+			assert.isFalse(signal.aborted);
+			assert.isTrue(page.find(".sensor-log-stop-btn").prop("disabled"));
+			assert.equal(page.find(".sensor-log-stop-btn").text(), "Stopping");
+			assert.include(page.find(".sensor-log-progress-estimate").text(), "Stopping after the current page");
+
+			page.trigger("pagehide");
+			assert.isTrue(signal.aborted);
+		} finally {
+			if (page) page.remove();
+			sendToOS.restore();
+			areYouSure.restore();
+			changeHeader.restore();
+			loading.restore();
+			chartConstructor.restore();
+			controller.sensors = originalSensors;
+			controller.sensor_desc = originalDescription;
+		}
+	});
+
+	it("should keep Delete All on the non-paginated endpoint", function () {
+		var controller = OSApp.currentSession.controller;
+		var originalSensors = controller.sensors;
+		var originalDescription = controller.sensor_desc;
+		var chartConstructor = sinon.stub(window, "Chart");
+		var loading = sinon.stub($.mobile, "loading");
+		var changeHeader = sinon.stub(OSApp.UIDom, "changeHeader");
+		var areYouSure = sinon.stub(OSApp.UIDom, "areYouSure").callsFake(function (_t1, _t2, success) {
+			if (success) success();
+		});
+		var sendToOS = sinon.stub(OSApp.Firmware, "sendToOS")
+			.returns($.Deferred().resolve(sensorLogBuffer(0)).promise());
+		var page;
+
+		try {
+			controller.sensors = { sn: [] };
+			controller.sensor_desc = { units: [] };
+			OSApp.Sensors.displayLogs();
+			page = $("#sensor-logs");
+			page.find("input.sensor-log-delete-all-btn").trigger("click");
+
+			assert.equal(sendToOS.secondCall.args[0], "/dsl?pw=&uuid=-1");
+			assert.notInclude(sendToOS.secondCall.args[0], "page=1");
+			assert.match(sendToOS.thirdCall.args[0],
+				/^\/jsl\?pw=&fmt=binary&after=\d+&count=max$/);
+			assert.equal(sendToOS.thirdCall.args[1], "arraybuffer");
+		} finally {
+			if (page) page.trigger("pagehide").remove();
+			sendToOS.restore();
+			areYouSure.restore();
+			changeHeader.restore();
+			loading.restore();
+			chartConstructor.restore();
+			controller.sensors = originalSensors;
+			controller.sensor_desc = originalDescription;
 		}
 	});
 

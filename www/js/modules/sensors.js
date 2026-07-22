@@ -141,6 +141,16 @@ OSApp.Sensors.formatLogCsvRow = function (uuid, sensorName, timestamp, value, un
 
 OSApp.Sensors.LOG_CHART_RANGES = { "3h": 0, "1d": 1, "1w": 2, "1m": 3, all: 4 };
 OSApp.Sensors.LOG_PAGE_SIZE = 5000;
+OSApp.Sensors.LOG_LINUX_PAGE_SIZE = 100000;
+OSApp.Sensors.LOG_PAGE_RETRY_LIMIT = 2;
+OSApp.Sensors.LOG_DELETE_PAGE_SIZE = 16384;
+
+OSApp.Sensors.getLogPageSize = function () {
+    const hardware = OSApp.Firmware.getHWVersion();
+    return OSApp.Firmware.isOSPi() || hardware === "OSPi" || hardware === "Linux" || hardware === "Demo"
+        ? OSApp.Sensors.LOG_LINUX_PAGE_SIZE
+        : OSApp.Sensors.LOG_PAGE_SIZE;
+};
 
 OSApp.Sensors.fetchAllLogPages = function (options) {
     options = options || {};
@@ -149,13 +159,28 @@ OSApp.Sensors.fetchAllLogPages = function (options) {
     let byteLength = 0;
     let cursor = 0;
     let totalSlots = null;
+    let windowStart = null;
+    let windowEnd = null;
+    let retryCount = 0;
+    const pageSize = OSApp.Sensors.getLogPageSize();
+    const signal = options.signal;
+    const hasWindow = options.after !== undefined || options.before !== undefined;
+    const after = Number(options.after);
+    const before = Number(options.before);
 
     function reject(statusText) {
         deferred.reject({ status: 0, statusText: statusText });
     }
 
     function isCurrent() {
-        return typeof options.isCurrent !== "function" || options.isCurrent();
+        return (!signal || !signal.aborted) &&
+            (typeof options.isCurrent !== "function" || options.isCurrent());
+    }
+
+    function isTransientFailure(error) {
+        return !error || (error.status == null && error.statusText == null) ||
+            error.status === 0 || error.status >= 500 ||
+            error.statusText === "timeout" || error.statusText === "error";
     }
 
     function readIntegerHeader(headers, name) {
@@ -177,17 +202,19 @@ OSApp.Sensors.fetchAllLogPages = function (options) {
 
     function requestPage() {
         if (!isCurrent()) {
-            reject("stale");
+            reject(signal && signal.aborted ? "abort" : "stale");
             return;
         }
 
-        const url = `/jsl?pw=&page=1&cursor=${cursor}&count=${OSApp.Sensors.LOG_PAGE_SIZE}&fmt=binary`;
-        OSApp.Firmware.sendToOS(url, "arraybuffer-response")
+        const windowParams = hasWindow ? `&after=${after}&before=${before}` : "";
+        const url = `/jsl?pw=&page=1${windowParams}&cursor=${cursor}&count=${pageSize}&fmt=binary`;
+        OSApp.Firmware.sendToOS(url, "arraybuffer-response", { signal: signal })
             .done((response) => {
                 if (!isCurrent()) {
-                    reject("stale");
+                    reject(signal && signal.aborted ? "abort" : "stale");
                     return;
                 }
+                retryCount = 0;
 
                 const buffer = response && response.data;
                 if (!(buffer instanceof ArrayBuffer)) {
@@ -202,13 +229,23 @@ OSApp.Sensors.fetchAllLogPages = function (options) {
                 const nextCursor = readIntegerHeader(response.headers, "X-OS-Next-Cursor");
                 const pageTotal = readIntegerHeader(response.headers, "X-OS-Total-Slots");
                 const doneValue = readIntegerHeader(response.headers, "X-OS-Page-Done");
+                const pageWindowStart = hasWindow
+                    ? readIntegerHeader(response.headers, "X-OS-Window-Start") : null;
+                const pageWindowEnd = hasWindow
+                    ? readIntegerHeader(response.headers, "X-OS-Window-End") : null;
                 if (nextCursor == null || pageTotal == null || (doneValue !== 0 && doneValue !== 1) ||
+                    (hasWindow && (pageWindowStart == null || pageWindowEnd == null ||
+                        pageWindowEnd < pageWindowStart)) ||
                     nextCursor < cursor || (!doneValue && nextCursor === cursor)) {
                     reject("parsererror");
                     return;
                 }
 
                 if (totalSlots == null) totalSlots = pageTotal;
+                if (hasWindow && windowStart == null) {
+                    windowStart = pageWindowStart;
+                    windowEnd = pageWindowEnd;
+                }
                 try {
                     if (typeof options.onPage === "function") options.onPage(buffer);
                 } catch (error) {
@@ -220,10 +257,14 @@ OSApp.Sensors.fetchAllLogPages = function (options) {
                     byteLength += buffer.byteLength;
                 }
 
-                const progress = totalSlots === 0 ? (doneValue ? 1 : 0) : Math.min(nextCursor / totalSlots, 1);
+                const processed = hasWindow ? Math.max(0, nextCursor - windowStart) : nextCursor;
+                const progressTotal = hasWindow ? windowEnd - windowStart : totalSlots;
+                const progress = progressTotal === 0
+                    ? (hasWindow ? 1 : (doneValue ? 1 : 0))
+                    : Math.min(1, Math.max(0, processed / progressTotal));
                 try {
                     if (typeof options.onProgress === "function") {
-                        options.onProgress(progress, nextCursor, totalSlots);
+                        options.onProgress(progress, processed, progressTotal);
                     }
                 } catch (error) {
                     deferred.reject(error);
@@ -238,9 +279,139 @@ OSApp.Sensors.fetchAllLogPages = function (options) {
                 cursor = nextCursor;
                 setTimeout(requestPage, 0);
             })
+            .fail((error) => {
+                if (!isCurrent()) {
+                    reject(signal && signal.aborted ? "abort" : "stale");
+                    return;
+                }
+                if (retryCount < OSApp.Sensors.LOG_PAGE_RETRY_LIMIT && isTransientFailure(error)) {
+                    retryCount++;
+                    setTimeout(requestPage, 0);
+                    return;
+                }
+                deferred.reject(error);
+            });
+    }
+
+    if (hasWindow && (!Number.isSafeInteger(after) || !Number.isSafeInteger(before) || after > before)) {
+        reject("parsererror");
+        return deferred.promise();
+    }
+    requestPage();
+    return deferred.promise();
+};
+
+OSApp.Sensors.deleteLogPages = function (uuid, options) {
+    options = options || {};
+    const deferred = $.Deferred();
+    const signal = options.signal;
+    let cursor = 0;
+    let totalSlots;
+    let deletedTotal = 0;
+
+    function reject(statusText) {
+        deferred.reject({ status: 0, statusText: statusText });
+    }
+
+    function isCurrent() {
+        return (!signal || !signal.aborted) &&
+            (typeof options.isCurrent !== "function" || options.isCurrent());
+    }
+
+    function isUnsignedInteger(value) {
+        return Number.isSafeInteger(value) && value >= 0;
+    }
+
+    function abort() {
+        reject("abort");
+    }
+
+    function shouldStop() {
+        return typeof options.shouldStop === "function" && options.shouldStop();
+    }
+
+    function resolveStopped() {
+        deferred.resolve({ deleted: deletedTotal, stopped: true });
+    }
+
+    function requestPage() {
+        if (!isCurrent()) {
+            reject(signal && signal.aborted ? "abort" : "stale");
+            return;
+        }
+        if (shouldStop()) {
+            resolveStopped();
+            return;
+        }
+
+        const remaining = totalSlots === undefined
+            ? OSApp.Sensors.LOG_DELETE_PAGE_SIZE
+            : totalSlots - cursor;
+        if (remaining <= 0) {
+            deferred.resolve({ deleted: deletedTotal, stopped: false });
+            return;
+        }
+
+        const count = Math.min(OSApp.Sensors.LOG_DELETE_PAGE_SIZE, remaining);
+        const url = `/dsl?pw=&uuid=${uuid}&page=1&cursor=${cursor}&count=${count}`;
+        OSApp.Firmware.sendToOS(url, "json", { signal: signal })
+            .done((response) => {
+                if (!isCurrent()) {
+                    reject(signal && signal.aborted ? "abort" : "stale");
+                    return;
+                }
+
+                if (!response || response.result !== 1 || !isUnsignedInteger(response.next) ||
+                    !isUnsignedInteger(response.total) || !isUnsignedInteger(response.deleted) ||
+                    (response.done !== 0 && response.done !== 1)) {
+                    reject("parsererror");
+                    return;
+                }
+
+                if (totalSlots === undefined) totalSlots = response.total;
+                deletedTotal += response.deleted;
+                const processed = Math.min(response.next, totalSlots);
+                try {
+                    if (typeof options.onProgress === "function") {
+                        options.onProgress({
+                            processed: processed,
+                            total: totalSlots,
+                            deleted: deletedTotal,
+                            percent: totalSlots === 0 ? 100 : Math.min(100, response.next * 100 / totalSlots)
+                        });
+                    }
+                } catch (error) {
+                    deferred.reject(error);
+                    return;
+                }
+
+                if (response.done === 1 || response.next >= totalSlots) {
+                    deferred.resolve({ deleted: deletedTotal, stopped: false });
+                    return;
+                }
+                if (shouldStop()) {
+                    resolveStopped();
+                    return;
+                }
+                if (response.next <= cursor) {
+                    reject("stalled");
+                    return;
+                }
+
+                cursor = response.next;
+                setTimeout(requestPage, 0);
+            })
             .fail((error) => deferred.reject(error));
     }
 
+    if (!Number.isSafeInteger(Number(uuid)) || Number(uuid) < 0) {
+        reject("parsererror");
+        return deferred.promise();
+    }
+    if (signal) signal.addEventListener("abort", abort, { once: true });
+    deferred.always(() => {
+        if (signal) signal.removeEventListener("abort", abort);
+    });
     requestPage();
     return deferred.promise();
 };
@@ -2066,8 +2237,14 @@ OSApp.Sensors.displayLogs = function (_callback) {
     let disposed = false;
     let defaultRange = "1d";
     let chartRanges = {};
-    let loadedRange = null;
+	let loadedRange = null;
 	let pendingRange = null;
+	let activeLogController = null;
+	let activeDeleteController = null;
+	let deletionActive = false;
+	let deletionStopRequested = false;
+	let deletionStartedAt = 0;
+	let deletionPagesCompleted = 0;
 
 	function isCurrentContext(seq) {
 		return !disposed && (seq == null || seq === requestSeq) &&
@@ -2088,14 +2265,22 @@ OSApp.Sensors.displayLogs = function (_callback) {
     `);
     const $progress = $(`
         <div class="sensor-log-progress" hidden>
-            <div class="sensor-log-progress-label" aria-live="polite"></div>
+            <div class="sensor-log-progress-header">
+                <div class="sensor-log-progress-label" aria-live="polite"></div>
+                <button type="button" class="sensor-log-stop-btn ui-btn ui-mini ui-corner-all" hidden>
+                    ${OSApp.Language._("Stop")}
+                </button>
+            </div>
             <div class="sensor-log-progress-track ui-corner-all ui-shadow-inset" role="progressbar"
                 aria-label="${OSApp.Language._("Sensor log progress")}"
                 aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
                 <div class="sensor-log-progress-fill ui-corner-all"></div>
             </div>
+            <div class="sensor-log-progress-estimate" hidden></div>
         </div>
     `);
+	const $stopDelete = $progress.find(".sensor-log-stop-btn");
+	const $progressEstimate = $progress.find(".sensor-log-progress-estimate");
 	content.append($filterDiv);
 	content.append($progress);
 	content.append($cards);
@@ -2204,16 +2389,78 @@ OSApp.Sensors.displayLogs = function (_callback) {
         try { $button.button("refresh"); } catch { /* not enhanced yet */ }
     }
 
-    function setLogProgress(progress) {
-        const percentage = Math.round(Math.max(0, Math.min(progress, 1)) * 100);
+    function setLogProgress(progress, label, options) {
+        options = options || {};
+        const progressLabel = OSApp.Language._(label || "Retrieving sensor logs");
+        const $track = $progress.find(".sensor-log-progress-track");
         $progress.prop("hidden", false);
-        $progress.find(".sensor-log-progress-label").text(OSApp.Language._("Retrieving sensor logs") + "... " + percentage + "%");
-        $progress.find(".sensor-log-progress-fill").css("width", percentage + "%");
-        $progress.find(".sensor-log-progress-track").attr("aria-valuenow", percentage);
+        $progress.toggleClass("sensor-log-progress-indeterminate", !!options.indeterminate);
+        if (options.indeterminate) {
+            // No measurable progress (single request) — show an animated
+            // indeterminate track instead of a percentage.
+            $progress.find(".sensor-log-progress-label").text(progressLabel + "...");
+            $progress.find(".sensor-log-progress-fill").css("width", "");
+            $track.removeAttr("aria-valuenow").attr("aria-busy", "true");
+        } else {
+            const percentage = Math.round(Math.max(0, Math.min(progress, 1)) * 100);
+            const progressText = Number.isFinite(options.processed)
+                ? progressLabel + ": " + options.processed.toLocaleString() + " (" + percentage + "%)"
+                : progressLabel + "... " + percentage + "%";
+            $progress.find(".sensor-log-progress-label").text(progressText);
+            $progress.find(".sensor-log-progress-fill").css("width", percentage + "%");
+            $track.removeAttr("aria-busy").attr("aria-valuenow", percentage);
+        }
+        $stopDelete.prop("hidden", !options.showStop);
+        $progressEstimate.text(options.detail || "").prop("hidden", !options.detail);
+    }
+
+    function setLoadingBanner(label) {
+        setLogProgress(0, label || "Loading sensor data", { indeterminate: true });
     }
 
     function hideLogProgress() {
-        $progress.prop("hidden", true);
+        $progress.prop("hidden", true).removeClass("sensor-log-progress-indeterminate");
+        $progress.find(".sensor-log-progress-track").removeAttr("aria-busy");
+        $stopDelete.prop("hidden", true).prop("disabled", false).text(OSApp.Language._("Stop"));
+        $progressEstimate.prop("hidden", true).empty();
+    }
+
+    function formatDeletionEstimate(progress) {
+        if (deletionStopRequested) return OSApp.Language._("Stopping after the current page").concat("...");
+        deletionPagesCompleted++;
+        if (deletionPagesCompleted < 2 || !progress.processed || progress.processed >= progress.total) return "";
+
+        const elapsed = Date.now() - deletionStartedAt;
+        const remaining = elapsed * (progress.total - progress.processed) / progress.processed;
+        if (!Number.isFinite(remaining) || remaining <= 0) return "";
+        if (remaining < 60 * 1000) return OSApp.Language._("Less than a minute remaining");
+
+        const minutes = Math.ceil(remaining / (60 * 1000));
+        const message = minutes === 1 ? "About %d minute remaining" : "About %d minutes remaining";
+        return OSApp.Language._(message).replace("%d", minutes);
+    }
+
+    function setDeletionProgress(progress) {
+        setLogProgress(progress.percent / 100, "Deleting sensor log", {
+            showStop: true,
+            detail: formatDeletionEstimate(progress)
+        });
+    }
+
+    function setLoadingProgress(progress, processed) {
+        setLogProgress(progress, "Loading log data", { processed: processed });
+    }
+
+    function warningDetail(message) {
+        return "<span class='sensor-log-warning-label'>" + OSApp.Language._("Warning") + "</span>: " +
+            OSApp.Language._(message);
+    }
+
+    function setDeleteActionsEnabled(enabled) {
+        const $buttons = $filterDiv.find("input.sensor-log-delete-all-btn")
+            .add($cards.find(".sensor-log-delete-btn input"));
+        $buttons.prop("disabled", !enabled);
+        try { $buttons.button("refresh"); } catch { /* not enhanced yet */ }
     }
 
     function sensorLogCsvRows(buffer, sensorByUuid, unitByValue) {
@@ -2240,7 +2487,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
 			return $.Deferred().reject({ status: 0, statusText: "stale" }).promise();
         }
         setDownloadAllEnabled(false);
-        setLogProgress(0);
+        setLoadingProgress(0, 0);
         const csvParts = [ "sensor_uuid,sensor_name,timestamp,value,unit\r\n" ];
         const sensorByUuid = {};
         const unitByValue = {};
@@ -2251,7 +2498,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
         return OSApp.Sensors.fetchAllLogPages({
             collect: false,
             isCurrent: isCurrentContext,
-            onProgress: setLogProgress,
+            onProgress: setLoadingProgress,
             onPage: (buffer) => {
                 const rows = sensorLogCsvRows(buffer, sensorByUuid, unitByValue);
                 if (rows.length) csvParts.push(rows.join("\r\n") + "\r\n");
@@ -2288,6 +2535,16 @@ OSApp.Sensors.displayLogs = function (_callback) {
         return chartRanges[key] || defaultRange;
     }
 
+	function cancelPendingLogRequest() {
+		if (pendingRange == null) return;
+		requestSeq++;
+		pendingRange = null;
+		if (activeLogController) activeLogController.abort();
+		activeLogController = null;
+		$.mobile.loading("hide");
+		hideLogProgress();
+	}
+
     function selectRange(range, key, chart) {
         const previousRange = key == null ? defaultRange : getChartRange(key);
         if (key == null) {
@@ -2297,15 +2554,12 @@ OSApp.Sensors.displayLogs = function (_callback) {
         }
         if (loadedRange != null &&
             OSApp.Sensors.LOG_CHART_RANGES[range] <= OSApp.Sensors.LOG_CHART_RANGES[loadedRange]) {
+			cancelPendingLogRequest();
             if (chart && typeof chart.sensorLogUpdateRange === "function") {
                 chart.sensorLogUpdateRange(range);
             }
             return;
         }
-		if (pendingRange != null &&
-			OSApp.Sensors.LOG_CHART_RANGES[range] <= OSApp.Sensors.LOG_CHART_RANGES[pendingRange]) {
-			return;
-		}
         updateContent(range, () => {
             if (key == null) {
                 defaultRange = previousRange;
@@ -2360,10 +2614,14 @@ OSApp.Sensors.displayLogs = function (_callback) {
         });
 
         if (keys.length === 0) {
-			parent.append($("<p class='sensor-log-empty center'></p>").text(OSApp.Language._("No sensor logs found.")));
-            if (!buf.noLogHeader && loadedRange !== "all") {
+			const rangeHasWiderData = !buf.noLogHeader && loadedRange !== "all";
+			const emptyMessage = rangeHasWiderData
+				? OSApp.Language._("No sensor data in the selected time range. Older data may exist — choose a longer range below.")
+				: OSApp.Language._("No sensor logs found.");
+			parent.append($("<p class='sensor-log-empty center'></p>").text(emptyMessage));
+            if (rangeHasWiderData) {
                 const $emptyControls = $("<div data-role='controlgroup' data-type='horizontal' class='sensor-log-empty-range-controls'></div>");
-                [ [ "1w", "1W" ], [ "1m", "1M" ], [ "all", OSApp.Language._("All") ] ].forEach((item) => {
+                [ [ "1w", "1W" ], [ "all", OSApp.Language._("All") ] ].forEach((item) => {
                     if (OSApp.Sensors.LOG_CHART_RANGES[item[0]] > OSApp.Sensors.LOG_CHART_RANGES[loadedRange]) {
                         $("<input type='button'>").val(item[1]).on("click", () => selectRange(item[0], null, null)).appendTo($emptyControls);
                     }
@@ -2458,10 +2716,12 @@ OSApp.Sensors.displayLogs = function (_callback) {
 
                 const $deleteLogs = $('<input type="button">').val(OSApp.Language._("Delete"));
                 $deleteLogs.on("click", () => {
+                    const deleteName = activeSensor ? activeSensor.name : sn.name;
                     OSApp.UIDom.areYouSure(
-                        OSApp.Language._("Are you sure you want to delete the log for") + " " +
-                            OSApp.Utils.htmlEscape(sn.name) + "?",
-                        "",
+                        OSApp.Language._("Delete the entire log of") + " " + OSApp.Utils.htmlEscape(deleteName) + "?",
+                        warningDetail(
+                            "This may take several minutes. Deleting a sensor's log does not free log capacity; use this only when you need to reset this sensor's recorded history."
+                        ),
                         () => { deleteLogs(key); }
                     );
                 });
@@ -2475,14 +2735,11 @@ OSApp.Sensors.displayLogs = function (_callback) {
 				const $week = $('<input type="button" value="1W">').on("click", () => {
 					selectRange("1w", key, chart);
 				});
-				const $month = $('<input type="button" value="1M">').on("click", () => {
-					selectRange("1m", key, chart);
-				});
 				const $all = $('<input type="button">').val(OSApp.Language._("All")).on("click", () => {
 					selectRange("all", key, chart);
 				});
 
-				$controls.append($threeHour, $day, $week, $month, $all, $resetZoom, $download, $deleteLogs);
+				$controls.append($threeHour, $day, $week, $all, $resetZoom, $download, $deleteLogs);
 
                 const $controlsWrap = $("<div>").addClass("sensor-chart-controls");
                 $controlsWrap.append($controls);
@@ -2526,35 +2783,48 @@ OSApp.Sensors.displayLogs = function (_callback) {
             range : (loadedRange || defaultRange);
 		const seq = ++requestSeq;
 		pendingRange = requestedRange;
-		const isPaginated = requestedRange === "all";
+		if (activeLogController) activeLogController.abort();
+		const requestController = typeof AbortController === "function" ? new AbortController() : null;
+		activeLogController = requestController;
+		const requestSignal = requestController ? requestController.signal : undefined;
+		const isPaginated = requestedRange === "1w" || requestedRange === "all";
 		if (isPaginated) {
-			setLogProgress(0);
+			setLoadingProgress(0, 0);
 		} else {
-			$.mobile.loading("show");
+			// Single request: no measurable progress, so show an indeterminate
+			// banner in the same sticky position rather than a hidden spinner.
+			setLoadingBanner("Loading sensor data");
 		}
 
+		const controllerNow = Number(controller.settings && controller.settings.devt);
+		const nowSeconds = Number.isFinite(controllerNow) && controllerNow > 0
+			? Math.floor(controllerNow)
+			: Math.floor(Date.now() / 1000);
+		const before = requestedRange === "1w" ? nowSeconds : undefined;
 		const jslRequest = isPaginated
 			? OSApp.Sensors.fetchAllLogPages({
+				after: requestedRange === "1w" ? OSApp.Sensors.getChartRangeStart("1w", before) : undefined,
+				before: before,
+				signal: requestSignal,
 				isCurrent: () => isCurrentContext(seq),
-				onProgress: setLogProgress
+				onProgress: setLoadingProgress
 			})
 			: OSApp.Firmware.sendToOS(
 				OSApp.Sensors.getChartLogURL(requestedRange, controller.settings && controller.settings.devt),
-				"arraybuffer"
+				"arraybuffer",
+				{ signal: requestSignal }
 			);
 		const jsdRequest = controller.sensor_desc
 			? $.Deferred().resolve(controller.sensor_desc).promise()
-			: OSApp.Firmware.sendToOS("/jsd?pw=", "json").then((data) => OSApp.Sensors.normalizeJsd(data));
+			: OSApp.Firmware.sendToOS("/jsd?pw=", "json", { signal: requestSignal })
+				.then((data) => OSApp.Sensors.normalizeJsd(data));
 
         $.when(jslRequest, jsdRequest)
 			.done((buf, jsdData) => {
 				if (!isCurrentContext(seq)) return;
+				if (activeLogController === requestController) activeLogController = null;
 				pendingRange = null;
-				if (isPaginated) {
-					hideLogProgress();
-				} else {
-					$.mobile.loading("hide");
-				}
+				hideLogProgress();
 				controller.sensor_desc = jsdData;
                 cachedData = buf;
                 loadedRange = requestedRange;
@@ -2562,20 +2832,59 @@ OSApp.Sensors.displayLogs = function (_callback) {
             })
 			.fail(() => {
 				if (!isCurrentContext(seq)) return;
+				if (activeLogController === requestController) activeLogController = null;
 				pendingRange = null;
-				if (isPaginated) {
-					hideLogProgress();
-				} else {
-					$.mobile.loading("hide");
-				}
+				hideLogProgress();
                 if (typeof rollback === "function") rollback();
                 OSApp.Errors.showError(OSApp.Language._("Failed to load sensor logs"));
             });
     }
 
     function deleteLogs(uuid) {
-        $.mobile.loading("show");
-        OSApp.Firmware.sendToOS(`/dsl?pw=&uuid=${uuid}`).always(updateContent);
+        if (deletionActive) return;
+        if (Number(uuid) === -1) {
+            $.mobile.loading("show");
+            OSApp.Firmware.sendToOS("/dsl?pw=&uuid=-1").always(() => updateContent("1d"));
+            return;
+        }
+
+        deletionActive = true;
+        deletionStopRequested = false;
+        deletionStartedAt = Date.now();
+        deletionPagesCompleted = 0;
+        activeDeleteController = typeof AbortController === "function" ? new AbortController() : null;
+        setDeleteActionsEnabled(false);
+        setLogProgress(0, "Deleting sensor log", { showStop: true });
+        let refreshAfterDeletion = false;
+        OSApp.Sensors.deleteLogPages(Number(uuid), {
+            signal: activeDeleteController ? activeDeleteController.signal : undefined,
+            isCurrent: isCurrentContext,
+            shouldStop: () => deletionStopRequested,
+            onProgress: setDeletionProgress
+        })
+            .done(() => {
+                refreshAfterDeletion = true;
+            })
+            .fail((error) => {
+                if (!isCurrentContext() || (error && (error.statusText === "abort" || error.statusText === "stale"))) {
+                    return;
+                }
+                if (error && (error.statusText === "parsererror" || error.statusText === "stalled")) {
+                    OSApp.Errors.showError(OSApp.Language._("Failed to delete sensor logs"));
+                }
+            })
+            .always(() => {
+                activeDeleteController = null;
+                deletionActive = false;
+                if (!isCurrentContext()) return;
+                hideLogProgress();
+                setDeleteActionsEnabled(true);
+                if (refreshAfterDeletion) {
+                    // Reconcile the partially or fully deleted cache with a bounded
+                    // request; wider history remains available on explicit selection.
+                    updateContent("1d");
+                }
+            });
     }
 
     page
@@ -2583,6 +2892,8 @@ OSApp.Sensors.displayLogs = function (_callback) {
 		.on( "pagehide", function() {
 			disposed = true;
 			requestSeq++;
+			if (activeLogController) activeLogController.abort();
+			if (activeDeleteController) activeDeleteController.abort();
 			destroyActiveCharts();
 			$.mobile.loading("hide");
 			hideLogProgress();
@@ -2612,10 +2923,17 @@ OSApp.Sensors.displayLogs = function (_callback) {
             applyFilter();
         });
 
+		$stopDelete.on("click", function() {
+			if (!deletionActive || deletionStopRequested) return;
+			deletionStopRequested = true;
+			$stopDelete.prop("disabled", true).text(OSApp.Language._("Stopping"));
+			$progressEstimate.text(OSApp.Language._("Stopping after the current page") + "...").prop("hidden", false);
+		});
+
         $filterDiv.find("input.sensor-log-download-btn").on("click", () => {
             OSApp.UIDom.areYouSure(
                 OSApp.Language._("Are you sure you want to download all log data?"),
-                OSApp.Language._("This action can take a while depending on the number of log records."),
+                warningDetail("This action can take a while depending on the number of log records."),
                 downloadAllLogs
             );
         }).button()

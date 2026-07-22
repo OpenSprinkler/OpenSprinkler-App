@@ -2038,6 +2038,12 @@ msgstr ""
 msgid "No sensor logs found."
 msgstr ""
 
+msgid "Loading sensor data"
+msgstr ""
+
+msgid "No sensor data in the selected time range. Older data may exist — choose a longer range below."
+msgstr ""
+
 msgid "Are you sure you want to delete the log for"
 msgstr ""
 
@@ -2057,6 +2063,42 @@ msgid "This action can take a while depending on the number of log records."
 msgstr ""
 
 msgid "Retrieving sensor logs"
+msgstr ""
+
+msgid "Deleting sensor log"
+msgstr ""
+
+msgid "Delete the entire log of"
+msgstr ""
+
+msgid "Warning"
+msgstr ""
+
+msgid "This may take several minutes. Deleting a sensor's log does not free log capacity; use this only when you need to reset this sensor's recorded history."
+msgstr ""
+
+msgid "Loading log data"
+msgstr ""
+
+msgid "Stop"
+msgstr ""
+
+msgid "Stopping"
+msgstr ""
+
+msgid "Stopping after the current page"
+msgstr ""
+
+msgid "Less than a minute remaining"
+msgstr ""
+
+msgid "About %d minute remaining"
+msgstr ""
+
+msgid "About %d minutes remaining"
+msgstr ""
+
+msgid "Failed to delete sensor logs"
 msgstr ""
 
 msgid "Sensor log progress"
