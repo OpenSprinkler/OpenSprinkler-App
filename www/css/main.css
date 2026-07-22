@@ -1465,10 +1465,33 @@ button[id^="start_1-"] {
     font-weight: bold;
 }
 
-.sensor-log-filter-actions {
+.sensor-log-global-controls {
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    max-width: 100%;
+}
+
+.sensor-log-control-group {
+    margin: 0;
+}
+
+.sensor-log-action-controls {
+    margin-left: -1px;
+}
+
+.sensor-log-control-group .ui-controlgroup-controls {
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+.sensor-log-global-controls .ui-btn {
+    flex: 0 0 auto;
+}
+
+.sensor-log-global-controls .sensor-log-range-selected {
+    background-color: #16a085 !important;
+    border-color: #16a085 !important;
+    color: #fff !important;
+    text-shadow: 0 1px 0 #0b6252 !important;
 }
 
 /* Pinned below the fixed JQM header so it stays visible while the user is
@@ -1565,18 +1588,30 @@ button[id^="start_1-"] {
 }
 
 @media (max-width: 27.99em) {
-    .sensor-log-filter-actions {
+    .sensor-log-global-controls {
+        flex-wrap: wrap;
         width: 100%;
-        justify-content: flex-end;
     }
-}
 
-.sensor-log-download-btn {
-    background-color: #5D99C3 !important;
-    border-color: #5D99C3 !important;
-    color: #fff !important;
-    text-shadow: 0 1px 0 #059 !important;
-    font-weight: bold !important;
+    .sensor-log-control-group,
+    .sensor-log-control-group .ui-controlgroup-controls {
+        width: 100%;
+    }
+
+    .sensor-log-action-controls {
+        margin-left: 0;
+        margin-top: 4px;
+    }
+
+    .sensor-log-range-controls .ui-btn {
+        box-sizing: border-box;
+        width: 25%;
+    }
+
+    .sensor-log-action-controls .ui-btn {
+        box-sizing: border-box;
+        width: 50%;
+    }
 }
 
 .sensor-log-delete-btn {

@@ -2235,8 +2235,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
     let cachedData = null;
     let allCardsRendered = false;
     let disposed = false;
-    let defaultRange = "1d";
-    let chartRanges = {};
+	let selectedRange = "1d";
 	let loadedRange = null;
 	let pendingRange = null;
 	let activeLogController = null;
@@ -2257,9 +2256,17 @@ OSApp.Sensors.displayLogs = function (_callback) {
                 <label for="show-inactive-sensors">${OSApp.Language._("Show Inactive")}</label>
                 <input type="checkbox" name="show-inactive-sensors" id="show-inactive-sensors">
             </div>
-            <div class="sensor-log-filter-actions">
-                <input type="button" class="sensor-log-download-btn" value="${OSApp.Language._("Download All")}" disabled>
-                <input type="button" class="sensor-log-delete-all-btn" value="${OSApp.Language._("Delete All")}">
+            <div class="sensor-log-global-controls">
+                <div class="sensor-log-control-group sensor-log-range-controls" data-role="controlgroup" data-type="horizontal">
+                    <input type="button" class="sensor-log-range-btn" data-range="3h" value="3H" aria-pressed="false">
+                    <input type="button" class="sensor-log-range-btn" data-range="1d" value="1D" aria-pressed="true">
+                    <input type="button" class="sensor-log-range-btn" data-range="1w" value="1W" aria-pressed="false">
+                    <input type="button" class="sensor-log-range-btn" data-range="all" value="${OSApp.Language._("All")}" aria-pressed="false">
+                </div>
+                <div class="sensor-log-control-group sensor-log-action-controls" data-role="controlgroup" data-type="horizontal">
+                    <input type="button" class="sensor-log-download-btn" value="${OSApp.Language._("Download All")}" disabled>
+                    <input type="button" class="sensor-log-delete-all-btn" value="${OSApp.Language._("Delete All")}">
+                </div>
             </div>
         </div>
     `);
@@ -2281,6 +2288,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
     `);
 	const $stopDelete = $progress.find(".sensor-log-stop-btn");
 	const $progressEstimate = $progress.find(".sensor-log-progress-estimate");
+	const $rangeButtons = $filterDiv.find(".sensor-log-range-btn");
 	content.append($filterDiv);
 	content.append($progress);
 	content.append($cards);
@@ -2531,10 +2539,6 @@ OSApp.Sensors.displayLogs = function (_callback) {
         activeCharts = [];
     }
 
-    function getChartRange(key) {
-        return chartRanges[key] || defaultRange;
-    }
-
 	function cancelPendingLogRequest() {
 		if (pendingRange == null) return;
 		requestSeq++;
@@ -2545,30 +2549,36 @@ OSApp.Sensors.displayLogs = function (_callback) {
 		hideLogProgress();
 	}
 
-    function selectRange(range, key, chart) {
-        const previousRange = key == null ? defaultRange : getChartRange(key);
-        if (key == null) {
-            defaultRange = range;
-        } else {
-            chartRanges[key] = range;
-        }
+	function updateRangeSelection() {
+		$rangeButtons.each(function() {
+			const selected = $(this).attr("data-range") === selectedRange;
+			$(this).attr("aria-pressed", selected ? "true" : "false");
+			$(this).closest(".ui-btn").toggleClass("sensor-log-range-selected", selected);
+		});
+	}
+
+	function updateChartRanges(range) {
+		activeCharts.forEach((chart) => {
+			if (typeof chart.sensorLogUpdateRange === "function") {
+				chart.sensorLogUpdateRange(range);
+			}
+		});
+	}
+
+    function selectRange(range) {
+        const previousRange = selectedRange;
+		selectedRange = range;
+		updateRangeSelection();
         if (loadedRange != null &&
             OSApp.Sensors.LOG_CHART_RANGES[range] <= OSApp.Sensors.LOG_CHART_RANGES[loadedRange]) {
 			cancelPendingLogRequest();
-            if (chart && typeof chart.sensorLogUpdateRange === "function") {
-                chart.sensorLogUpdateRange(range);
-            }
+			updateChartRanges(range);
             return;
         }
         updateContent(range, () => {
-            if (key == null) {
-                defaultRange = previousRange;
-            } else {
-                chartRanges[key] = previousRange;
-            }
-            if (chart && typeof chart.sensorLogUpdateRange === "function") {
-                chart.sensorLogUpdateRange(previousRange);
-            }
+			selectedRange = previousRange;
+			updateRangeSelection();
+			updateChartRanges(previousRange);
         });
     }
 
@@ -2614,21 +2624,11 @@ OSApp.Sensors.displayLogs = function (_callback) {
         });
 
         if (keys.length === 0) {
-			const rangeHasWiderData = !buf.noLogHeader && loadedRange !== "all";
+			const rangeHasWiderData = !buf.noLogHeader && selectedRange !== "all";
 			const emptyMessage = rangeHasWiderData
-				? OSApp.Language._("No sensor data in the selected time range. Older data may exist — choose a longer range below.")
+				? OSApp.Language._("No sensor data in the selected time range. Older data may exist; choose a longer range above.")
 				: OSApp.Language._("No sensor logs found.");
 			parent.append($("<p class='sensor-log-empty center'></p>").text(emptyMessage));
-            if (rangeHasWiderData) {
-                const $emptyControls = $("<div data-role='controlgroup' data-type='horizontal' class='sensor-log-empty-range-controls'></div>");
-                [ [ "1w", "1W" ], [ "all", OSApp.Language._("All") ] ].forEach((item) => {
-                    if (OSApp.Sensors.LOG_CHART_RANGES[item[0]] > OSApp.Sensors.LOG_CHART_RANGES[loadedRange]) {
-                        $("<input type='button'>").val(item[1]).on("click", () => selectRange(item[0], null, null)).appendTo($emptyControls);
-                    }
-                });
-                parent.append($emptyControls);
-                $emptyControls.controlgroup();
-            }
             return;
         }
 
@@ -2680,7 +2680,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
                     "data-type": "horizontal"
                 });
 
-                const $resetZoom = $('<input type="button">').val(OSApp.Language._("Reset"));
+                const $resetZoom = $('<input type="button">').val(OSApp.Language._("Reset Zoom"));
                 $resetZoom.on("click", () => {
                     chart.resetZoom();
                 });
@@ -2697,7 +2697,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
                     const csvRows = [ "sensor_uuid,sensor_name,timestamp,value,unit" ];
 					const downloadPoints = OSApp.Sensors.filterLogPointsByRange(
 						obj[key].data,
-						getChartRange(key),
+						selectedRange,
 						controller.settings && controller.settings.devt
 					);
                     downloadPoints.forEach((v) => {
@@ -2726,20 +2726,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
                     );
                 });
 
-				const $threeHour = $('<input type="button" value="3H">').on("click", () => {
-					selectRange("3h", key, chart);
-				});
-				const $day = $('<input type="button" value="1D">').on("click", () => {
-					selectRange("1d", key, chart);
-				});
-				const $week = $('<input type="button" value="1W">').on("click", () => {
-					selectRange("1w", key, chart);
-				});
-				const $all = $('<input type="button">').val(OSApp.Language._("All")).on("click", () => {
-					selectRange("all", key, chart);
-				});
-
-				$controls.append($threeHour, $day, $week, $all, $resetZoom, $download, $deleteLogs);
+				$controls.append($resetZoom, $download, $deleteLogs);
 
                 const $controlsWrap = $("<div>").addClass("sensor-chart-controls");
                 $controlsWrap.append($controls);
@@ -2751,7 +2738,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
                 $download.button();
                 $resetZoom.button();
 
-				update(getChartRange(key));
+				update(selectedRange);
         }
     }
 
@@ -2780,7 +2767,9 @@ OSApp.Sensors.displayLogs = function (_callback) {
 		if (!isCurrentContext()) return;
         const requestedRange = typeof range === "string" &&
             Object.prototype.hasOwnProperty.call(OSApp.Sensors.LOG_CHART_RANGES, range) ?
-            range : (loadedRange || defaultRange);
+			range : selectedRange;
+		selectedRange = requestedRange;
+		updateRangeSelection();
 		const seq = ++requestSeq;
 		pendingRange = requestedRange;
 		if (activeLogController) activeLogController.abort();
@@ -2930,22 +2919,29 @@ OSApp.Sensors.displayLogs = function (_callback) {
 			$progressEstimate.text(OSApp.Language._("Stopping after the current page") + "...").prop("hidden", false);
 		});
 
+		$rangeButtons.on("click", function() {
+			selectRange($(this).attr("data-range"));
+		});
+
         $filterDiv.find("input.sensor-log-download-btn").on("click", () => {
             OSApp.UIDom.areYouSure(
                 OSApp.Language._("Are you sure you want to download all log data?"),
                 warningDetail("This action can take a while depending on the number of log records."),
                 downloadAllLogs
             );
-        }).button()
-            .parent().addClass("sensor-log-download-btn");
+        });
 
-        $filterDiv.find(".sensor-log-delete-all-btn").on("click", () => {
+        const $deleteAll = $filterDiv.find("input.sensor-log-delete-all-btn").on("click", () => {
             OSApp.UIDom.areYouSure(
                 OSApp.Language._("Are you sure you want to delete all sensor logs?"),
                 "",
                 () => { deleteLogs(-1); }
             );
-        }).button().parent().addClass("sensor-log-delete-all-btn");
+        });
+
+		$filterDiv.find(".sensor-log-control-group").controlgroup();
+		$deleteAll.closest(".ui-btn").addClass("sensor-log-delete-all-btn");
+		updateRangeSelection();
 
 		$( "#sensor-logs" ).trigger("pagehide").remove();
 		$.mobile.pageContainer.append( page );
