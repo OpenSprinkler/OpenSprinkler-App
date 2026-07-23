@@ -36,11 +36,22 @@
 		<script src="vendor-js/libs.js"></script>
 		<script src="vendor-js/apexcharts.min.js"></script>
 		<script src="vendor-js/chart.js"></script>
+		<script src="vendor-js/vis-timeline-graph2d.min.js"></script>
+		<script>
+			// Chart zoom needs Hammer for touch gestures, but its mouse input
+			// conflicts with Chart.js's native drag-to-zoom handling.
+			window.Hammer = Object.create(window.vis.Hammer);
+			window.Hammer.Manager = function(element, options) {
+				return new window.vis.Hammer.Manager(element, Object.assign({}, options, {
+					inputClass: window.vis.Hammer.TouchInput,
+					touchAction: "pan-y"
+				}));
+			};
+		</script>
 		<script src="vendor-js/chartjs-plugin-zoom.min.js"></script>
 		<script src="vendor-js/chartjs-adapter-date-fns.bundle.min.js"></script>
 		<script src="vendor-js/jqm.js"></script>
 		<script src="vendor-js/dataTables-2.1.8.min.js"></script>
-		<script src="vendor-js/vis-timeline-graph2d.min.js"></script>
 
 		<!-- Load OSApp modules -->
 		<script src="js/modules/about.js"></script>

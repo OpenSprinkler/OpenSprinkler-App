@@ -819,6 +819,90 @@ describe("Sensor UI Checks", function () {
 		assert.strictEqual(OSApp.Sensors.filterLogPointsByRange(points, "all", 1700000000), points);
 	});
 
+	it("should share sensor log CSV files under Cordova", function () {
+		var controller = OSApp.currentSession.controller;
+		var originalSensors = controller.sensors;
+		var originalDescription = controller.sensor_desc;
+		var originalDevt = controller.settings.devt;
+		var cordovaDescriptor = Object.getOwnPropertyDescriptor(window, "cordova");
+		var originalPlugins = window.plugins;
+		var originalResolver = window.resolveLocalFileSystemURL;
+		var shareWithOptions = sinon.spy();
+		var truncate = sinon.spy(function () { this.onwriteend(); });
+		var write = sinon.spy(function () { this.onwriteend(); });
+		var writer = { truncate: truncate, write: write };
+		var fileEntry = {
+			nativeURL: "file:///cache/sensor-exports/sensor.csv",
+			createWriter: function (success) { success(writer); }
+		};
+		var staleRemove = sinon.spy(function (success) { success(); });
+		var staleEntry = { remove: staleRemove };
+		var reader = { readEntries: sinon.spy(function (success) { success([ staleEntry ]); }) };
+		var exportsDir = {
+			createReader: sinon.spy(function () { return reader; }),
+			getFile: sinon.spy(function (_filename, _options, success) { success(fileEntry); })
+		};
+		var directory = {
+			getDirectory: sinon.spy(function (_name, _options, success) { success(exportsDir); })
+		};
+		var createObjectURL = sinon.stub(URL, "createObjectURL");
+		var chart = { data: {}, destroy: sinon.spy(), resetZoom: sinon.spy(), update: sinon.spy() };
+		var chartConstructor = sinon.stub(window, "Chart").returns(chart);
+		var loading = sinon.stub($.mobile, "loading");
+		var changeHeader = sinon.stub(OSApp.UIDom, "changeHeader");
+		var sendToOS = sinon.stub(OSApp.Firmware, "sendToOS")
+			.returns($.Deferred().resolve(sensorLogBuffer()).promise());
+		var page;
+
+		function cleanup() {
+			if (page) page.trigger("pagehide").remove();
+			if (cordovaDescriptor) {
+				Object.defineProperty(window, "cordova", cordovaDescriptor);
+			} else {
+				delete window.cordova;
+			}
+			sendToOS.restore();
+			changeHeader.restore();
+			loading.restore();
+			chartConstructor.restore();
+			createObjectURL.restore();
+			window.plugins = originalPlugins;
+			window.resolveLocalFileSystemURL = originalResolver;
+			controller.settings.devt = originalDevt;
+			controller.sensors = originalSensors;
+			controller.sensor_desc = originalDescription;
+		}
+
+		try {
+			Object.defineProperty(window, "cordova", {
+				configurable: true,
+				value: { file: { cacheDirectory: "file:///cache/" } }
+			});
+			window.plugins = { socialsharing: { shareWithOptions: shareWithOptions } };
+			window.resolveLocalFileSystemURL = function (_url, success) { success(directory); };
+			controller.settings.devt = 1700000000;
+			controller.sensors = { sn: [ { uuid: 7, name: "Soil", unit: 1 } ] };
+			controller.sensor_desc = { units: [ { value: 1, short: "%" } ] };
+
+			OSApp.Sensors.displayLogs();
+			page = $("#sensor-logs");
+			page.find(".sensor-chart-controls input[value='Download']").trigger("click");
+
+			assert.isTrue(directory.getDirectory.calledOnce);
+			assert.strictEqual(directory.getDirectory.firstCall.args[0], "sensor-exports");
+			assert.isTrue(staleRemove.calledOnce);
+			assert.isTrue(exportsDir.getFile.calledOnce);
+			assert.match(exportsDir.getFile.firstCall.args[0], /^soil-uuid-7-\d{4}-\d{2}-\d{2}\.csv$/);
+			assert.isTrue(truncate.calledOnceWith(0));
+			assert.instanceOf(write.firstCall.args[0], Blob);
+			assert.isTrue(shareWithOptions.calledOnce);
+			assert.deepEqual(shareWithOptions.firstCall.args[0].files, [ "file:///cache/sensor-exports/sensor.csv" ]);
+			assert.isFalse(createObjectURL.called);
+		} finally {
+			cleanup();
+		}
+	});
+
 	it("should fetch wider chart ranges on demand and cache the largest range", function () {
 		var controller = OSApp.currentSession.controller;
 		var originalSensors = controller.sensors;
@@ -943,6 +1027,7 @@ describe("Sensor UI Checks", function () {
 				algorithm: "min-max",
 				threshold: 2000
 			});
+			assert.isTrue(chartConfigs[0].options.plugins.zoom.zoom.pinch.enabled);
 			assert.deepEqual(
 				charts[0].data.datasets[0].data.map(function (point) { return point.x; }),
 				[ 1700000000000, 1700000002000 ]
