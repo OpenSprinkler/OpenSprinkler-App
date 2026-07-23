@@ -1487,6 +1487,15 @@ button[id^="start_1-"] {
     flex: 0 0 auto;
 }
 
+/* JQM's default .ui-btn looks oversized for these secondary log controls on
+   touch devices. Shrinking the font also scales its em-based padding. */
+@media (pointer: coarse) {
+    .sensor-log-global-controls .ui-btn,
+    .sensor-chart-controls .ui-btn {
+        font-size: 12.5px;
+    }
+}
+
 .sensor-log-global-controls .sensor-log-range-selected {
     background-color: #16a085 !important;
     border-color: #16a085 !important;

@@ -1534,6 +1534,8 @@ describe("Sensor UI Checks", function () {
 			assert.match(sendToOS.thirdCall.args[0],
 				/^\/jsl\?pw=&fmt=binary&after=\d+&count=max$/);
 			assert.equal(sendToOS.thirdCall.args[1], "arraybuffer");
+			assert.isTrue(loading.calledWith("show"));
+			assert.isTrue(loading.calledWith("hide"));
 		} finally {
 			if (page) page.trigger("pagehide").remove();
 			sendToOS.restore();

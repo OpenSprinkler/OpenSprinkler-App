@@ -2904,7 +2904,10 @@ OSApp.Sensors.displayLogs = function (_callback) {
         if (deletionActive) return;
         if (Number(uuid) === -1) {
             $.mobile.loading("show");
-            OSApp.Firmware.sendToOS("/dsl?pw=&uuid=-1").always(() => updateContent("1d"));
+            OSApp.Firmware.sendToOS("/dsl?pw=&uuid=-1").always(() => {
+                $.mobile.loading("hide");
+                updateContent("1d");
+            });
             return;
         }
 
