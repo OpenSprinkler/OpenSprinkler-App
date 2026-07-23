@@ -655,6 +655,26 @@ describe("Sensor UI Checks", function () {
 		}).finally(function () { sendToOS.restore(); });
 	});
 
+	it("should not retry a deterministic sensor-log firmware error", function () {
+		var firmwareError = { result: 18 };
+		var sendToOS = sinon.stub(OSApp.Firmware, "sendToOS")
+			.returns($.Deferred().reject(firmwareError).promise());
+
+		return new Promise(function (resolve, reject) {
+			OSApp.Sensors.fetchAllLogPages()
+				.done(function () { reject(new Error("Firmware error was accepted")); })
+				.fail(function (error) {
+					try {
+						assert.strictEqual(error, firmwareError);
+						assert.isTrue(sendToOS.calledOnce);
+						resolve();
+					} catch (assertionError) {
+						reject(assertionError);
+					}
+				});
+		}).finally(function () { sendToOS.restore(); });
+	});
+
 	it("should use larger sensor-log pages on OSPi and Linux controllers", function () {
 		var isOSPi = sinon.stub(OSApp.Firmware, "isOSPi");
 		var getHWVersion = sinon.stub(OSApp.Firmware, "getHWVersion");
@@ -1276,6 +1296,9 @@ describe("Sensor UI Checks", function () {
 				"arraybuffer-response"
 			));
 			assert.isTrue(downloadButton.prop("disabled"));
+			assert.isTrue(page.find(".sensor-log-range-btn").first().prop("disabled"));
+			assert.isTrue(page.find(".sensor-log-delete-btn input").prop("disabled"));
+			assert.isTrue(page.find("input.sensor-log-delete-all-btn").prop("disabled"));
 			assert.isFalse(loading.called);
 			assert.isFalse(page.find(".sensor-log-progress").prop("hidden"));
 			assert.equal(page.find(".sensor-log-progress-label").text(), "Loading log data: 0 (0%)");
@@ -1293,6 +1316,8 @@ describe("Sensor UI Checks", function () {
 			assert.isFalse(loading.called);
 				assert.isTrue(page.find(".sensor-log-progress").prop("hidden"));
 				assert.isFalse(downloadButton.prop("disabled"));
+				assert.isFalse(page.find(".sensor-log-range-btn").first().prop("disabled"));
+				assert.isFalse(page.find(".sensor-log-delete-btn input").prop("disabled"));
 				assert.isFalse(showError.called);
 				return downloadedBlob.text();
 			}).then(function (csv) {
@@ -1433,6 +1458,8 @@ describe("Sensor UI Checks", function () {
 			assert.include(page.find(".sensor-log-progress-label").text(), "Deleting sensor log");
 			assert.isFalse(page.find(".sensor-log-stop-btn").prop("hidden"));
 			assert.isTrue(page.find(".sensor-log-delete-btn input").prop("disabled"));
+			assert.isTrue(page.find(".sensor-log-range-btn").first().prop("disabled"));
+			assert.isTrue(page.find("input.sensor-log-download-btn").prop("disabled"));
 			assert.isFalse(loading.calledWith("show"));
 
 			fakeNow = 6000;
@@ -1455,6 +1482,66 @@ describe("Sensor UI Checks", function () {
 				assert.equal(sendToOS.getCall(4).args[1], "arraybuffer");
 				assert.isTrue(page.find(".sensor-log-progress").prop("hidden"));
 				assert.isFalse(page.find("input.sensor-log-delete-all-btn").prop("disabled"));
+				assert.isFalse(page.find(".sensor-log-range-btn").first().prop("disabled"));
+				assert.isFalse(page.find("input.sensor-log-download-btn").prop("disabled"));
+			}).finally(cleanup);
+		} catch (error) {
+			cleanup();
+			throw error;
+		}
+	});
+
+	it("should refresh after a later sensor-log deletion page fails", function () {
+		var controller = OSApp.currentSession.controller;
+		var originalSensors = controller.sensors;
+		var originalDescription = controller.sensor_desc;
+		var firstDeletePage = $.Deferred();
+		var secondDeletePage = $.Deferred();
+		var chart = { data: {}, destroy: sinon.spy(), resetZoom: sinon.spy(), update: sinon.spy() };
+		var chartConstructor = sinon.stub(window, "Chart").returns(chart);
+		var loading = sinon.stub($.mobile, "loading");
+		var changeHeader = sinon.stub(OSApp.UIDom, "changeHeader");
+		var areYouSure = sinon.stub(OSApp.UIDom, "areYouSure").callsFake(function (_t1, _t2, success) {
+			if (success) success();
+		});
+		var sendToOS = sinon.stub(OSApp.Firmware, "sendToOS");
+		var page;
+
+		function cleanup() {
+			if (page) page.trigger("pagehide").remove();
+			sendToOS.restore();
+			areYouSure.restore();
+			changeHeader.restore();
+			loading.restore();
+			chartConstructor.restore();
+			controller.sensors = originalSensors;
+			controller.sensor_desc = originalDescription;
+		}
+
+		try {
+			controller.sensors = { sn: [ { uuid: 7, name: "Soil", unit: 1 } ] };
+			controller.sensor_desc = { units: [ { value: 1, short: "%" } ] };
+			sendToOS.onFirstCall().returns($.Deferred().resolve(sensorLogBuffer()).promise());
+			sendToOS.onSecondCall().returns(firstDeletePage.promise());
+			sendToOS.onThirdCall().returns(secondDeletePage.promise());
+			sendToOS.onCall(3).returns($.Deferred().resolve(sensorLogBuffer()).promise());
+
+			OSApp.Sensors.displayLogs();
+			page = $("#sensor-logs");
+			page.find(".sensor-log-delete-btn input").trigger("click");
+
+			firstDeletePage.resolve({ result: 1, next: 819, total: 40950, deleted: 4, done: 0 });
+			return new Promise(function (resolve) { setTimeout(resolve, 0); }).then(function () {
+				assert.equal(sendToOS.thirdCall.args[0],
+					"/dsl?pw=&uuid=7&page=1&cursor=819&count=16384");
+				secondDeletePage.reject({ status: 500, statusText: "error" });
+				return new Promise(function (resolve) { setTimeout(resolve, 0); });
+			}).then(function () {
+				assert.match(sendToOS.getCall(3).args[0],
+					/^\/jsl\?pw=&fmt=binary&after=\d+&count=max$/);
+				assert.equal(sendToOS.getCall(3).args[1], "arraybuffer");
+				assert.isFalse(page.find(".sensor-log-range-btn").first().prop("disabled"));
+				assert.isFalse(page.find(".sensor-log-delete-btn input").prop("disabled"));
 			}).finally(cleanup);
 		} catch (error) {
 			cleanup();

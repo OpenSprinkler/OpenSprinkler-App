@@ -26,6 +26,7 @@ var cacheFiles = [
 
 // App main javascript
 cacheFiles = cacheFiles.concat([
+	"/js/chart-touch.js",
 	"/js/home.js",
 	"/js/main.js",
 	"/js/map.js",

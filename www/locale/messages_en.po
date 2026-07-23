@@ -2047,9 +2047,6 @@ msgstr ""
 msgid "No sensor data in the selected time range. Older data may exist; choose a longer range above."
 msgstr ""
 
-msgid "Are you sure you want to delete the log for"
-msgstr ""
-
 msgid "Failed to load sensor logs"
 msgstr ""
 

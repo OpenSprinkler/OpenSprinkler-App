@@ -178,6 +178,7 @@ OSApp.Sensors.fetchAllLogPages = function (options) {
     }
 
     function isTransientFailure(error) {
+        if (error && typeof error.result === "number") return false;
         return !error || (error.status == null && error.statusText == null) ||
             error.status === 0 || error.status >= 500 ||
             error.statusText === "timeout" || error.statusText === "error";
@@ -2244,6 +2245,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
 	let deletionStopRequested = false;
 	let deletionStartedAt = 0;
 	let deletionPagesCompleted = 0;
+	let exclusiveLogOperation = null;
 
 	function isCurrentContext(seq) {
 		return !disposed && (seq == null || seq === requestSeq) &&
@@ -2542,6 +2544,29 @@ OSApp.Sensors.displayLogs = function (_callback) {
         try { $buttons.button("refresh"); } catch { /* not enhanced yet */ }
     }
 
+	function updateActionAvailability() {
+		const passiveActionsEnabled = exclusiveLogOperation === null && pendingRange === null;
+		const downloadAvailable = passiveActionsEnabled && cachedData && !cachedData.noLogHeader;
+		setDownloadAllEnabled(!!downloadAvailable);
+		setDeleteActionsEnabled(passiveActionsEnabled);
+
+		$rangeButtons.prop("disabled", exclusiveLogOperation !== null);
+		try { $rangeButtons.button("refresh"); } catch { /* not enhanced yet */ }
+	}
+
+	function beginExclusiveLogOperation(operation) {
+		if (exclusiveLogOperation !== null || pendingRange !== null) return false;
+		exclusiveLogOperation = operation;
+		updateActionAvailability();
+		return true;
+	}
+
+	function endExclusiveLogOperation(operation) {
+		if (exclusiveLogOperation === operation) {
+			exclusiveLogOperation = null;
+		}
+	}
+
     function sensorLogCsvRows(buffer, sensorByUuid, unitByValue) {
         const rows = [];
         const view = new DataView(buffer);
@@ -2565,7 +2590,9 @@ OSApp.Sensors.displayLogs = function (_callback) {
 		if (!isCurrentContext()) {
 			return $.Deferred().reject({ status: 0, statusText: "stale" }).promise();
         }
-        setDownloadAllEnabled(false);
+		if (!beginExclusiveLogOperation("download")) {
+			return $.Deferred().reject({ status: 0, statusText: "busy" }).promise();
+		}
         setLoadingProgress(0, 0);
         const csvParts = [ "sensor_uuid,sensor_name,timestamp,value,unit\r\n" ];
         const sensorByUuid = {};
@@ -2597,8 +2624,9 @@ OSApp.Sensors.displayLogs = function (_callback) {
             })
             .always(() => {
 				if (!isCurrentContext()) return;
+				endExclusiveLogOperation("download");
 				hideLogProgress();
-				setDownloadAllEnabled(!(cachedData && cachedData.noLogHeader));
+				updateActionAvailability();
             });
     }
 
@@ -2618,6 +2646,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
 		activeLogController = null;
 		$.mobile.loading("hide");
 		hideLogProgress();
+		updateActionAvailability();
 	}
 
 	function updateRangeSelection() {
@@ -2637,6 +2666,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
 	}
 
     function selectRange(range) {
+		if (exclusiveLogOperation !== null) return;
         const previousRange = selectedRange;
 		selectedRange = range;
 		updateRangeSelection();
@@ -2822,11 +2852,11 @@ OSApp.Sensors.displayLogs = function (_callback) {
 			parseData($cards, cachedData, controller.sensors.sn);
         }
         $cards.find(".sensor-log-card-inactive").toggle(!showCurrentOnly);
+		updateActionAvailability();
     }
 
     function renderCards() {
 		if (!cachedData || !isCurrentContext()) return;
-        setDownloadAllEnabled(!cachedData.noLogHeader);
         destroyActiveCharts();
         $cards.empty();
 		parseData($cards, cachedData, controller.sensors.sn);
@@ -2843,6 +2873,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
 		updateRangeSelection();
 		const seq = ++requestSeq;
 		pendingRange = requestedRange;
+		updateActionAvailability();
 		if (activeLogController) activeLogController.abort();
 		const requestController = typeof AbortController === "function" ? new AbortController() : null;
 		activeLogController = requestController;
@@ -2895,18 +2926,20 @@ OSApp.Sensors.displayLogs = function (_callback) {
 				if (activeLogController === requestController) activeLogController = null;
 				pendingRange = null;
 				hideLogProgress();
+				updateActionAvailability();
                 if (typeof rollback === "function") rollback();
                 OSApp.Errors.showError(OSApp.Language._("Failed to load sensor logs"));
             });
     }
 
     function deleteLogs(uuid) {
-        if (deletionActive) return;
+        if (deletionActive || !beginExclusiveLogOperation("delete")) return;
         if (Number(uuid) === -1) {
             $.mobile.loading("show");
             OSApp.Firmware.sendToOS("/dsl?pw=&uuid=-1").always(() => {
+				endExclusiveLogOperation("delete");
                 $.mobile.loading("hide");
-                updateContent("1d");
+				if (isCurrentContext()) updateContent("1d");
             });
             return;
         }
@@ -2916,14 +2949,16 @@ OSApp.Sensors.displayLogs = function (_callback) {
         deletionStartedAt = Date.now();
         deletionPagesCompleted = 0;
         activeDeleteController = typeof AbortController === "function" ? new AbortController() : null;
-        setDeleteActionsEnabled(false);
         setLogProgress(0, "Deleting sensor log", { showStop: true });
         let refreshAfterDeletion = false;
         OSApp.Sensors.deleteLogPages(Number(uuid), {
             signal: activeDeleteController ? activeDeleteController.signal : undefined,
             isCurrent: isCurrentContext,
             shouldStop: () => deletionStopRequested,
-            onProgress: setDeletionProgress
+            onProgress: (progress) => {
+				refreshAfterDeletion = true;
+				setDeletionProgress(progress);
+			}
         })
             .done(() => {
                 refreshAfterDeletion = true;
@@ -2939,13 +2974,15 @@ OSApp.Sensors.displayLogs = function (_callback) {
             .always(() => {
                 activeDeleteController = null;
                 deletionActive = false;
+				endExclusiveLogOperation("delete");
                 if (!isCurrentContext()) return;
                 hideLogProgress();
-                setDeleteActionsEnabled(true);
                 if (refreshAfterDeletion) {
                     // Reconcile the partially or fully deleted cache with a bounded
                     // request; wider history remains available on explicit selection.
                     updateContent("1d");
+				} else {
+					updateActionAvailability();
                 }
             });
     }
