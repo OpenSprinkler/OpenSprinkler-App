@@ -440,6 +440,17 @@ OSApp.Sensors.getChartRangeStart = function (range, nowSeconds) {
     }
 };
 
+OSApp.Sensors.getLogNowSeconds = function (controller) {
+    controller = controller || {};
+    const localControllerTime = Number(controller.settings && controller.settings.devt);
+    const timezone = Number(controller.options && controller.options.tz);
+    // /ja reports timezone-adjusted devt, while /jsl records use UTC timestamps.
+    if (Number.isFinite(localControllerTime) && localControllerTime > 0 && Number.isFinite(timezone)) {
+        return Math.floor(localControllerTime - (timezone - 48) * 15 * 60);
+    }
+    return Math.floor(Date.now() / 1000);
+};
+
 OSApp.Sensors.getChartLogURL = function (range, nowSeconds) {
     const after = OSApp.Sensors.getChartRangeStart(range || "1d", nowSeconds);
     return "/jsl?pw=&fmt=binary&" + (after == null ? "" : `after=${after}&`) + "count=max";
@@ -2803,7 +2814,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
 							data: OSApp.Sensors.filterLogPointsByRange(
 								obj[key].data,
 								range,
-								controller.settings && controller.settings.devt
+								OSApp.Sensors.getLogNowSeconds(controller)
 							)
 						} ]
 					};
@@ -2835,7 +2846,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
 					const downloadPoints = OSApp.Sensors.filterLogPointsByRange(
 						obj[key].data,
 						selectedRange,
-						controller.settings && controller.settings.devt
+						OSApp.Sensors.getLogNowSeconds(controller)
 					);
                     downloadPoints.forEach((v) => {
                         csvRows.push(OSApp.Sensors.formatLogCsvRow(key, sensorName, v.x, v.y, unit));
@@ -2924,10 +2935,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
 			setLoadingBanner("Loading sensor data");
 		}
 
-		const controllerNow = Number(controller.settings && controller.settings.devt);
-		const nowSeconds = Number.isFinite(controllerNow) && controllerNow > 0
-			? Math.floor(controllerNow)
-			: Math.floor(Date.now() / 1000);
+		const nowSeconds = OSApp.Sensors.getLogNowSeconds(controller);
 		const before = requestedRange === "1d" || requestedRange === "1w" ? nowSeconds : undefined;
 		const jslRequest = isPaginated
 			? OSApp.Sensors.fetchAllLogPages({
@@ -2938,7 +2946,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
 				onProgress: (progress, processed) => setLoadingProgress(progress, processed, true)
 			})
 			: OSApp.Firmware.sendToOS(
-				OSApp.Sensors.getChartLogURL(requestedRange, controller.settings && controller.settings.devt),
+				OSApp.Sensors.getChartLogURL(requestedRange, nowSeconds),
 				"arraybuffer",
 				{ signal: requestSignal }
 			);
@@ -2958,11 +2966,13 @@ OSApp.Sensors.displayLogs = function (_callback) {
                 cachedData = buf;
                 loadedRange = requestedRange;
                 renderCards();
-            })
-			.fail(() => {
-				if (!isCurrentContext(seq)) return;
-				if (activeLogController === requestController) activeLogController = null;
-				pendingRange = null;
+				})
+				.fail(() => {
+					if (!isCurrentContext(seq)) return;
+					requestSeq++;
+					if (requestController) requestController.abort();
+					if (activeLogController === requestController) activeLogController = null;
+					pendingRange = null;
 				pendingRangeRollback = null;
 				hideLogProgress();
 				updateActionAvailability();

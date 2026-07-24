@@ -563,6 +563,17 @@ describe("Sensor UI Checks", function () {
 		);
 	});
 
+	it("should convert controller-local time to UTC for sensor log ranges", function () {
+		assert.equal(OSApp.Sensors.getLogNowSeconds({
+			settings: { devt: 1700000000 },
+			options: { tz: 28 }
+		}), 1700018000);
+		assert.equal(OSApp.Sensors.getLogNowSeconds({
+			settings: { devt: 1700000000 },
+			options: { tz: 52 }
+		}), 1699996400);
+	});
+
 	it("should paginate all logs by physical cursor and continue through empty pages", function () {
 		var firstPage = sensorLogBuffer();
 		var progress = [];
@@ -937,6 +948,7 @@ describe("Sensor UI Checks", function () {
 		var originalSensors = controller.sensors;
 		var originalDescription = controller.sensor_desc;
 		var originalDevt = controller.settings.devt;
+		var originalTimezone = controller.options.tz;
 		var chart = {
 			data: {},
 			destroy: sinon.spy(),
@@ -946,7 +958,7 @@ describe("Sensor UI Checks", function () {
 		var chartConstructor = sinon.stub(window, "Chart").returns(chart);
 		var loading = sinon.stub($.mobile, "loading");
 		var changeHeader = sinon.stub(OSApp.UIDom, "changeHeader");
-		// The chart window must follow controller time even when the client clock differs.
+		// The chart window must convert controller-local time to the UTC basis used by sensor logs.
 		var now = sinon.stub(Date, "now").returns(1800000000 * 1000);
 		var allRecords = sensorLogBuffer(20001);
 		var sendToOS = sinon.stub(OSApp.Firmware, "sendToOS").callsFake(function (url, type) {
@@ -962,13 +974,14 @@ describe("Sensor UI Checks", function () {
 
 		try {
 			controller.settings.devt = 1700000000;
+			controller.options.tz = 28;
 			controller.sensors = { sn: [ { uuid: 7, name: "Soil", unit: 1 } ] };
 			controller.sensor_desc = { units: [ { value: 1, short: "%" } ] };
 			OSApp.Sensors.displayLogs();
 			page = $("#sensor-logs");
 
 			assert.isTrue(sendToOS.firstCall.calledWith(
-				"/jsl?pw=&fmt=binary&after=1699989200&count=max",
+				"/jsl?pw=&fmt=binary&after=1700007200&count=max",
 				"arraybuffer"
 			));
 			assert.lengthOf(page.find('input[value="3H"], input[value="1D"], input[value="1W"], input[value="All"]'), 4);
@@ -983,7 +996,7 @@ describe("Sensor UI Checks", function () {
 
 			page.find('input[value="1D"]').trigger("click");
 			assert.isTrue(sendToOS.secondCall.calledWith(
-				"/jsl?pw=&page=1&after=1699913600&before=1700000000&cursor=0&count=5000&fmt=binary",
+				"/jsl?pw=&page=1&after=1699931600&before=1700018000&cursor=0&count=5000&fmt=binary",
 				"arraybuffer-response"
 			));
 
@@ -992,7 +1005,7 @@ describe("Sensor UI Checks", function () {
 
 			page.find('input[value="1W"]').trigger("click");
 			assert.isTrue(sendToOS.getCall(2).calledWith(
-				"/jsl?pw=&page=1&after=1699395200&before=1700000000&cursor=0&count=5000&fmt=binary",
+				"/jsl?pw=&page=1&after=1699413200&before=1700018000&cursor=0&count=5000&fmt=binary",
 				"arraybuffer-response"
 			));
 
@@ -1013,6 +1026,7 @@ describe("Sensor UI Checks", function () {
 			chartConstructor.restore();
 			now.restore();
 			controller.settings.devt = originalDevt;
+			controller.options.tz = originalTimezone;
 			controller.sensors = originalSensors;
 			controller.sensor_desc = originalDescription;
 		}
@@ -1023,6 +1037,7 @@ describe("Sensor UI Checks", function () {
 		var originalSensors = controller.sensors;
 		var originalDescription = controller.sensor_desc;
 		var originalDevt = controller.settings.devt;
+		var originalTimezone = controller.options.tz;
 		var charts = [];
 		var chartConfigs = [];
 		var chartConstructor = sinon.stub(window, "Chart").callsFake(function (_canvas, config) {
@@ -1037,12 +1052,13 @@ describe("Sensor UI Checks", function () {
 			.returns($.Deferred().resolve(sensorLogBuffer(
 				4,
 				[ 7, 8 ],
-				[ 1700000002, 1700000002, 1700000000, 1700000000 ]
+				[ 1700017998, 1700017998, 1700017996, 1700017996 ]
 			)).promise());
 		var page;
 
 		try {
 			controller.settings.devt = 1700000000;
+			controller.options.tz = 28;
 			controller.sensors = { sn: [
 				{ uuid: 7, name: "Soil", unit: 1 },
 				{ uuid: 8, name: "Temperature", unit: 2 }
@@ -1063,7 +1079,7 @@ describe("Sensor UI Checks", function () {
 			assert.isTrue(chartConfigs[0].options.plugins.zoom.zoom.pinch.enabled);
 			assert.deepEqual(
 				charts[0].data.datasets[0].data.map(function (point) { return point.x; }),
-				[ 1700000000000, 1700000002000 ]
+				[ 1700017996000, 1700017998000 ]
 			);
 
 			assert.lengthOf(page.find(".sensor-log-card .sensor-log-range-btn"), 0);
@@ -1088,6 +1104,7 @@ describe("Sensor UI Checks", function () {
 			loading.restore();
 			chartConstructor.restore();
 			controller.settings.devt = originalDevt;
+			controller.options.tz = originalTimezone;
 			controller.sensors = originalSensors;
 			controller.sensor_desc = originalDescription;
 		}
@@ -1098,6 +1115,7 @@ describe("Sensor UI Checks", function () {
 		var originalSensors = controller.sensors;
 		var originalDescription = controller.sensor_desc;
 		var originalDevt = controller.settings.devt;
+		var originalTimezone = controller.options.tz;
 		var allRequest = $.Deferred();
 		var charts = [];
 		var chartConstructor = sinon.stub(window, "Chart").callsFake(function () {
@@ -1119,6 +1137,7 @@ describe("Sensor UI Checks", function () {
 
 		try {
 			controller.settings.devt = 1700000000;
+			controller.options.tz = 28;
 			controller.sensors = { sn: [
 				{ uuid: 7, name: "Soil", unit: 1 },
 				{ uuid: 8, name: "Temperature", unit: 2 }
@@ -1151,7 +1170,7 @@ describe("Sensor UI Checks", function () {
 			assert.isTrue(allSignal.aborted);
 			assert.equal(sendToOS.callCount, 3);
 			assert.equal(sendToOS.thirdCall.args[0],
-				"/jsl?pw=&page=1&after=1699395200&before=1700000000&cursor=0&count=5000&fmt=binary");
+				"/jsl?pw=&page=1&after=1699413200&before=1700018000&cursor=0&count=5000&fmt=binary");
 			allRequest.resolve(pagedLogResponse(records, 4, 4, true));
 
 			assert.lengthOf(charts, 4);
@@ -1167,6 +1186,60 @@ describe("Sensor UI Checks", function () {
 			chartConstructor.restore();
 			now.restore();
 			controller.settings.devt = originalDevt;
+			controller.options.tz = originalTimezone;
+			controller.sensors = originalSensors;
+			controller.sensor_desc = originalDescription;
+		}
+	});
+
+	it("should abort a paginated log request when uncached sensor descriptors fail", function () {
+		var controller = OSApp.currentSession.controller;
+		var originalSensors = controller.sensors;
+		var originalDescription = controller.sensor_desc;
+		var originalDevt = controller.settings.devt;
+		var originalTimezone = controller.options.tz;
+		var pageRequest = $.Deferred();
+		var chart = { data: {}, destroy: sinon.spy(), resetZoom: sinon.spy(), update: sinon.spy() };
+		var chartConstructor = sinon.stub(window, "Chart").returns(chart);
+		var loading = sinon.stub($.mobile, "loading");
+		var changeHeader = sinon.stub(OSApp.UIDom, "changeHeader");
+		var showError = sinon.stub(OSApp.Errors, "showError");
+		var sendToOS = sinon.stub(OSApp.Firmware, "sendToOS");
+		var page;
+
+		try {
+			controller.settings.devt = 1700000000;
+			controller.options.tz = 28;
+			controller.sensors = { sn: [ { uuid: 7, name: "Soil", unit: 1 } ] };
+			controller.sensor_desc = { units: [ { value: 1, short: "%" } ] };
+			sendToOS.onFirstCall().returns($.Deferred().resolve(sensorLogBuffer()).promise());
+			sendToOS.onSecondCall().returns(pageRequest.promise());
+			sendToOS.onThirdCall().returns(
+				$.Deferred().reject({ status: 0, statusText: "error" }).promise()
+			);
+
+			OSApp.Sensors.displayLogs();
+			page = $("#sensor-logs");
+			controller.sensor_desc = null;
+			page.find(".sensor-log-range-btn[data-range='1d']").trigger("click");
+
+			var signal = sendToOS.secondCall.args[2].signal;
+			assert.isTrue(signal.aborted);
+			assert.isTrue(page.find(".sensor-log-progress").prop("hidden"));
+			assert.isTrue(showError.calledOnce);
+			assert.equal(page.find(".sensor-log-range-btn[data-range='3h']").attr("aria-pressed"), "true");
+
+			pageRequest.resolve(pagedLogResponse(sensorLogBuffer(), 1, 1, true, 0, 1));
+			assert.isTrue(page.find(".sensor-log-progress").prop("hidden"));
+		} finally {
+			if (page) page.trigger("pagehide").remove();
+			sendToOS.restore();
+			showError.restore();
+			changeHeader.restore();
+			loading.restore();
+			chartConstructor.restore();
+			controller.settings.devt = originalDevt;
+			controller.options.tz = originalTimezone;
 			controller.sensors = originalSensors;
 			controller.sensor_desc = originalDescription;
 		}
@@ -1328,6 +1401,7 @@ describe("Sensor UI Checks", function () {
 		var originalSensors = controller.sensors;
 		var originalDescription = controller.sensor_desc;
 		var originalDevt = controller.settings.devt;
+		var originalTimezone = controller.options.tz;
 		var chart = { data: {}, destroy: sinon.spy(), resetZoom: sinon.spy(), update: sinon.spy() };
 		var chartConstructor = sinon.stub(window, "Chart").returns(chart);
 		var loading = sinon.stub($.mobile, "loading");
@@ -1338,6 +1412,7 @@ describe("Sensor UI Checks", function () {
 
 		try {
 			controller.settings.devt = 1700000000;
+			controller.options.tz = 28;
 			controller.sensors = { sn: [ { uuid: 7, name: "Soil", unit: 1 } ] };
 			controller.sensor_desc = { units: [ { value: 1, short: "%" } ] };
 			sendToOS.onFirstCall().returns($.Deferred().resolve(sensorLogBuffer(0)).promise());
@@ -1353,7 +1428,7 @@ describe("Sensor UI Checks", function () {
 
 			page.find(".sensor-log-range-btn[data-range='1w']").trigger("click");
 			assert.isTrue(sendToOS.secondCall.calledWith(
-				"/jsl?pw=&page=1&after=1699395200&before=1700000000&cursor=0&count=5000&fmt=binary",
+				"/jsl?pw=&page=1&after=1699413200&before=1700018000&cursor=0&count=5000&fmt=binary",
 				"arraybuffer-response"
 			));
 			assert.isTrue(chartConstructor.calledOnce);
@@ -1366,6 +1441,7 @@ describe("Sensor UI Checks", function () {
 			chartConstructor.restore();
 			now.restore();
 			controller.settings.devt = originalDevt;
+			controller.options.tz = originalTimezone;
 			controller.sensors = originalSensors;
 			controller.sensor_desc = originalDescription;
 		}
@@ -1546,6 +1622,8 @@ describe("Sensor UI Checks", function () {
 		var controller = OSApp.currentSession.controller;
 		var originalSensors = controller.sensors;
 		var originalDescription = controller.sensor_desc;
+		var originalDevt = controller.settings.devt;
+		var originalTimezone = controller.options.tz;
 		var firstDeletePage = $.Deferred();
 		var secondDeletePage = $.Deferred();
 		var thirdDeletePage = $.Deferred();
@@ -1572,11 +1650,15 @@ describe("Sensor UI Checks", function () {
 			loading.restore();
 			chartConstructor.restore();
 			now.restore();
+			controller.settings.devt = originalDevt;
+			controller.options.tz = originalTimezone;
 			controller.sensors = originalSensors;
 			controller.sensor_desc = originalDescription;
 		}
 
 		try {
+			controller.settings.devt = 1700000000;
+			controller.options.tz = 28;
 			controller.sensors = { sn: [ { uuid: 7, name: "Soil", unit: 1 } ] };
 			controller.sensor_desc = { units: [ { value: 1, short: "%" } ] };
 			sendToOS.onFirstCall().returns($.Deferred().resolve(sensorLogBuffer()).promise());
