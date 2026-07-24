@@ -141,15 +141,17 @@ OSApp.Sensors.formatLogCsvRow = function (uuid, sensorName, timestamp, value, un
 
 OSApp.Sensors.LOG_CHART_RANGES = { "3h": 0, "1d": 1, "1w": 2, "1m": 3, all: 4 };
 OSApp.Sensors.LOG_PAGE_SIZE = 5000;
+OSApp.Sensors.LOG_OTC_PAGE_SIZE = 2500;
 OSApp.Sensors.LOG_LINUX_PAGE_SIZE = 100000;
 OSApp.Sensors.LOG_PAGE_RETRY_LIMIT = 2;
 OSApp.Sensors.LOG_DELETE_PAGE_SIZE = 16384;
 
 OSApp.Sensors.getLogPageSize = function () {
     const hardware = OSApp.Firmware.getHWVersion();
-    return OSApp.Firmware.isOSPi() || hardware === "OSPi" || hardware === "Linux" || hardware === "Demo"
-        ? OSApp.Sensors.LOG_LINUX_PAGE_SIZE
-        : OSApp.Sensors.LOG_PAGE_SIZE;
+    if (OSApp.Firmware.isOSPi() || hardware === "OSPi" || hardware === "Linux" || hardware === "Demo") {
+        return OSApp.Sensors.LOG_LINUX_PAGE_SIZE;
+    }
+    return OSApp.currentSession.token ? OSApp.Sensors.LOG_OTC_PAGE_SIZE : OSApp.Sensors.LOG_PAGE_SIZE;
 };
 
 OSApp.Sensors.fetchAllLogPages = function (options) {
@@ -2236,16 +2238,20 @@ OSApp.Sensors.displayLogs = function (_callback) {
     let cachedData = null;
     let allCardsRendered = false;
     let disposed = false;
-	let selectedRange = "1d";
+	let selectedRange = "3h";
 	let loadedRange = null;
 	let pendingRange = null;
+	let pendingRangeRollback = null;
 	let activeLogController = null;
 	let activeDeleteController = null;
 	let deletionActive = false;
 	let deletionStopRequested = false;
 	let deletionStartedAt = 0;
 	let deletionPagesCompleted = 0;
+	let loadingStartedAt = 0;
+	let loadingPagesCompleted = 0;
 	let exclusiveLogOperation = null;
+	let $refreshButton = $();
 
 	function isCurrentContext(seq) {
 		return !disposed && (seq == null || seq === requestSeq) &&
@@ -2260,8 +2266,8 @@ OSApp.Sensors.displayLogs = function (_callback) {
             </div>
             <div class="sensor-log-global-controls">
                 <div class="sensor-log-control-group sensor-log-range-controls" data-role="controlgroup" data-type="horizontal">
-                    <input type="button" class="sensor-log-range-btn" data-range="3h" value="3H" aria-pressed="false">
-                    <input type="button" class="sensor-log-range-btn" data-range="1d" value="1D" aria-pressed="true">
+                    <input type="button" class="sensor-log-range-btn" data-range="3h" value="3H" aria-pressed="true">
+                    <input type="button" class="sensor-log-range-btn" data-range="1d" value="1D" aria-pressed="false">
                     <input type="button" class="sensor-log-range-btn" data-range="1w" value="1W" aria-pressed="false">
                     <input type="button" class="sensor-log-range-btn" data-range="all" value="${OSApp.Language._("All")}" aria-pressed="false">
                 </div>
@@ -2288,7 +2294,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
             <div class="sensor-log-progress-estimate" hidden></div>
         </div>
     `);
-	const $stopDelete = $progress.find(".sensor-log-stop-btn");
+	const $stopButton = $progress.find(".sensor-log-stop-btn");
 	const $progressEstimate = $progress.find(".sensor-log-progress-estimate");
 	const $rangeButtons = $filterDiv.find(".sensor-log-range-btn");
 	content.append($filterDiv);
@@ -2491,7 +2497,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
             $progress.find(".sensor-log-progress-fill").css("width", percentage + "%");
             $track.removeAttr("aria-busy").attr("aria-valuenow", percentage);
         }
-        $stopDelete.prop("hidden", !options.showStop);
+        $stopButton.prop("hidden", !options.showStop);
         $progressEstimate.text(options.detail || "").prop("hidden", !options.detail);
     }
 
@@ -2502,7 +2508,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
     function hideLogProgress() {
         $progress.prop("hidden", true).removeClass("sensor-log-progress-indeterminate");
         $progress.find(".sensor-log-progress-track").removeAttr("aria-busy");
-        $stopDelete.prop("hidden", true).prop("disabled", false).text(OSApp.Language._("Stop"));
+        $stopButton.prop("hidden", true).prop("disabled", false).text(OSApp.Language._("Stop"));
         $progressEstimate.prop("hidden", true).empty();
     }
 
@@ -2528,8 +2534,33 @@ OSApp.Sensors.displayLogs = function (_callback) {
         });
     }
 
-    function setLoadingProgress(progress, processed) {
-        setLogProgress(progress, "Loading log data", { processed: processed });
+    function formatLoadingEstimate(progress) {
+        if (!Number.isFinite(progress) || progress <= 0 || progress >= 1) return "";
+        loadingPagesCompleted++;
+        if (loadingPagesCompleted < 2) return "";
+
+        const elapsed = Date.now() - loadingStartedAt;
+        const remaining = elapsed * (1 - progress) / progress;
+        if (!Number.isFinite(remaining) || remaining <= 0) return "";
+        if (remaining < 60 * 1000) return OSApp.Language._("Less than a minute remaining");
+
+        const minutes = Math.ceil(remaining / (60 * 1000));
+        const message = minutes === 1 ? "About %d minute remaining" : "About %d minutes remaining";
+        return OSApp.Language._(message).replace("%d", minutes);
+    }
+
+    function setLoadingProgress(progress, processed, showStop) {
+        setLogProgress(progress, "Loading log data", {
+            processed: processed,
+            showStop: !!showStop,
+            detail: formatLoadingEstimate(progress)
+        });
+    }
+
+    function startLoadingProgress(showStop) {
+        loadingStartedAt = Date.now();
+        loadingPagesCompleted = 0;
+        setLoadingProgress(0, 0, showStop);
     }
 
     function warningDetail(message) {
@@ -2549,6 +2580,8 @@ OSApp.Sensors.displayLogs = function (_callback) {
 		const downloadAvailable = passiveActionsEnabled && cachedData && !cachedData.noLogHeader;
 		setDownloadAllEnabled(!!downloadAvailable);
 		setDeleteActionsEnabled(passiveActionsEnabled);
+		$refreshButton.prop("disabled", !passiveActionsEnabled);
+		try { $refreshButton.button("refresh"); } catch { /* not enhanced yet */ }
 
 		$rangeButtons.prop("disabled", exclusiveLogOperation !== null);
 		try { $rangeButtons.button("refresh"); } catch { /* not enhanced yet */ }
@@ -2593,7 +2626,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
 		if (!beginExclusiveLogOperation("download")) {
 			return $.Deferred().reject({ status: 0, statusText: "busy" }).promise();
 		}
-        setLoadingProgress(0, 0);
+        startLoadingProgress(false);
         const csvParts = [ "sensor_uuid,sensor_name,timestamp,value,unit\r\n" ];
         const sensorByUuid = {};
         const unitByValue = {};
@@ -2638,15 +2671,18 @@ OSApp.Sensors.displayLogs = function (_callback) {
         activeCharts = [];
     }
 
-	function cancelPendingLogRequest() {
+	function cancelPendingLogRequest(restoreRange) {
 		if (pendingRange == null) return;
+		const rollback = pendingRangeRollback;
 		requestSeq++;
 		pendingRange = null;
+		pendingRangeRollback = null;
 		if (activeLogController) activeLogController.abort();
 		activeLogController = null;
 		$.mobile.loading("hide");
 		hideLogProgress();
 		updateActionAvailability();
+		if (restoreRange && typeof rollback === "function") rollback();
 	}
 
 	function updateRangeSelection() {
@@ -2873,14 +2909,15 @@ OSApp.Sensors.displayLogs = function (_callback) {
 		updateRangeSelection();
 		const seq = ++requestSeq;
 		pendingRange = requestedRange;
+		pendingRangeRollback = rollback;
 		updateActionAvailability();
 		if (activeLogController) activeLogController.abort();
 		const requestController = typeof AbortController === "function" ? new AbortController() : null;
 		activeLogController = requestController;
 		const requestSignal = requestController ? requestController.signal : undefined;
-		const isPaginated = requestedRange === "1w" || requestedRange === "all";
+		const isPaginated = requestedRange === "1d" || requestedRange === "1w" || requestedRange === "all";
 		if (isPaginated) {
-			setLoadingProgress(0, 0);
+			startLoadingProgress(true);
 		} else {
 			// Single request: no measurable progress, so show an indeterminate
 			// banner in the same sticky position rather than a hidden spinner.
@@ -2891,14 +2928,14 @@ OSApp.Sensors.displayLogs = function (_callback) {
 		const nowSeconds = Number.isFinite(controllerNow) && controllerNow > 0
 			? Math.floor(controllerNow)
 			: Math.floor(Date.now() / 1000);
-		const before = requestedRange === "1w" ? nowSeconds : undefined;
+		const before = requestedRange === "1d" || requestedRange === "1w" ? nowSeconds : undefined;
 		const jslRequest = isPaginated
 			? OSApp.Sensors.fetchAllLogPages({
-				after: requestedRange === "1w" ? OSApp.Sensors.getChartRangeStart("1w", before) : undefined,
+				after: before == null ? undefined : OSApp.Sensors.getChartRangeStart(requestedRange, before),
 				before: before,
 				signal: requestSignal,
 				isCurrent: () => isCurrentContext(seq),
-				onProgress: setLoadingProgress
+				onProgress: (progress, processed) => setLoadingProgress(progress, processed, true)
 			})
 			: OSApp.Firmware.sendToOS(
 				OSApp.Sensors.getChartLogURL(requestedRange, controller.settings && controller.settings.devt),
@@ -2915,6 +2952,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
 				if (!isCurrentContext(seq)) return;
 				if (activeLogController === requestController) activeLogController = null;
 				pendingRange = null;
+				pendingRangeRollback = null;
 				hideLogProgress();
 				controller.sensor_desc = jsdData;
                 cachedData = buf;
@@ -2925,12 +2963,18 @@ OSApp.Sensors.displayLogs = function (_callback) {
 				if (!isCurrentContext(seq)) return;
 				if (activeLogController === requestController) activeLogController = null;
 				pendingRange = null;
+				pendingRangeRollback = null;
 				hideLogProgress();
 				updateActionAvailability();
                 if (typeof rollback === "function") rollback();
                 OSApp.Errors.showError(OSApp.Language._("Failed to load sensor logs"));
             });
     }
+
+	function refreshContent() {
+		if (pendingRange !== null || exclusiveLogOperation !== null) return;
+		updateContent();
+	}
 
     function deleteLogs(uuid) {
         if (deletionActive || !beginExclusiveLogOperation("delete")) return;
@@ -2940,7 +2984,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
 				endExclusiveLogOperation("delete");
 				if (!isCurrentContext()) return;
                 $.mobile.loading("hide");
-				updateContent("1d");
+				updateContent("3h");
             });
             return;
         }
@@ -2981,7 +3025,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
                 if (refreshAfterDeletion) {
                     // Reconcile the partially or fully deleted cache with a bounded
                     // request; wider history remains available on explicit selection.
-                    updateContent("1d");
+                    updateContent("3h");
 				} else {
 					updateActionAvailability();
                 }
@@ -2989,7 +3033,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
     }
 
     page
-		.on( "programrefresh", updateContent )
+		.on( "programrefresh", refreshContent )
 		.on( "pagehide", function() {
 			disposed = true;
 			requestSeq++;
@@ -3003,7 +3047,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
 		.on( "pagebeforeshow", function() {} );
 
     function begin() {
-		OSApp.UIDom.changeHeader( {
+		$refreshButton = $(OSApp.UIDom.changeHeader( {
 			title: OSApp.Language._( "Sensor Logs" ),
 			leftBtn: {
 				icon: "carat-l",
@@ -3014,20 +3058,24 @@ OSApp.Sensors.displayLogs = function (_callback) {
 			rightBtn: {
 				icon: "refresh",
 				text: OSApp.Language._( "Refresh" ),
-				on: updateContent
+				on: refreshContent
 			}
 
-		} );
+		} )).filter(".ui-btn-right");
 
         $filterDiv.find("input[type='checkbox']").on("change", function() {
             showCurrentOnly = !this.checked;
             applyFilter();
         });
 
-		$stopDelete.on("click", function() {
+		$stopButton.on("click", function() {
+			if (!deletionActive && pendingRange !== null) {
+				cancelPendingLogRequest(true);
+				return;
+			}
 			if (!deletionActive || deletionStopRequested) return;
 			deletionStopRequested = true;
-			$stopDelete.prop("disabled", true).text(OSApp.Language._("Stopping"));
+			$stopButton.prop("disabled", true).text(OSApp.Language._("Stopping"));
 			$progressEstimate.text(OSApp.Language._("Stopping after the current page") + "...").prop("hidden", false);
 		});
 

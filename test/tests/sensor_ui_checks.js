@@ -675,11 +675,13 @@ describe("Sensor UI Checks", function () {
 		}).finally(function () { sendToOS.restore(); });
 	});
 
-	it("should use larger sensor-log pages on OSPi and Linux controllers", function () {
+	it("should size sensor-log pages by controller class and OTC routing", function () {
 		var isOSPi = sinon.stub(OSApp.Firmware, "isOSPi");
 		var getHWVersion = sinon.stub(OSApp.Firmware, "getHWVersion");
+		var originalToken = OSApp.currentSession.token;
 
 		try {
+			OSApp.currentSession.token = undefined;
 			isOSPi.returns(true);
 			getHWVersion.returns("OSPi");
 			assert.equal(OSApp.Sensors.getLogPageSize(), 100000);
@@ -693,7 +695,14 @@ describe("Sensor UI Checks", function () {
 
 			getHWVersion.returns("3.3");
 			assert.equal(OSApp.Sensors.getLogPageSize(), 5000);
+
+			OSApp.currentSession.token = "OT0123456789abcdef0123456789abcd";
+			assert.equal(OSApp.Sensors.getLogPageSize(), 2500);
+
+			getHWVersion.returns("Linux");
+			assert.equal(OSApp.Sensors.getLogPageSize(), 100000);
 		} finally {
+			OSApp.currentSession.token = originalToken;
 			getHWVersion.restore();
 			isOSPi.restore();
 		}
@@ -959,7 +968,7 @@ describe("Sensor UI Checks", function () {
 			page = $("#sensor-logs");
 
 			assert.isTrue(sendToOS.firstCall.calledWith(
-				"/jsl?pw=&fmt=binary&after=1699913600&count=max",
+				"/jsl?pw=&fmt=binary&after=1699989200&count=max",
 				"arraybuffer"
 			));
 			assert.lengthOf(page.find('input[value="3H"], input[value="1D"], input[value="1W"], input[value="All"]'), 4);
@@ -969,25 +978,29 @@ describe("Sensor UI Checks", function () {
 			assert.lengthOf(page.find(".sensor-log-range-controls .sensor-log-range-btn"), 4);
 			assert.lengthOf(page.find(".sensor-log-action-controls input"), 2);
 			assert.lengthOf(page.find(".sensor-log-card .sensor-log-range-btn"), 0);
-			assert.equal(page.find(".sensor-log-range-btn[data-range='1d']").attr("aria-pressed"), "true");
-			assert.isTrue(page.find(".sensor-log-range-btn[data-range='1d']").closest(".ui-btn").hasClass("sensor-log-range-selected"));
+			assert.equal(page.find(".sensor-log-range-btn[data-range='3h']").attr("aria-pressed"), "true");
+			assert.isTrue(page.find(".sensor-log-range-btn[data-range='3h']").closest(".ui-btn").hasClass("sensor-log-range-selected"));
+
+			page.find('input[value="1D"]').trigger("click");
+			assert.isTrue(sendToOS.secondCall.calledWith(
+				"/jsl?pw=&page=1&after=1699913600&before=1700000000&cursor=0&count=5000&fmt=binary",
+				"arraybuffer-response"
+			));
 
 			page.find('input[value="3H"]').trigger("click");
-			assert.equal(sendToOS.callCount, 1);
-			assert.equal(page.find(".sensor-log-range-btn[data-range='3h']").attr("aria-pressed"), "true");
-			assert.equal(page.find(".sensor-log-range-btn[data-range='1d']").attr("aria-pressed"), "false");
+			assert.equal(sendToOS.callCount, 2);
 
 			page.find('input[value="1W"]').trigger("click");
-			assert.isTrue(sendToOS.secondCall.calledWith(
+			assert.isTrue(sendToOS.getCall(2).calledWith(
 				"/jsl?pw=&page=1&after=1699395200&before=1700000000&cursor=0&count=5000&fmt=binary",
 				"arraybuffer-response"
 			));
 
 			page.find('input[value="1D"]').trigger("click");
-			assert.equal(sendToOS.callCount, 2);
+			assert.equal(sendToOS.callCount, 3);
 
 			page.find('input[value="All"]').trigger("click");
-			assert.isTrue(sendToOS.getCall(2).calledWith(
+			assert.isTrue(sendToOS.getCall(3).calledWith(
 				"/jsl?pw=&page=1&cursor=0&count=5000&fmt=binary",
 				"arraybuffer-response"
 			));
@@ -1093,7 +1106,8 @@ describe("Sensor UI Checks", function () {
 			return chart;
 		});
 		var loading = sinon.stub($.mobile, "loading");
-		var changeHeader = sinon.stub(OSApp.UIDom, "changeHeader");
+		var header = $("<button class='ui-btn-left'></button><h3></h3><button class='ui-btn-right'></button>");
+		var changeHeader = sinon.stub(OSApp.UIDom, "changeHeader").returns(header);
 		var now = sinon.stub(Date, "now").returns(1700000000 * 1000);
 		var records = sensorLogBuffer(
 			4,
@@ -1126,6 +1140,11 @@ describe("Sensor UI Checks", function () {
 			assert.equal(page.find(".sensor-log-progress-label").text(), "Loading log data: 0 (0%)");
 			var allSignal = sendToOS.secondCall.args[2].signal;
 			assert.isFalse(allSignal.aborted);
+			assert.isTrue(header.filter(".ui-btn-right").prop("disabled"));
+
+			changeHeader.firstCall.args[0].rightBtn.on();
+			assert.equal(sendToOS.callCount, 2);
+			assert.isFalse(allSignal.aborted);
 
 			page.find(".sensor-log-range-btn[data-range='1w']").trigger("click");
 
@@ -1139,6 +1158,7 @@ describe("Sensor UI Checks", function () {
 			assert.lengthOf(charts[2].data.datasets[0].data, 1);
 			assert.lengthOf(charts[3].data.datasets[0].data, 1);
 			assert.isTrue(page.find(".sensor-log-progress").prop("hidden"));
+			assert.isFalse(header.filter(".ui-btn-right").prop("disabled"));
 		} finally {
 			if (page) page.trigger("pagehide").remove();
 			sendToOS.restore();
@@ -1149,6 +1169,124 @@ describe("Sensor UI Checks", function () {
 			controller.settings.devt = originalDevt;
 			controller.sensors = originalSensors;
 			controller.sensor_desc = originalDescription;
+		}
+	});
+
+	it("should stop a paginated chart load and restore the previous range", function () {
+		var controller = OSApp.currentSession.controller;
+		var originalSensors = controller.sensors;
+		var originalDescription = controller.sensor_desc;
+		var originalDevt = controller.settings.devt;
+		var allRequest = $.Deferred();
+		var charts = [];
+		var chartConstructor = sinon.stub(window, "Chart").callsFake(function () {
+			var chart = { data: {}, destroy: sinon.spy(), resetZoom: sinon.spy(), update: sinon.spy() };
+			charts.push(chart);
+			return chart;
+		});
+		var loading = sinon.stub($.mobile, "loading");
+		var changeHeader = sinon.stub(OSApp.UIDom, "changeHeader");
+		var records = sensorLogBuffer(
+			2,
+			[ 7, 8 ],
+			[ 1699995000, 1699995000 ]
+		);
+		var sendToOS = sinon.stub(OSApp.Firmware, "sendToOS");
+		var page;
+
+		try {
+			controller.settings.devt = 1700000000;
+			controller.sensors = { sn: [
+				{ uuid: 7, name: "Soil", unit: 1 },
+				{ uuid: 8, name: "Temperature", unit: 2 }
+			] };
+			controller.sensor_desc = { units: [ { value: 1, short: "%" }, { value: 2, short: "C" } ] };
+			sendToOS.onFirstCall().returns($.Deferred().resolve(records).promise());
+			sendToOS.onSecondCall().returns(allRequest.promise());
+
+			OSApp.Sensors.displayLogs();
+			page = $("#sensor-logs");
+			page.find(".sensor-log-range-btn[data-range='all']").trigger("click");
+
+			var allSignal = sendToOS.secondCall.args[2].signal;
+			assert.isFalse(allSignal.aborted);
+			assert.isFalse(page.find(".sensor-log-stop-btn").prop("hidden"));
+			assert.equal(page.find(".sensor-log-range-btn[data-range='all']").attr("aria-pressed"), "true");
+
+			page.find(".sensor-log-stop-btn").trigger("click");
+
+			assert.isTrue(allSignal.aborted);
+			assert.equal(sendToOS.callCount, 2);
+			assert.equal(page.find(".sensor-log-range-btn[data-range='3h']").attr("aria-pressed"), "true");
+			assert.isTrue(page.find(".sensor-log-progress").prop("hidden"));
+			assert.lengthOf(charts, 2);
+			assert.isFalse(page.find("input.sensor-log-download-btn").prop("disabled"));
+		} finally {
+			if (page) page.trigger("pagehide").remove();
+			sendToOS.restore();
+			changeHeader.restore();
+			loading.restore();
+			chartConstructor.restore();
+			controller.settings.devt = originalDevt;
+			controller.sensors = originalSensors;
+			controller.sensor_desc = originalDescription;
+		}
+	});
+
+	it("should estimate remaining time after multiple chart pages load", function () {
+		var controller = OSApp.currentSession.controller;
+		var originalSensors = controller.sensors;
+		var originalDescription = controller.sensor_desc;
+		var originalDevt = controller.settings.devt;
+		var firstPage = $.Deferred();
+		var secondPage = $.Deferred();
+		var fakeNow = 0;
+		var chart = { data: {}, destroy: sinon.spy(), resetZoom: sinon.spy(), update: sinon.spy() };
+		var chartConstructor = sinon.stub(window, "Chart").returns(chart);
+		var loading = sinon.stub($.mobile, "loading");
+		var changeHeader = sinon.stub(OSApp.UIDom, "changeHeader");
+		var now = sinon.stub(Date, "now").callsFake(function () { return fakeNow; });
+		var records = sensorLogBuffer();
+		var sendToOS = sinon.stub(OSApp.Firmware, "sendToOS");
+		var page;
+
+		function cleanup() {
+			if (page) page.trigger("pagehide").remove();
+			sendToOS.restore();
+			now.restore();
+			changeHeader.restore();
+			loading.restore();
+			chartConstructor.restore();
+			controller.settings.devt = originalDevt;
+			controller.sensors = originalSensors;
+			controller.sensor_desc = originalDescription;
+		}
+
+		try {
+			controller.settings.devt = 1700000000;
+			controller.sensors = { sn: [ { uuid: 7, name: "Soil", unit: 1 } ] };
+			controller.sensor_desc = { units: [ { value: 1, short: "%" } ] };
+			sendToOS.onFirstCall().returns($.Deferred().resolve(records).promise());
+			sendToOS.onSecondCall().returns(firstPage.promise());
+			sendToOS.onThirdCall().returns(secondPage.promise());
+
+			OSApp.Sensors.displayLogs();
+			page = $("#sensor-logs");
+			page.find(".sensor-log-range-btn[data-range='all']").trigger("click");
+
+			fakeNow = 60000;
+			firstPage.resolve(pagedLogResponse(records, 5000, 20000, false));
+			assert.isTrue(page.find(".sensor-log-progress-estimate").prop("hidden"));
+
+			return new Promise(function (resolve) { setTimeout(resolve, 0); }).then(function () {
+				fakeNow = 120000;
+				secondPage.resolve(pagedLogResponse(records, 10000, 20000, false));
+				assert.equal(page.find(".sensor-log-progress-estimate").text(), "About 2 minutes remaining");
+				assert.isFalse(page.find(".sensor-log-progress-estimate").prop("hidden"));
+			}).finally(cleanup);
+		} catch (error) {
+			cleanup();
+			throw error;
 		}
 	});
 
@@ -1185,7 +1323,7 @@ describe("Sensor UI Checks", function () {
 		}
 	});
 
-	it("should allow a wider range when the initial day has no readings", function () {
+	it("should allow a wider range when the initial three hours have no readings", function () {
 		var controller = OSApp.currentSession.controller;
 		var originalSensors = controller.sensors;
 		var originalDescription = controller.sensor_desc;
@@ -1211,7 +1349,7 @@ describe("Sensor UI Checks", function () {
 			page = $("#sensor-logs");
 			assert.include(page.find(".sensor-log-empty").text(), "No sensor data in the selected time range");
 			assert.lengthOf(page.find(".sensor-log-empty-range-controls"), 0);
-			assert.equal(page.find(".sensor-log-range-btn[data-range='1d']").attr("aria-pressed"), "true");
+			assert.equal(page.find(".sensor-log-range-btn[data-range='3h']").attr("aria-pressed"), "true");
 
 			page.find(".sensor-log-range-btn[data-range='1w']").trigger("click");
 			assert.isTrue(sendToOS.secondCall.calledWith(
@@ -1610,8 +1748,11 @@ describe("Sensor UI Checks", function () {
 		var areYouSure = sinon.stub(OSApp.UIDom, "areYouSure").callsFake(function (_t1, _t2, success) {
 			if (success) success();
 		});
-		var sendToOS = sinon.stub(OSApp.Firmware, "sendToOS")
-			.returns($.Deferred().resolve(sensorLogBuffer(0)).promise());
+		var sendToOS = sinon.stub(OSApp.Firmware, "sendToOS").callsFake(function (_url, type) {
+			return type === "arraybuffer-response"
+				? $.Deferred().resolve(pagedLogResponse(sensorLogBuffer(0), 0, 0, true, 0, 0)).promise()
+				: $.Deferred().resolve(sensorLogBuffer(0)).promise();
+		});
 		var page;
 
 		try {
