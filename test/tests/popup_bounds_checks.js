@@ -122,6 +122,26 @@ describe("Options Popup Bounds Checks", function () {
 		assert.equal(config.no, 1);
 	});
 
+	it("preserves hidden normally-open state when editing an existing flow sensor", function () {
+		OSApp.Options.showOptions();
+		var button = $("#sensor1"),
+			config = OSApp.Utils.unescapeJSON(button.val());
+		config.type = 2;
+		config.no = 0;
+		config.fpr = 1;
+		button.val(OSApp.Utils.escapeJSON(config)).trigger("click");
+
+		var popup = $("#sensorSettings");
+		assert.isFalse(popup.find("#sn-no").prop("checked"));
+		popup.find("#sn-fpr").val("2");
+		popup.find(".submit").trigger("click");
+
+		config = OSApp.Utils.unescapeJSON(button.val());
+		assert.equal(config.type, 2);
+		assert.equal(config.no, 0);
+		assert.equal(config.fpr, 2);
+	});
+
 	it("defaults normally-open mode when configuring an unset sensor", function () {
 		OSApp.Options.showOptions();
 		var button = $("#sensor1"),

@@ -202,6 +202,27 @@ describe("Import/Export Checks", function () {
 		return sensor.uuid;
 	}
 
+	it("should exclude the read-only sensor description from exported configuration", function () {
+		var previousController = OSApp.currentSession.controller,
+			controller = {
+				options: { fwv: 300 },
+				sensors: { sn: [ onboardSensor(42, "Soil", 0) ] },
+				sensor_desc: sensorDescription()
+			};
+
+		try {
+			OSApp.currentSession.controller = controller;
+			var backup = JSON.parse(OSApp.ImportExport.serializeConfig());
+
+			assert.deepEqual(backup.options, controller.options);
+			assert.deepEqual(backup.sensors, controller.sensors);
+			assert.notProperty(backup, "sensor_desc");
+			assert.property(controller, "sensor_desc");
+		} finally {
+			OSApp.currentSession.controller = previousController;
+		}
+	});
+
 	it("should transform master and sensor 3/4 option indices to firmware JSON names", function () {
 		var checkOSVersion = sinon.stub(OSApp.Firmware, "checkOSVersion").returns(true);
 		try {

@@ -18,6 +18,14 @@ var OSApp = OSApp || {};
 OSApp.ImportExport = OSApp.ImportExport || {};
 
 // Export and Import functions
+OSApp.ImportExport.serializeConfig = function() {
+	var controller = $.extend( {}, OSApp.currentSession.controller );
+
+	// /jsd describes firmware capabilities and cannot be restored as configuration.
+	delete controller.sensor_desc;
+	return JSON.stringify( controller );
+};
+
 OSApp.ImportExport.getExportMethod = function() {
 	var popup = $(
 		"<div data-role='popup' data-theme='a'>" +
@@ -28,7 +36,8 @@ OSApp.ImportExport.getExportMethod = function() {
 				"<a class='ui-btn localMethod'>" + OSApp.Language._( "Internal (within app)" ) + "</a>" +
 			"</div>" +
 		"</div>" ),
-		obj = encodeURIComponent( JSON.stringify( OSApp.currentSession.controller ) ),
+		backup = OSApp.ImportExport.serializeConfig(),
+		obj = encodeURIComponent( backup ),
 		subject = "OpenSprinkler Data Export on " + OSApp.Dates.dateToString( new Date() );
 
 	if ( OSApp.currentDevice.isFileCapable ) {
@@ -48,7 +57,7 @@ OSApp.ImportExport.getExportMethod = function() {
 
 	popup.find( ".localMethod" ).on( "click", function() {
 		popup.popup( "close" );
-		OSApp.Storage.set( { "backup": JSON.stringify( OSApp.currentSession.controller ) }, function() {
+		OSApp.Storage.set( { "backup": backup }, function() {
 			OSApp.Errors.showError( OSApp.Language._( "Backup saved on this device" ) );
 		} );
 	} );

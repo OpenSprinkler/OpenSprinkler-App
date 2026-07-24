@@ -1635,6 +1635,49 @@ describe("Sensor UI Checks", function () {
 		}
 	});
 
+	it("should ignore a Delete All completion after leaving the log page", function () {
+		var controller = OSApp.currentSession.controller;
+		var originalSensors = controller.sensors;
+		var originalDescription = controller.sensor_desc;
+		var deletionRequest = $.Deferred();
+		var chartConstructor = sinon.stub(window, "Chart");
+		var loading = sinon.stub($.mobile, "loading");
+		var changeHeader = sinon.stub(OSApp.UIDom, "changeHeader");
+		var areYouSure = sinon.stub(OSApp.UIDom, "areYouSure").callsFake(function (_t1, _t2, success) {
+			if (success) success();
+		});
+		var sendToOS = sinon.stub(OSApp.Firmware, "sendToOS");
+		var page;
+
+		try {
+			controller.sensors = { sn: [] };
+			controller.sensor_desc = { units: [] };
+			sendToOS.onFirstCall().returns($.Deferred().resolve(sensorLogBuffer(0)).promise());
+			sendToOS.onSecondCall().returns(deletionRequest.promise());
+
+			OSApp.Sensors.displayLogs();
+			page = $("#sensor-logs");
+			page.find("input.sensor-log-delete-all-btn").trigger("click");
+			assert.equal(sendToOS.secondCall.args[0], "/dsl?pw=&uuid=-1");
+
+			page.trigger("pagehide");
+			loading.resetHistory();
+			deletionRequest.resolve({ result: 1 });
+
+			assert.isFalse(loading.calledWith("hide"));
+			assert.equal(sendToOS.callCount, 2);
+		} finally {
+			if (page) page.remove();
+			sendToOS.restore();
+			areYouSure.restore();
+			changeHeader.restore();
+			loading.restore();
+			chartConstructor.restore();
+			controller.sensors = originalSensors;
+			controller.sensor_desc = originalDescription;
+		}
+	});
+
 	it("should destroy sensor charts when the log page is hidden", function () {
 		var controller = OSApp.currentSession.controller;
 		var originalSensors = controller.sensors;

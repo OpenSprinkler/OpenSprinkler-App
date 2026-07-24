@@ -1715,7 +1715,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 			num = parseInt( button.id.substring( 6 ) ),
 			hasFlow = num === 1 && typeof OSApp.currentSession.controller.options.fpr0 !== "undefined",
 			currentType = parseInt( conf.type ) || 0,
-			normallyOpen = parseInt( conf.no ) === 1 || currentType === 0 || currentType === 2;
+			normallyOpen = parseInt( conf.no ) === 1 || currentType === 0;
 
 		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 

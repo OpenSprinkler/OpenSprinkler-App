@@ -2938,8 +2938,9 @@ OSApp.Sensors.displayLogs = function (_callback) {
             $.mobile.loading("show");
             OSApp.Firmware.sendToOS("/dsl?pw=&uuid=-1").always(() => {
 				endExclusiveLogOperation("delete");
+				if (!isCurrentContext()) return;
                 $.mobile.loading("hide");
-				if (isCurrentContext()) updateContent("1d");
+				updateContent("1d");
             });
             return;
         }
