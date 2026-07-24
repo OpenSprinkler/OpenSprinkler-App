@@ -1303,6 +1303,11 @@ describe("Sensor UI Checks", function () {
 			assert.isFalse(page.find(".sensor-log-progress").prop("hidden"));
 			assert.equal(page.find(".sensor-log-progress-label").text(), "Loading log data: 0 (0%)");
 
+			changeHeader.firstCall.args[0].rightBtn.on();
+			assert.equal(sendToOS.callCount, 2);
+			assert.isFalse(page.find(".sensor-log-progress").prop("hidden"));
+			assert.equal(page.find(".sensor-log-progress-label").text(), "Loading log data: 0 (0%)");
+
 			csvRequest.resolve(pagedLogResponse(sensorLogBuffer(), 1, 1, true));
 			return new Promise(function (resolve) { setTimeout(resolve, 0); }).then(function () {
 				assert.isTrue(createObjectURL.calledOnce);

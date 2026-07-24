@@ -2865,7 +2865,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
     }
 
     function updateContent(range, rollback) {
-		if (!isCurrentContext()) return;
+		if (!isCurrentContext() || exclusiveLogOperation !== null) return;
         const requestedRange = typeof range === "string" &&
             Object.prototype.hasOwnProperty.call(OSApp.Sensors.LOG_CHART_RANGES, range) ?
 			range : selectedRange;
