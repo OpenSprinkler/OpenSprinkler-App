@@ -1284,7 +1284,7 @@ button[id^="start_1-"] {
 
 .sensor-home-name {
     min-width: 0;
-    font-weight: bold;
+    font-weight: normal;
 }
 
 /* App Settings: lay all toggle buttons in a single wrap-friendly row so
@@ -1310,6 +1310,7 @@ button[id^="start_1-"] {
 }
 
 .sensor-home-value {
+    font-weight: normal;
     white-space: nowrap;
 }
 
