@@ -61,10 +61,10 @@ export function renderDashboard( d: DashboardData, active: DashboardTab | "Histo
 	const a = !!opts.actions;
 	let content: string;
 	switch ( active ) {
-		case "Stations": content = renderStations( d.jc, d.jn, { actions: a } ); break;
+		case "Stations": content = renderStations( d.jc, d.jn, { actions: a, jl: d.jl, jo: d.jo } ); break;
 		case "Programs": content = renderPrograms( d.jp, d.jn, { actions: a } ); break;
 		case "Weather": content = renderWeather( d.jc, d.jo ); break;
-		case "Log": content = renderLogs( d.jl, d.jn ); break;
+		case "Log": content = renderLogs( d.jl, d.jn, d.jo ); break;
 		case "Diagnostics": content = renderDiagnostics( d.jc, d.jo ); break;
 		case "Settings": content = renderSettings( d.jc, d.jo, d.jn, opts.settingsSection ); break;
 		case "History": content = opts.historyHtml ?? ""; break;

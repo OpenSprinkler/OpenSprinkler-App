@@ -49,7 +49,7 @@ export async function collectOnce(
 		const rows: RunLogRow[] = jl
 			.map( decodeLogRow )
 			.filter( ( e ): e is Extract<ReturnType<typeof decodeLogRow>, { kind: "station" }> => e.kind === "station" )
-			.map( ( e ) => ( { program: e.program, station: e.station, durationSec: e.durationSec, endTs: e.when, flowGpm: e.flowGpm ?? null } ) );
+			.map( ( e ) => ( { program: e.program, station: e.station, durationSec: e.durationSec, endTs: e.when, flowGpm: e.flowPulseRate ?? null } ) );
 		newRunLog = await store.upsertRunLog( controllerId, rows );
 	} catch ( e ) { errors.push( `runlog: ${ String( e ) }` ); }
 

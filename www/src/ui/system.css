@@ -51,7 +51,7 @@ form.login input {
 	background: transparent; color: inherit; box-sizing: border-box;
 }
 form.login button {
-	margin-top: var(--space-1); padding: var(--space-3); font-size: var(--fs-15); font-weight: var(--fw-semibold);
+	margin-top: var(--space-1); padding: var(--space-3); font-size: var(--fs-14); font-weight: var(--fw-semibold);
 	color: var(--on-accent); background: var(--accent); border: none; border-radius: var(--radius-1); cursor: pointer;
 }
 form.login button:hover { background: var(--accent-strong); }
@@ -62,7 +62,7 @@ code { background: color-mix(in oklab, var(--border) 30%, transparent); padding:
 nav.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border); margin-bottom: var(--space-4); flex-wrap: wrap; }
 .tab {
 	padding: 9px 16px; border: none; background: none; color: var(--muted); cursor: pointer;
-	border-bottom: 2px solid transparent; font-size: var(--fs-15);
+	border-bottom: 2px solid transparent; font-size: var(--fs-16);
 	display: inline-flex; align-items: center; gap: 7px; min-height: 40px;
 	transition: color var(--dur-fast) var(--ease-standard), border-color var(--dur-fast) var(--ease-standard);
 }
@@ -157,6 +157,9 @@ details summary { cursor: pointer; color: var(--muted); font-size: var(--fs-14);
 .action.danger { border-color: var(--err); color: var(--err); }
 .action.danger:hover { background: color-mix(in oklab, var(--err) 16%, var(--card)); border-color: var(--err); color: var(--err); }
 .action-bar { display: flex; gap: var(--space-2); flex-wrap: wrap; margin-top: var(--space-3); }
+/* The section-level bar (e.g. "+ New program") needs breathing room above the first card;
+   bars nested inside cards keep their tight fit. */
+#app section > .action-bar { margin-bottom: var(--space-4); }
 
 /* settings forms */
 .subtabs { display: flex; gap: 2px; flex-wrap: wrap; margin-bottom: var(--space-3); }
@@ -172,7 +175,7 @@ form.settings .field { display: flex; flex-direction: column; gap: var(--space-1
 form.settings .field-check { flex-direction: row; align-items: center; gap: var(--space-2); }
 form.settings label { font-weight: var(--fw-semibold); font-size: var(--fs-14); color: var(--muted); }
 form.settings input[type="text"], form.settings input[type="number"], form.settings select {
-	padding: 9px; font-size: var(--fs-15); border: 1px solid var(--border); border-radius: var(--radius-1);
+	padding: 9px; font-size: var(--fs-16); border: 1px solid var(--border); border-radius: var(--radius-1);
 	background: transparent; color: inherit; box-sizing: border-box;
 }
 form.settings fieldset { border: 1px solid var(--border); border-radius: var(--radius-3); padding: var(--space-3); margin: 0; }

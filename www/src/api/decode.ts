@@ -198,14 +198,16 @@ export function decodeAllPrograms( jp: JpResponse, stationNames: string[] ): Pro
 }
 
 // ---- logs (/jl) -------------------------------------------------------------
-// Station run row: [program, station, durationSec, endtime, flowGpm?]
+// Station run row: [program, station, durationSec, endtime, flowPulseRate?]
+//   flowPulseRate = average sensor pulses/min over the run. Volume needs the fpr0/fpr1
+//   calibration from /jo: volume/min = rate × ((fpr1<<8)+fpr0)/100 (see flowLpm).
 // Special row:     [value, "<code>", value2, endtime]   code: s1 s2 rd fl wl
 //   value2 = duration seconds (s1/s2/rd/fl) OR water-level % (wl);  value = flow pulses (fl)
 
 export type LogKind = "station" | "sensor1" | "sensor2" | "raindelay" | "flow" | "waterlevel" | "current";
 
 export type LogEntry =
-	| { kind: "station"; when: number; program: number; station: number; durationSec: number; flowGpm?: number }
+	| { kind: "station"; when: number; program: number; station: number; durationSec: number; flowPulseRate?: number }
 	| { kind: Exclude<LogKind, "station">; when: number; value: number; durationSec: number };
 
 const LOG_CODE: Record<string, Exclude<LogKind, "station">> = {
@@ -214,9 +216,9 @@ const LOG_CODE: Record<string, Exclude<LogKind, "station">> = {
 
 export function decodeLogRow( row: JlRow ): LogEntry {
 	if ( typeof row[ 1 ] === "number" ) {
-		const [ program, station, durationSec, when, flowGpm ] = row as JlStationRow;
+		const [ program, station, durationSec, when, flowPulseRate ] = row as JlStationRow;
 		const e: LogEntry = { kind: "station", when, program, station, durationSec };
-		if ( typeof flowGpm === "number" ) e.flowGpm = flowGpm;
+		if ( typeof flowPulseRate === "number" ) e.flowPulseRate = flowPulseRate;
 		return e;
 	}
 	const [ value, code, value2, when ] = row as JlSpecialRow;
@@ -225,12 +227,49 @@ export function decodeLogRow( row: JlRow ): LogEntry {
 	return { kind, when, value, durationSec: value2 };
 }
 
-/** Human-readable description of a log entry. */
-export function describeLogEntry( e: LogEntry, stationNames: string[] ): string {
+/** Deterministic "YYYY-MM-DD HH:MM" (UTC) — stable for tests; the real UI would localize. */
+export function formatWhenUTC( unix: number ): string {
+	const iso = new Date( unix * 1000 ).toISOString();
+	return iso.slice( 0, 10 ) + " " + iso.slice( 11, 16 );
+}
+
+export interface LastRun { when: number; durationSec: number; flowPulseRate?: number }
+
+/** Newest completed run per station index, from the /jl log. */
+export function lastRunsByStation( jl: JlRow[] ): Map<number, LastRun> {
+	const out = new Map<number, LastRun>();
+	for ( const row of jl ) {
+		const e = decodeLogRow( row );
+		if ( e.kind !== "station" ) continue;
+		const prev = out.get( e.station );
+		if ( !prev || e.when > prev.when ) {
+			out.set( e.station, { when: e.when, durationSec: e.durationSec, ...( e.flowPulseRate != null ? { flowPulseRate: e.flowPulseRate } : {} ) } );
+		}
+	}
+	return out;
+}
+
+const LITERS_PER_GALLON = 3.78541;
+
+/**
+ * Sensor pulses/min → gallons/min, using the /jo flow calibration (fpr = liters per 100 pulses,
+ * the firmware's convention) converted to imperial for display. Null when the controller has no
+ * calibration — callers show nothing rather than a raw pulse count dressed as a unit.
+ */
+export function flowGpm( pulseRate: number, jo: { fpr0?: number; fpr1?: number } ): number | null {
+	const fpr = ( ( jo.fpr1 ?? 0 ) << 8 ) + ( jo.fpr0 ?? 0 );
+	if ( fpr <= 0 ) return null;
+	const lpm = pulseRate * fpr / 100;
+	return Math.round( lpm / LITERS_PER_GALLON * 100 ) / 100;
+}
+
+/** Human-readable description of a log entry. Flow shows only when `jo` provides calibration. */
+export function describeLogEntry( e: LogEntry, stationNames: string[], jo?: { fpr0?: number; fpr1?: number } ): string {
 	switch ( e.kind ) {
 		case "station": {
 			const name = stationNames[ e.station ] ?? `S${ String( e.station + 1 ).padStart( 2, "0" ) }`;
-			const flow = e.flowGpm != null ? ` · ${ e.flowGpm } gpm` : "";
+			const gpm = e.flowPulseRate != null && jo ? flowGpm( e.flowPulseRate, jo ) : null;
+			const flow = gpm != null ? ` · ${ gpm } gal/min` : "";
 			const src = e.program ? `program ${ e.program }` : "manual";
 			return `${ name } ran ${ formatDuration( e.durationSec ) } (${ src })${ flow }`;
 		}

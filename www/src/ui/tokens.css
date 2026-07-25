@@ -13,7 +13,7 @@
 	--card: #fff; --border: #cdd5e0; --accent: #2563eb; --err: #b91c1c;
 	--on-accent: #fff;                         /* text on filled accent — #fff on #2563eb = 5.17:1 */
 	/* type scale (hierarchy via weight/tracking; sizes ~minor-third off 16px) */
-	--fs-12: 12px; --fs-13: 13px; --fs-14: 14px; --fs-15: 15px; --fs-16: 16px; --fs-18: 18px; --fs-22: 22px;
+	--fs-12: 12px; --fs-13: 13px; --fs-14: 14px; --fs-16: 16px; --fs-18: 18px; --fs-22: 22px;
 	--lh-base: 1.5; --lh-snug: 1.35; --lh-tight: 1.2;
 	--fw-semibold: 600; --tracking-tight: -0.01em; --measure: 60ch;
 	/* spacing */

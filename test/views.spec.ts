@@ -4,7 +4,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, it, expect } from "vitest";
-import { parseJc, parseJn, parseJp } from "../www/src/api/client";
+import { parseJc, parseJl, parseJn, parseJp } from "../www/src/api/client";
 import { renderStations } from "../www/src/views/stations-view";
 import { renderPrograms } from "../www/src/views/programs-view";
 
@@ -25,6 +25,29 @@ describe( "renderStations", () => {
 	it( "marks the running station On with time remaining", () => {
 		expect( html ).toContain( ">On<" );
 		expect( html ).toContain( "left" );        // 600s remaining
+	} );
+
+	it( "omits current draw and last-run column without curr/jl", () => {
+		expect( html ).not.toContain( "mA" );
+		expect( html ).not.toContain( "Last run" );
+	} );
+
+	it( "shows controller current draw and per-station last runs when provided", () => {
+		const jl = parseJl( fx( "jl" ) );
+		const jo = { fpr0: 100, fpr1: 0 } as never; // flow calibration: 1 L/pulse
+		const rich = renderStations( { ...jc, curr: 247 }, jn, { jl, jo } );
+		expect( rich ).toContain( "drawing 247 mA" );
+		expect( rich ).toContain( "Last run" );
+		expect( rich ).toContain( "10m" );          // Garden Drip's newest log run (600s)
+		expect( rich ).toContain( "0.65 gal/min" ); // pulses/min × fpr (liters) → imperial
+		expect( rich ).toContain( "—" );            // stations that never ran stay honest
+	} );
+
+	it( "omits flow, not mislabels it, when the controller has no calibration", () => {
+		const jl = parseJl( fx( "jl" ) );
+		const rich = renderStations( jc, jn, { jl } );
+		expect( rich ).toContain( "Last run" );
+		expect( rich ).not.toContain( "gal/min" );
 	} );
 } );
 

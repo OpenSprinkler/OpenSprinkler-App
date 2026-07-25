@@ -20,21 +20,28 @@
 	"author": "Samer Albahra",
 	"main": "index.html",
 	"scripts": {
+		"build:app": "vite build app",
+		"capture": "node scripts/capture-fixtures.mjs",
+		"companion": "tsx server/index.ts",
+		"demo": "vite demo",
+		"demo:build": "vite build demo",
 		"lint": "eslint ./www/js/**",
 		"prepare": "husky",
 		"start": "npx http-server --port 8080 --cors '*' -c-1 ./www",
 		"test": "npx karma start --browsers ChromeHeadless test/karma.conf.js",
 		"test:contract": "vitest run",
-		"capture": "node scripts/capture-fixtures.mjs",
-		"verify:live": "vitest run --config vitest.live.config.ts",
-		"demo": "vite demo",
-		"demo:build": "vite build demo",
-		"build:app": "vite build app",
-		"companion": "tsx server/index.ts",
-		"test:server": "vitest run --config vitest.server.config.ts"
+		"test:server": "vitest run --config vitest.server.config.ts",
+		"verify:live": "vitest run --config vitest.live.config.ts"
 	},
 	"lint-staged": {
 		"package.json": "sort-package-json"
+	},
+	"dependencies": {
+		"@hono/node-server": "^2.0.4",
+		"better-sqlite3": "^12.10.0",
+		"drizzle-orm": "^0.45.2",
+		"hono": "^4.12.25",
+		"tsx": "^4.22.4"
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.15.0",
@@ -71,7 +78,11 @@
 		"sinon": "^19.0.2",
 		"sort-package-json": "^2.10.1",
 		"typescript": "^6.0.3",
+		"vite": "^8.1.5",
 		"vitest": "^4.1.8"
+	},
+	"allowScripts": {
+		"esbuild@0.28.0": true
 	},
 	"cordova": {
 		"plugins": {
@@ -89,12 +100,5 @@
 			"android",
 			"ios"
 		]
-	},
-	"dependencies": {
-		"@hono/node-server": "^2.0.4",
-		"better-sqlite3": "^12.10.0",
-		"drizzle-orm": "^0.45.2",
-		"hono": "^4.12.25",
-		"tsx": "^4.22.4"
 	}
 }

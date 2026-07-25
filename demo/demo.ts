@@ -22,8 +22,14 @@ import type { DashboardData } from "../www/src/views/dashboard";
 ( globalThis as Record<string, unknown> ).ipas = 1;
 
 // Mock transport: serve the fixtures for reads; return result:1 for change commands.
-globalThis.fetch = ( async ( input: RequestInfo | URL ) => {
+// Only URLs aimed at the fake device are mocked — everything else (e.g. dev tooling
+// on another origin) passes through to the real fetch.
+const realFetch = globalThis.fetch.bind( globalThis );
+globalThis.fetch = ( async ( input: RequestInfo | URL, init?: RequestInit ) => {
 	const url = String( input );
+	if ( !url.startsWith( "http://demo-device/" ) ) {
+		return realFetch( input, init );
+	}
 	const isCommand = /\/(cm|cv|cr|co|cs|cp|dp)\b/.test( url ) || /\/(cm|cv|cr|co|cs|cp|dp)\?/.test( url );
 	const body =
 		isCommand ? { result: 1 } :
@@ -49,7 +55,8 @@ async function load(): Promise<DashboardData> {
 		api.getControllerStatus(), api.getOptions(), api.getStations(), api.getPrograms(), api.getLogs(),
 	] );
 	// Showcase the fork build tag (#3): the kars85 firmware fork emits `fwf` in /jo.
-	return { jc: c, jo: { ...o, fwf: "kars85.3" }, jn: n, jp: p, jl: l };
+	// Showcase current sensing (`curr` mA in /jc) and flow calibration (fpr = 1 L/pulse).
+	return { jc: { ...c, curr: 247 }, jo: { ...o, fwf: "kars85.3", fpr0: 100, fpr1: 0 }, jn: n, jp: p, jl: l };
 }
 
 function toast( message: string, isError = false ): void {

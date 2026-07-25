@@ -21,7 +21,7 @@ describe( "decodeLogRow", () => {
 		if ( e.kind === "station" ) {
 			expect( e.station ).toBe( 2 );
 			expect( e.durationSec ).toBe( 600 );
-			expect( e.flowGpm ).toBe( 2.45 );
+			expect( e.flowPulseRate ).toBe( 2.45 );  // raw pulses/min — volume needs fpr calibration
 		}
 	} );
 	it( "discriminates special events by the string code", () => {
@@ -41,7 +41,11 @@ describe( "decodeLogRow", () => {
 
 describe( "describeLogEntry", () => {
 	it( "renders human descriptions per kind", () => {
-		expect( describeLogEntry( decodeLogRow( jl[ 0 ] ), jn.snames ) ).toBe( "Garden Drip ran 10m (program 1) · 2.45 gpm" );
+		// Without calibration the flow figure is unprintable (raw pulses) — omitted, not mislabeled.
+		expect( describeLogEntry( decodeLogRow( jl[ 0 ] ), jn.snames ) ).toBe( "Garden Drip ran 10m (program 1)" );
+		// With fpr calibration (1 L/pulse): 2.45 pulses/min → 2.45 L/min → 0.65 gal/min imperial.
+		expect( describeLogEntry( decodeLogRow( jl[ 0 ] ), jn.snames, { fpr0: 100, fpr1: 0 } ) )
+			.toBe( "Garden Drip ran 10m (program 1) · 0.65 gal/min" );
 		expect( describeLogEntry( decodeLogRow( jl[ 2 ] ), jn.snames ) ).toBe( "Sensor 1 active 1h" );
 		expect( describeLogEntry( decodeLogRow( jl[ 3 ] ), jn.snames ) ).toBe( "Rain delay 2h" );
 		expect( describeLogEntry( decodeLogRow( jl[ 4 ] ), jn.snames ) ).toBe( "Water level set to 75%" );

@@ -54,6 +54,7 @@ export interface JoResponse {
 	wl: number; uwt: number; den: 0 | 1;
 	ipas: 0 | 1; devid: number; lg: 0 | 1; dim: number; sar: number;
 	ife: number; ife2: number;
+	fpr0?: number; fpr1?: number;                // flow pulse rate calibration: ((fpr1<<8)+fpr0)/100 = volume per pulse
 	sn1t: number; sn1o: 0 | 1; sn1on: number; sn1of: number;
 	sn2t?: number; sn2o?: 0 | 1; sn2on?: number; sn2of?: number; // PIN_SENSOR2/ESP8266
 	// hardware/platform-gated:
