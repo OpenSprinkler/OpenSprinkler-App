@@ -15,7 +15,8 @@
 
 // Define a name for the current cache
 var cachePrefix = "OpenSprinkler-";
-var cacheName = cachePrefix + "v0.0.0";
+// Release workflows replace the literal version in this value.
+var cacheName = "OpenSprinkler-v0.0.0";
 
 // Html
 var cacheFiles = [
@@ -25,6 +26,7 @@ var cacheFiles = [
 
 // App main javascript
 cacheFiles = cacheFiles.concat([
+	"/js/chart-touch.js",
 	"/js/home.js",
 	"/js/main.js",
 	"/js/map.js",

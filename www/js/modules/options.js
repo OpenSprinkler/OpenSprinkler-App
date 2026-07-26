@@ -570,7 +570,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 	list += "</fieldset><fieldset data-role='collapsible'" +
 		( typeof expandItem === "string" && expandItem === "weather" ? " data-collapsed='false'" : "" ) + ">" +
-		"<legend>" + OSApp.Language._( "Weather and Sensors" ) + "</legend>";
+		"<legend>" + OSApp.Language._( "Weather Adjustment" ) + "</legend>";
 
 	if ( typeof OSApp.currentSession.controller.options.uwt !== "undefined" ) {
 		list += "<div class='ui-field-contain'><label for='o31' class='select'>" + OSApp.Language._( "Adjustment Method" ) +
@@ -734,10 +734,13 @@ OSApp.Options.showOptions = function( expandItem ) {
 			"</div>";
 	};
 
-	list += renderSensorButton( 1 );
-	list += renderSensorButton( 2 );
-	list += renderSensorButton( 3 );
-	list += renderSensorButton( 4 );
+	var sensorButtons = renderSensorButton( 1 ) + renderSensorButton( 2 ) +
+		renderSensorButton( 3 ) + renderSensorButton( 4 );
+	if ( sensorButtons ) {
+		list += "</fieldset><fieldset data-role='collapsible'" +
+			( typeof expandItem === "string" && expandItem === "sensors" ? " data-collapsed='false'" : "" ) + ">" +
+			"<legend>" + OSApp.Language._( "Built-in Sensors" ) + "</legend>" + sensorButtons;
+	}
 
 	if ( typeof OSApp.currentSession.controller.settings.ifkey !== "undefined" || typeof OSApp.currentSession.controller.settings.mqtt !== "undefined" ||
 		typeof OSApp.currentSession.controller.settings.otc !== "undefined" ) {
@@ -1670,20 +1673,18 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 	// Build station <option> nodes for a master-zone <select>. Station names are
 	// controller data, so assign them with .text() rather than treating them as HTML.
-	var buildMasterStationOptions = function( current ) {
+	var buildMasterStationOptions = function() {
 		var options = $( "<select></select>" ),
 			snames = OSApp.currentSession.controller.stations.snames;
 		$( "<option></option>" )
 			.val( 0 )
 			.text( OSApp.Language._( "None" ) )
-			.prop( "selected", current === 0 )
 			.appendTo( options );
 		for ( var si = 0; si < snames.length; si++ ) {
 			var val = si + 1;
 			$( "<option></option>" )
 				.val( val )
 				.text( OSApp.Stations.getName( si ) )
-				.prop( "selected", current === val )
 				.appendTo( options );
 			if ( !OSApp.Firmware.checkOSVersion( 214 ) && si === 7 ) { break; }
 		}
@@ -1712,7 +1713,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 		var button = this, curr = button.value,
 			conf = $.extend( {}, { type: 0, no: 0, on: 0, off: 0, fpr: 0, fprUnit: "liter" }, OSApp.Utils.unescapeJSON( curr ) ),
 			num = parseInt( button.id.substring( 6 ) ),
-			hasFlow = num === 1 && typeof OSApp.currentSession.controller.options.fpr0 !== "undefined";
+			hasFlow = num === 1 && typeof OSApp.currentSession.controller.options.fpr0 !== "undefined",
+			currentType = parseInt( conf.type ) || 0,
+			normallyOpen = parseInt( conf.no ) === 1 || currentType === 0;
 
 		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
@@ -1752,12 +1755,12 @@ OSApp.Options.showOptions = function( expandItem ) {
 				"<div class='ui-content'>" +
 					"<div class='ui-field-contain'>" +
 						"<label for='sn-type' class='select'>" + OSApp.Language._( "Type" ) + "</label>" +
-						"<select data-mini='true' id='sn-type'>" + buildSensorTypeOptions( num, parseInt( conf.type ) || 0, hasFlow ) + "</select>" +
+						"<select data-mini='true' id='sn-type'>" + buildSensorTypeOptions( num, currentType, hasFlow ) + "</select>" +
 					"</div>" +
 					"<div class='ui-field-contain sn-no'>" +
 						"<label class='select sn-option-label'>" + OSApp.Language._( "Option" ) + "</label>" +
 						"<label class='sn-no-toggle' for='sn-no'>" +
-							"<input data-mini='true' data-iconpos='right' id='sn-no' type='checkbox'" + ( conf.no ? " checked='checked'" : "" ) + ">" +
+							"<input data-mini='true' data-iconpos='right' id='sn-no' type='checkbox'" + ( normallyOpen ? " checked='checked'" : "" ) + ">" +
 							OSApp.Language._( "Normally Open" ) +
 						"</label>" +
 					"</div>" +
@@ -1807,7 +1810,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 			var newConf = {
 				type: type,
-				no: ( type === 1 || type === 3 || type === 240 ) && popup.find( "#sn-no" ).prop( "checked" ) ? 1 : 0,
+				// Preserve this option while hidden for Flow so changing between
+				// active sensor types does not silently change the wiring mode.
+				no: type !== 0 && popup.find( "#sn-no" ).prop( "checked" ) ? 1 : 0,
 				on: usesDelays ? parseInt( onInput.val() ) || 0 : 0,
 				off: usesDelays ? parseInt( offInput.val() ) || 0 : 0
 			};
@@ -1864,7 +1869,12 @@ OSApp.Options.showOptions = function( expandItem ) {
 					"<button class='submit' data-theme='b'>" + OSApp.Language._( "Submit" ) + "</button>" +
 				"</div>" +
 			"</div>" );
-		popup.find( "#mas-zone" ).append( buildMasterStationOptions( parseInt( conf.mas ) || 0 ) );
+		var masterZone = popup.find( "#mas-zone" ),
+			configuredZone = String( parseInt( conf.mas ) || 0 );
+		masterZone.append( buildMasterStationOptions() ).val( configuredZone );
+		if ( masterZone.val() === null ) {
+			masterZone.val( "0" );
+		}
 
 		// Hide on/off adjustments when no zone is selected.
 		var toggleAdjustments = function() {

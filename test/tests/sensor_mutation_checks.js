@@ -93,6 +93,41 @@ describe("Sensor Mutation Checks", function () {
 			});
 		});
 
+		it("should abort only the mutation request associated with an external signal", function () {
+			var request = $.Deferred();
+			var controller = new AbortController();
+			var xhr = {
+				abort: sinon.spy(function () {
+					request.reject({ status: 0, statusText: "abort" });
+				}),
+				setRequestHeader: sinon.spy()
+			};
+			ajaxq.callsFake(function (_queue, options) {
+				options.beforeSend(xhr);
+				return request.promise();
+			});
+
+			var mutation = OSApp.Firmware.sendToOS("/dsl?pw=&uuid=7", "json", {
+				signal: controller.signal
+			});
+			controller.abort();
+
+			return new Promise(function (resolve, reject) {
+				mutation
+					.done(function () { reject(new Error("An aborted deletion request was reported as successful")); })
+					.fail(function (error) {
+						try {
+							assert.equal(error.statusText, "abort");
+							assert.isTrue(xhr.abort.calledOnce);
+							assert.isFalse(showError.called);
+							resolve();
+						} catch (assertionError) {
+							reject(assertionError);
+						}
+					});
+			});
+		});
+
 		[ "/csn?pw=&uuid=-1", "/dsn?pw=&uuid=7", "/dsl?pw=&uuid=7" ].forEach(function (endpoint) {
 			it("should reject firmware errors from " + endpoint.split("?")[0], function () {
 				return new Promise(function (resolve, reject) {
@@ -557,6 +592,36 @@ describe("Sensor Mutation Checks", function () {
 		}
 	});
 
+	it("should abort a binary sensor log request from the caller signal", function () {
+		var fetchSignal;
+		var fetchRequest = sinon.stub(window, "fetch").callsFake(function (_url, options) {
+			fetchSignal = options.signal;
+			return new Promise(function (_resolve, reject) {
+				fetchSignal.addEventListener("abort", function () { reject({ status: 0, statusText: "abort" }); });
+			});
+		});
+		var controller = new AbortController();
+
+		return new Promise(function (resolve, reject) {
+			OSApp.Firmware.sendToOS(
+				"/jsl?pw=&page=1&cursor=0&count=5000&fmt=binary",
+				"arraybuffer-response",
+				{ signal: controller.signal }
+			).done(function () {
+				reject(new Error("An aborted sensor log request was reported as success"));
+			}).fail(function (error) {
+				try {
+					assert.deepEqual(error, { status: 0, statusText: "abort" });
+					assert.isTrue(fetchSignal.aborted);
+					resolve();
+				} catch (assertionError) {
+					reject(assertionError);
+				}
+			});
+			controller.abort();
+		}).finally(function () { fetchRequest.restore(); });
+	});
+
 	it("should allow a full CSV export ten minutes before timing out", function () {
 		var clock = sinon.useFakeTimers();
 		var fetchRequest = sinon.stub(window, "fetch").returns(new Promise(function () {}));
@@ -625,6 +690,38 @@ describe("Sensor Mutation Checks", function () {
 				assert.equal(data.byteLength, 0);
 				assert.isTrue(data.noLogHeader);
 			});
+		});
+
+		it("should preserve response headers for paginated binary logs", function () {
+			var body = new ArrayBuffer(10);
+			var headers = {
+				get: function (name) {
+					if (name === "Content-Type") return "application/octet-stream";
+					if (name === "X-OS-Next-Cursor") return "5000";
+					return null;
+				}
+			};
+			var fetchRequest = sinon.stub(window, "fetch").returns(Promise.resolve({
+				ok: true,
+				headers: headers,
+				arrayBuffer: function () { return Promise.resolve(body); }
+			}));
+
+			return new Promise(function (resolve, reject) {
+				OSApp.Firmware.sendToOS(
+					"/jsl?pw=&page=1&cursor=0&count=5000&fmt=binary",
+					"arraybuffer-response"
+				).done(function (responseData) {
+					try {
+						assert.strictEqual(responseData.data, body);
+						assert.strictEqual(responseData.headers, headers);
+						assert.equal(responseData.headers.get("X-OS-Next-Cursor"), "5000");
+						resolve();
+					} catch (error) {
+						reject(error);
+					}
+				}).fail(reject);
+			}).finally(function () { fetchRequest.restore(); });
 		});
 
 		it("should return a server CSV response as a Blob", function () {

@@ -1128,7 +1128,10 @@ msgstr ""
 msgid "Station Delay"
 msgstr ""
 
-msgid "Weather and Sensors"
+msgid "Weather Adjustment"
+msgstr ""
+
+msgid "Built-in Sensors"
 msgstr ""
 
 msgid "Adjustment Method"
@@ -1352,6 +1355,9 @@ msgid "Special Station Auto-Refresh"
 msgstr ""
 
 msgid "Reset"
+msgstr ""
+
+msgid "Reset Zoom"
 msgstr ""
 
 msgid "Clear Log Data"
@@ -2035,7 +2041,10 @@ msgstr ""
 msgid "No sensor logs found."
 msgstr ""
 
-msgid "Are you sure you want to delete the log for"
+msgid "Loading sensor data"
+msgstr ""
+
+msgid "No sensor data in the selected time range. Older data may exist; choose a longer range above."
 msgstr ""
 
 msgid "Failed to load sensor logs"
@@ -2045,6 +2054,54 @@ msgid "Sensor Logs"
 msgstr ""
 
 msgid "Are you sure you want to delete all sensor logs?"
+msgstr ""
+
+msgid "Are you sure you want to download all log data?"
+msgstr ""
+
+msgid "This action can take a while depending on the number of log records."
+msgstr ""
+
+msgid "Retrieving sensor logs"
+msgstr ""
+
+msgid "Deleting sensor log"
+msgstr ""
+
+msgid "Delete the entire log of"
+msgstr ""
+
+msgid "Warning"
+msgstr ""
+
+msgid "This may take several minutes. Deleting a sensor's log does not free log capacity; use this only when you need to reset this sensor's recorded history."
+msgstr ""
+
+msgid "Loading log data"
+msgstr ""
+
+msgid "Stop"
+msgstr ""
+
+msgid "Stopping"
+msgstr ""
+
+msgid "Stopping after the current page"
+msgstr ""
+
+msgid "Less than a minute remaining"
+msgstr ""
+
+msgid "About %d minute remaining"
+msgstr ""
+
+msgid "About %d minutes remaining"
+msgstr ""
+
+msgid "Failed to delete sensor logs"
+msgstr ""
+
+msgid "Sensor log progress"
 msgstr ""
 
 msgid "Scan For Device"

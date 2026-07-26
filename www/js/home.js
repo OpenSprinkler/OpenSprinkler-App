@@ -78,19 +78,70 @@ window.currLocal = true;
 	}
 
 	// Insert script into the DOM
-	function insertScript( src, callback ) {
+	function insertScript( src, callback, errorCallback ) {
 		// Create callback if one is not provided
 		callback = callback || function() {};
 
 		var a = document.createElement( "script" );
 		a.src = src;
 		a.addEventListener( "load", callback, false );
+		if ( errorCallback ) {
+			a.addEventListener( "error", errorCallback, false );
+		}
 		document.getElementsByTagName( "head" )[ 0 ].appendChild( a );
+	}
+
+	function loadOptionalScripts( scripts, callback ) {
+		var index = 0;
+
+		function loadNext() {
+			if ( index === scripts.length ) {
+				callback();
+				return;
+			}
+			insertScript( assetLocation + scripts[ index++ ], loadNext, loadNext );
+		}
+
+		loadNext();
+	}
+
+	function loadApplicationScripts() {
+		fetch( assetLocation + "modules.json" )
+			.then( response => response.json() )
+			.then( modules => {
+				let loadedScripts = 0;
+				const totalScripts = modules.length;
+
+				function scriptLoaded() {
+					loadedScripts++;
+					if ( loadedScripts === totalScripts ) {
+						// Once all scripts loaded, insert main.js
+						insertScript( assetLocation + "js/main.js", function () {
+							try {
+								OSApp.Storage.setItemSync( "testQuota", "true" );
+								OSApp.Storage.removeItemSync( "testQuota" );
+								init();
+							} catch ( err ) {
+								if ( err.code === 22 ) {
+									document.body.innerHTML = "<div class='spinner'><div class='logo'></div>" +
+										"<span class='feedback'>Local storage is not enabled. You may be in private browsing mode.</span></div>";
+								}
+							}
+						});
+					}
+				}
+
+				// Dynamically insert all scripts from modules.json
+				modules.forEach( script => {
+					insertScript( assetLocation + "js/modules/" + script, scriptLoaded );
+				});
+			});
 	}
 
 	// Change the viewport
 	document.querySelector( "meta[name='viewport']" ).content =
-		"width=device-width,initial-scale=1.0,minimum-scale=1.0,user-scalable=no";
+		"viewport-fit=cover,width=device-width,initial-scale=1.0,minimum-scale=1.0," +
+		"maximum-scale=1.0,user-scalable=no";
 
 	// Allow app to run in full screen when launched from the home screen
 	insertMeta( "apple-mobile-web-app-capable", "yes" );
@@ -142,40 +193,15 @@ window.currLocal = true;
 			// Insert datatables grid library
 			insertScript( assetLocation + "vendor-js/dataTables-2.1.8.min.js" );
 
-			// Insert datatables grid library
-			insertScript( assetLocation + "vendor-js/vis-timeline-graph2d.min.js" );
-
-
-			fetch( assetLocation + "modules.json" )
-				.then( response => response.json() )
-				.then( modules => {
-					let loadedScripts = 0;
-					const totalScripts = modules.length;
-
-					function scriptLoaded() {
-						loadedScripts++;
-						if ( loadedScripts === totalScripts ) {
-							// Once all scripts loaded, insert main.js
-							insertScript( assetLocation + "js/main.js", function () {
-								try {
-									OSApp.Storage.setItemSync( "testQuota", "true" );
-									OSApp.Storage.removeItemSync( "testQuota" );
-									init();
-								} catch ( err ) {
-									if ( err.code === 22 ) {
-										document.body.innerHTML = "<div class='spinner'><div class='logo'></div>" +
-											"<span class='feedback'>Local storage is not enabled. You may be in private browsing mode.</span></div>";
-									}
-								}
-							});
-						}
-					}
-
-					// Dynamically insert all scripts from modules.json
-					modules.forEach( script => {
-						insertScript( assetLocation + "js/modules/" + script, scriptLoaded );
-					});
-				});
+			// Sensor Logs requires this stack in dependency order. Keep it in
+			// parity with index.html. Missing chart assets must not block app startup.
+			loadOptionalScripts( [
+				"vendor-js/chart.js",
+				"vendor-js/vis-timeline-graph2d.min.js",
+				"js/chart-touch.js",
+				"vendor-js/chartjs-plugin-zoom.min.js",
+				"vendor-js/chartjs-adapter-date-fns.bundle.min.js"
+			], loadApplicationScripts );
 		} );
 	} );
 

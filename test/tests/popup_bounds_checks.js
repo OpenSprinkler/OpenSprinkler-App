@@ -71,6 +71,23 @@ describe("Options Popup Bounds Checks", function () {
 		assert.equal(config.off, 0);
 	});
 
+	it("separates weather adjustment from built-in sensor options", function () {
+		OSApp.Options.showOptions("sensors");
+		var groups = $("#os-options-list fieldset"),
+			weather = groups.filter(function () {
+				return $(this).children("legend").text() === "Weather Adjustment";
+			}),
+			sensors = groups.filter(function () {
+				return $(this).children("legend").text() === "Built-in Sensors";
+			});
+
+		assert.lengthOf(weather, 1);
+		assert.lengthOf(sensors, 1);
+		assert.lengthOf(weather.find("#sensor1"), 0);
+		assert.lengthOf(sensors.find("#sensor1"), 1);
+		assert.equal(sensors.attr("data-collapsed"), "false");
+	});
+
 	it("rejects flow pulse rates that cannot fit the firmware option bytes", function () {
 		OSApp.Options.showOptions();
 		var button = $("#sensor1"),
@@ -84,6 +101,63 @@ describe("Options Popup Bounds Checks", function () {
 
 		assert.isTrue(showError.calledOnceWith("Please check input and try again."));
 		assert.equal(button.val(), original);
+	});
+
+	it("preserves normally-open mode when switching to a flow sensor", function () {
+		OSApp.Options.showOptions();
+		var button = $("#sensor1"),
+			config = OSApp.Utils.unescapeJSON(button.val());
+		config.type = 1;
+		config.no = 1;
+		button.val(OSApp.Utils.escapeJSON(config)).trigger("click");
+
+		var popup = $("#sensorSettings");
+		assert.isTrue(popup.find("#sn-no").prop("checked"));
+		popup.find("#sn-type").val("2").trigger("change");
+		popup.find("#sn-fpr").val("1");
+		popup.find(".submit").trigger("click");
+
+		config = OSApp.Utils.unescapeJSON(button.val());
+		assert.equal(config.type, 2);
+		assert.equal(config.no, 1);
+	});
+
+	it("preserves hidden normally-open state when editing an existing flow sensor", function () {
+		OSApp.Options.showOptions();
+		var button = $("#sensor1"),
+			config = OSApp.Utils.unescapeJSON(button.val());
+		config.type = 2;
+		config.no = 0;
+		config.fpr = 1;
+		button.val(OSApp.Utils.escapeJSON(config)).trigger("click");
+
+		var popup = $("#sensorSettings");
+		assert.isFalse(popup.find("#sn-no").prop("checked"));
+		popup.find("#sn-fpr").val("2");
+		popup.find(".submit").trigger("click");
+
+		config = OSApp.Utils.unescapeJSON(button.val());
+		assert.equal(config.type, 2);
+		assert.equal(config.no, 0);
+		assert.equal(config.fpr, 2);
+	});
+
+	it("defaults normally-open mode when configuring an unset sensor", function () {
+		OSApp.Options.showOptions();
+		var button = $("#sensor1"),
+			config = OSApp.Utils.unescapeJSON(button.val());
+		config.type = 0;
+		config.no = 0;
+		button.val(OSApp.Utils.escapeJSON(config)).trigger("click");
+
+		var popup = $("#sensorSettings");
+		assert.isTrue(popup.find("#sn-no").prop("checked"));
+		popup.find("#sn-type").val("2").trigger("change");
+		popup.find("#sn-fpr").val("1");
+		popup.find(".submit").trigger("click");
+
+		config = OSApp.Utils.unescapeJSON(button.val());
+		assert.equal(config.no, 1);
 	});
 
 	it("snaps modern master adjustments before enforcing the -600..600 bounds", function () {
@@ -166,6 +240,35 @@ describe("Options Popup Bounds Checks", function () {
 			assert.lengthOf($("#masterSettings #master-name-xss"), 0);
 		} finally {
 			names[ 0 ] = originalName;
+		}
+	});
+
+	it("selects each configured master zone when opening its dialog", function () {
+		var options = OSApp.currentSession.controller.options,
+			original = {
+				mas: options.mas,
+				mas2: options.mas2,
+				mas3: options.mas3,
+				mas4: options.mas4
+			};
+
+		try {
+			options.mas = 1;
+			options.mas2 = 2;
+			options.mas3 = 3;
+			options.mas4 = 4;
+			OSApp.Options.showOptions();
+
+			[ 1, 2, 3, 4 ].forEach(function (zone, index) {
+				$("#master" + (index + 1)).trigger("click");
+				assert.equal($("#masterSettings #mas-zone").val(), String(zone));
+				$("#masterSettings").popup("close").remove();
+			});
+		} finally {
+			options.mas = original.mas;
+			options.mas2 = original.mas2;
+			options.mas3 = original.mas3;
+			options.mas4 = original.mas4;
 		}
 	});
 });

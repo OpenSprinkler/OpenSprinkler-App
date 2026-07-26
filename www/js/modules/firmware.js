@@ -43,11 +43,12 @@ OSApp.Firmware.isChangeRequest = function( dest ) {
 };
 
 // Wrapper function to communicate with OpenSprinkler
-OSApp.Firmware.sendToOS = function( dest, type ) {
+OSApp.Firmware.sendToOS = function( dest, type, requestOptions ) {
 
 	// Inject password into the request
 	dest = dest.replace( "pw=", "pw=" + encodeURIComponent( OSApp.currentSession.pass ) );
 	type = type || "text";
+	requestOptions = requestOptions || {};
 
 	// Designate AJAX queue based on command type
 	var isChange = OSApp.Firmware.isChangeRequest( dest ),
@@ -62,6 +63,9 @@ OSApp.Firmware.sendToOS = function( dest, type ) {
 			data: usePOST ? OSApp.Firmware.getUrlVars( dest ) : null,
 			dataType: type,
 			shouldRetry: function( xhr, current ) {
+				if ( requestOptions.signal && requestOptions.signal.aborted ) {
+					return false;
+				}
 				if ( xhr.status === 0 && xhr.statusText === "abort" || OSApp.Constants.http.RETRY_COUNT < current ) {
 					$.ajaxq.abort( queue );
 					return false;
@@ -69,18 +73,30 @@ OSApp.Firmware.sendToOS = function( dest, type ) {
 				return true;
 			}
 		},
-		defer;
+		defer,
+		activeRequest = null,
+		abortRequest = function() {
+			if ( activeRequest ) {
+				activeRequest.abort();
+			}
+		};
 
-	if ( OSApp.currentSession.auth ) {
+	if ( OSApp.currentSession.auth || requestOptions.signal ) {
 		$.extend( obj, {
 			beforeSend: function( xhr ) {
-				xhr.setRequestHeader(
-					"Authorization", "Basic " + btoa( OSApp.currentSession.authUser + ":" + OSApp.currentSession.authPass )
-				);
+				activeRequest = xhr;
+				if ( OSApp.currentSession.auth ) {
+					xhr.setRequestHeader(
+						"Authorization", "Basic " + btoa( OSApp.currentSession.authUser + ":" + OSApp.currentSession.authPass )
+					);
+				}
+				if ( requestOptions.signal && requestOptions.signal.aborted ) {
+					xhr.abort();
+					return false;
+				}
 			}
 		} );
 	}
-
 	if ( OSApp.currentSession.fw183 ) {
 
 		// Firmware 1.8.3 has a bug handling the time stamp in the GET request
@@ -161,7 +177,8 @@ OSApp.Firmware.sendToOS = function( dest, type ) {
 		return $.Deferred().reject( data );
 	}
 
-	if ( type === "arraybuffer" || type === "blob" ) {
+	if ( type === "arraybuffer" || type === "arraybuffer-response" || type === "blob" ) {
+		const includeResponse = type === "arraybuffer-response";
 		const fetchHeaders = {};
 		if ( OSApp.currentSession.auth ) {
 			fetchHeaders[ "Authorization" ] = "Basic " + btoa( OSApp.currentSession.authUser + ":" + OSApp.currentSession.authPass );
@@ -171,8 +188,23 @@ OSApp.Firmware.sendToOS = function( dest, type ) {
 		const isSensorLog = /\/jsl(?:\?|$)/.test( dest );
 		if ( abortController ) {
 			fetchOptions.signal = abortController.signal;
+		} else if ( requestOptions.signal ) {
+			fetchOptions.signal = requestOptions.signal;
 		}
 		defer = $.Deferred();
+		const abortFetch = function() {
+			if ( abortController ) {
+				abortController.abort();
+			}
+			defer.reject( { status: 0, statusText: "abort" } );
+		};
+		if ( requestOptions.signal ) {
+			if ( requestOptions.signal.aborted ) {
+				abortFetch();
+				return defer.promise();
+			}
+			requestOptions.signal.addEventListener( "abort", abortFetch, { once: true } );
+		}
 			const fetchTimeout = setTimeout( function() {
 			if ( abortController ) {
 				abortController.abort();
@@ -194,7 +226,7 @@ OSApp.Firmware.sendToOS = function( dest, type ) {
 							}
 							var emptyLog = new ArrayBuffer( 0 );
 							emptyLog.noLogHeader = true;
-							return emptyLog;
+							return includeResponse ? { data: emptyLog, headers: r.headers } : emptyLog;
 						}
 						// A JSON success response is not a valid binary log payload.
 						if ( data && data.result === 1 ) {
@@ -207,26 +239,39 @@ OSApp.Firmware.sendToOS = function( dest, type ) {
 						!/^application\/octet-stream(?:\s*;|$)/i.test( contentType ) ) ) {
 						return $.Deferred().reject( { status: 0, statusText: "parsererror" } );
 					}
-					return type === "blob" ? r.blob() : r.arrayBuffer();
+					return ( type === "blob" ? r.blob() : r.arrayBuffer() ).then( function( data ) {
+						return includeResponse ? { data: data, headers: r.headers } : data;
+					} );
 			} )
-			.then( function( buf ) {
-				if ( type === "arraybuffer" && isSensorLog && ( !( buf instanceof ArrayBuffer ) || buf.byteLength % 10 !== 0 ) ) {
+			.then( function( response ) {
+				var buf = includeResponse ? response.data : response;
+				if ( type !== "blob" && isSensorLog && ( !( buf instanceof ArrayBuffer ) || buf.byteLength % 10 !== 0 ) ) {
 					return $.Deferred().reject( { status: 0, statusText: "parsererror" } );
 				}
-				return buf;
+				return response;
 			} )
 			.then( function( buf ) { defer.resolve( buf ); } )
 			.catch( function( err ) { defer.reject( err ); } )
-			.finally( function() { clearTimeout( fetchTimeout ); } );
+			.finally( function() {
+				clearTimeout( fetchTimeout );
+				if ( requestOptions.signal ) {
+					requestOptions.signal.removeEventListener( "abort", abortFetch );
+				}
+			} );
 		return defer.promise();
 	}
 
+	if ( requestOptions.signal ) {
+		requestOptions.signal.addEventListener( "abort", abortRequest, { once: true } );
+	}
 	defer = $.ajaxq( queue, obj ).then(
 		function( data ) {
 			return handleFirmwareResponse( data );
 		},
 		function( e ) {
-			if ( ( e.statusText === "timeout" || e.status === 0 ) && isChange ) {
+			if ( requestOptions.signal && requestOptions.signal.aborted ) {
+				return $.Deferred().reject( e );
+			} else if ( ( e.statusText === "timeout" || e.status === 0 ) && isChange ) {
 
 				// Handle the connection timing out but only show error on setting change
 				OSApp.Errors.showError( OSApp.Language._( "Connection timed-out. Please try again." ) );
@@ -244,6 +289,12 @@ OSApp.Firmware.sendToOS = function( dest, type ) {
 			return $.Deferred().reject( e );
 		}
 	);
+	defer.always( function() {
+		activeRequest = null;
+		if ( requestOptions.signal ) {
+			requestOptions.signal.removeEventListener( "abort", abortRequest );
+		}
+	} );
 
 	return defer;
 };
