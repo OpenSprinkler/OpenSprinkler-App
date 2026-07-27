@@ -99,6 +99,15 @@
                 <action android:name="android.intent.action.GET_CONTENT" />
             </intent>
         </config-file>
+        <config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <provider android:authorities="${applicationId}.sharing.provider"
+                android:exported="false"
+                android:grantUriPermissions="true"
+                android:name="nl.xservices.plugins.FileProvider">
+                <meta-data android:name="android.support.FILE_PROVIDER_PATHS"
+                    android:resource="@xml/sharing_paths" />
+            </provider>
+        </config-file>
         <preference name="Scheme" value="http" />
         <preference name="android-minSdkVersion" value="24" />
         <preference name="android-targetSdkVersion" value="35" />

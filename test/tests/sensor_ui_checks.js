@@ -867,7 +867,9 @@ describe("Sensor UI Checks", function () {
 		var cordovaDescriptor = Object.getOwnPropertyDescriptor(window, "cordova");
 		var originalPlugins = window.plugins;
 		var originalResolver = window.resolveLocalFileSystemURL;
-		var shareWithOptions = sinon.spy();
+		var shareWithOptions = sinon.spy(function (_options, _success, error) {
+			error("Android chooser callback");
+		});
 		var truncate = sinon.spy(function () { this.onwriteend(); });
 		var write = sinon.spy(function () { this.onwriteend(); });
 		var writer = { truncate: truncate, write: write };
@@ -890,6 +892,8 @@ describe("Sensor UI Checks", function () {
 		var chartConstructor = sinon.stub(window, "Chart").returns(chart);
 		var loading = sinon.stub($.mobile, "loading");
 		var changeHeader = sinon.stub(OSApp.UIDom, "changeHeader");
+		var showError = sinon.stub(OSApp.Errors, "showError");
+		var consoleWarn = sinon.stub(console, "warn");
 		var sendToOS = sinon.stub(OSApp.Firmware, "sendToOS")
 			.returns($.Deferred().resolve(sensorLogBuffer()).promise());
 		var page;
@@ -906,6 +910,8 @@ describe("Sensor UI Checks", function () {
 			loading.restore();
 			chartConstructor.restore();
 			createObjectURL.restore();
+			showError.restore();
+			consoleWarn.restore();
 			window.plugins = originalPlugins;
 			window.resolveLocalFileSystemURL = originalResolver;
 			controller.settings.devt = originalDevt;
@@ -938,6 +944,8 @@ describe("Sensor UI Checks", function () {
 			assert.isTrue(shareWithOptions.calledOnce);
 			assert.deepEqual(shareWithOptions.firstCall.args[0].files, [ "file:///cache/sensor-exports/sensor.csv" ]);
 			assert.isFalse(createObjectURL.called);
+			assert.isTrue(consoleWarn.calledOnce);
+			assert.isTrue(showError.calledOnce);
 		} finally {
 			cleanup();
 		}
