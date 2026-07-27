@@ -2408,8 +2408,16 @@ OSApp.Sensors.displayLogs = function (_callback) {
         function writeAndShare(fileEntry) {
             fileEntry.createWriter((writer) => {
                 let cleared = false;
-                writer.onerror = showDownloadError;
+                let writeFailed = false;
+                writer.onerror = () => {
+                    writeFailed = true;
+                    console.warn("OS: FileWriter failed", writer.error);
+                    showDownloadError();
+                };
                 writer.onwriteend = () => {
+                    // Cordova FileWriter calls onwriteend after onerror.
+                    if (writeFailed) return;
+
                     // getFile({create:true}) does not truncate an existing file,
                     // so truncate first, then write on the second onwriteend.
                     if (!cleared) {
@@ -2426,7 +2434,10 @@ OSApp.Sensors.displayLogs = function (_callback) {
                         subject: filename,
                         files: [ fileUrl ],
                         chooserTitle: OSApp.Language._("Download Log")
-                    }, () => {}, showDownloadError);
+                    }, () => {}, (error) => {
+                        console.warn("OS: SocialSharing failed", error);
+                        showDownloadError();
+                    });
                 };
                 writer.truncate(0);
             }, showDownloadError);
@@ -2648,7 +2659,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
         return OSApp.Sensors.fetchAllLogPages({
             collect: false,
             isCurrent: isCurrentContext,
-            onProgress: setLoadingProgress,
+            onProgress: (progress, processed) => setLoadingProgress(progress, processed, false),
             onPage: (buffer) => {
                 const rows = sensorLogCsvRows(buffer, sensorByUuid, unitByValue);
                 if (rows.length) csvParts.push(rows.join("\r\n") + "\r\n");
@@ -2662,8 +2673,9 @@ OSApp.Sensors.displayLogs = function (_callback) {
                     `sensorlog-${today}.csv`
                 );
             })
-            .fail(() => {
+            .fail((error) => {
 				if (!isCurrentContext()) return;
+                console.warn("OS: fetchAllLogPages failed", error);
                 OSApp.Errors.showError(OSApp.Language._("Failed to download sensor logs"));
             })
             .always(() => {
