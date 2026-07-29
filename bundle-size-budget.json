@@ -1,0 +1,18 @@
+{
+	"schemaVersion": 1,
+	"compression": {
+		"algorithm": "gzip",
+		"level": 9
+	},
+	"maximumGrowthPercent": 10,
+	"assets": [
+		{
+			"path": "dist/assets/app.css",
+			"baselineBytes": 3319
+		},
+		{
+			"path": "dist/assets/app.js",
+			"baselineBytes": 33466
+		}
+	]
+}
