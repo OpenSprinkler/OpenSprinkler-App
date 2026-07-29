@@ -159,30 +159,29 @@ jobs:
               inspect_file="${RUNNER_TEMP}/existing-release.json"
               docker buildx imagetools inspect "$IMAGE_REPOSITORY:$RELEASE_TAG" \
                 --format '{{json .}}' > "$inspect_file"
-              node --input-type=commonjs - \
-                "$inspect_file" "$SOURCE_SHA" "$RELEASE_TAG" "$RUN_ID" "$GITHUB_OUTPUT" <<'NODE'
-              const { appendFileSync, readFileSync } = require("node:fs");
-              const [reportPath, sourceSha, releaseTag, runId, outputPath] = process.argv.slice(2);
-              const report = JSON.parse(readFileSync(reportPath, "utf8"));
-              const digest = report.manifest?.digest;
-              if (!/^sha256:[0-9a-f]{64}$/.test(digest ?? "")) {
-                throw new Error("The existing release does not expose a valid manifest digest.");
-              }
-              for (const platform of ["linux/amd64", "linux/arm64"]) {
-                const labels = report.image?.[platform]?.config?.Labels;
-                if (labels?.["org.opencontainers.image.revision"] !== sourceSha) {
-                  throw new Error(`The existing ${platform} release was not built from ${sourceSha}.`);
+              node --input-type=commonjs -e '
+                const { appendFileSync, readFileSync } = require("node:fs");
+                const [reportPath, sourceSha, releaseTag, runId, outputPath] = process.argv.slice(1);
+                const report = JSON.parse(readFileSync(reportPath, "utf8"));
+                const digest = report.manifest?.digest;
+                if (!/^sha256:[0-9a-f]{64}$/.test(digest ?? "")) {
+                  throw new Error("The existing release does not expose a valid manifest digest.");
                 }
-                if (labels?.["org.opencontainers.image.version"] !== releaseTag) {
-                  throw new Error(`The existing ${platform} release has an unexpected version label.`);
+                for (const platform of ["linux/amd64", "linux/arm64"]) {
+                  const labels = report.image?.[platform]?.config?.Labels;
+                  if (labels?.["org.opencontainers.image.revision"] !== sourceSha) {
+                    throw new Error(`The existing ${platform} release was not built from ${sourceSha}.`);
+                  }
+                  if (labels?.["org.opencontainers.image.version"] !== releaseTag) {
+                    throw new Error(`The existing ${platform} release has an unexpected version label.`);
+                  }
+                  if (labels?.["io.github.opensprinkler.release-run-id"] !== runId) {
+                    throw new Error(`The existing ${platform} release came from a different workflow run.`);
+                  }
                 }
-                if (labels?.["io.github.opensprinkler.release-run-id"] !== runId) {
-                  throw new Error(`The existing ${platform} release came from a different workflow run.`);
-                }
-              }
-              appendFileSync(outputPath, `release_exists=true\nrelease_digest=${digest}\n`);
-              console.log(`Verified retry-safe existing release ${releaseTag}@${digest}.`);
-              NODE
+                appendFileSync(outputPath, `release_exists=true\nrelease_digest=${digest}\n`);
+                console.log(`Verified retry-safe existing release ${releaseTag}@${digest}.`);
+              ' "$inspect_file" "$SOURCE_SHA" "$RELEASE_TAG" "$RUN_ID" "$GITHUB_OUTPUT"
               ;;
             *)
               echo "Could not prove that Docker Hub release tag $RELEASE_TAG is unused (HTTP $status)." >&2
@@ -274,18 +273,18 @@ jobs:
           curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' --tlsv1.2 \
             "https://hub.docker.com/v2/namespaces/${DOCKERHUB_USERNAME}/repositories/opensprinkler-companion" \
             --output "$settings_file"
-          node --input-type=commonjs - "$settings_file" <<'NODE'
-          const { readFileSync } = require("node:fs");
-          const repository = JSON.parse(readFileSync(process.argv[2], "utf8"));
-          const settings = repository.immutable_tags_settings;
-          const requiredRule = "^companion-v.*$";
-          if (settings?.enabled !== true || !Array.isArray(settings.rules) ||
-              settings.rules.length !== 1 || settings.rules[0] !== requiredRule) {
-            console.error(`Docker Hub must enable only the exact immutable-tag rule ${requiredRule} before publication.`);
-            process.exit(1);
-          }
-          console.log(`Verified Docker Hub immutable-tag rule ${requiredRule}.`);
-          NODE
+          node --input-type=commonjs -e '
+            const { readFileSync } = require("node:fs");
+            const repository = JSON.parse(readFileSync(process.argv[1], "utf8"));
+            const settings = repository.immutable_tags_settings;
+            const requiredRule = "^companion-v.*$";
+            if (settings?.enabled !== true || !Array.isArray(settings.rules) ||
+                settings.rules.length !== 1 || settings.rules[0] !== requiredRule) {
+              console.error(`Docker Hub must enable only the exact immutable-tag rule ${requiredRule} before publication.`);
+              process.exit(1);
+            }
+            console.log(`Verified Docker Hub immutable-tag rule ${requiredRule}.`);
+          ' "$settings_file"
 
       - name: Promote the tested digests to image tags
         shell: bash
