@@ -1,27 +1,59 @@
-// test/server/http.spec.ts
 import { describe, it, expect } from "vitest";
 import { Hono } from "hono";
 import { createHttpApp } from "../../server/http";
 
-// Regression: when the firmware's home.js bootstrap points at the companion, the page is served from
-// the DEVICE's origin and loads the Vite ESM bundle (assets/app.js) cross-origin as a module script.
-// Module scripts are fetched in CORS mode, so every served file (not just /api) must carry
-// Access-Control-Allow-Origin or the browser blocks app.js and the UI hangs at "Loading…".
-describe( "createHttpApp — CORS covers static assets (cross-origin ESM bootstrap)", () => {
-	const app = createHttpApp( new Hono() );   // empty api; dist may be absent — the cors middleware still runs
+describe( "createHttpApp", () => {
+	const origin = "http://192.0.2.20";
+	const app = createHttpApp( new Hono(), "dist", { apiAllowedOrigins: [ origin ] } );
 
-	it( "sets Access-Control-Allow-Origin on the ESM bundle path", async () => {
-		const res = await app.request( "/assets/app.js", { headers: { Origin: "http://10.10.100.246" } } );
-		expect( res.headers.get( "access-control-allow-origin" ) ).toBe( "*" );
+	it( "keeps wildcard CORS on cross-origin static modules", async () => {
+		for ( const path of [ "/assets/app.js", "/home.js" ] ) {
+			const res = await app.request( path, { headers: { Origin: origin } } );
+			expect( res.headers.get( "access-control-allow-origin" ) ).toBe( "*" );
+		}
 	} );
 
-	it( "sets Access-Control-Allow-Origin on the home.js bootstrap path", async () => {
-		const res = await app.request( "/home.js", { headers: { Origin: "http://10.10.100.246" } } );
-		expect( res.headers.get( "access-control-allow-origin" ) ).toBe( "*" );
+	it( "allows configured API origins but not arbitrary sites", async () => {
+		const allowed = await app.request( "/api/anything", { headers: { Origin: origin } } );
+		expect( allowed.headers.get( "access-control-allow-origin" ) ).toBe( origin );
+		const denied = await app.request( "/api/anything", { headers: { Origin: "https://evil.example" } } );
+		expect( denied.headers.get( "access-control-allow-origin" ) ).toBeNull();
 	} );
 
-	it( "still sets CORS on the /api surface", async () => {
-		const res = await app.request( "/api/anything", { headers: { Origin: "http://10.10.100.246" } } );
-		expect( res.headers.get( "access-control-allow-origin" ) ).toBe( "*" );
+	it( "supports optional bearer authentication without exposing it through CORS", async () => {
+		const api = new Hono().get( "/health", ( c ) => c.json( { ok: true } ) );
+		const secured = createHttpApp( api, "dist", {
+			apiAllowedOrigins: [ origin ], apiToken: "0123456789abcdef",
+		} );
+		expect( ( await secured.request( "/api/health" ) ).status ).toBe( 401 );
+		const response = await secured.request( "/api/health", {
+			headers: { Authorization: "Bearer 0123456789abcdef", Origin: origin },
+		} );
+		expect( response.status ).toBe( 200 );
+		expect( response.headers.get( "access-control-allow-origin" ) ).toBe( origin );
+	} );
+
+	it( "treats only /api path segments as API routes", async () => {
+		const response = await app.request( "/apiary" );
+		expect( response.status ).toBe( 200 );
+		expect( response.headers.get( "content-type" ) ).toContain( "text/html" );
+	} );
+
+	it( "uses the SPA fallback only for navigation-like GET/HEAD requests", async () => {
+		expect( ( await app.request( "/settings", { headers: { Accept: "text/html" } } ) ).status ).toBe( 200 );
+		expect( ( await app.request( "/settings", { method: "HEAD" } ) ).status ).toBe( 200 );
+		expect( ( await app.request( "/assets/missing.js" ) ).status ).toBe( 404 );
+		expect( ( await app.request( "/missing", { headers: { Accept: "application/json" } } ) ).status ).toBe( 404 );
+		expect( ( await app.request( "/settings", { method: "POST" } ) ).status ).toBe( 404 );
+	} );
+
+	it( "sets browser hardening headers and prevents API response caching", async () => {
+		const page = await app.request( "/" );
+		expect( page.headers.get( "x-content-type-options" ) ).toBe( "nosniff" );
+		expect( page.headers.get( "referrer-policy" ) ).toBe( "no-referrer" );
+		expect( page.headers.get( "x-frame-options" ) ).toBe( "SAMEORIGIN" );
+		expect( page.headers.get( "content-security-policy" ) ).toContain( "frame-ancestors 'self'" );
+		const apiResponse = await app.request( "/api/anything" );
+		expect( apiResponse.headers.get( "cache-control" ) ).toBe( "no-store" );
 	} );
 } );

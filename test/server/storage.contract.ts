@@ -47,10 +47,32 @@ export function runStorageContract( name: string, make: () => StorageProvider ):
 
 		it( "reports health", async () => {
 			await store.appendTelemetry( "c1", sample( 100 ) );
-			const h = await store.health();
+			const h = await store.health( "c1" );
 			expect( h.ok ).toBe( true );
 			expect( h.telemetryRows ).toBe( 1 );
 			expect( h.lastTs ).toBe( 100 );
+		} );
+
+		it( "bounds query pages", async () => {
+			await store.appendTelemetry( "c1", sample( 100 ) );
+			await store.appendTelemetry( "c1", sample( 200 ) );
+			await store.appendTelemetry( "c1", sample( 300 ) );
+			const rows = await store.queryTelemetry( "c1", { fromTs: 0, toTs: 999, limit: 1, offset: 1 } );
+			expect( rows.map( ( row ) => row.ts ) ).toEqual( [ 200 ] );
+		} );
+
+		it( "uses id as a deterministic keyset tie-breaker for equal timestamps", async () => {
+			await store.appendTelemetry( "c1", sample( 100 ) );
+			await store.appendTelemetry( "c1", sample( 100 ) );
+			await store.appendTelemetry( "c1", sample( 200 ) );
+			const first = await store.pageTelemetry( "c1", { fromTs: 0, toTs: 999, limit: 1 } );
+			expect( first.rows.map( ( row ) => row.ts ) ).toEqual( [ 100 ] );
+			expect( first.nextCursor ).not.toBeNull();
+			const second = await store.pageTelemetry( "c1", {
+				fromTs: 0, toTs: 999, limit: 2, cursor: first.nextCursor!,
+			} );
+			expect( second.rows.map( ( row ) => row.ts ) ).toEqual( [ 100, 200 ] );
+			expect( second.nextCursor ).toBeNull();
 		} );
 	} );
 }

@@ -1,7 +1,14 @@
 import type BetterSqlite3 from "better-sqlite3";
 
+const SCHEMA_VERSION = 1;
+
 /** Idempotent schema creation (FR-14). Single-process, in-container; safe on every boot. */
 export function migrate( db: BetterSqlite3.Database ): void {
+	const version = db.pragma( "user_version", { simple: true } ) as number;
+	// Never let an older binary reinterpret or mutate a database owned by a newer schema.
+	if ( version > SCHEMA_VERSION ) {
+		throw new Error( `SQLite schema version ${ version } is newer than supported version ${ SCHEMA_VERSION }` );
+	}
 	db.exec( `
 		CREATE TABLE IF NOT EXISTS telemetry (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -31,4 +38,14 @@ export function migrate( db: BetterSqlite3.Database ): void {
 		CREATE UNIQUE INDEX IF NOT EXISTS run_log_uniq ON run_log ( controller, station, end_ts );
 		CREATE INDEX IF NOT EXISTS run_log_ctrl_end ON run_log ( controller, end_ts );
 	` );
+	if ( version < SCHEMA_VERSION ) {
+		// Releases before schema version 1 stored complete /jc and /jo responses in `raw`, including
+		// optional integration credentials. Overwrite that legacy data, compact it out of the DB,
+		// and truncate the WAL before marking the one-time migration complete.
+		db.pragma( "secure_delete = ON" );
+		db.prepare( "UPDATE telemetry SET raw = '{}'" ).run();
+		db.exec( "VACUUM" );
+		db.pragma( "wal_checkpoint(TRUNCATE)" );
+		db.pragma( `user_version = ${ SCHEMA_VERSION }` );
+	}
 }

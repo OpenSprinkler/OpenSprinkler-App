@@ -1,49 +1,138 @@
 import { Hono } from "hono";
-import type { StorageProvider } from "../storage/provider";
+import { Buffer } from "node:buffer";
+import type { HistoryPageCursor, StorageProvider } from "../storage/provider";
+
+export const DEFAULT_PAGE_SIZE = 5000;
+export const MAX_PAGE_SIZE = 5000;
 
 export interface ApiDeps {
 	store: StorageProvider;
-	controllerId: string;
+	controllerId: string | ( () => string );
 	pollIntervalSec: number;
 	historyMaxDays: number;
 	now: () => number;            // unix seconds (injectable for tests)
 	lastError: () => string | null;
 }
 
-/** Parse + validate a from/to range (FR-17): inclusive, default 7d, clamp to historyMaxDays. */
-function parseRange( url: URL, now: number, maxDays: number ): { fromTs: number; toTs: number } | null {
-	const rawFrom = url.searchParams.get( "from" );
+interface ParsedQuery { fromTs: number; toTs: number; limit: number; cursorToken: string | null; }
+type CursorKind = "telemetry" | "runlog";
+
+const PUBLIC_LAST_ERRORS = new Set( [
+	"database unavailable", "database operation failed", "controller authentication failed",
+	"controller request failed", "controller response invalid", "controller collection failed",
+	"poll cycle failed", "service degraded",
+] );
+
+function publicLastError( error: string | null ): string | null {
+	if ( error === null ) return null;
+	return PUBLIC_LAST_ERRORS.has( error ) ? error : "service degraded";
+}
+
+function nonNegativeInteger( raw: string | null ): number | null {
+	if ( raw === null || !/^(0|[1-9]\d*)$/.test( raw ) ) return null;
+	const value = Number( raw );
+	return Number.isSafeInteger( value ) ? value : null;
+}
+
+/** Parse + validate a bounded inclusive range and a bounded result page. */
+function parseQuery( url: URL, now: number, maxDays: number ): ParsedQuery | null {
 	const rawTo = url.searchParams.get( "to" );
-	const to = rawTo === null ? now : Number( rawTo );
-	const from = rawFrom === null ? now - 7 * 86400 : Number( rawFrom );
-	if ( ![ from, to ].every( ( n ) => Number.isInteger( n ) && n >= 0 ) || from > to ) return null;
-	const minFrom = to - maxDays * 86400;
-	return { fromTs: Math.max( from, minFrom ), toTs: to };
+	const to = rawTo === null ? now : nonNegativeInteger( rawTo );
+	if ( to === null || !Number.isSafeInteger( to ) || to < 0 ) return null;
+	const rawFrom = url.searchParams.get( "from" );
+	const from = rawFrom === null ? Math.max( 0, to - 7 * 86400 ) : nonNegativeInteger( rawFrom );
+	if ( from === null || from > to ) return null;
+
+	const rawLimit = url.searchParams.get( "limit" );
+	const limit = rawLimit === null ? DEFAULT_PAGE_SIZE : nonNegativeInteger( rawLimit );
+	if ( url.searchParams.has( "offset" ) ) return null;
+	if ( limit === null || limit < 1 || limit > MAX_PAGE_SIZE ) return null;
+
+	return {
+		fromTs: Math.max( from, to - maxDays * 86400 ), toTs: to, limit,
+		cursorToken: url.searchParams.get( "cursor" ),
+	};
+}
+
+function encodeCursor( kind: CursorKind, q: ParsedQuery, cursor: HistoryPageCursor ): string {
+	return Buffer.from( JSON.stringify( [
+		1, kind, q.fromTs, q.toTs, cursor.snapshotId, cursor.afterTs, cursor.afterId,
+	] ) ).toString( "base64url" );
+}
+
+function decodeCursor( kind: CursorKind, q: ParsedQuery ): HistoryPageCursor | undefined | null {
+	const token = q.cursorToken;
+	if ( token === null ) return undefined;
+	if ( token.length < 1 || token.length > 512 || !/^[A-Za-z0-9_-]+$/.test( token ) ) return null;
+	try {
+		const bytes = Buffer.from( token, "base64url" );
+		if ( bytes.toString( "base64url" ) !== token ) return null;
+		const value = JSON.parse( bytes.toString( "utf8" ) ) as unknown;
+		if ( !Array.isArray( value ) || value.length !== 7 || value[ 0 ] !== 1 || value[ 1 ] !== kind ||
+			value[ 2 ] !== q.fromTs || value[ 3 ] !== q.toTs ) return null;
+		const numbers = value.slice( 4 );
+		if ( numbers.some( ( n ) => typeof n !== "number" || !Number.isSafeInteger( n ) || n < 0 ) ) return null;
+		const [ snapshotId, afterTs, afterId ] = numbers as [number, number, number];
+		if ( afterTs < q.fromTs || afterTs > q.toTs || afterId < 1 || afterId > snapshotId ) return null;
+		return { snapshotId, afterTs, afterId };
+	} catch { return null; }
+}
+
+function controllerId( deps: ApiDeps ): string {
+	return typeof deps.controllerId === "function" ? deps.controllerId() : deps.controllerId;
 }
 
 export function createApiRoutes( deps: ApiDeps ): Hono {
 	const app = new Hono();
+	app.onError( ( error, c ) => {
+		console.error( `[api] request failed (${ error instanceof Error ? error.name : "unknown error" })` );
+		return c.json( { error: "internal server error" }, 500 );
+	} );
 
 	app.get( "/health", async ( c ) => {
-		const h = await deps.store.health();
-		const stale = h.lastTs === null || ( deps.now() - h.lastTs ) > 2 * deps.pollIntervalSec;
-		return c.json( {
-			ok: h.ok, companion: "v1", storage: "sqlite",
-			lastTs: h.lastTs, telemetryRows: h.telemetryRows, runLogRows: h.runLogRows,
-			pollerStale: stale, lastError: deps.lastError(),
-		} );
+		try {
+			const h = await deps.store.health( controllerId( deps ) );
+			const stale = h.lastTs === null || ( deps.now() - h.lastTs ) > 2 * deps.pollIntervalSec;
+			return c.json( {
+				ok: h.ok, companion: "v1", storage: "sqlite",
+				lastTs: h.lastTs, telemetryRows: h.telemetryRows, runLogRows: h.runLogRows,
+					pollerStale: stale, lastError: publicLastError( deps.lastError() ),
+			} );
+		} catch {
+			return c.json( {
+				ok: false, companion: "v1", storage: "sqlite", lastTs: null,
+				telemetryRows: 0, runLogRows: 0, pollerStale: true,
+					lastError: publicLastError( deps.lastError() ) ?? "database unavailable",
+			} );
+		}
 	} );
 
 	app.get( "/history", async ( c ) => {
-		const range = parseRange( new URL( c.req.url ), deps.now(), deps.historyMaxDays );
-		if ( !range ) return c.json( { error: "invalid range" }, 400 );
-		return c.json( { telemetry: await deps.store.queryTelemetry( deps.controllerId, range ) } );
+		const query = parseQuery( new URL( c.req.url ), deps.now(), deps.historyMaxDays );
+		if ( !query ) return c.json( { error: "invalid range or page" }, 400 );
+		const cursor = decodeCursor( "telemetry", query );
+		if ( cursor === null ) return c.json( { error: "invalid range or page" }, 400 );
+		const page = await deps.store.pageTelemetry( controllerId( deps ), {
+			fromTs: query.fromTs, toTs: query.toTs, limit: query.limit, cursor: cursor ?? undefined,
+		} );
+		return c.json( {
+			telemetry: page.rows,
+			nextCursor: page.nextCursor ? encodeCursor( "telemetry", query, page.nextCursor ) : null,
+		} );
 	} );
 
 	app.get( "/runlog", async ( c ) => {
-		const range = parseRange( new URL( c.req.url ), deps.now(), deps.historyMaxDays );
-		if ( !range ) return c.json( { error: "invalid range" }, 400 );
-		return c.json( { rows: await deps.store.queryRunLog( deps.controllerId, range ) } );
+		const query = parseQuery( new URL( c.req.url ), deps.now(), deps.historyMaxDays );
+		if ( !query ) return c.json( { error: "invalid range or page" }, 400 );
+		const cursor = decodeCursor( "runlog", query );
+		if ( cursor === null ) return c.json( { error: "invalid range or page" }, 400 );
+		const page = await deps.store.pageRunLog( controllerId( deps ), {
+			fromTs: query.fromTs, toTs: query.toTs, limit: query.limit, cursor: cursor ?? undefined,
+		} );
+		return c.json( {
+			rows: page.rows,
+			nextCursor: page.nextCursor ? encodeCursor( "runlog", query, page.nextCursor ) : null,
+		} );
 	} );
 
 	return app;

@@ -1,26 +1,14 @@
-# Keep the build context lean and correct. Critically, exclude node_modules so the host's
-# (possibly Windows/macOS) native better-sqlite3 build never overwrites the Linux `npm ci`
-# output during `COPY . .` in server/Dockerfile.
-node_modules
-**/node_modules
-
-# Build outputs (rebuilt inside the image)
-dist
-demo/dist
-build/firmware
-
-# Local database files + secrets (provided at runtime, not baked into the image)
-*.db
-*.db-*
-/data
-.env
-
-# VCS, logs, editor
-.git
-.gitignore
-*.log
-npm-debug.log*
-
-# Cordova / mobile native (irrelevant to the companion)
-platforms
-plugins
+# Default-deny the companion build context. Keep this allowlist in sync with server/Dockerfile.
+**
+!package.json
+!package-lock.json
+!.npmrc
+!LICENSE
+!tsconfig.json
+!app
+!app/**
+!www
+!www/src
+!www/src/**
+!server
+!server/**

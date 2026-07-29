@@ -3,6 +3,7 @@
 # data dir to the requested uid/gid, optionally sets the timezone, then drops privileges and execs
 # the app as PUID:PGID. Defaults to 1000:1000 (the node:alpine default user) when unset.
 set -e
+umask 077
 
 PUID="${PUID:-1000}"
 PGID="${PGID:-1000}"

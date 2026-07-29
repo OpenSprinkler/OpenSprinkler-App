@@ -5,22 +5,32 @@ services:
     # ── Image: pick ONE ───────────────────────────────────────────────────────
     # Option A — build locally from this repo (zero setup; good for trying it out):
     build: { context: ., dockerfile: server/Dockerfile }
-    # Option B — pull the published multi-arch image (recommended when your docker host
-    # is a separate machine from where you edit code). Comment out `build:` and uncomment:
-    # image: kars85/opensprinkler-companion:latest
+    # Option B — pull the published multi-arch image. Pin BOTH its release tag and manifest digest
+    # in the project .env, for example:
+    #   COMPANION_IMAGE=kars85/opensprinkler-companion:companion-v0.1.2@sha256:<64-hex-manifest-digest>
+    # Then comment out `build:` and uncomment this line:
+    # image: ${COMPANION_IMAGE:?Set COMPANION_IMAGE to a version-and-digest-pinned release}
 
     environment:
       - PUID=${PUID:-1000}            # owner of the /data dir (linuxserver-style)
       - PGID=${PGID:-1000}
       - TZ=${TZ:-UTC}                 # host log TZ only; the dashboard shows the controller's own time
+      - LISTEN_HOST=0.0.0.0           # internal container listener; host exposure stays restricted below
+      - PORT=8080                     # fixed container port; HOST_PORT controls the published host port
+      - DATABASE_PATH=/data/data.db   # named volume / bind-mount path inside the container
 
     # App config — CONTROLLER_BASE is required; CONTROLLER_PW is required unless the device has
     # ignore-password on (ipas=1). Default: a `.env` next to this file. For a stack that centralizes
     # config per service, point this at a per-service file instead, e.g.:
     #   env_file: [ "${DOCKERCONFDIR}/opensprinkler-companion/.env" ]
+    # Compose interpolation (BIND_ADDRESS, HOST_PORT, PUID, PGID, TZ, DOCKERCONFDIR) must still be
+    # supplied through the shell, the project .env, or `docker compose --env-file`; service env_file
+    # values are not available while Compose expands this file.
     env_file: [ .env ]
 
-    ports: [ "8080:8080" ]           # change the HOST side if 8080 is taken, e.g. "38080:8080"
+    # Loopback-only by default. Widen BIND_ADDRESS only with API_TOKEN + restricted
+    # API_ALLOWED_ORIGINS; HOST_PORT changes only the host-side port.
+    ports: [ "${BIND_ADDRESS:-127.0.0.1}:${HOST_PORT:-8080}:8080" ]
 
     volumes:
       # Option 1 — named volume (zero setup, no host permissions to manage):
@@ -30,6 +40,9 @@ services:
       # - "${DOCKERCONFDIR}/opensprinkler-companion:/data"
 
     restart: unless-stopped
+    # The app normally drains in under a second. Keep Docker's grace period beyond the internal
+    # 12-second shutdown watchdog so a genuinely stuck request is diagnosed by the app first.
+    stop_grace_period: 15s
   # Follow-on: a `postgres` service goes here when the Postgres adapter lands.
 
 volumes:
@@ -40,5 +53,6 @@ volumes:
 #   SQLite DB. When the firmware's UI source (SOPT_JAVASCRIPTURL) points here, the page is served from
 #   the DEVICE origin and loads the SPA cross-origin — the companion sends CORS on all assets for that.
 # • To publish a new image (CI builds linux/amd64+arm64 → Docker Hub): push a `companion-v*` tag, e.g.
-#   `git tag -a companion-v0.1.2 -m "…" && git push origin companion-v0.1.2`, then on the host
-#   `docker compose pull && docker compose up -d`.
+#   `git tag -a companion-v0.1.2 -m "…" && git push origin companion-v0.1.2`. On the host, record
+#   the current COMPANION_IMAGE for rollback, replace it with the new tag@sha256 manifest digest,
+#   then run `docker compose pull companion && docker compose up -d --no-deps companion`.

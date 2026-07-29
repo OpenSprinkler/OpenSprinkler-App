@@ -9,7 +9,7 @@ export interface TelemetrySample {
 	activeStations: number;
 	rssi: number | null;
 	currentDraw: number | null;
-	raw: string;                 // JSON.stringify({ jc, jo })
+	raw: string;                 // allowlisted, non-secret compatibility metadata only
 }
 
 /** Telemetry as returned by queries — raw blob omitted to bound the payload (FR-17). */
@@ -20,7 +20,14 @@ export interface RunLogRow {
 	program: number; station: number; durationSec: number; endTs: number; flowGpm: number | null;
 }
 
-export interface HistoryQuery { fromTs: number; toTs: number; }
+export interface HistoryQuery { fromTs: number; toTs: number; limit?: number; offset?: number; }
+
+/** Stable keyset cursor: rows inserted after `snapshotId` cannot shift an in-progress page walk. */
+export interface HistoryPageCursor { snapshotId: number; afterTs: number; afterId: number; }
+export interface HistoryPageQuery {
+	fromTs: number; toTs: number; limit: number; cursor?: HistoryPageCursor;
+}
+export interface HistoryPage<T> { rows: T[]; nextCursor: HistoryPageCursor | null; }
 
 export interface StorageHealth {
 	ok: boolean; telemetryRows: number; runLogRows: number; lastTs: number | null;
@@ -33,8 +40,10 @@ export interface StorageProvider {
 	upsertRunLog( controller: string, rows: RunLogRow[] ): Promise<number>; // # newly inserted
 	queryTelemetry( controller: string, q: HistoryQuery ): Promise<StoredTelemetry[]>; // asc by ts
 	queryRunLog( controller: string, q: HistoryQuery ): Promise<RunLogRow[]>;           // asc by endTs
+	pageTelemetry( controller: string, q: HistoryPageQuery ): Promise<HistoryPage<StoredTelemetry>>;
+	pageRunLog( controller: string, q: HistoryPageQuery ): Promise<HistoryPage<RunLogRow>>;
 	lastRunLogEndTs( controller: string ): Promise<number | null>;
 	pruneTelemetry( olderThanTs: number ): Promise<number>; // # deleted
-	health(): Promise<StorageHealth>;
+	health( controller: string ): Promise<StorageHealth>;
 	close(): Promise<void>;
 }
