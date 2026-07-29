@@ -39,6 +39,8 @@ function stateLabel( s: StationState ): string {
 	if ( s.disabled ) return `<span class="badge off">${ badgeDot( "" ) }Disabled</span>`;
 	if ( s.on ) return `<span class="badge on">${ badgeDot( s.running ? "live" : "" ) }On</span>` +
 		( s.running ? ` <span class="muted">${ formatDuration( s.remaining ) } left</span>` : "" );
+	if ( s.queued ) return `<span class="badge">${ badgeDot( "" ) }Queued</span>` +
+		` <span class="muted">${ formatDuration( s.remaining ) } planned</span>`;
 	return `<span class="badge">${ badgeDot( "" ) }Off</span>`;
 }
 
@@ -48,7 +50,7 @@ function groupLabel( g: number ): string {
 
 function rowActions( s: StationState ): string {
 	if ( s.disabled ) return "";
-	return s.on
+	return s.on || s.queued
 		? actionButton( "station-stop", "Stop", { sid: s.index }, "danger" )
 		: actionButton( "station-start", "Start", { sid: s.index } );
 }
@@ -75,6 +77,8 @@ export function renderStations( jc: JcResponse, jn: JnResponse, opts: StationsVi
 			( opts.actions ? `<td>${ rowActions( s ) }</td>` : "" ) + `</tr>`;
 	} ).join( "" );
 	const activeCount = stations.filter( ( s ) => s.on ).length;
+	const queuedCount = stations.filter( ( s ) => s.queued ).length;
+	const queueSummary = queuedCount > 0 ? `, ${ queuedCount } queued` : "";
 	// Current sensing is hardware-dependent; the reading is controller-wide, so it lives on the
 	// section, never on one zone row (never claim per-valve what the firmware measures in total).
 	const draw = typeof jc.curr === "number"
@@ -83,7 +87,7 @@ export function renderStations( jc: JcResponse, jn: JnResponse, opts: StationsVi
 		: "";
 	const controls = opts.actions ? actionBar( actionButton( "stop-all", "Stop all", {}, "danger" ) ) : "";
 	return `<section aria-label="Stations">` +
-		`<h2>Stations <span class="muted">(${ stations.length }, ${ activeCount } on)</span>${ draw }</h2>` +
+		`<h2>Stations <span class="muted">(${ stations.length }, ${ activeCount } on${ queueSummary })</span>${ draw }</h2>` +
 		`<div class="table-scroll" tabindex="0" role="region" aria-label="Stations table"><table class="grid"><thead><tr>` +
 		`<th scope="col">#</th><th scope="col">Name</th><th scope="col">State</th><th scope="col">Group</th>${ lastRunCol }${ actionsCol }` +
 		`</tr></thead><tbody>${ rows }</tbody></table></div>${ controls }</section>`;

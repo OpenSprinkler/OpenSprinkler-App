@@ -24,6 +24,7 @@ export interface StationState {
 	special: boolean;
 	group: number; // 0-3 sequential; 255 = parallel
 	running: boolean;
+	queued: boolean;
 	remaining: number; // seconds left, if running
 }
 
@@ -87,14 +88,17 @@ export function decodeStationState( jc: JcResponse, jn: JnResponse, index: numbe
 	const ps = jc.ps[ index ];
 	const [ pid, remaining ] = ps ?? [ 0, 0, 0, 0 ];
 	const group = ps ? ps[ 3 ] : 0;
+	const on = bitOf( jc.sbits );
+	const hasQueueEntry = pid !== 0 && remaining > 0;
 	return {
 		index,
 		name: jn.snames?.[ index ] ?? `S${ String( index + 1 ).padStart( 2, "0" ) }`,
-		on: bitOf( jc.sbits ),
+		on,
 		disabled: bitOf( jn.stn_dis ),
 		special: bitOf( jn.stn_spe ),
 		group,
-		running: pid !== 0 && remaining > 0,
+		running: on && hasQueueEntry,
+		queued: !on && hasQueueEntry,
 		remaining,
 	};
 }

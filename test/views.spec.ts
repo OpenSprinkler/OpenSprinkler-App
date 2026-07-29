@@ -20,11 +20,17 @@ describe( "renderStations", () => {
 	it( "lists all stations with names and the active count", () => {
 		expect( html ).toContain( "Front Lawn" );
 		expect( html ).toContain( "Back Lawn" );
-		expect( html ).toContain( "(8, 1 on)" );  // 8 stations, sbits => 1 on
+		expect( html ).toContain( "(8, 1 on, 1 queued)" ); // ps also exposes one pending station
 	} );
 	it( "marks the running station On with time remaining", () => {
 		expect( html ).toContain( ">On<" );
 		expect( html ).toContain( "left" );        // 600s remaining
+	} );
+	it( "shows queued outputs as queued and offers Stop instead of Start", () => {
+		const queued = renderStations( { ...jc, sbits: [ 0, 0 ] }, jn, { actions: true } );
+		expect( queued ).toContain( "(8, 0 on, 2 queued)" );
+		expect( queued ).toContain( ">Queued<" );
+		expect( queued ).toContain( 'data-action="station-stop" data-sid="1"' );
 	} );
 
 	it( "omits current draw and last-run column without curr/jl", () => {

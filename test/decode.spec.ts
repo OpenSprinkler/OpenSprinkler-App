@@ -112,4 +112,10 @@ describe( "decodeStationState", () => {
 	it( "exposes group from ps[3]", () => {
 		expect( decodeStationState( jc, jn, 1 ).group ).toBe( 1 );
 	} );
+	it( "distinguishes a queued station from an energized output", () => {
+		const queued = decodeStationState( { ...jc, sbits: [ 0, 0 ] }, jn, 1 );
+		expect( queued.on ).toBe( false );
+		expect( queued.running ).toBe( false );
+		expect( queued.queued ).toBe( true );
+	} );
 } );
