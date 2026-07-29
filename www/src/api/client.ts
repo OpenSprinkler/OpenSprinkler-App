@@ -154,6 +154,13 @@ export function parseJc( raw: unknown ): JcResponse {
 	requireNumber( o, "devt", "/jc" );
 	requireUnixTimestamp( o.devt, "/jc", "device timestamp" );
 	for ( const key of [ "lwc", "lswc", "lupt" ] ) requireUnixTimestamp( o[ key ], "/jc", `${ key } timestamp` );
+	for ( const [ key, label ] of [
+		[ "en", "controller-enable flag" ],
+		[ "rd", "rain-delay flag" ],
+		[ "pq", "pause-state flag" ],
+	] as const ) requireIntegerInRange( o[ key ], 0, 1, "/jc", label );
+	requireIntegerInRange( o.nq, 0, MAX_WIRE_STATION_COUNT, "/jc", "queue count" );
+	requireIntegerInRange( o.ocs, 0, 255, "/jc", "overcurrent status" );
 	requireIntegerInRange( o.sunrise, 0, 1440, "/jc", "sunrise minutes" );
 	requireIntegerInRange( o.sunset, 0, 1440, "/jc", "sunset minutes" );
 	requireIntegerInRange( o.wtrestr, 0, 1, "/jc", "weather restriction" );
@@ -206,6 +213,27 @@ export function parseJo( raw: unknown ): JoResponse {
 	}
 	if ( o.wl !== undefined ) requireIntegerInRange( o.wl, 0, 250, "/jo", "water level" );
 	if ( o.tz !== undefined ) requireIntegerInRange( o.tz, 0, 108, "/jo", "timezone" );
+	if ( o.sdt !== undefined ) {
+		const stationDelay = requireIntegerInRange( o.sdt, -600, 600, "/jo", "station delay" );
+		if ( stationDelay % 5 !== 0 ) throw new ApiError( "malformed station delay step", "/jo", o.sdt );
+	}
+	for ( const [ key, label ] of [
+		[ "lg", "logging flag" ],
+		[ "sn1o", "sensor-1 option flag" ],
+		[ "dhcp", "DHCP flag" ],
+		[ "ntp", "NTP flag" ],
+	] as const ) {
+		if ( o[ key ] !== undefined ) requireIntegerInRange( o[ key ], 0, 1, "/jo", label );
+	}
+	for ( const key of [
+		"ip1", "ip2", "ip3", "ip4",
+		"gw1", "gw2", "gw3", "gw4",
+		"dns1", "dns2", "dns3", "dns4",
+		"subn1", "subn2", "subn3", "subn4",
+		"ntp1", "ntp2", "ntp3", "ntp4",
+	] ) {
+		if ( o[ key ] !== undefined ) requireIntegerInRange( o[ key ], 0, 255, "/jo", `${ key } IPv4 octet` );
+	}
 	if ( o.ms !== undefined ) requireNumberArray( o, "ms", "/jo" );
 	return o as unknown as JoResponse;
 }

@@ -58,6 +58,22 @@ describe( "/jc controller status", () => {
 			expect( () => parseJc( { ...( fixture( "jc" ) as object ), wls } ) ).toThrow( /multi-day/i );
 		}
 	} );
+	it( "validates proof-relevant flags and byte-sized controller states", () => {
+		const boundaries = {
+			...( fixture( "jc" ) as object ),
+			en: 0, rd: 1, pq: 1, nq: 255, ocs: 255,
+		};
+		expect( () => parseJc( boundaries ) ).not.toThrow();
+
+		for ( const [ key, value ] of [
+			[ "en", true ], [ "en", 2 ], [ "rd", -1 ], [ "rd", 0.5 ], [ "pq", 2 ],
+			[ "nq", -1 ], [ "nq", 256 ], [ "nq", 1.5 ],
+			[ "ocs", -1 ], [ "ocs", 256 ], [ "ocs", 1.5 ],
+		] ) {
+			expect( () => parseJc( { ...( fixture( "jc" ) as object ), [ key as string ]: value } ) )
+				.toThrow( /flag|queue count|overcurrent status/i );
+		}
+	} );
 	it( "requires weather data to be a non-null plain record", () => {
 		for ( const wtdata of [ null, [] ] ) {
 			expect( () => parseJc( { ...( fixture( "jc" ) as object ), wtdata } ) ).toThrow( /plain object.*wtdata/i );
@@ -122,6 +138,40 @@ describe( "/jo options", () => {
 		for ( const tz of [ -1, 48.5, 109 ] ) {
 			expect( () => parseJo( { ...( fixture( "jo" ) as object ), tz } ) ).toThrow( /timezone/i );
 		}
+	} );
+	it( "validates signed station delay boundaries and five-second wire steps", () => {
+		for ( const sdt of [ -600, 0, 600 ] ) {
+			expect( parseJo( { ...( fixture( "jo" ) as object ), sdt } ).sdt ).toBe( sdt );
+		}
+		for ( const sdt of [ -605, -599, 1, 599, 605, 2.5 ] ) {
+			expect( () => parseJo( { ...( fixture( "jo" ) as object ), sdt } ) ).toThrow( /station delay/i );
+		}
+	} );
+	it( "requires proof-relevant option flags to use the firmware's 0/1 encoding", () => {
+		for ( const key of [ "lg", "sn1o", "dhcp", "ntp" ] ) {
+			for ( const value of [ 0, 1 ] ) {
+				expect( parseJo( { ...( fixture( "jo" ) as object ), [ key ]: value } )[ key ] ).toBe( value );
+			}
+			for ( const value of [ -1, 0.5, 2, true, "1" ] ) {
+				expect( () => parseJo( { ...( fixture( "jo" ) as object ), [ key ]: value } ) ).toThrow( /flag/i );
+			}
+		}
+	} );
+	it( "validates every present IPv4 octet while accepting platform-optional omissions", () => {
+		const octetKeys = [
+			"ip1", "ip2", "ip3", "ip4", "gw1", "gw2", "gw3", "gw4",
+			"dns1", "dns2", "dns3", "dns4", "subn1", "subn2", "subn3", "subn4",
+			"ntp1", "ntp2", "ntp3", "ntp4",
+		];
+		for ( const key of octetKeys ) {
+			for ( const value of [ 0, 255 ] ) {
+				expect( parseJo( { ...( fixture( "jo" ) as object ), [ key ]: value } )[ key ] ).toBe( value );
+			}
+			for ( const value of [ -1, 1.5, 256 ] ) {
+				expect( () => parseJo( { ...( fixture( "jo" ) as object ), [ key ]: value } ) ).toThrow( /IPv4 octet/i );
+			}
+		}
+		expect( parseJo( { fwv: 221, sdt: 0, lg: 1, sn1o: 0 } ) ).toEqual( { fwv: 221, sdt: 0, lg: 1, sn1o: 0 } );
 	} );
 } );
 
