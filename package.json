@@ -20,69 +20,83 @@
 	"author": "Samer Albahra",
 	"main": "index.html",
 	"scripts": {
+		"audit": "npm audit --audit-level=low",
+		"audit:production": "npm audit --omit=dev --audit-level=low",
 		"build:app": "vite build app",
+		"build:firmware": "node scripts/build-firmware.mjs",
+		"build:server": "esbuild server/index.ts --bundle --platform=node --format=esm --target=node22 --packages=external --sourcemap=external --sources-content=false --outfile=dist-server/index.mjs",
 		"capture": "node scripts/capture-fixtures.mjs",
+		"ci": "npm run ci:checks && npm test",
+		"ci:checks": "npm run audit && npm run security:scan && npm run lint && npm run lint:css && npm run typecheck && npm run typecheck:server && npm run test:contract && npm run test:server && npm run build:app && npm run build:server && npm run demo:build && npm run build:firmware",
+		"ci:proxmox": "npm run ci:checks && npm run test:browser:container && npm run test:container",
 		"companion": "tsx server/index.ts",
 		"demo": "vite demo",
 		"demo:build": "vite build demo",
-		"lint": "eslint ./www/js/**",
+		"deps:rebuild": "npm rebuild --ignore-scripts=false better-sqlite3 esbuild fsevents",
+		"lint": "eslint \"www/js/**/*.js\" www/sw.js \"app/public/**/*.js\" \"scripts/**/*.mjs\"",
+		"lint:css": "node scripts/lint-css.mjs",
+		"localization:push-english": "node scripts/localization.mjs push-english",
+		"localization:update": "node scripts/localization.mjs update",
 		"prepare": "husky",
+		"security:scan": "node scripts/check-tracked-secrets.mjs",
 		"start": "npx http-server --port 8080 --cors '*' -c-1 ./www",
-		"test": "npx karma start --browsers ChromeHeadless test/karma.conf.js",
+		"test": "node scripts/run-karma.mjs",
+		"test:browser:container": "sh scripts/run-karma-container.sh",
+		"test:container": "sh scripts/smoke-companion-container.sh",
 		"test:contract": "vitest run",
 		"test:server": "vitest run --config vitest.server.config.ts",
+		"typecheck": "tsc -p tsconfig.json",
+		"typecheck:server": "tsc -p tsconfig.server.json",
 		"verify:live": "vitest run --config vitest.live.config.ts"
 	},
 	"lint-staged": {
 		"package.json": "sort-package-json"
 	},
 	"dependencies": {
-		"@hono/node-server": "^2.0.4",
+		"@hono/node-server": "^2.0.11",
 		"better-sqlite3": "^12.10.0",
 		"drizzle-orm": "^0.45.2",
-		"hono": "^4.12.25",
-		"tsx": "^4.22.4"
+		"hono": "^4.12.32"
 	},
 	"devDependencies": {
-		"@eslint/js": "^9.15.0",
+		"@eslint/js": "^10.0.1",
 		"@types/better-sqlite3": "^7.6.13",
+		"@types/jsdom": "^28.0.3",
+		"archiver": "^8.0.0",
 		"chai": "^4.5.0",
-		"cordova": "^12.0.0",
+		"cordova": "^13.0.0",
 		"cordova-android": "^14.0.1",
-		"cordova-custom-config": "^5.1.1",
 		"cordova-ios": "^7.1.1",
-		"cordova-osx": "^7.0.0",
 		"cordova-plugin-3dtouch": "^1.3.8",
 		"cordova-plugin-geolocation": "^4.1.0",
-		"cordova-plugin-inappbrowser": "^6.0.0",
+		"cordova-plugin-inappbrowser": "^6.0.1",
 		"cordova-plugin-networkinterface": "^2.2.0",
 		"cordova-plugin-statusbar": "^3.0.0",
 		"cordova-plugin-transport-security": "^0.1.2",
-		"eslint": "^9.15.0",
+		"csslint": "^1.0.5",
+		"esbuild": "^0.28.1",
+		"eslint": "^10.8.0",
+		"gettext-parser": "^9.1.1",
 		"globals": "^15.12.0",
-		"grunt": "^1.6.1",
-		"grunt-contrib-compress": "^2.0.0",
-		"grunt-contrib-csslint": "^2.0.0",
-		"grunt-eslint": "^25.0.0",
-		"grunt-shell": "^4.0.0",
 		"http-server": "^14.1.1",
 		"husky": "^9.1.6",
+		"jquery": "^3.7.1",
+		"jquery-migrate": "^3.4.1",
 		"jsdom": "^29.1.1",
-		"karma": "^6.4.4",
-		"karma-chai": "^0.1.0",
-		"karma-chrome-launcher": "^3.2.0",
-		"karma-mocha": "^2.0.1",
 		"lint-staged": "^15.2.10",
-		"mocha": "^10.8.2",
-		"po2json": "^0.4.5",
-		"sinon": "^19.0.2",
+		"mocha": "^11.7.6",
+		"nise": "^6.1.5",
+		"sinon": "^22.1.0",
 		"sort-package-json": "^2.10.1",
+		"tsx": "^4.22.4",
 		"typescript": "^6.0.3",
 		"vite": "^8.1.5",
 		"vitest": "^4.1.8"
 	},
-	"allowScripts": {
-		"esbuild@0.28.0": true
+	"packageManager": "npm@10.9.8",
+	"engines": {
+		"node": ">=22.13.0",
+		"npm": ">=10.9.0"
 	},
 	"cordova": {
 		"plugins": {
@@ -93,12 +107,28 @@
 			"cordova-plugin-networkinterface": {},
 			"cordova-plugin-statusbar": {},
 			"cordova-plugin-transport-security": {},
-			"cordova-plugin-inappbrowser": {},
-			"cordova-custom-config": {}
+			"cordova-plugin-inappbrowser": {}
 		},
 		"platforms": [
 			"android",
 			"ios"
 		]
+	},
+	"overrides": {
+		"ios-sim": {
+			"simctl": {
+				".": "2.0.3",
+				"shelljs": "0.10.0"
+			}
+		},
+		"mocha": {
+			"diff": "9.0.0",
+			"glob": "13.0.6",
+			"minimatch": "10.2.5",
+			"serialize-javascript": "7.0.7"
+		},
+		"xcode": {
+			"uuid": "11.1.1"
+		}
 	}
 }

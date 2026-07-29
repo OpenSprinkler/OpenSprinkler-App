@@ -28,6 +28,18 @@ typings/
 
 # Local environment variables
 .secrets.json
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p8
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.mobileprovision
+*.provisionprofile
 
 # OS Meta data files
 Thumbs.db
@@ -54,6 +66,7 @@ demo/dist/
 
 # Phase-1 app production build output
 /dist/
+/dist-server/
 
 # companion local database
 *.db

@@ -13,5 +13,5 @@
 		"types": [ "vitest/globals", "node" ],
 		"noEmit": true
 	},
-	"include": [ "www/src/**/*.ts", "test/api-contract.spec.ts", "test/time.spec.ts", "test/fork-tag.spec.ts", "test/diagnostics.spec.ts", "test/weather-view.spec.ts", "test/empty-states.spec.ts", "test/xss.spec.ts", "test/encode.spec.ts", "test/commands.spec.ts", "test/settings.spec.ts", "test/dispatch.spec.ts", "vitest.config.ts" ]
+	"include": [ "app/**/*.ts", "demo/**/*.ts", "www/src/**/*.ts", "test/*.spec.ts", "vitest.config.ts", "vitest.live.config.ts" ]
 }

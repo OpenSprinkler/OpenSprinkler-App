@@ -14,12 +14,25 @@ export default [
 	  rules: {
 		  "no-useless-escape": "warn",
 		  "no-prototype-builtins": "warn",
+		  // ESLint 10 added these to the recommended preset. Keep the existing
+		  // legacy-code policy until those assignments/error wrappers are refactored.
+		  "no-useless-assignment": "off",
+		  "preserve-caught-error": "off",
 			"semi": ["error", "always"], // require semicolons
 	  },
   },
-  {
-	  languageOptions: {
-		  globals: globals.browser
+	  {
+		  languageOptions: {
+			  globals: globals.browser
+		  },
 	  },
-  },
+	  {
+		  files: ["scripts/**/*.mjs"],
+		  languageOptions: {
+			  globals: globals.node
+		  },
+		  rules: {
+			  "preserve-caught-error": "off",
+		  },
+	  },
 ];
