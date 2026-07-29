@@ -46,6 +46,10 @@ describe( "safe configuration export", () => {
 		for ( const forbiddenKey of [ "ifkey", "jsp", "wsp", "wto", "mqtt", "otc", "sd", "pw", "password", "token" ] ) {
 			expect( json.toLowerCase() ).not.toContain( `\"${ forbiddenKey }\"` );
 		}
+		for ( const networkKey of [
+			"ip1", "ip2", "ip3", "ip4", "gw1", "gw2", "gw3", "gw4",
+			"subn1", "subn2", "subn3", "subn4", "dns1", "dns2", "dns3", "dns4",
+		] ) expect( out.options ).not.toHaveProperty( networkKey );
 	} );
 
 	it( "returns detached arrays and stable pretty JSON", () => {

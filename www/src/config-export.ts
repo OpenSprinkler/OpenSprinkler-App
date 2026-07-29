@@ -46,8 +46,7 @@ const SAFE_NUMERIC_OPTIONS = [
 	"tz", "ntp", "dhcp", "hp0", "hp1", "sdt", "mas", "mton", "mtof", "mas2", "mton2", "mtof2",
 	"wl", "uwt", "den", "lg", "dim", "sar", "ife", "ife2", "sn1t", "sn1o", "sn1on", "sn1of",
 	"sn2t", "sn2o", "sn2on", "sn2of", "fpr0", "fpr1", "ext", "bst", "laton", "latof", "tpdv",
-	"imin", "imax", "fwire", "ip1", "ip2", "ip3", "ip4", "gw1", "gw2", "gw3", "gw4", "subn1",
-	"subn2", "subn3", "subn4", "dns1", "dns2", "dns3", "dns4",
+	"imin", "imax", "fwire",
 ] as const;
 
 function cloneProgram( program: OSProgram ): OSProgram {
