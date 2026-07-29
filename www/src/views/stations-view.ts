@@ -1,7 +1,7 @@
 /**
  * Stations read-only view — renders /jn (names + attributes) + /jc (live state) via the decoders.
  */
-import type { JcResponse, JnResponse, JlResponse, JoResponse } from "../api/types";
+import type { JcResponse, JnResponse, JeResponse, JlResponse, JoResponse, SpecialStationType } from "../api/types";
 import {
 	decodeAllStations, flowGpm, formatDuration, formatControllerTimestamp, lastRunsByStation,
 	PARALLEL_GROUP_ID, type LastRun, type StationState,
@@ -9,7 +9,18 @@ import {
 import { esc, emptyState, helpTip } from "../ui/help";
 import { actionBar, actionButton } from "../ui/controls";
 
-export interface StationsViewOptions { actions?: boolean; jl?: JlResponse; jo?: JoResponse; }
+export interface StationsViewOptions { actions?: boolean; je?: JeResponse; jl?: JlResponse; jo?: JoResponse; }
+
+const SPECIAL_STATION_LABELS: Record<SpecialStationType, string> = {
+	0: "Standard", 1: "RF", 2: "Remote IP", 3: "GPIO", 4: "HTTP", 5: "HTTPS", 6: "Remote OTC",
+};
+
+/** Derive homeowner copy from `/je.st`; never return or interpolate the opaque `/je.sd` payload. */
+export function specialStationLabel( stationId: number, special: boolean, definitions?: JeResponse ): string | undefined {
+	if ( !special ) return undefined;
+	const type = definitions?.[ String( stationId ) ]?.st;
+	return type === undefined ? "Special" : SPECIAL_STATION_LABELS[ type ];
+}
 
 /** "15m · 06/09/2024 1:30 PM · 0.65 gal/min" from the newest log run, or a muted em-dash. */
 function lastRunCell( run: LastRun | undefined, jo: JoResponse | undefined ): string {
@@ -54,14 +65,15 @@ export function renderStations( jc: JcResponse, jn: JnResponse, opts: StationsVi
 	const lastRunCol = lastRuns
 		? `<th scope="col">Last run ${ helpTip( "The most recent completed run in the controller's configured local time." ) }</th>`
 		: "";
-	const rows = stations.map( ( s ) =>
-		`<tr><td class="num">${ s.index + 1 }</td>` +
-		`<td>${ esc( s.name ) }${ s.special ? ' <span class="badge spec">Special</span>' : "" }</td>` +
-		`<td>${ stateLabel( s ) }</td>` +
-		`<td class="muted">${ groupLabel( s.group ) }</td>` +
-		( lastRuns ? `<td>${ lastRunCell( lastRuns.get( s.index ), opts.jo ) }</td>` : "" ) +
-		( opts.actions ? `<td>${ rowActions( s ) }</td>` : "" ) + `</tr>`
-	).join( "" );
+	const rows = stations.map( ( s ) => {
+		const special = specialStationLabel( s.index, s.special, opts.je );
+		return `<tr><td class="num">${ s.index + 1 }</td>` +
+			`<td>${ esc( s.name ) }${ special ? ` <span class="badge spec">${ esc( special ) }</span>` : "" }</td>` +
+			`<td>${ stateLabel( s ) }</td>` +
+			`<td class="muted">${ groupLabel( s.group ) }</td>` +
+			( lastRuns ? `<td>${ lastRunCell( lastRuns.get( s.index ), opts.jo ) }</td>` : "" ) +
+			( opts.actions ? `<td>${ rowActions( s ) }</td>` : "" ) + `</tr>`;
+	} ).join( "" );
 	const activeCount = stations.filter( ( s ) => s.on ).length;
 	// Current sensing is hardware-dependent; the reading is controller-wide, so it lives on the
 	// section, never on one zone row (never claim per-valve what the firmware measures in total).

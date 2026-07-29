@@ -155,14 +155,14 @@ async function boot(): Promise<void> {
 		toast( `${ error instanceof Error ? error.message : "Invalid companion URL." } History has been disabled.`, true );
 	}
 	const load = async ( signal?: AbortSignal ): Promise<DashboardData> => {
-		const [ jc, jo, jn, jp ] = await Promise.all( [
+		const [ jc, jo, jn, je, jp ] = await Promise.all( [
 			api.getControllerStatus( signal ), initialOptions ? Promise.resolve( initialOptions ) : api.getOptions( signal ),
-			api.getStations( signal ), api.getPrograms( signal ),
+			api.getStations( signal ), api.getSpecialStations( signal ), api.getPrograms( signal ),
 		] );
 		initialOptions = undefined;
 		assertModernFirmwareSupport( jo );
 		const jl = await api.getLogs( { end: jc.devt, signal } );
-		return { jc, jo, jn, jp, jl };
+		return { jc, jo, jn, je, jp, jl };
 	};
 	const controller = mountDashboard( {
 		mount, api, load, toast,

@@ -18,7 +18,7 @@ import { buildStationConfig } from "./settings/stations-edit";
 import { buildProgramInput } from "./settings/program-edit";
 import { detectCompanion, fetchHistory, fetchRunLog } from "../api/companion";
 import { renderHistory } from "./history-view";
-import { errorCard } from "../ui/help";
+import { errorCard, esc } from "../ui/help";
 
 /**
  * If the companion is reachable + healthy, fetch the last 7 days and render the History HTML;
@@ -71,6 +71,23 @@ export interface DashboardController {
 	refresh(): Promise<void>;
 	/** Remove delegated listeners and make all outstanding async completions inert. */
 	destroy(): void;
+}
+
+const RUNTIME_REFRESH_MS = 4000;
+const CONFIG_REFRESH_MS = 20000;
+const CONTROLLER_STALE_MS = 12000;
+const FAILURE_BACKOFF_MS = [ 4000, 8000, 16000, 30000 ] as const;
+
+type RefreshResult = "success" | "failure" | "aborted";
+
+interface FullRefreshOptions {
+	automatic: boolean;
+	discoverHistory: boolean;
+	surfaceError: boolean;
+}
+
+function sameSnapshot( a: unknown, b: unknown ): boolean {
+	return JSON.stringify( a ) === JSON.stringify( b );
 }
 
 interface ProgramEditState { pid: number; source: OSProgram; sourceControllerDay: number; }
@@ -159,8 +176,59 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 	let refreshGeneration = 0;
 	let mutationInFlight = false;
 	let refreshAbort: AbortController | null = null;
+	let automaticRefreshAbort: AbortController | null = null;
 	let mutationAbort: AbortController | null = null;
+	let pollTimer: ReturnType<typeof setTimeout> | null = null;
+	let staleTimer: ReturnType<typeof setTimeout> | null = null;
+	let lastControllerSuccessAt: number | null = null;
+	let lastConfigurationRefreshAt: number | null = null;
+	let automaticError: string | null = null;
+	let automaticFailures = 0;
+	let companionDiscoveryAttempted = false;
 	let disposed = false;
+	const hostDocument = deps.mount.ownerDocument;
+
+	function controllerIsStale(): boolean {
+		return data !== null && lastControllerSuccessAt !== null &&
+			Date.now() - lastControllerSuccessAt >= CONTROLLER_STALE_MS;
+	}
+
+	function interactionsAreBlocked(): boolean {
+		return lastError !== null || controllerIsStale();
+	}
+
+	function clearPollTimer(): void {
+		if ( pollTimer !== null ) clearTimeout( pollTimer );
+		pollTimer = null;
+	}
+
+	function clearStaleTimer(): void {
+		if ( staleTimer !== null ) clearTimeout( staleTimer );
+		staleTimer = null;
+	}
+
+	function scheduleStaleTransition(): void {
+		clearStaleTimer();
+		if ( disposed || lastControllerSuccessAt === null ) return;
+		const remaining = CONTROLLER_STALE_MS - ( Date.now() - lastControllerSuccessAt );
+		if ( remaining <= 0 ) {
+			updateConnectionState();
+			return;
+		}
+		staleTimer = setTimeout( () => {
+			staleTimer = null;
+			updateConnectionState();
+		}, remaining );
+	}
+
+	function noteControllerSuccess( configuration = false ): void {
+		lastControllerSuccessAt = Date.now();
+		if ( configuration ) lastConfigurationRefreshAt = lastControllerSuccessAt;
+		lastError = null;
+		automaticError = null;
+		automaticFailures = 0;
+		scheduleStaleTransition();
+	}
 
 	async function readProgramsWithClock( signal: AbortSignal, refreshClock: boolean ): Promise<{
 		jp: DashboardData[ "jp" ]; jc: DashboardData[ "jc" ]; day: number;
@@ -198,6 +266,28 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 		return true;
 	}
 
+	function connectionStateHtml(): string {
+		if ( controllerIsStale() ) {
+			const detail = automaticError ?? lastError;
+			return `<div class="error-card" role="status">` +
+				`<div class="error-title"><span>Controller data is stale</span></div>` +
+				`<p class="error-detail">The last successful controller response was at least 12 seconds ago.` +
+				( detail ? ` ${ esc( detail ) }` : "" ) + `</p>` +
+				`<button class="action primary" type="button" data-action="retry">Retry</button></div>`;
+		}
+		return lastError ? errorCard( lastError ) : "";
+	}
+
+	function updateConnectionState(): void {
+		if ( disposed ) return;
+		const container = deps.mount.querySelector<HTMLElement>( "[data-connection-state]" );
+		if ( !container ) return;
+		const html = connectionStateHtml();
+		container.innerHTML = html;
+		container.hidden = html === "";
+		applyInteractionState();
+	}
+
 	/** Show only the schedule/start fieldset that matches the current select (program editor). */
 	function applyConditionalVisibility(): void {
 		const sched = deps.mount.querySelector<HTMLSelectElement>( 'select[name="schedType"]' )?.value;
@@ -219,17 +309,18 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 		// Preserve keyboard focus on the active tab across a re-render driven by tab navigation.
 		const refocusTab = ( document.activeElement as HTMLElement | null )?.getAttribute?.( "role" ) === "tab";
 		try {
-			deps.mount.innerHTML = data
-				? ( lastError ? errorCard( lastError ) : "" ) + renderDashboard( data, activeTab, {
+			const connection = connectionStateHtml();
+			deps.mount.innerHTML = `<div data-connection-state${ connection ? "" : " hidden" }>${ connection }</div>` + ( data
+				? renderDashboard( data, activeTab, {
 					actions: true, settingsSection, historyHtml,
 					...( programEditor ? { programEditor: { pid: programEditor.pid, program: programEditor.source } } : {} ),
 				} )
 				: lastError
-					? errorCard( lastError )
-					: `<div class="loading" role="status"><span class="spinner" aria-hidden="true"></span><span>Loading…</span></div>`;
+					? ""
+					: `<div class="loading" role="status"><span class="spinner" aria-hidden="true"></span><span>Loading…</span></div>` );
 		} catch ( error ) {
 			lastError = `Unable to render controller data: ${ String( error ) }`;
-			deps.mount.innerHTML = errorCard( lastError );
+			deps.mount.innerHTML = `<div data-connection-state>${ errorCard( lastError ) }</div>`;
 		}
 		applyConditionalVisibility();
 		applyInteractionState();
@@ -241,7 +332,7 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 
 	function applyInteractionState(): void {
 		if ( disposed ) return;
-		const stale = lastError !== null;
+		const stale = interactionsAreBlocked();
 		const dateRangeEnabled = deps.mount.querySelector<HTMLInputElement>( 'input[name="useDateRange"]' )?.checked ?? false;
 		deps.mount.setAttribute( "aria-busy", mutationInFlight ? "true" : "false" );
 		deps.mount.querySelectorAll<HTMLButtonElement>( "button[data-action]" ).forEach( ( button ) => {
@@ -260,62 +351,148 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 			} );
 	}
 
-	async function performRefresh(): Promise<boolean> {
-		if ( disposed ) return false;
+	async function performRefresh( options: FullRefreshOptions ): Promise<RefreshResult> {
+		if ( disposed ) return "aborted";
 		const generation = ++refreshGeneration;
 		refreshAbort?.abort();
 		const abort = new AbortController();
 		refreshAbort = abort;
-		let loaded: DashboardData;
+		if ( options.automatic ) automaticRefreshAbort = abort;
 		try {
-			loaded = await deps.load( abort.signal );
-		} catch ( e ) {
-			if ( disposed || abort.signal.aborted || generation !== refreshGeneration ) return false;
-			if ( hasVisibleDirtyProgramDraft() ) {
-				deps.toast( String( e ), true );
-				applyInteractionState();
-				return false;
+			let loaded: DashboardData;
+			try {
+				loaded = await deps.load( abort.signal );
+			} catch ( e ) {
+				if ( disposed || abort.signal.aborted || generation !== refreshGeneration ) return "aborted";
+				if ( options.surfaceError ) {
+					if ( hasVisibleDirtyProgramDraft() ) {
+						deps.toast( String( e ), true );
+						applyInteractionState();
+						return "failure";
+					}
+					lastError = String( e );
+					deps.toast( String( e ), true );
+					paint();
+				} else {
+					automaticError = String( e );
+					updateConnectionState();
+				}
+				return "failure";
 			}
-			lastError = String( e );
-			deps.toast( String( e ), true );
-			paint();
-			return false;
-		}
-		if ( disposed || abort.signal.aborted || generation !== refreshGeneration ) return false;
-		const preserveDraft = hasVisibleDirtyProgramDraft();
-		if ( programEditor && programEditor.source[ 4 ].length !== loaded.jn.snames.length && !preserveDraft ) {
-			programEditor = null;
-			programDraftDirty = false;
-			if ( activeTab === "Settings" && settingsSection === "Programs" ) activeTab = "Programs";
-			deps.toast( "Station configuration changed, so the program editor was closed. Open it again to use the latest zones.", true );
-		}
-		data = loaded;
-		lastError = null;
-		// Device data is useful on its own; paint it before waiting on the optional companion.
-		if ( preserveDraft ) applyInteractionState();
-		else paint();
+			if ( disposed || abort.signal.aborted || generation !== refreshGeneration ) return "aborted";
+			const previous = data;
+			const preserveDraft = hasVisibleDirtyProgramDraft();
+			const preserveAutomaticSettings = options.automatic && activeTab === "Settings" &&
+				deps.mount.querySelector( "form[data-settings]" ) !== null;
+			let editorClosed = false;
+			if ( programEditor && programEditor.source[ 4 ].length !== loaded.jn.snames.length &&
+				!preserveDraft ) {
+				programEditor = null;
+				programDraftDirty = false;
+				editorClosed = true;
+				if ( activeTab === "Settings" && settingsSection === "Programs" ) activeTab = "Programs";
+				deps.toast( "Station configuration changed, so the program editor was closed. Open it again to use the latest zones.", true );
+			}
+			data = loaded;
+			noteControllerSuccess( true );
+			// Automatic polling leaves live settings forms intact. Unchanged snapshots also need no repaint.
+			if ( preserveDraft || ( preserveAutomaticSettings && !editorClosed ) ||
+				( options.automatic && !editorClosed && sameSnapshot( previous, loaded ) ) ) {
+				updateConnectionState();
+			} else paint();
 
-		if ( deps.companionBase === null ) {
-			historyHtml = undefined;
-			if ( hasVisibleDirtyProgramDraft() ) applyInteractionState();
-			else paint();
-			return true;
+			if ( options.discoverHistory && !companionDiscoveryAttempted ) {
+				companionDiscoveryAttempted = true;
+				let nextHistory: string | undefined;
+				if ( deps.companionBase !== null ) {
+					const companionBase = deps.companionBase ?? location.origin + "/";
+					nextHistory = await resolveHistoryHtml( companionBase, undefined, deps.companionToken, abort.signal );
+					if ( disposed || abort.signal.aborted || generation !== refreshGeneration ) return "aborted";
+				}
+				const historyChanged = historyHtml !== nextHistory;
+				historyHtml = nextHistory;
+				if ( historyChanged ) {
+					if ( hasVisibleDirtyProgramDraft() || preserveAutomaticSettings ) applyInteractionState();
+					else paint();
+				}
+			}
+			return "success";
+		} finally {
+			if ( refreshAbort === abort ) refreshAbort = null;
+			if ( automaticRefreshAbort === abort ) automaticRefreshAbort = null;
 		}
-		const companionBase = deps.companionBase ?? location.origin + "/";
-		const nextHistory = await resolveHistoryHtml( companionBase, undefined, deps.companionToken, abort.signal );
-		if ( disposed || abort.signal.aborted || generation !== refreshGeneration ) return false;
-		historyHtml = nextHistory;
-		if ( hasVisibleDirtyProgramDraft() ) applyInteractionState();
-		else paint();
-		return true;
+	}
+
+	async function performRuntimeRefresh(): Promise<RefreshResult> {
+		if ( disposed || !data ) return "aborted";
+		const generation = ++refreshGeneration;
+		refreshAbort?.abort();
+		const abort = new AbortController();
+		refreshAbort = abort;
+		automaticRefreshAbort = abort;
+		try {
+			let jc: DashboardData[ "jc" ];
+			try { jc = await deps.api.getControllerStatus( abort.signal ); }
+			catch ( error ) {
+				if ( disposed || abort.signal.aborted || generation !== refreshGeneration ) return "aborted";
+				automaticError = String( error );
+				updateConnectionState();
+				return "failure";
+			}
+			if ( disposed || abort.signal.aborted || generation !== refreshGeneration ) return "aborted";
+			const changed = !sameSnapshot( data.jc, jc );
+			data = changed ? { ...data, jc } : data;
+			noteControllerSuccess();
+			if ( !changed || activeTab === "Settings" || hasVisibleDirtyProgramDraft() ) updateConnectionState();
+			else paint();
+			return "success";
+		} finally {
+			if ( refreshAbort === abort ) refreshAbort = null;
+			if ( automaticRefreshAbort === abort ) automaticRefreshAbort = null;
+		}
+	}
+
+	function scheduleAutomaticPoll( delay: number ): void {
+		clearPollTimer();
+		if ( disposed || hostDocument.hidden ) return;
+		pollTimer = setTimeout( () => {
+			pollTimer = null;
+			void runAutomaticPoll();
+		}, delay );
+	}
+
+	async function runAutomaticPoll( supersedePausedRead = false ): Promise<void> {
+		if ( disposed || hostDocument.hidden ) return;
+		if ( refreshAbort !== null && supersedePausedRead && automaticRefreshAbort !== null ) {
+			automaticRefreshAbort.abort();
+		} else if ( mutationInFlight || refreshAbort !== null ) {
+			scheduleAutomaticPoll( RUNTIME_REFRESH_MS );
+			return;
+		}
+		const configurationDue = lastConfigurationRefreshAt === null ||
+			Date.now() - lastConfigurationRefreshAt >= CONFIG_REFRESH_MS;
+		const result = configurationDue
+			? await performRefresh( { automatic: true, discoverHistory: false, surfaceError: false } )
+			: await performRuntimeRefresh();
+		if ( disposed || hostDocument.hidden ) return;
+		if ( result === "failure" ) automaticFailures++;
+		const delay = result === "failure"
+			? FAILURE_BACKOFF_MS[ Math.min( automaticFailures - 1, FAILURE_BACKOFF_MS.length - 1 ) ]
+			: RUNTIME_REFRESH_MS;
+		scheduleAutomaticPoll( delay );
 	}
 
 	async function refresh(): Promise<void> {
-		await performRefresh();
+		if ( disposed || mutationInFlight ) return;
+		clearPollTimer();
+		automaticFailures = 0;
+		await performRefresh( { automatic: false, discoverHistory: true, surfaceError: true } );
+		if ( !disposed ) scheduleAutomaticPoll( RUNTIME_REFRESH_MS );
 	}
 
 	async function withMutation( work: ( signal: AbortSignal ) => Promise<string | null> ): Promise<void> {
-		if ( disposed || mutationInFlight || !data || lastError !== null ) return;
+		if ( disposed || mutationInFlight || !data || interactionsAreBlocked() ) return;
+		clearPollTimer();
 		mutationInFlight = true;
 		const abort = new AbortController();
 		mutationAbort = abort;
@@ -324,16 +501,19 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 		try {
 			const msg = await work( abort.signal );
 			if ( msg === null || disposed || abort.signal.aborted ) return;
-			const refreshed = await performRefresh();
+			const refreshed = await performRefresh( { automatic: false, discoverHistory: false, surfaceError: true } );
 			if ( disposed || abort.signal.aborted ) return;
-			if ( refreshed ) deps.toast( msg );
+			if ( refreshed === "success" ) deps.toast( msg );
 			else deps.toast( "The command may have been sent, but the controller state could not be verified.", true );
 		} catch ( e ) {
 			if ( !disposed && !abort.signal.aborted ) deps.toast( String( e ), true );
 		} finally {
 			if ( mutationAbort === abort ) mutationAbort = null;
 			mutationInFlight = false;
-			if ( !disposed ) applyInteractionState();
+			if ( !disposed ) {
+				applyInteractionState();
+				scheduleAutomaticPoll( RUNTIME_REFRESH_MS );
+			}
 		}
 	}
 
@@ -489,7 +669,7 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 		const action = target.closest<HTMLButtonElement>( "[data-action]" );
 		if ( action?.dataset.action ) {
 			if ( action.dataset.action === "retry" ) { void refresh(); return; }
-			if ( mutationInFlight || lastError !== null ) return;
+			if ( mutationInFlight || interactionsAreBlocked() ) return;
 			if ( action.dataset.action === "program-new" ) {
 				programEditor = null; programDraftDirty = false;
 				focusAfterPaint = '[name="name"]'; activeTab = "Settings"; settingsSection = "Programs"; paint(); return;
@@ -520,7 +700,7 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 		const form = ( ev.target as HTMLElement ).closest<HTMLFormElement>( "form[data-settings]" );
 		if ( !form ) return;
 		ev.preventDefault();
-		if ( mutationInFlight || lastError !== null ) return;
+		if ( mutationInFlight || interactionsAreBlocked() ) return;
 		void saveSettings( form );
 	}
 
@@ -559,11 +739,23 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 		tabs[ next ]?.click(); // activates + repaints; paint() restores focus to the active tab
 	}
 
+	function onVisibilityChange(): void {
+		if ( disposed ) return;
+		if ( hostDocument.hidden ) {
+			clearPollTimer();
+			automaticRefreshAbort?.abort();
+			return;
+		}
+		clearPollTimer();
+		void runAutomaticPoll( true );
+	}
+
 	deps.mount.addEventListener( "click", onClick );
 	deps.mount.addEventListener( "submit", onSubmit );
 	deps.mount.addEventListener( "input", noteProgramDraft );
 	deps.mount.addEventListener( "change", onChange );
 	deps.mount.addEventListener( "keydown", onKeydown );
+	hostDocument.addEventListener( "visibilitychange", onVisibilityChange );
 
 	void refresh();
 	return {
@@ -572,15 +764,20 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 			if ( disposed ) return;
 			disposed = true;
 			refreshGeneration++;
+			clearPollTimer();
+			clearStaleTimer();
 			refreshAbort?.abort();
+			automaticRefreshAbort?.abort();
 			mutationAbort?.abort();
 			refreshAbort = null;
+			automaticRefreshAbort = null;
 			mutationAbort = null;
 			deps.mount.removeEventListener( "click", onClick );
 			deps.mount.removeEventListener( "submit", onSubmit );
 			deps.mount.removeEventListener( "input", noteProgramDraft );
 			deps.mount.removeEventListener( "change", onChange );
 			deps.mount.removeEventListener( "keydown", onKeydown );
+			hostDocument.removeEventListener( "visibilitychange", onVisibilityChange );
 			deps.mount.removeAttribute( "aria-busy" );
 		},
 	};

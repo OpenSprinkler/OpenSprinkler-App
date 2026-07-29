@@ -5,7 +5,7 @@
  * Discoverability (upstream #292): Weather, Diagnostics and Settings are first-class tabs rather
  * than URL-only / buried popups. With `opts.actions`, the read views gain write/control affordances.
  */
-import type { JcResponse, JoResponse, JnResponse, JpResponse, JlResponse } from "../api/types";
+import type { JcResponse, JoResponse, JnResponse, JeResponse, JpResponse, JlResponse } from "../api/types";
 import { deriveCapabilities } from "../api/client";
 import { renderControllerStatus } from "../spike/status-view";
 import { renderStations } from "./stations-view";
@@ -16,7 +16,7 @@ import { renderDiagnostics } from "./diagnostics-view";
 import { renderSettings, type ProgramEditorTarget, type SettingsSection } from "./settings/index";
 
 export interface DashboardData {
-	jc: JcResponse; jo: JoResponse; jn: JnResponse; jp: JpResponse; jl: JlResponse;
+	jc: JcResponse; jo: JoResponse; jn: JnResponse; je: JeResponse; jp: JpResponse; jl: JlResponse;
 }
 
 export const DASHBOARD_TABS = [ "Status", "Stations", "Programs", "Weather", "Log", "Diagnostics", "Settings" ] as const;
@@ -63,7 +63,7 @@ export function renderDashboard( d: DashboardData, active: DashboardTab | "Histo
 	const a = !!opts.actions;
 	let content: string;
 	switch ( active ) {
-		case "Stations": content = renderStations( d.jc, d.jn, { actions: a, jl: d.jl, jo: d.jo } ); break;
+		case "Stations": content = renderStations( d.jc, d.jn, { actions: a, je: d.je, jl: d.jl, jo: d.jo } ); break;
 		case "Programs": content = renderPrograms( d.jp, d.jn, { actions: a } ); break;
 		case "Weather": content = renderWeather( d.jc, d.jo ); break;
 		case "Log": content = renderLogs( d.jl, d.jn, d.jo ); break;

@@ -4,8 +4,8 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, it, expect } from "vitest";
-import { parseJc, parseJl, parseJn, parseJp } from "../www/src/api/client";
-import { renderStations } from "../www/src/views/stations-view";
+import { parseJc, parseJe, parseJl, parseJn, parseJp } from "../www/src/api/client";
+import { renderStations, specialStationLabel } from "../www/src/views/stations-view";
 import { renderPrograms } from "../www/src/views/programs-view";
 
 function fx( name: string ): unknown {
@@ -49,6 +49,16 @@ describe( "renderStations", () => {
 		const rich = renderStations( jc, jn, { jl } );
 		expect( rich ).toContain( "Last run" );
 		expect( rich ).not.toContain( "gal/min" );
+	} );
+
+	it( "joins the special bit with /je type data without exposing the opaque definition", () => {
+		const definitions = parseJe( fx( "je" ) );
+		const specialStations = { ...jn, stn_spe: [ 1 ] };
+		const rich = renderStations( jc, specialStations, { je: definitions } );
+		expect( specialStationLabel( 0, true, definitions ) ).toBe( "Remote IP" );
+		expect( rich ).toContain( "Remote IP" );
+		expect( rich ).not.toContain( definitions[ "0" ]!.sd );
+		expect( specialStationLabel( 0, false, definitions ) ).toBeUndefined();
 	} );
 } );
 

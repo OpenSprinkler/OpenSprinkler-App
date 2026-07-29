@@ -136,6 +136,7 @@ globalThis.fetch = ( async ( input: RequestInfo | URL, init?: RequestInit ) => {
 		url.includes( "/jc" ) ? jc :
 		url.includes( "/jo" ) ? jo :
 		url.includes( "/jn" ) ? jn :
+		url.includes( "/je" ) ? {} :
 		url.includes( "/jp" ) ? programSnapshot() :
 		url.includes( "/jl" ) ? jl :
 		url.includes( "/sp" ) ? { result: 0 } :
@@ -151,13 +152,13 @@ let baseUrl = "http://demo-device/";
 
 async function load(): Promise<DashboardData> {
 	const api = new OsApiClient( new BrowserDeviceSeam( { baseUrl, ipas: 1, ver: 221 } ) );
-	const [ c, o, n, p ] = await Promise.all( [
-		api.getControllerStatus(), api.getOptions(), api.getStations(), api.getPrograms(),
+	const [ c, o, n, e, p ] = await Promise.all( [
+		api.getControllerStatus(), api.getOptions(), api.getStations(), api.getSpecialStations(), api.getPrograms(),
 	] );
 	const l = await api.getLogs( { end: c.devt } );
 	// Showcase the fork build tag (#3): the kars85 firmware fork emits `fwf` in /jo.
 	// Showcase current sensing (`curr` mA in /jc) and flow calibration (fpr = 1 L/pulse).
-	return { jc: { ...c, curr: 247 }, jo: { ...o, fwf: "kars85.3", fpr0: 100, fpr1: 0 }, jn: n, jp: p, jl: l };
+	return { jc: { ...c, curr: 247 }, jo: { ...o, fwf: "kars85.3", fpr0: 100, fpr1: 0 }, jn: n, je: e, jp: p, jl: l };
 }
 
 function toast( message: string, isError = false ): void {

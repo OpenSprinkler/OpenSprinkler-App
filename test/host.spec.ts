@@ -2,7 +2,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { parseJc, parseJl, parseJn, parseJo, parseJp, type OsApiClient } from "../www/src/api/client";
+import { parseJc, parseJe, parseJl, parseJn, parseJo, parseJp, type OsApiClient } from "../www/src/api/client";
 import { encodeProgram, type ProgramInput } from "../www/src/api/encode";
 import type { OSProgram } from "../www/src/api/types";
 import type { DashboardData } from "../www/src/views/dashboard";
@@ -14,7 +14,7 @@ function fixture( name: string ): unknown {
 
 const baseline: DashboardData = {
 	jc: parseJc( fixture( "jc" ) ), jo: parseJo( fixture( "jo" ) ), jn: parseJn( fixture( "jn" ) ),
-	jp: parseJp( fixture( "jp" ) ), jl: parseJl( fixture( "jl" ) ),
+	je: parseJe( fixture( "je" ) ), jp: parseJp( fixture( "jp" ) ), jl: parseJl( fixture( "jl" ) ),
 };
 
 function deferred<T>(): { promise: Promise<T>; resolve( value: T ): void } {
@@ -25,6 +25,10 @@ function deferred<T>(): { promise: Promise<T>; resolve( value: T ): void } {
 async function flush(): Promise<void> {
 	await Promise.resolve();
 	await new Promise<void>( ( resolve ) => setTimeout( resolve, 0 ) );
+}
+
+async function settlePromises(): Promise<void> {
+	for ( let i = 0; i < 8; i++ ) await Promise.resolve();
 }
 
 function deps( mount: HTMLElement, api: object, load: () => Promise<DashboardData> ) {
@@ -45,9 +49,162 @@ function tupleFromInput( input: ProgramInput, source: OSProgram ): OSProgram {
 	];
 }
 
-afterEach( () => vi.restoreAllMocks() );
+afterEach( () => {
+	vi.useRealTimers();
+	vi.restoreAllMocks();
+} );
 
 describe( "dashboard host concurrency", () => {
+	it( "polls runtime state every four seconds and configuration every twenty seconds", async () => {
+		vi.useFakeTimers();
+		vi.setSystemTime( 0 );
+		const mount = document.createElement( "div" );
+		document.body.appendChild( mount );
+		const load = vi.fn( async () => baseline );
+		const getControllerStatus = vi.fn( async () => baseline.jc );
+		const controller = mountDashboard( deps( mount, { getControllerStatus }, load ) );
+		await settlePromises();
+
+		expect( load ).toHaveBeenCalledTimes( 1 );
+		await vi.advanceTimersByTimeAsync( 19_999 );
+		expect( getControllerStatus ).toHaveBeenCalledTimes( 4 );
+		expect( load ).toHaveBeenCalledTimes( 1 );
+		await vi.advanceTimersByTimeAsync( 1 );
+		expect( load ).toHaveBeenCalledTimes( 2 );
+		expect( getControllerStatus ).toHaveBeenCalledTimes( 4 );
+
+		controller.destroy();
+		await vi.advanceTimersByTimeAsync( 60_000 );
+		expect( load ).toHaveBeenCalledTimes( 2 );
+		expect( getControllerStatus ).toHaveBeenCalledTimes( 4 );
+		mount.remove();
+	} );
+
+	it( "pauses while hidden, becomes stale after twelve seconds, and refreshes immediately on resume", async () => {
+		vi.useFakeTimers();
+		vi.setSystemTime( 0 );
+		let hidden = false;
+		vi.spyOn( document, "hidden", "get" ).mockImplementation( () => hidden );
+		const mount = document.createElement( "div" );
+		document.body.appendChild( mount );
+		const getControllerStatus = vi.fn( async () => baseline.jc );
+		const controller = mountDashboard( deps( mount, { getControllerStatus }, async () => baseline ) );
+		await settlePromises();
+		mount.querySelector<HTMLButtonElement>( '[data-tab="Programs"]' )!.click();
+
+		hidden = true;
+		document.dispatchEvent( new Event( "visibilitychange" ) );
+		await vi.advanceTimersByTimeAsync( 12_000 );
+		expect( getControllerStatus ).not.toHaveBeenCalled();
+		expect( mount.textContent ).toContain( "Controller data is stale" );
+		expect( mount.querySelector<HTMLButtonElement>( '[data-action="program-delete"]' )?.disabled ).toBe( true );
+
+		hidden = false;
+		document.dispatchEvent( new Event( "visibilitychange" ) );
+		await settlePromises();
+		expect( getControllerStatus ).toHaveBeenCalledTimes( 1 );
+		expect( mount.textContent ).not.toContain( "Controller data is stale" );
+		expect( mount.querySelector<HTMLButtonElement>( '[data-action="program-delete"]' )?.disabled ).toBe( false );
+
+		controller.destroy();
+		mount.remove();
+	} );
+
+	it( "backs failed controller reads off at four, eight, sixteen, then thirty seconds", async () => {
+		vi.useFakeTimers();
+		vi.setSystemTime( 0 );
+		const mount = document.createElement( "div" );
+		document.body.appendChild( mount );
+		const attempts: number[] = [];
+		let initial = true;
+		let fail = true;
+		const load = vi.fn( async () => {
+			if ( initial ) { initial = false; return baseline; }
+			attempts.push( Date.now() );
+			if ( fail ) throw new Error( "offline" );
+			return baseline;
+		} );
+		const getControllerStatus = vi.fn( async () => {
+			attempts.push( Date.now() );
+			if ( fail ) throw new Error( "offline" );
+			return baseline.jc;
+		} );
+		const d = deps( mount, { getControllerStatus }, load );
+		const controller = mountDashboard( d );
+		await settlePromises();
+		mount.querySelector<HTMLButtonElement>( '[data-tab="Programs"]' )!.click();
+
+		await vi.advanceTimersByTimeAsync( 12_000 );
+		expect( attempts ).toEqual( [ 4_000, 8_000 ] );
+		expect( mount.textContent ).toContain( "Controller data is stale" );
+		expect( mount.querySelector<HTMLButtonElement>( '[data-action="program-delete"]' )?.disabled ).toBe( true );
+		await vi.advanceTimersByTimeAsync( 20_000 );
+		expect( attempts ).toEqual( [ 4_000, 8_000, 16_000, 32_000 ] );
+
+		fail = false;
+		await vi.advanceTimersByTimeAsync( 30_000 );
+		expect( attempts ).toEqual( [ 4_000, 8_000, 16_000, 32_000, 62_000 ] );
+		expect( mount.textContent ).not.toContain( "Controller data is stale" );
+		expect( mount.querySelector<HTMLButtonElement>( '[data-action="program-delete"]' )?.disabled ).toBe( false );
+		expect( d.toast ).not.toHaveBeenCalled();
+
+		controller.destroy();
+		mount.remove();
+	} );
+
+	it( "keeps a focused settings draft intact during automatic runtime refresh", async () => {
+		vi.useFakeTimers();
+		vi.setSystemTime( 0 );
+		const mount = document.createElement( "div" );
+		document.body.appendChild( mount );
+		const load = vi.fn( async () => baseline );
+		const getControllerStatus = vi.fn( async () => ( { ...baseline.jc, devt: baseline.jc.devt + 4 } ) );
+		const controller = mountDashboard( deps( mount, { getControllerStatus }, load ) );
+		await settlePromises();
+		mount.querySelector<HTMLButtonElement>( '[data-tab="Settings"]' )!.click();
+		const waterLevel = mount.querySelector<HTMLInputElement>( '[name="wl"]' )!;
+		waterLevel.value = "137";
+		waterLevel.focus();
+
+		await vi.advanceTimersByTimeAsync( 4_000 );
+		expect( getControllerStatus ).toHaveBeenCalledTimes( 1 );
+		expect( mount.querySelector<HTMLInputElement>( '[name="wl"]' ) ).toBe( waterLevel );
+		expect( waterLevel.value ).toBe( "137" );
+		expect( document.activeElement ).toBe( waterLevel );
+		await vi.advanceTimersByTimeAsync( 16_000 );
+		expect( load ).toHaveBeenCalledTimes( 2 );
+		expect( mount.querySelector<HTMLInputElement>( '[name="wl"]' ) ).toBe( waterLevel );
+		expect( waterLevel.value ).toBe( "137" );
+		expect( document.activeElement ).toBe( waterLevel );
+
+		controller.destroy();
+		mount.remove();
+	} );
+
+	it( "discovers the optional companion only once, outside automatic polls", async () => {
+		vi.useFakeTimers();
+		vi.setSystemTime( 0 );
+		const fetchMock = vi.spyOn( globalThis, "fetch" ).mockResolvedValue( {
+			ok: false, status: 503, statusText: "Unavailable", json: async () => ( {} ),
+		} as Response );
+		const mount = document.createElement( "div" );
+		document.body.appendChild( mount );
+		const api = { getControllerStatus: vi.fn( async () => baseline.jc ) };
+		const d = deps( mount, api, async () => baseline );
+		delete ( d as { companionBase?: string | null } ).companionBase;
+		const controller = mountDashboard( { ...d, companionBase: "http://localhost:8080/" } );
+		await settlePromises();
+		expect( fetchMock ).toHaveBeenCalledTimes( 1 );
+
+		await vi.advanceTimersByTimeAsync( 20_000 );
+		expect( fetchMock ).toHaveBeenCalledTimes( 1 );
+		await controller.refresh();
+		expect( fetchMock ).toHaveBeenCalledTimes( 1 );
+
+		controller.destroy();
+		mount.remove();
+	} );
+
 	it( "does not clobber an auto-managed timezone when saving another General setting", async () => {
 		const mount = document.createElement( "div" );
 		document.body.appendChild( mount );
