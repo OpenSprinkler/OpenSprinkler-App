@@ -35,7 +35,7 @@ export function renderGeneralSettings( jo: JoResponse, dname = "", location = ""
 				: "All UI dates and 12-hour times use this controller-local offset; e.g. -8 for US Pacific.",
 		} ) +
 		numberField( "wl", "Water level (%)", jo.wl, { min: 0, max: 250, help: "Scales every program's run time." } ) +
-		numberField( "sdt", "Station delay (seconds)", jo.sdt, { min: -600, max: 600, help: "Pause between sequential stations; a negative value overlaps them." } ) +
+		numberField( "sdt", "Station delay (seconds)", jo.sdt, { min: -600, max: 600, step: 5, help: "Pause between sequential stations; a negative value overlaps them." } ) +
 		checkboxField( "lg", "Enable logging", jo.lg === 1 ) +
 		selectField( "sn1t", "Sensor 1 type", SENSOR_TYPES, jo.sn1t ) +
 		checkboxField( "sn1o", "Sensor 1 normally open", jo.sn1o === 1 ) +
@@ -59,11 +59,13 @@ export function buildGeneralOptions(
 		}
 		return value;
 	};
+	const stationDelay = integer( "sdt", "Station delay", -600, 600 );
+	if ( stationDelay % 5 !== 0 ) throw new Error( "Station delay must use 5-second increments." );
 	const sensorType = integer( "sn1t", "Sensor type", 0, 240 );
 	if ( !SENSOR_TYPES.some( ( option ) => option.value === sensorType ) ) throw new Error( "Select a valid sensor type." );
 	const out: Record<string, string | number > = {
 		wl: integer( "wl", "Water level", 0, 250 ),
-		sdt: integer( "sdt", "Station delay", -600, 600 ),
+		sdt: stationDelay,
 		lg: checkboxValue( v.lg, "Logging" ) ? 1 : 0,
 		sn1t: sensorType,
 		sn1o: checkboxValue( v.sn1o, "Sensor option" ) ? 1 : 0,

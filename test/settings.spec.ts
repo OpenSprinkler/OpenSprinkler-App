@@ -71,7 +71,7 @@ describe( "general options", () => {
 		const base = { tzOffset: "0", wl: "100", sdt: "0", lg: false, sn1t: "0", sn1o: false };
 		for ( const [ field, value ] of [
 			[ "tzOffset", "5.1" ], [ "tzOffset", "15.25" ], [ "tzOffset", "5junk" ],
-			[ "wl", "1.5" ], [ "wl", "251" ], [ "sdt", "-601" ], [ "sdt", "1e2" ],
+			[ "wl", "1.5" ], [ "wl", "251" ], [ "sdt", "-601" ], [ "sdt", "1e2" ], [ "sdt", "7" ],
 			[ "sn1t", "4" ], [ "sn1t", "241" ],
 		] ) {
 			expect( () => buildGeneralOptions( { ...base, [ field ]: value } ) ).toThrow();
