@@ -159,6 +159,8 @@ jobs:
               inspect_file="${RUNNER_TEMP}/existing-release.json"
               docker buildx imagetools inspect "$IMAGE_REPOSITORY:$RELEASE_TAG" \
                 --format '{{json .}}' > "$inspect_file"
+              # JavaScript template literals below must remain single-quoted from the shell.
+              # shellcheck disable=SC2016
               node --input-type=commonjs -e '
                 const { appendFileSync, readFileSync } = require("node:fs");
                 const [reportPath, sourceSha, releaseTag, runId, outputPath] = process.argv.slice(1);
@@ -273,6 +275,8 @@ jobs:
           curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' --tlsv1.2 \
             "https://hub.docker.com/v2/namespaces/${DOCKERHUB_USERNAME}/repositories/opensprinkler-companion" \
             --output "$settings_file"
+          # JavaScript template literals below must remain single-quoted from the shell.
+          # shellcheck disable=SC2016
           node --input-type=commonjs -e '
             const { readFileSync } = require("node:fs");
             const repository = JSON.parse(readFileSync(process.argv[1], "utf8"));
