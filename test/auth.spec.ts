@@ -24,7 +24,7 @@ describe( "md5 (RFC 1321 test vectors)", () => {
 describe( "seam.authenticate (version gating)", () => {
 	afterEach( () => vi.restoreAllMocks() );
 
-	function mockSp( result: number ): typeof fetch {
+	function mockSp( result: unknown ): typeof fetch {
 		return vi.fn( async () => ( { ok: true, status: 200, json: async () => ( { result } ) } ) as Response ) as unknown as typeof fetch;
 	}
 
@@ -47,9 +47,20 @@ describe( "seam.authenticate (version gating)", () => {
 	} );
 
 	it( "rejects when /sp returns result > 1", async () => {
-		globalThis.fetch = mockSp( 2 );
+		const f = mockSp( 2 );
+		globalThis.fetch = f;
 		const seam = new BrowserDeviceSeam( { baseUrl: "http://d/" } );
 		const r = await seam.authenticate( "wrong", 221, md5 );
 		expect( r.ok ).toBe( false );
+		expect( f ).toHaveBeenCalledTimes( 1 );
+		const url = String( ( f as unknown as { mock: { calls: unknown[][] } } ).mock.calls[ 0 ][ 0 ] );
+		expect( url ).toContain( md5( "wrong" ) );
+		expect( url ).not.toContain( "pw=wrong" );
+	} );
+
+	it.each( [ null, false, "0", -1, 0.5, {}, [] ] )( "rejects malformed /sp result %j", async ( result ) => {
+		globalThis.fetch = mockSp( result );
+		const seam = new BrowserDeviceSeam( { baseUrl: "http://d/" } );
+		await expect( seam.authenticate( "secret", 221, md5 ) ).resolves.toMatchObject( { ok:false } );
 	} );
 } );

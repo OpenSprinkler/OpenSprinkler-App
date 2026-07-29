@@ -22,7 +22,9 @@ const jn = parseJn( fx( "jn" ) );
 
 describe( "friendly empty-states", () => {
 	it( "stations: guidance when none are configured", () => {
-		const emptyJn = parseJn( { ...( fx( "jn" ) as object ), snames: [], stn_dis: [] } );
+		// The parser correctly rejects a controller with no base board; exercise the pure view's
+		// defensive empty state with an explicitly synthesized model instead.
+		const emptyJn = { ...jn, snames: [], stn_dis: [] };
 		const html = renderStations( jc, emptyJn );
 		expect( html ).toContain( "No stations configured" );
 	} );

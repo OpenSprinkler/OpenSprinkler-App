@@ -11,7 +11,9 @@ import { fileURLToPath } from "node:url";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 import { bootStatusSpike } from "../www/src/spike/boot";
-import { BrowserDeviceSeam, resolveDeviceBaseFromLocation } from "../www/src/seam/device";
+import {
+	BrowserDeviceSeam, normalizeHttpBase, resolveDeviceBaseFromLocation, selectBootstrapDeviceBase,
+} from "../www/src/seam/device";
 
 function fixtureText( name: string ): string {
 	const url = new URL( `./fixtures/api/${ name }.fixture.json`, import.meta.url );
@@ -91,9 +93,67 @@ describe( "seam spike: OTC remote path is uniform with LAN", () => {
 } );
 
 describe( "device base resolution (home.js parity)", () => {
-	it( "extracts the origin from a location href", () => {
+	it( "sanitizes invalid controller JSON without retaining response fragments", async () => {
+		const secret = "OT0123456789abcdef-controller-secret";
+		const previousFetch = globalThis.fetch;
+		globalThis.fetch = vi.fn( async () => new Response(
+			`{"otc":"${ secret }","broken":invalid}`,
+			{ status: 200, headers: { "Content-Type": "application/json" } },
+		) ) as typeof fetch;
+		try {
+			const seam = new BrowserDeviceSeam( { baseUrl: "http://d/", requestTimeoutMs: 1000 } );
+			let error: unknown;
+			try { await seam.requestJson( "jc?pw=must-not-appear" ); } catch ( cause ) { error = cause; }
+			expect( String( error ) ).toBe( "ControllerResponseError: Device returned an invalid JSON response (jc)." );
+			expect( String( error ) ).not.toContain( secret );
+			expect( String( error ) ).not.toContain( "must-not-appear" );
+		} finally { globalThis.fetch = previousFetch; }
+	} );
+
+	it( "never sends a firmware-page request to a hostile handoff override", async () => {
+		const selected = selectBootstrapDeviceBase( {
+			firmwarePage: true,
+			pageHref: "https://cloud.openthings.io/forward/v1/REAL_TOKEN/index.html#base=https://attacker.example/",
+			configuredBase: "https://attacker.example/",
+			savedBase: "https://stale.example/",
+		} );
+		expect( selected ).toBe( "https://cloud.openthings.io/forward/v1/REAL_TOKEN/" );
+		const calls: string[] = [];
+		const previousFetch = globalThis.fetch;
+		globalThis.fetch = vi.fn( async ( input: RequestInfo | URL ) => {
+			calls.push( String( input ) );
+			return { ok: true, status: 200, json: async () => ( { result: 0 } ) } as Response;
+		} ) as typeof fetch;
+		try {
+			const seam = new BrowserDeviceSeam( { baseUrl: selected!, ver: 221, requestTimeoutMs: 1000 } );
+			const auth = await seam.authenticate( "controller-password", 221, md5 );
+			await new BrowserDeviceSeam( {
+				baseUrl: selected!, ver: 221, pwHash: auth.pwHash, requestTimeoutMs: 1000,
+			} ).requestJson( "jc" );
+		} finally {
+			globalThis.fetch = previousFetch;
+		}
+		expect( calls ).toHaveLength( 2 );
+		expect( calls.every( ( url ) => url.startsWith( selected! ) ) ).toBe( true );
+		expect( calls.join( "" ) ).not.toContain( "attacker.example" );
+
+		expect( selectBootstrapDeviceBase( {
+			firmwarePage: false, pageHref: "https://ui.example/", configuredBase: "https://chosen.example/",
+			savedBase: "https://saved.example/",
+		} ) ).toBe( "https://chosen.example/" );
+	} );
+
+	it( "normalizes HTTP bases and rejects malformed or credential-bearing configuration", () => {
+		expect( normalizeHttpBase( "../controller", "https://example.test/ui/" ) ).toBe( "https://example.test/controller/" );
+		expect( () => normalizeHttpBase( "not a valid URL", "not a URL" ) ).toThrow( /invalid service URL/i );
+		expect( () => normalizeHttpBase( "javascript:alert(1)", "https://example.test/" ) ).toThrow( /http/i );
+		expect( () => normalizeHttpBase( "https://user:secret@example.test/", "https://example.test/" ) ).toThrow( /credentials/i );
+	} );
+
+	it( "uses the page directory and preserves an OTC forwarding prefix", () => {
 		expect( resolveDeviceBaseFromLocation( "http://192.168.1.50/index.html?x=1" ) ).toBe( "http://192.168.1.50/" );
-		expect( resolveDeviceBaseFromLocation( "https://cloud.openthings.io/forward/v1/T/" ) ).toBe( "https://cloud.openthings.io/" );
+		expect( resolveDeviceBaseFromLocation( "https://cloud.openthings.io/forward/v1/T/" ) ).toBe( "https://cloud.openthings.io/forward/v1/T/" );
+		expect( resolveDeviceBaseFromLocation( "https://cloud.openthings.io/forward/v1/T/index.html?x=1" ) ).toBe( "https://cloud.openthings.io/forward/v1/T/" );
 	} );
 
 	it( "buildUrl appends the hashed pw param", () => {

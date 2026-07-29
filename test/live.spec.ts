@@ -52,7 +52,8 @@ describe.skipIf( !base )( "live device — read pipeline", () => {
 	} );
 
 	it( "parses + decodes /jl logs", async () => {
-		const jl = await api.getLogs();
+		const jc = await api.getControllerStatus();
+		const jl = await api.getLogs( { end: jc.devt } );
 		const entries = jl.map( decodeLogRow );
 		console.log( `\n  ${ entries.length } log rows (kinds: ${ [ ...new Set( entries.map( ( e ) => e.kind ) ) ].join( ", " ) || "—" })` );
 		expect( Array.isArray( jl ) ).toBe( true );

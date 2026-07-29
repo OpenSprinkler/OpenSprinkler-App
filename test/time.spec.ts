@@ -5,7 +5,8 @@
  */
 import { describe, it, expect } from "vitest";
 import {
-	osTzOffsetSeconds, formatClock, formatDeviceTime, formatClockTime, formatMinutesOfDay,
+	osTzOffsetSeconds, formatControllerDate, formatControllerDateTime, formatControllerTime,
+	formatDeviceTime, formatMinutesOfDay,
 	deviceNowUtc, elapsedSeconds, relativeTime,
 } from "../www/src/api/time";
 
@@ -23,48 +24,52 @@ describe( "osTzOffsetSeconds (tz = (gmtOffset+12)*4)", () => {
 	} );
 } );
 
-describe( "formatClock — raw UTC epoch shown in the device's local wall clock (#287)", () => {
-	it( "formats a UTC epoch at UTC unchanged", () => {
-		expect( formatClock( NEW_YEAR_UTC, 48 ) ).toBe( "2024-01-01 00:00" );
+describe( "controller-local display — firmware epochs already use the device wall clock (#287)", () => {
+	it( "formats dates as MM/DD/YYYY and times on a 12-hour clock", () => {
+		expect( formatControllerDate( NEW_YEAR_UTC ) ).toBe( "01/01/2024" );
+		expect( formatControllerDateTime( NEW_YEAR_UTC ) ).toBe( "01/01/2024 12:00 AM" );
 	} );
-	it( "shifts by the device offset exactly once (no double-apply, no DST drift)", () => {
-		// GMT-7 → 7 hours earlier, rolling back across the date boundary.
-		expect( formatClock( NEW_YEAR_UTC, TZ_PDT ) ).toBe( "2023-12-31 17:00" );
+	it( "handles noon and midnight correctly", () => {
+		expect( formatControllerTime( NEW_YEAR_UTC ) ).toBe( "12:00 AM" );
+		expect( formatControllerTime( NEW_YEAR_UTC + 12 * 3600 ) ).toBe( "12:00 PM" );
 	} );
-	it( "is browser-timezone independent (uses UTC components internally)", () => {
-		// Equivalent to pre-shifting then formatting as UTC — proves the single, explicit base.
-		expect( formatClock( NEW_YEAR_UTC, TZ_PDT ) ).toBe( formatClock( NEW_YEAR_UTC - 25200, 48 ) );
+	it( "rejects invalid epochs at the render boundary", () => {
+		expect( formatControllerDateTime( 1e308 ) ).toBe( "Invalid date" );
+		expect( formatControllerTime( Number.NaN ) ).toBe( "Invalid time" );
 	} );
 } );
 
 describe( "formatDeviceTime — devt is ALREADY local; do not re-offset", () => {
 	it( "formats devt directly (no second offset application)", () => {
-		expect( formatDeviceTime( NEW_YEAR_UTC ) ).toBe( "2024-01-01 00:00" );
+		expect( formatDeviceTime( NEW_YEAR_UTC ) ).toBe( "01/01/2024 12:00 AM" );
 	} );
-	it( "agrees with the raw-epoch path on the same wall clock (regression guard for the bug)", () => {
+	it( "renders the shifted wall clock while UTC conversion remains available for storage", () => {
 		// devt for a GMT-7 device whose true-UTC now is NEW_YEAR_UTC:
 		const devt = NEW_YEAR_UTC + osTzOffsetSeconds( TZ_PDT ); // = local-shifted
-		expect( formatDeviceTime( devt ) ).toBe( formatClock( deviceNowUtc( devt, TZ_PDT ), TZ_PDT ) );
+		expect( formatDeviceTime( devt ) ).toBe( "12/31/2023 5:00 PM" );
+		expect( deviceNowUtc( devt, TZ_PDT ) ).toBe( NEW_YEAR_UTC );
 	} );
 } );
 
-describe( "formatClockTime / formatMinutesOfDay", () => {
-	it( "renders HH:MM device-local for a raw UTC epoch (rain-delay rdst)", () => {
-		expect( formatClockTime( NEW_YEAR_UTC, TZ_PDT ) ).toBe( "17:00" );
+describe( "formatControllerTime / formatMinutesOfDay", () => {
+	it( "renders an already-local rain-delay epoch without applying the offset twice", () => {
+		expect( formatControllerTime( NEW_YEAR_UTC ) ).toBe( "12:00 AM" );
 	} );
-	it( "renders HH:MM from minutes-since-local-midnight (sunrise/sunset)", () => {
-		expect( formatMinutesOfDay( 360 ) ).toBe( "06:00" );
-		expect( formatMinutesOfDay( 1080 ) ).toBe( "18:00" );
-		expect( formatMinutesOfDay( 0 ) ).toBe( "00:00" );
+	it( "renders 12-hour time from minutes-since-local-midnight (sunrise/sunset)", () => {
+		expect( formatMinutesOfDay( 360 ) ).toBe( "6:00 AM" );
+		expect( formatMinutesOfDay( 720 ) ).toBe( "12:00 PM" );
+		expect( formatMinutesOfDay( 1080 ) ).toBe( "6:00 PM" );
+		expect( formatMinutesOfDay( 0 ) ).toBe( "12:00 AM" );
+		expect( formatMinutesOfDay( -1 ) ).toBe( "11:59 PM" );
 	} );
 } );
 
-describe( "elapsedSeconds — devt (local) compared against raw UTC epochs", () => {
-	it( "undoes the offset baked into devt before differencing", () => {
-		for ( const tz of [ 48, TZ_PDT, 52 ] ) {
-			const epoch = 1700000000;
-			const devt = epoch + osTzOffsetSeconds( tz ) + 300; // 300s after `epoch`, expressed as device-local
-			expect( elapsedSeconds( epoch, devt, tz ) ).toBe( 300 );
+describe( "elapsedSeconds — controller-local epochs share one clock domain", () => {
+	it( "compares timestamps directly without applying an offset", () => {
+		for ( const controllerOffset of [ 0, -25200, 3600 ] ) {
+			const epoch = 1700000000 + controllerOffset;
+			const devt = epoch + 300;
+			expect( elapsedSeconds( epoch, devt ) ).toBe( 300 );
 		}
 	} );
 } );

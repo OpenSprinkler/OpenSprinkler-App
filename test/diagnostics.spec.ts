@@ -11,7 +11,7 @@ import {
 	adjustmentMethodName, weatherErrorText, weatherStatus, rebootReason, wifiRating, otcStatus,
 	weatherProviderTag, weatherSourceName,
 } from "../www/src/api/diagnostics";
-import { formatClock } from "../www/src/api/time";
+import { formatControllerDateTime } from "../www/src/api/time";
 import { renderDiagnostics } from "../www/src/views/diagnostics-view";
 
 function fx( name: string ): unknown {
@@ -89,15 +89,20 @@ describe( "renderDiagnostics", () => {
 	} );
 	it( "renders Last request as tz-correct absolute time + relative hint (#287)", () => {
 		expect( html ).toContain( "Last request" );
-		expect( html ).toContain( formatClock( jc.lwc, jo.tz ) ); // ties view to the single tz base
+		expect( html ).toContain( formatControllerDateTime( jc.lwc ) );
 		expect( html ).toContain( "(10 mins ago)" );
 	} );
-	it( "the absolute time tracks the device timezone (no fixed-UTC rendering)", () => {
+	it( "does not apply a changed timezone option twice to an already-local firmware epoch", () => {
 		const utc = renderDiagnostics( jc, { ...jo, tz: 48 } );
 		const pdt = renderDiagnostics( jc, { ...jo, tz: 20 } ); // GMT-7
-		expect( utc ).toContain( formatClock( jc.lwc, 48 ) );
-		expect( pdt ).toContain( formatClock( jc.lwc, 20 ) );
-		expect( formatClock( jc.lwc, 48 ) ).not.toBe( formatClock( jc.lwc, 20 ) );
+		expect( utc ).toContain( formatControllerDateTime( jc.lwc ) );
+		expect( pdt ).toContain( formatControllerDateTime( jc.lwc ) );
+		expect( utc ).toContain( "PM" );
+	} );
+	it( "flags impossible future history instead of presenting it as a future event", () => {
+		const invalidClock = renderDiagnostics( { ...jc, lwc: jc.devt + 60, lswc: jc.devt + 60, lupt: jc.devt + 60 }, jo );
+		expect( invalidClock ).toContain( "Controller clock needs review" );
+		expect( invalidClock ).not.toContain( "in 1 min" );
 	} );
 	it( "shows platform-gated rows only when present", () => {
 		expect( html ).not.toContain( "Wi-Fi strength" ); // fixture has no RSSI

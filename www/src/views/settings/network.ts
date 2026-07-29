@@ -4,7 +4,7 @@
  * when DHCP is off (mirrors the legacy validation).
  */
 import type { JoResponse } from "../../api/types";
-import { textField, numberField, checkboxField, toInt } from "../../ui/form";
+import { textField, numberField, checkboxField, checkboxValue } from "../../ui/form";
 import { infoNote } from "../../ui/help";
 import { ipOctets } from "../../api/encode";
 
@@ -33,18 +33,32 @@ export function renderNetwork( jo: JoResponse ): string {
 }
 
 export function buildNetworkOptions( v: FormValues ): Record<string, string | number > {
-	const out: Record<string, string | number > = { dhcp: v.dhcp ? 1 : 0, ntp: v.ntp ? 1 : 0 };
-	const port = toInt( v.port, 80 );
+	const dhcp = checkboxValue( v.dhcp, "DHCP" );
+	const ntp = checkboxValue( v.ntp, "NTP" );
+	const out: Record<string, string | number > = { dhcp: dhcp ? 1 : 0, ntp: ntp ? 1 : 0 };
+	const rawPort = String( v.port ?? "" ).trim();
+	if ( !/^\d+$/.test( rawPort ) ) throw new Error( "HTTP port must be a whole number." );
+	const port = Number( rawPort );
+	if ( !Number.isInteger( port ) || port < 1 || port > 65535 ) throw new Error( "HTTP port must be between 1 and 65535." );
 	out.hp0 = port & 0xff;
 	out.hp1 = ( port >> 8 ) & 0xff;
-	const addOctets = ( prefix: string, dottedStr: unknown ): void => {
-		if ( typeof dottedStr !== "string" || dottedStr.trim() === "" ) return;
-		const [ a, b, c, d ] = ipOctets( dottedStr );
+	const addOctets = ( prefix: string, label: string, dottedStr: unknown, required = false ): void => {
+		if ( typeof dottedStr !== "string" || dottedStr.trim() === "" ) {
+			if ( required ) throw new Error( `${ label } is required when DHCP is off.` );
+			return;
+		}
+		let octets: [ number, number, number, number ];
+		try { octets = ipOctets( dottedStr ); }
+		catch ( e ) { throw new Error( `${ label }: ${ e instanceof Error ? e.message : String( e ) }` ); }
+		const [ a, b, c, d ] = octets;
 		out[ `${ prefix }1` ] = a; out[ `${ prefix }2` ] = b; out[ `${ prefix }3` ] = c; out[ `${ prefix }4` ] = d;
 	};
-	if ( !v.dhcp ) {
-		addOctets( "ip", v.ip ); addOctets( "gw", v.gw ); addOctets( "dns", v.dns ); addOctets( "subn", v.subnet );
+	if ( !dhcp ) {
+		addOctets( "ip", "Static IP", v.ip, true );
+		addOctets( "gw", "Gateway", v.gw, true );
+		addOctets( "dns", "DNS", v.dns );
+		addOctets( "subn", "Subnet mask", v.subnet, true );
 	}
-	if ( v.ntp ) addOctets( "ntp", v.ntpServer );
+	if ( ntp ) addOctets( "ntp", "NTP server", v.ntpServer );
 	return out;
 }

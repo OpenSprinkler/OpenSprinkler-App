@@ -52,3 +52,12 @@ describe( "status view weather restriction (#290)", () => {
 		expect( renderControllerStatus( jc, jo, caps ) ).toContain( "None" ); // fixture wtrestr 0
 	} );
 } );
+
+describe( "status view controller-local time", () => {
+	it( "renders rain-delay and solar times on a 12-hour clock", () => {
+		const timed = { ...jc, rd: 1 as const, rdst: jc.devt, sunrise: 360, sunset: 1080 };
+		const html = renderControllerStatus( timed, jo, deriveCapabilities( timed, jo ) );
+		expect( html ).toContain( "Active until 06/09/2024 1:20 PM" );
+		expect( html ).toContain( "6:00 AM / 6:00 PM" );
+	} );
+} );

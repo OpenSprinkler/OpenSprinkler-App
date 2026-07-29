@@ -39,6 +39,7 @@ describe( "renderStations", () => {
 		expect( rich ).toContain( "drawing 247 mA" );
 		expect( rich ).toContain( "Last run" );
 		expect( rich ).toContain( "10m" );          // Garden Drip's newest log run (600s)
+		expect( rich ).toContain( "06/09/2024 1:30 PM" );
 		expect( rich ).toContain( "0.65 gal/min" ); // pulses/min × fpr (liters) → imperial
 		expect( rich ).toContain( "—" );            // stations that never ran stay honest
 	} );
@@ -56,12 +57,21 @@ describe( "renderPrograms", () => {
 	it( "renders the decoded program schedule", () => {
 		expect( html ).toContain( "Morning Watering" );
 		expect( html ).toContain( "Mon, Wed, Fri" );
-		expect( html ).toContain( "06:30" );
+		expect( html ).toContain( "6:30 AM" );
 		expect( html ).toContain( "Sunrise +30m" );
-		expect( html ).toContain( "05-01" );        // date range
+		expect( html ).toContain( "05/01" );        // annual date range (firmware stores no year)
+		expect( html ).toContain( "Seasonal range (every year)" );
 		expect( html ).toContain( "Sunrise to Sunset" ); // solar duration
 	} );
 	it( "shows only participating stations (duration > 0)", () => {
 		expect( html ).toContain( "3 stations" );
+	} );
+	it( "offers Edit as the primary action with the stored program index", () => {
+		const interactive = renderPrograms( jp, jn, { actions: true } );
+		const edit = interactive.indexOf( 'data-action="program-edit" data-pid="0"' );
+		const run = interactive.indexOf( 'data-action="program-run"' );
+		expect( edit ).toBeGreaterThan( -1 );
+		expect( edit ).toBeLessThan( run );
+		expect( interactive ).toContain( 'aria-label="Edit program 1: Morning Watering"' );
 	} );
 } );

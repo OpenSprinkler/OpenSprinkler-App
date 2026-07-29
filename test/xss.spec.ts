@@ -11,12 +11,19 @@ import { parseJc, parseJo, deriveCapabilities } from "../www/src/api/client";
 import { renderControllerStatus } from "../www/src/spike/status-view";
 import { renderDiagnostics } from "../www/src/views/diagnostics-view";
 import { renderWeather } from "../www/src/views/weather-view";
+import { renderStations } from "../www/src/views/stations-view";
+import { renderHistory } from "../www/src/views/history-view";
+import { renderPrograms } from "../www/src/views/programs-view";
+import { renderProgramEditor } from "../www/src/views/settings/program-edit";
+import type { OSProgram } from "../www/src/api/types";
+import { parseJn } from "../www/src/api/client";
 
 function fx( name: string ): unknown {
 	return JSON.parse( readFileSync( fileURLToPath( new URL( `./fixtures/api/${ name }.fixture.json`, import.meta.url ) ), "utf8" ) );
 }
 const jc = parseJc( fx( "jc" ) );
 const jo = parseJo( fx( "jo" ) );
+const jn = parseJn( fx( "jn" ) );
 const caps = deriveCapabilities( jc, jo );
 
 const SCRIPT = "<script>alert(1)</script>";
@@ -47,5 +54,39 @@ describe( "XSS escaping", () => {
 		const hostile = { ...jc, dname: 12345 as unknown as string };
 		expect( () => renderControllerStatus( hostile, jo, caps ) ).not.toThrow();
 		expect( renderControllerStatus( hostile, jo, caps ) ).toContain( "12345" );
+	} );
+
+	it( "rejects a non-numeric station-status group at the API boundary", () => {
+		const raw = fx( "jc" ) as Record<string, unknown>;
+		const ps = ( raw.ps as unknown[][] ).map( ( tuple ) => [ ...tuple ] );
+		ps[ 0 ]![ 3 ] = IMG;
+		expect( () => parseJc( { ...raw, ps } ) ).toThrow( /station-status tuple/i );
+	} );
+
+	it( "still escapes station groups and companion station ids when a typed caller is bypassed", () => {
+		const ps = jc.ps.map( ( tuple ) => [ ...tuple ] ) as unknown as typeof jc.ps;
+		( ps[ 0 ] as unknown[] )[ 3 ] = IMG;
+		const stationHtml = renderStations( { ...jc, ps }, jn );
+		expect( stationHtml ).not.toContain( "<img" );
+		expect( stationHtml ).toContain( "&lt;img" );
+
+		const historyHtml = renderHistory( [], [ {
+			program: 1, station: IMG as unknown as number, durationSec: 1, endTs: 1, flowGpm: null,
+		} ], { stale: false } );
+		expect( historyHtml ).not.toContain( "<img" );
+		expect( historyHtml ).toContain( "&lt;img" );
+	} );
+
+	it( "escapes a hostile existing program name when prefilling the editor", () => {
+		const program: OSProgram = [ 65, 1, 0, [ 360, -1, -1, -1 ], Array( 8 ).fill( 60 ), IMG, [ 0, 33, 33 ] ];
+		const html = renderProgramEditor( jn, 221, 32, program, 0 );
+		expect( html ).not.toContain( "<img" );
+		expect( html ).toContain( "&lt;img" );
+
+		const listHtml = renderPrograms( {
+			nprogs: 1, nboards: 1, mnp: 40, mnst: 4, pnsize: 32, pd: [ program ],
+		}, jn, { actions: true } );
+		expect( listHtml ).not.toContain( "<img" );
+		expect( listHtml ).toContain( 'aria-label="Edit program 1: &quot;&gt;&lt;img' );
 	} );
 } );

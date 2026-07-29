@@ -21,6 +21,8 @@ describe( "renderWeather — adjustment summary", () => {
 		expect( html ).toContain( "Manual" );      // uwt 0
 		expect( html ).toContain( "Watering level" );
 		expect( html ).toContain( "100%" );          // wl 100
+		expect( html ).toContain( "Multi-day interval adjustment" );
+		expect( html ).toContain( ">Disabled<" );
 	} );
 } );
 
@@ -28,14 +30,60 @@ describe( "renderWeather — Multi-Day Levels (#289)", () => {
 	it( "renders the levels when present", () => {
 		const html = renderWeather( jc, jo ); // wls [100]
 		expect( html ).toContain( "Multi-Day Levels" );
-		expect( html ).toContain( "Day 1" );
+		expect( html ).toContain( "1-day rolling average" );
 		expect( html ).toContain( "100%" );
+		expect( html ).toContain( "not a forecast" );
+		expect( html ).toContain( "interval program" );
+		expect( html ).not.toContain( ">Day 1<" );
+	} );
+	it( "explains level selection, scaling, fallback, and restrictions in human terms", () => {
+		const html = renderWeather( { ...jc, wls: [ 100, 90, 80 ] }, jo );
+		expect( html ).toContain( "3-day rolling average" );
+		expect( html ).toContain( "80% makes them 20% shorter" );
+		expect( html ).toContain( "longest average available" );
+		expect( html ).toContain( "active weather restriction always skips watering" );
+		expect( html ).toContain( "reference only" );
+		expect( html ).toContain( "current overall Watering Level" );
+	} );
+	it( "reports mda as active regardless of method and otherwise explains how to enable it", () => {
+		const active = renderWeather( { ...jc, wto: { ...jc.wto, mda: 100 } }, { ...jo, uwt: 1 } );
+		expect( active ).toContain( ">Enabled<" );
+		expect( active ).toContain( "Multi-day adjustment is enabled" );
+		expect( active ).toContain( "uses the N-day average" );
+
+		const disabled = renderWeather( { ...jc, wto: { ...jc.wto, mda: 0 } }, { ...jo, uwt: 3 } );
+		expect( disabled ).toContain( ">Disabled<" );
+		expect( disabled ).toContain( "Multi-day adjustment is disabled" );
+		expect( disabled ).toContain( "reference only" );
+
+		const retained = renderWeather( { ...jc, wto: { ...jc.wto, mda: 100 } }, { ...jo, uwt: 4 } );
+		expect( retained ).toContain( ">Enabled<" );
+		expect( retained ).toContain( "toggle remains enabled" );
+
+		const manualDisabled = renderWeather( { ...jc, wto: { ...jc.wto, mda: 0 } }, jo );
+		expect( manualDisabled ).toContain( ">Disabled<" );
+		expect( manualDisabled ).toContain( "Select Zimmerman or ETo" );
+	} );
+	it( "marks retained levels as potentially stale while the weather service is failing", () => {
+		const html = renderWeather( { ...jc, wterr: -1, wls: [ 80 ] }, jo );
+		expect( html ).toContain( "last weather update failed" );
+		expect( html ).toContain( "retained from the last successful update" );
+	} );
+	it( "distinguishes pending, stale, not-yet-updated, and invalid-clock levels", () => {
+		expect( renderWeather( { ...jc, lwc: 0, lswc: jc.lswc, wterr: -1, wls: [ 80 ] }, jo ) )
+			.toContain( "weather update is pending" );
+		expect( renderWeather( { ...jc, lwc: 0, lswc: 0, wterr: -1, wls: [ 80 ] }, jo ) )
+			.toContain( "No weather update has completed yet" );
+		expect( renderWeather( { ...jc, lswc: jc.devt - 86401, wls: [ 80 ] }, jo ) )
+			.toContain( "no successful update arrived in the last 24 hours" );
+		expect( renderWeather( { ...jc, lswc: jc.devt + 1, wls: [ 80 ] }, jo ) )
+			.toContain( "Controller clock needs review" );
 	} );
 	it( "shows a friendly empty-state instead of '[]' when empty", () => {
 		const html = renderWeather( { ...jc, wls: [] }, jo );
 		expect( html ).toContain( "Multi-Day Levels" );
 		expect( html ).toContain( "None" );
-		expect( html ).toContain( "isn't sending multi-day levels" );
+		expect( html ).toContain( "No multi-day averages are available" );
 		expect( html ).not.toContain( "[]" );
 	} );
 } );

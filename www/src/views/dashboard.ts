@@ -13,7 +13,7 @@ import { renderPrograms } from "./programs-view";
 import { renderLogs } from "./logs-view";
 import { renderWeather } from "./weather-view";
 import { renderDiagnostics } from "./diagnostics-view";
-import { renderSettings, type SettingsSection } from "./settings/index";
+import { renderSettings, type ProgramEditorTarget, type SettingsSection } from "./settings/index";
 
 export interface DashboardData {
 	jc: JcResponse; jo: JoResponse; jn: JnResponse; jp: JpResponse; jl: JlResponse;
@@ -27,6 +27,8 @@ export interface DashboardOptions {
 	actions?: boolean;
 	/** Active sub-section when the Settings tab is shown. */
 	settingsSection?: SettingsSection;
+	/** Existing raw program selected for lossless editing. Omitted for the new-program editor. */
+	programEditor?: ProgramEditorTarget;
 	/** When the companion is present, the host passes the rendered History HTML to add a History tab. */
 	historyHtml?: string;
 }
@@ -66,7 +68,7 @@ export function renderDashboard( d: DashboardData, active: DashboardTab | "Histo
 		case "Weather": content = renderWeather( d.jc, d.jo ); break;
 		case "Log": content = renderLogs( d.jl, d.jn, d.jo ); break;
 		case "Diagnostics": content = renderDiagnostics( d.jc, d.jo ); break;
-		case "Settings": content = renderSettings( d.jc, d.jo, d.jn, opts.settingsSection ); break;
+		case "Settings": content = renderSettings( d.jc, d.jo, d.jn, d.jp, opts.settingsSection, opts.programEditor ); break;
 		case "History": content = opts.historyHtml ?? ""; break;
 		default: content = renderControllerStatus( d.jc, d.jo, deriveCapabilities( d.jc, d.jo ), { actions: a } );
 	}

@@ -23,6 +23,13 @@ describe( "renderLoginForm", () => {
 		expect( renderLoginForm() ).toContain( 'type="password"' );
 		expect( renderLoginForm( "Invalid password" ) ).toContain( "Invalid password" );
 	} );
+
+	it( "keeps the scrubbed controller target visible and escaped", () => {
+		const html = renderLoginForm( undefined, "https://controller.example/forward/<target>/" );
+		expect( html ).toContain( "Controller:" );
+		expect( html ).toContain( "https://controller.example/forward/&lt;target&gt;/" );
+		expect( html ).not.toContain( "forward/<target>" );
+	} );
 } );
 
 describe( "runLogin", () => {
@@ -30,6 +37,7 @@ describe( "runLogin", () => {
 		globalThis.fetch = mockSp( 0 );
 		const mount = document.createElement( "div" );
 		const p = runLogin( mount, "http://d/", 221 );
+		expect( mount.textContent ).toContain( "http://d/" );
 		submit( mount, "secret" );
 		await expect( p ).resolves.toBe( md5( "secret" ) );
 	} );

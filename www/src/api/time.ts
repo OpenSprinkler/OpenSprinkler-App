@@ -1,18 +1,15 @@
 /**
  * Time formatting against the OpenSprinkler firmware time bases (fixes upstream #287).
  *
- * The firmware mixes two bases in /jc, and conflating them is the "Last Request shows the wrong
- * time" bug:
- *   • `devt` is ALREADY shifted to the device timezone (firmware emits `os.now_tz()` = UTC + tzOffset).
- *   • `lwc`, `lswc`, `lupt`, rain-delay `rdst`, and `lrun`/`ps` end-times are RAW UTC epoch seconds.
+ * Firmware emits controller-clock epochs from `os.now_tz()` (the timestamp shifted to the
+ * configured controller timezone) for `devt`,
+ * weather/power/rain timestamps, queue/last-run fields, and `/jl` log rows.
  *
- * Bug pattern: converting a raw UTC epoch with the browser's timezone (or treating `devt` as UTC)
- * double-applies — or omits — the offset, so the time is off by the tz/DST delta.
+ * Bug pattern: adding the configured offset to any of those values applies it twice.
  *
  * Fix (PRD §3 / upstream #287): pick ONE consistent base — the DEVICE's local wall clock — and
- * format every value to it exactly once, browser-timezone-independent. We add the device offset to
- * raw UTC epochs, and format `devt` directly (it is already local). Components are read via
- * `getUTC*`, so output is deterministic regardless of where the browser runs.
+ * format each value directly, browser-timezone-independent. JavaScript's neutral component getters
+ * are used only to unpack that already-local wall clock; the UI never labels or presents it as UTC.
  */
 
 /**
@@ -24,33 +21,72 @@ export function osTzOffsetSeconds( tz: number ): number {
 	return ( tz - 48 ) * 900;
 }
 
-/** Format an epoch (already in the desired wall-clock base) as "YYYY-MM-DD HH:MM" via UTC components. */
-function fmtComponents( wallClockEpoch: number ): string {
-	const d = new Date( wallClockEpoch * 1000 );
-	const p = ( n: number ): string => String( n ).padStart( 2, "0" );
-	return `${ d.getUTCFullYear() }-${ p( d.getUTCMonth() + 1 ) }-${ p( d.getUTCDate() ) } ` +
-		`${ p( d.getUTCHours() ) }:${ p( d.getUTCMinutes() ) }`;
+interface ClockParts {
+	year: number;
+	month: number;
+	day: number;
+	hour: number;
+	minute: number;
 }
 
-/** Format a RAW UTC epoch (lwc/lswc/lupt/rdst/log end-times) in the device's local wall clock. */
-export function formatClock( epochUtc: number, tz: number ): string {
-	return fmtComponents( epochUtc + osTzOffsetSeconds( tz ) );
+/**
+ * Unpack an epoch that already represents the controller's local wall clock. `getUTC*` deliberately
+ * avoids applying the browser's timezone; it does not convert the displayed value to UTC.
+ */
+function controllerClockParts( wallClockEpoch: number ): ClockParts | null {
+	if ( !Number.isFinite( wallClockEpoch ) ) return null;
+	const d = new Date( wallClockEpoch * 1000 );
+	if ( Number.isNaN( d.getTime() ) ) return null;
+	return {
+		year: d.getUTCFullYear(),
+		month: d.getUTCMonth() + 1,
+		day: d.getUTCDate(),
+		hour: d.getUTCHours(),
+		minute: d.getUTCMinutes(),
+	};
+}
+
+function twoDigits( n: number ): string {
+	return String( n ).padStart( 2, "0" );
+}
+
+function formatHourMinute( hour: number, minute: number ): string {
+	const suffix = hour >= 12 ? "PM" : "AM";
+	const hour12 = hour % 12 || 12;
+	return `${ hour12 }:${ twoDigits( minute ) } ${ suffix }`;
+}
+
+/** Format a controller-local epoch as MM/DD/YYYY. */
+export function formatControllerDate( controllerEpoch: number ): string {
+	const parts = controllerClockParts( controllerEpoch );
+	if ( !parts ) return "Invalid date";
+	return `${ twoDigits( parts.month ) }/${ twoDigits( parts.day ) }/${ parts.year }`;
+}
+
+/** Format a controller-local epoch as MM/DD/YYYY h:mm AM/PM. */
+export function formatControllerDateTime( controllerEpoch: number ): string {
+	const parts = controllerClockParts( controllerEpoch );
+	if ( !parts ) return "Invalid date";
+	return `${ twoDigits( parts.month ) }/${ twoDigits( parts.day ) }/${ parts.year } ` +
+		formatHourMinute( parts.hour, parts.minute );
+}
+
+/** Format a controller-local epoch as h:mm AM/PM. */
+export function formatControllerTime( controllerEpoch: number ): string {
+	const parts = controllerClockParts( controllerEpoch );
+	return parts ? formatHourMinute( parts.hour, parts.minute ) : "Invalid time";
 }
 
 /** Format `devt` (already device-local) directly — do NOT re-apply the offset. */
 export function formatDeviceTime( devt: number ): string {
-	return fmtComponents( devt );
+	return formatControllerDateTime( devt );
 }
 
-/** HH:MM (device-local) for a RAW UTC epoch — e.g. the rain-delay stop time `rdst`. */
-export function formatClockTime( epochUtc: number, tz: number ): string {
-	return fmtComponents( epochUtc + osTzOffsetSeconds( tz ) ).slice( 11 );
-}
-
-/** HH:MM from minutes-since-local-midnight (sunrise/sunset are already device-local). */
+/** h:mm AM/PM from minutes-since-local-midnight (sunrise/sunset are already device-local). */
 export function formatMinutesOfDay( minutes: number ): string {
-	const p = ( n: number ): string => String( n ).padStart( 2, "0" );
-	return `${ p( Math.floor( ( minutes % 1440 ) / 60 ) ) }:${ p( ( ( minutes % 60 ) + 60 ) % 60 ) }`;
+	if ( !Number.isFinite( minutes ) ) return "Invalid time";
+	const normalized = ( ( Math.trunc( minutes ) % 1440 ) + 1440 ) % 1440;
+	return formatHourMinute( Math.floor( normalized / 60 ), normalized % 60 );
 }
 
 /** The device's current time as a TRUE UTC epoch (undo the offset baked into `devt`). */
@@ -58,9 +94,9 @@ export function deviceNowUtc( devt: number, tz: number ): number {
 	return devt - osTzOffsetSeconds( tz );
 }
 
-/** Seconds elapsed between a raw UTC `epochUtc` and the device's current time (positive = past). */
-export function elapsedSeconds( epochUtc: number, devt: number, tz: number ): number {
-	return deviceNowUtc( devt, tz ) - epochUtc;
+/** Seconds elapsed between two controller-clock epochs (positive = past). */
+export function elapsedSeconds( controllerEpoch: number, devt: number ): number {
+	return devt - controllerEpoch;
 }
 
 /**

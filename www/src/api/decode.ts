@@ -12,6 +12,7 @@
  * we follow the firmware logic instead.
  */
 import type { JcResponse, JnResponse, JpResponse, JlRow, JlStationRow, JlSpecialRow } from "./types";
+import { formatControllerDate, formatControllerDateTime, formatMinutesOfDay } from "./time";
 
 const PARALLEL_GROUP_ID = 255;
 
@@ -39,11 +40,6 @@ export interface ProgramView {
 }
 
 // ---- formatting helpers ------------------------------------------------------
-
-export function minutesToHHMM( mins: number ): string {
-	const m = ( ( mins % 1440 ) + 1440 ) % 1440;
-	return `${ String( Math.floor( m / 60 ) ).padStart( 2, "0" ) }:${ String( m % 60 ).padStart( 2, "0" ) }`;
-}
 
 /** Duration (seconds) → "1h 30m" / "45m" / "0:30". Solar specials handled by getDurationText. */
 export function formatDuration( seconds: number ): string {
@@ -77,9 +73,9 @@ export function getDurationText( sec: number ): string {
 	return formatDuration( sec );
 }
 
-/** date_encode inverse → "MM-DD". */
+/** date_encode inverse → "MM/DD". The firmware stores no year for this annual range. */
 export function decodeEncodedDate( enc: number ): string {
-	return `${ String( enc >> 5 ).padStart( 2, "0" ) }-${ String( enc & 0x1f ).padStart( 2, "0" ) }`;
+	return `${ String( enc >> 5 ).padStart( 2, "0" ) }/${ String( enc & 0x1f ).padStart( 2, "0" ) }`;
 }
 
 // ---- station ----------------------------------------------------------------
@@ -130,7 +126,7 @@ export function decodeProgramDays( flags: number, days0: number, days1: number )
 		}
 		default: { // SINGLERUN — (days0<<8)+days1 = epoch day
 			const epochDay = ( days0 << 8 ) + days1;
-			base = `On ${ new Date( epochDay * 86400000 ).toISOString().slice( 0, 10 ) }`;
+			base = `On ${ formatControllerDate( epochDay * 86400 ) }`;
 		}
 	}
 	if ( oddeven === 1 ) return `${ base } (odd days)`;
@@ -144,7 +140,7 @@ export function decodeOneStartTime( t: number ): string | null {
 	if ( ( u >> 15 ) & 1 ) return null;          // unused (-1)
 	const sunrise = ( u >> 14 ) & 1;
 	const sunset = ( u >> 13 ) & 1;
-	if ( !sunrise && !sunset ) return minutesToHHMM( u & 0x7ff ); // standard
+	if ( !sunrise && !sunset ) return formatMinutesOfDay( u & 0x7ff ); // standard
 	let offset = u & 0x7ff;
 	if ( ( u >> 12 ) & 1 ) offset = -offset;     // sign bit
 	const label = sunrise ? "Sunrise" : "Sunset"; // sunrise precedence
@@ -201,17 +197,17 @@ export function decodeAllPrograms( jp: JpResponse, stationNames: string[] ): Pro
 // Station run row: [program, station, durationSec, endtime, flowPulseRate?]
 //   flowPulseRate = average sensor pulses/min over the run. Volume needs the fpr0/fpr1
 //   calibration from /jo: volume/min = rate × ((fpr1<<8)+fpr0)/100 (see flowLpm).
-// Special row:     [value, "<code>", value2, endtime]   code: s1 s2 rd fl wl
+// Special row:     [value, "<code>", value2, endtime]   code: s1 s2 rs rd fl wl cu
 //   value2 = duration seconds (s1/s2/rd/fl) OR water-level % (wl);  value = flow pulses (fl)
 
-export type LogKind = "station" | "sensor1" | "sensor2" | "raindelay" | "flow" | "waterlevel" | "current";
+export type LogKind = "station" | "sensor1" | "sensor2" | "rainsensor" | "raindelay" | "flow" | "waterlevel" | "current";
 
 export type LogEntry =
 	| { kind: "station"; when: number; program: number; station: number; durationSec: number; flowPulseRate?: number }
 	| { kind: Exclude<LogKind, "station">; when: number; value: number; durationSec: number };
 
 const LOG_CODE: Record<string, Exclude<LogKind, "station">> = {
-	s1: "sensor1", s2: "sensor2", rd: "raindelay", fl: "flow", wl: "waterlevel", cu: "current",
+	s1: "sensor1", s2: "sensor2", rs: "rainsensor", rd: "raindelay", fl: "flow", wl: "waterlevel", cu: "current",
 };
 
 export function decodeLogRow( row: JlRow ): LogEntry {
@@ -227,10 +223,9 @@ export function decodeLogRow( row: JlRow ): LogEntry {
 	return { kind, when, value, durationSec: value2 };
 }
 
-/** Deterministic "YYYY-MM-DD HH:MM" (UTC) — stable for tests; the real UI would localize. */
-export function formatWhenUTC( unix: number ): string {
-	const iso = new Date( unix * 1000 ).toISOString();
-	return iso.slice( 0, 10 ) + " " + iso.slice( 11, 16 );
+/** Render a firmware /jl timestamp in the controller's configured local clock. */
+export function formatControllerTimestamp( controllerEpoch: number ): string {
+	return formatControllerDateTime( controllerEpoch );
 }
 
 export interface LastRun { when: number; durationSec: number; flowPulseRate?: number }
@@ -241,10 +236,10 @@ export function lastRunsByStation( jl: JlRow[] ): Map<number, LastRun> {
 	for ( const row of jl ) {
 		const e = decodeLogRow( row );
 		if ( e.kind !== "station" ) continue;
-		const prev = out.get( e.station );
-		if ( !prev || e.when > prev.when ) {
-			out.set( e.station, { when: e.when, durationSec: e.durationSec, ...( e.flowPulseRate != null ? { flowPulseRate: e.flowPulseRate } : {} ) } );
-		}
+		// /jl is append order (oldest→newest). Last occurrence, not greatest wall-clock value, wins:
+		// a DST fall-back makes a genuinely later event's encoded local timestamp smaller or equal.
+		out.set( e.station, { when: e.when, durationSec: e.durationSec,
+			...( e.flowPulseRate != null ? { flowPulseRate: e.flowPulseRate } : {} ) } );
 	}
 	return out;
 }
@@ -275,6 +270,7 @@ export function describeLogEntry( e: LogEntry, stationNames: string[], jo?: { fp
 		}
 		case "sensor1": return `Sensor 1 active ${ formatDuration( e.durationSec ) }`;
 		case "sensor2": return `Sensor 2 active ${ formatDuration( e.durationSec ) }`;
+		case "rainsensor": return `Rain sensor active ${ formatDuration( e.durationSec ) }`;
 		case "raindelay": return `Rain delay ${ formatDuration( e.durationSec ) }`;
 		case "flow": return `Flow: ${ e.value } pulses over ${ formatDuration( e.durationSec ) }`;
 		case "waterlevel": return `Water level set to ${ e.value }%`;
@@ -283,7 +279,7 @@ export function describeLogEntry( e: LogEntry, stationNames: string[], jo?: { fp
 }
 
 export const LOG_KIND_LABEL: Record<LogKind, string> = {
-	station: "Run", sensor1: "Sensor 1", sensor2: "Sensor 2",
+	station: "Run", sensor1: "Sensor 1", sensor2: "Sensor 2", rainsensor: "Rain sensor",
 	raindelay: "Rain delay", flow: "Flow", waterlevel: "Water level", current: "Current",
 };
 

@@ -3,7 +3,7 @@
  * `data-settings-section` clicks to re-render and `data-settings` form submits to the matching
  * build*() mapper + typed command.
  */
-import type { JcResponse, JoResponse, JnResponse } from "../../api/types";
+import type { JcResponse, JoResponse, JnResponse, JpResponse, OSProgram } from "../../api/types";
 import { renderGeneralSettings } from "./general";
 import { renderWeatherConfig } from "./weather";
 import { renderNetwork } from "./network";
@@ -12,9 +12,11 @@ import { renderProgramEditor } from "./program-edit";
 
 export const SETTINGS_SECTIONS = [ "General", "Weather", "Network", "Stations", "Programs" ] as const;
 export type SettingsSection = ( typeof SETTINGS_SECTIONS )[ number ];
+export interface ProgramEditorTarget { pid: number; program: OSProgram; }
 
 export function renderSettings(
-	jc: JcResponse, jo: JoResponse, jn: JnResponse, active: SettingsSection = "General",
+	jc: JcResponse, jo: JoResponse, jn: JnResponse, jp: JpResponse, active: SettingsSection = "General",
+	programEditor?: ProgramEditorTarget,
 ): string {
 	const nav = SETTINGS_SECTIONS.map( ( s ) =>
 		`<button type="button" class="subtab${ s === active ? " active" : "" }" role="tab" ` +
@@ -27,8 +29,10 @@ export function renderSettings(
 		case "Weather": content = renderWeatherConfig( jo, jc ); break;
 		case "Network": content = renderNetwork( jo ); break;
 		case "Stations": content = renderStationsEditor( jc, jn, jo.fwv ); break;
-		case "Programs": content = renderProgramEditor( jn, jo.fwv ); break;
-		default: content = renderGeneralSettings( jo, jc.dname || "" );
+		case "Programs": content = renderProgramEditor(
+			jn, jo.fwv * 10 + ( jo.fwm || 0 ), jp.pnsize, programEditor?.program, programEditor?.pid ?? -1,
+		); break;
+		default: content = renderGeneralSettings( jo, jc.dname || "", jc.loc );
 	}
 	return `<nav class="subtabs" role="tablist" aria-label="Settings sections">${ nav }</nav>` +
 		`<div class="settings-content" role="tabpanel" id="settings-panel" ` +

@@ -8,7 +8,7 @@
  * device's local wall clock — via api/time.ts (see #287).
  */
 import type { JcResponse, JoResponse } from "../api/types";
-import { formatClock, formatDeviceTime, relativeTime, elapsedSeconds } from "../api/time";
+import { formatControllerDateTime, formatDeviceTime, relativeTime, elapsedSeconds } from "../api/time";
 import {
 	weatherStatus, weatherErrorText, wifiRating, rebootReason, otcStatus, adjustmentMethodName,
 	type StatusText,
@@ -25,11 +25,13 @@ function statusSpan( s: StatusText ): string {
 	return `<span class="status status-${ s.level }">${ esc( s.text ) }</span>`;
 }
 
-/** A raw UTC epoch rendered as absolute device-local time + a relative hint; "—" when unset. */
-function whenCell( epochUtc: number, jc: JcResponse, tz: number ): string {
-	if ( !epochUtc || epochUtc <= 0 ) return "—";
-	const rel = relativeTime( elapsedSeconds( epochUtc, jc.devt, tz ) );
-	return `${ esc( formatClock( epochUtc, tz ) ) } <span class="muted">(${ esc( rel ) })</span>`;
+/** A controller-clock epoch rendered as absolute device-local time + a relative hint; "—" when unset. */
+function whenCell( controllerEpoch: number, jc: JcResponse ): string {
+	if ( !controllerEpoch || controllerEpoch <= 0 ) return "—";
+	const rel = controllerEpoch > jc.devt
+		? "Controller clock needs review"
+		: relativeTime( elapsedSeconds( controllerEpoch, jc.devt ) );
+	return `${ esc( formatControllerDateTime( controllerEpoch ) ) } <span class="muted">(${ esc( rel ) })</span>`;
 }
 
 function row( label: string, valueHtml: string, help?: string ): string {
@@ -43,12 +45,14 @@ function group( title: string, note: string, rows: string ): string {
 }
 
 /** One-line "is my system OK?" summary from whatever fields are available. */
-function healthSummary( jc: JcResponse, tz: number ): string {
+function healthSummary( jc: JcResponse ): string {
 	const parts: string[] = [];
 	if ( typeof jc.wterr === "number" ) parts.push( `Weather: ${ weatherStatus( jc.wterr ).text }` );
 	if ( typeof jc.lswc === "number" ) {
 		parts.push( jc.lswc > 0
-			? `Last update ${ relativeTime( elapsedSeconds( jc.lswc, jc.devt, tz ) ) }`
+			? ( jc.lswc > jc.devt
+				? "Last update: Controller clock needs review"
+				: `Last update ${ relativeTime( elapsedSeconds( jc.lswc, jc.devt ) ) }` )
 			: "Never updated" );
 	}
 	if ( typeof jc.RSSI === "number" ) parts.push( `Wi-Fi ${ wifiRating( jc.RSSI ).text }` );
@@ -57,8 +61,6 @@ function healthSummary( jc: JcResponse, tz: number ): string {
 }
 
 export function renderDiagnostics( jc: JcResponse, jo: JoResponse ): string {
-	const tz = typeof jo.tz === "number" ? jo.tz : 48;
-
 	// --- Connectivity ---
 	const connRows = [
 		row( "External IP", esc( formatIp( jc.eip ) ), "The address your controller appears as on the internet." ),
@@ -67,7 +69,7 @@ export function renderDiagnostics( jc: JcResponse, jo: JoResponse ): string {
 			"Signal at the controller. Closer to 0 dBm is stronger; below -80 dBm is unreliable." ) : "",
 		typeof jc.otcs === "number" ? row( "OpenThings Cloud", statusSpan( otcStatus( jc.otcs ) ),
 			"Remote access via OpenSprinkler's cloud relay (OTC)." ) : "",
-		row( "Last reboot", whenCell( jc.lupt, jc, tz ), "When the controller last powered up." ),
+		row( "Last reboot", whenCell( jc.lupt, jc ), "When the controller last powered up." ),
 		typeof jc.lrbtc === "number" ? row( "Reboot reason", esc( rebootReason( jc.lrbtc ) ) ) : "",
 	].join( "" );
 
@@ -75,9 +77,9 @@ export function renderDiagnostics( jc: JcResponse, jo: JoResponse ): string {
 	const weatherRows = [
 		typeof jc.wterr === "number" ? row( "Service status", statusSpan( weatherStatus( jc.wterr ) ),
 			"Whether the controller can reach its weather service." ) : "",
-		row( "Last request", whenCell( jc.lwc, jc, tz ),
+		row( "Last request", whenCell( jc.lwc, jc ),
 			"When the controller last asked the weather service for data." ),
-		row( "Last successful update", whenCell( jc.lswc, jc, tz ),
+		row( "Last successful update", whenCell( jc.lswc, jc ),
 			"When usable weather data was last received." ),
 		typeof jc.wterr === "number" ? row( "Last response", esc( weatherErrorText( jc.wterr ) ) ) : "",
 		typeof jo.uwt === "number" ? row( "Adjustment method", esc( adjustmentMethodName( jo.uwt ) ),
@@ -104,7 +106,7 @@ export function renderDiagnostics( jc: JcResponse, jo: JoResponse ): string {
 
 	return `<section aria-label="System diagnostics">` +
 		`<h2>System Diagnostics</h2>` +
-		`<p class="health-summary" role="status">${ healthSummary( jc, tz ) }</p>` +
+		`<p class="health-summary" role="status">${ healthSummary( jc ) }</p>` +
 		group( "Connectivity", "How the controller reaches your network and the internet.", connRows ) +
 		group( "Weather service", "Where watering adjustments come from, and whether it's healthy.", weatherRows ) +
 		group( "Scheduling", "What the controller is doing right now.", schedRows ) +

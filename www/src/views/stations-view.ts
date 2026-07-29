@@ -3,7 +3,7 @@
  */
 import type { JcResponse, JnResponse, JlResponse, JoResponse } from "../api/types";
 import {
-	decodeAllStations, flowGpm, formatDuration, formatWhenUTC, lastRunsByStation,
+	decodeAllStations, flowGpm, formatDuration, formatControllerTimestamp, lastRunsByStation,
 	PARALLEL_GROUP_ID, type LastRun, type StationState,
 } from "../api/decode";
 import { esc, emptyState, helpTip } from "../ui/help";
@@ -11,12 +11,12 @@ import { actionBar, actionButton } from "../ui/controls";
 
 export interface StationsViewOptions { actions?: boolean; jl?: JlResponse; jo?: JoResponse; }
 
-/** "15m · 2024-06-09 13:30 · 0.65 gal/min" from the newest log run, or a muted em-dash. */
+/** "15m · 06/09/2024 1:30 PM · 0.65 gal/min" from the newest log run, or a muted em-dash. */
 function lastRunCell( run: LastRun | undefined, jo: JoResponse | undefined ): string {
 	if ( !run ) return '<span class="muted">—</span>';
 	const gpm = run.flowPulseRate != null && jo ? flowGpm( run.flowPulseRate, jo ) : null;
 	const flow = gpm != null ? ` · ${ gpm } gal/min` : "";
-	return `${ formatDuration( run.durationSec ) } · <span class="muted">${ formatWhenUTC( run.when ) }</span>${ flow }`;
+	return `${ formatDuration( run.durationSec ) } · <span class="muted">${ formatControllerTimestamp( run.when ) }</span>${ flow }`;
 }
 
 /** A small status dot prepended inside a state badge. Decorative — the badge text carries meaning. */
@@ -32,7 +32,7 @@ function stateLabel( s: StationState ): string {
 }
 
 function groupLabel( g: number ): string {
-	return g === PARALLEL_GROUP_ID ? "Parallel" : `Seq ${ g }`;
+	return g === PARALLEL_GROUP_ID ? "Parallel" : `Seq ${ esc( String( g ) ) }`;
 }
 
 function rowActions( s: StationState ): string {
@@ -52,7 +52,7 @@ export function renderStations( jc: JcResponse, jn: JnResponse, opts: StationsVi
 	const lastRuns = opts.jl ? lastRunsByStation( opts.jl ) : null;
 	const actionsCol = opts.actions ? '<th scope="col">Run</th>' : "";
 	const lastRunCol = lastRuns
-		? `<th scope="col">Last run ${ helpTip( "The most recent completed run in the controller's log. Times are UTC." ) }</th>`
+		? `<th scope="col">Last run ${ helpTip( "The most recent completed run in the controller's configured local time." ) }</th>`
 		: "";
 	const rows = stations.map( ( s ) =>
 		`<tr><td class="num">${ s.index + 1 }</td>` +

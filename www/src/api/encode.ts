@@ -69,6 +69,8 @@ export interface ProgramInput {
 	durations: number[];                  // per-station seconds (0 = excluded)
 	name: string;
 	dateRange?: { enable: boolean; from: number; to: number };  // from/to already encodeDate()'d
+	/** Non-semantic firmware words retained by the existing-program editor on unrelated changes. */
+	preservedRaw?: { restrictionCode?: 3; scheduleDays?: [ number, number ] };
 }
 
 const PROGRAM_TYPE_CODE: Record<ProgramTypeInput, number> = { weekly: 0, singlerun: 1, monthly: 2, interval: 3 };
@@ -120,12 +122,23 @@ export interface EncodedProgram {
 
 /** Build the /cp `v` array + name (+ optional date range), faithful to submitProgram21. */
 export function encodeProgram( p: ProgramInput ): EncodedProgram {
-	const flags = encodeProgramFlags( {
+	let flags = encodeProgramFlags( {
 		enabled: p.enabled, useWeather: p.useWeather, restriction: p.restriction,
 		type: p.schedule.type, fixedStart: p.start.type === "fixed",
 		useDateRange: !!p.dateRange?.enable,
 	} );
-	const [ days0, days1 ] = encodeProgramDays( p.schedule );
+	if ( p.restriction === "none" && p.preservedRaw?.restrictionCode === 3 ) {
+		flags = ( flags & ~( 0x03 << 2 ) ) | ( 3 << 2 );
+	}
+	let [ days0, days1 ] = encodeProgramDays( p.schedule );
+	const rawDays = p.preservedRaw?.scheduleDays;
+	if ( rawDays && rawDays.length === 2 && rawDays.every( ( value ) =>
+		Number.isSafeInteger( value ) && value >= 0 && value <= 255 ) ) {
+		const semanticallySame = p.schedule.type === "weekly"
+			? ( rawDays[ 0 ] & 0x7f ) === days0
+			: p.schedule.type === "monthly" && ( rawDays[ 0 ] & 0x1f ) === days0;
+		if ( semanticallySame ) [ days0, days1 ] = rawDays;
+	}
 	const v: Array<number | number[]> = [ flags, days0, days1, encodeStartField( p.start ), p.durations.slice() ];
 	return p.dateRange ? { v, name: p.name, dateRange: p.dateRange } : { v, name: p.name };
 }
@@ -212,13 +225,20 @@ export function optionsPath( named: Record<string, string | number> ): string {
 	return "co?" + kv.join( "&" );
 }
 
-/** uwt = (method & 0x7f) | (restriction ? 0x80 : 0) — adjustment method + weather-restriction bit. */
-export function encodeUwt( methodId: number, restriction: boolean ): number {
-	return ( methodId & 0x7f ) | ( restriction ? 0x80 : 0 );
+/** `uwt` carries only the adjustment method; current firmware no longer uses bit 7. */
+export function encodeUwt( methodId: number ): number {
+	return methodId & 0x7f;
 }
 
 /** Dotted-quad "a.b.c.d" -> 4 octets for ipN/gwN/dnsN/subnN/ntpN option keys. */
 export function ipOctets( dotted: string ): [ number, number, number, number ] {
-	const p = dotted.split( "." ).map( ( n ) => parseInt( n, 10 ) & 0xff );
-	return [ p[ 0 ] || 0, p[ 1 ] || 0, p[ 2 ] || 0, p[ 3 ] || 0 ];
+	const parts = dotted.trim().split( "." );
+	if ( parts.length !== 4 || parts.some( ( part ) => !/^\d{1,3}$/.test( part ) ) ) {
+		throw new Error( "Enter an IPv4 address with four numeric octets." );
+	}
+	const octets = parts.map( Number );
+	if ( octets.some( ( octet ) => !Number.isInteger( octet ) || octet < 0 || octet > 255 ) ) {
+		throw new Error( "Each IPv4 octet must be between 0 and 255." );
+	}
+	return octets as [ number, number, number, number ];
 }

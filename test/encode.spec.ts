@@ -12,7 +12,7 @@ import { decodeOneStartTime, decodeProgram, decodeEncodedDate } from "../www/src
 
 describe( "start-time encode ↔ decode", () => {
 	it( "round-trips standard, sunrise/sunset (±offset), and unused", () => {
-		expect( decodeOneStartTime( encodeStartTime( { kind: "time", minutes: 390 } ) ) ).toBe( "06:30" );
+		expect( decodeOneStartTime( encodeStartTime( { kind: "time", minutes: 390 } ) ) ).toBe( "6:30 AM" );
 		expect( decodeOneStartTime( encodeStartTime( { kind: "sunrise", offsetMinutes: 30 } ) ) ).toBe( "Sunrise +30m" );
 		expect( decodeOneStartTime( encodeStartTime( { kind: "sunrise", offsetMinutes: -15 } ) ) ).toBe( "Sunrise -15m" );
 		expect( decodeOneStartTime( encodeStartTime( { kind: "sunset", offsetMinutes: 0 } ) ) ).toBe( "Sunset" );
@@ -22,8 +22,8 @@ describe( "start-time encode ↔ decode", () => {
 
 describe( "date encode ↔ decode", () => {
 	it( "round-trips (month<<5)+day", () => {
-		expect( decodeEncodedDate( encodeDate( 5, 1 ) ) ).toBe( "05-01" );
-		expect( decodeEncodedDate( encodeDate( 9, 30 ) ) ).toBe( "09-30" );
+		expect( decodeEncodedDate( encodeDate( 5, 1 ) ) ).toBe( "05/01" );
+		expect( decodeEncodedDate( encodeDate( 9, 30 ) ) ).toBe( "09/30" );
 	} );
 } );
 
@@ -48,9 +48,9 @@ describe( "program encode ↔ decode", () => {
 		expect( d.type ).toBe( "weekly" );
 		expect( d.oddEven ).toBe( "odd" );
 		expect( d.days ).toContain( "Mon, Wed, Fri" );
-		expect( d.startTimes ).toContain( "06:30" );
+		expect( d.startTimes ).toContain( "6:30 AM" );
 		expect( d.startTimes ).toContain( "Sunrise +30m" );
-		expect( d.dateRange ).toEqual( { start: "05-01", end: "09-30" } );
+		expect( d.dateRange ).toEqual( { start: "05/01", end: "09/30" } );
 		expect( d.perStationDurations.filter( ( x ) => x.seconds > 0 ).length ).toBe( 2 );
 		expect( d.name ).toBe( "Morning" );
 	} );
@@ -66,7 +66,7 @@ describe( "program encode ↔ decode", () => {
 		expect( d.enabled ).toBe( false );
 		expect( d.type ).toBe( "interval" );
 		expect( d.days ).toBe( "Every 3 days (in 1d)" );
-		expect( d.startTimes ).toEqual( [ "from 06:00, every 30m, 4x" ] );
+		expect( d.startTimes ).toEqual( [ "from 6:00 AM, every 30m, 4x" ] );
 		expect( d.dateRange ).toBeNull();
 	} );
 
@@ -91,7 +91,7 @@ describe( "program encode ↔ decode", () => {
 			durations: [ 600 ], name: "S",
 		} ) ), [ "Z" ] );
 		expect( d.type ).toBe( "singlerun" );
-		expect( d.days ).toBe( "On 2024-06-09" );
+		expect( d.days ).toBe( "On 06/09/2024" );
 	} );
 
 	it( "builds the /cp submit path (new program, name + date range params)", () => {
@@ -157,11 +157,15 @@ describe( "options encode (/co)", () => {
 	it( "escapeJsonForFirmware strips the outer braces", () => {
 		expect( escapeJsonForFirmware( { en: 1, token: "abc" } ) ).toBe( '"en":1,"token":"abc"' );
 	} );
-	it( "encodeUwt packs method + restriction bit", () => {
-		expect( encodeUwt( 1, false ) ).toBe( 1 );
-		expect( encodeUwt( 4, true ) ).toBe( 4 | 0x80 );
+	it( "encodeUwt encodes only the current adjustment-method bits", () => {
+		expect( encodeUwt( 1 ) ).toBe( 1 );
+		expect( encodeUwt( 0x84 ) ).toBe( 4 );
 	} );
 	it( "ipOctets splits a dotted quad", () => {
 		expect( ipOctets( "192.168.1.100" ) ).toEqual( [ 192, 168, 1, 100 ] );
+	} );
+	it( "ipOctets rejects wrapping, partial, and junk octets", () => {
+		expect( () => ipOctets( "999.-1.nope.4junk" ) ).toThrow( /IPv4|octet/i );
+		expect( () => ipOctets( "192.168.1" ) ).toThrow( /four/i );
 	} );
 } );

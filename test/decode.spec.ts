@@ -6,8 +6,9 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, it, expect } from "vitest";
 import {
-	minutesToHHMM, formatDuration, formatInterval, getDurationText, decodeEncodedDate,
+	formatDuration, formatInterval, getDurationText, decodeEncodedDate,
 	decodeOneStartTime, decodeStartTimes, decodeProgramDays, decodeProgram, decodeStationState,
+	formatControllerTimestamp,
 } from "../www/src/api/decode";
 import { parseJc, parseJn, parseJp } from "../www/src/api/client";
 
@@ -16,11 +17,6 @@ function fx( name: string ): unknown {
 }
 
 describe( "formatters", () => {
-	it( "minutesToHHMM", () => {
-		expect( minutesToHHMM( 390 ) ).toBe( "06:30" );
-		expect( minutesToHHMM( 0 ) ).toBe( "00:00" );
-		expect( minutesToHHMM( 1080 ) ).toBe( "18:00" );
-	} );
 	it( "formatDuration", () => {
 		expect( formatDuration( 5400 ) ).toBe( "1h 30m" );
 		expect( formatDuration( 2700 ) ).toBe( "45m" );
@@ -39,26 +35,29 @@ describe( "formatters", () => {
 		expect( getDurationText( 1800 ) ).toBe( "30m" );
 	} );
 	it( "decodeEncodedDate = (month<<5)+day", () => {
-		expect( decodeEncodedDate( 33 ) ).toBe( "01-01" );    // MIN
-		expect( decodeEncodedDate( 415 ) ).toBe( "12-31" );   // MAX (corrected: 12<<5 + 31)
-		expect( decodeEncodedDate( 161 ) ).toBe( "05-01" );
-		expect( decodeEncodedDate( 318 ) ).toBe( "09-30" );
+		expect( decodeEncodedDate( 33 ) ).toBe( "01/01" );    // MIN
+		expect( decodeEncodedDate( 415 ) ).toBe( "12/31" );   // MAX (corrected: 12<<5 + 31)
+		expect( decodeEncodedDate( 161 ) ).toBe( "05/01" );
+		expect( decodeEncodedDate( 318 ) ).toBe( "09/30" );
+	} );
+	it( "does not throw while formatting corrupt timestamps at a defensive render boundary", () => {
+		expect( formatControllerTimestamp( 1e308 ) ).toBe( "Invalid date" );
 	} );
 } );
 
 describe( "start times", () => {
 	it( "standard / sunrise / sunset / unused", () => {
-		expect( decodeOneStartTime( 390 ) ).toBe( "06:30" );          // standard 06:30
+		expect( decodeOneStartTime( 390 ) ).toBe( "6:30 AM" );        // standard 6:30 AM
 		expect( decodeOneStartTime( 16384 + 30 ) ).toBe( "Sunrise +30m" );
 		expect( decodeOneStartTime( 16384 ) ).toBe( "Sunrise" );      // zero offset
 		expect( decodeOneStartTime( 8192 + 4096 + 15 ) ).toBe( "Sunset -15m" ); // sunset, sign bit, 15
 		expect( decodeOneStartTime( -1 ) ).toBeNull();               // unused (bit15)
 	} );
 	it( "fixed mode drops unused slots", () => {
-		expect( decodeStartTimes( 0x40, [ 390, 16414, -1, -1 ] ) ).toEqual( [ "06:30", "Sunrise +30m" ] );
+		expect( decodeStartTimes( 0x40, [ 390, 16414, -1, -1 ] ) ).toEqual( [ "6:30 AM", "Sunrise +30m" ] );
 	} );
 	it( "repeating mode formats start/interval/count", () => {
-		expect( decodeStartTimes( 0x00, [ 360, 4, 120, 0 ] ) ).toEqual( [ "from 06:00, every 2h, 4x" ] );
+		expect( decodeStartTimes( 0x00, [ 360, 4, 120, 0 ] ) ).toEqual( [ "from 6:00 AM, every 2h, 4x" ] );
 	} );
 } );
 
@@ -89,8 +88,8 @@ describe( "decodeProgram (rich fixture)", () => {
 		expect( prog.useWeather ).toBe( true );
 		expect( prog.type ).toBe( "weekly" );
 		expect( prog.days ).toBe( "Mon, Wed, Fri" );
-		expect( prog.startTimes ).toEqual( [ "06:30", "Sunrise +30m" ] );
-		expect( prog.dateRange ).toEqual( { start: "05-01", end: "09-30" } );
+		expect( prog.startTimes ).toEqual( [ "6:30 AM", "Sunrise +30m" ] );
+		expect( prog.dateRange ).toEqual( { start: "05/01", end: "09/30" } );
 	} );
 	it( "maps per-station durations incl. solar special", () => {
 		const active = prog.perStationDurations.filter( ( d ) => d.seconds > 0 );

@@ -25,10 +25,13 @@ function renderProgram( p: ProgramView, index: number, actions: boolean ): strin
 		[ "Days", esc( p.days ) + ( p.oddEven !== "none" ? "" : "" ) ],
 		[ "Start", esc( p.startTimes.join( ", " ) || "—" ) ],
 	];
-	if ( p.dateRange ) meta.push( [ "Date range", `${ esc( p.dateRange.start ) } → ${ esc( p.dateRange.end ) }` ] );
+	// Firmware stores only month/day here, so call it an annual season instead of inventing a year.
+	if ( p.dateRange ) meta.push( [ "Seasonal range (every year)", `${ esc( p.dateRange.start ) } → ${ esc( p.dateRange.end ) }` ] );
 	const metaRows = meta.map( ( [ k, v ] ) => `<tr><th scope="row">${ k }</th><td>${ v }</td></tr>` ).join( "" );
 
 	const controls = actions ? actionBar( [
+		actionButton( "program-edit", "Edit", { pid: index }, "primary",
+			`Edit program ${ index + 1 }: ${ p.name || "(unnamed)" }` ),
 		actionButton( "program-run", "Run now", { pid: index } ),
 		actionButton( "program-toggle", p.enabled ? "Disable" : "Enable", { pid: index, enabled: p.enabled ? 1 : 0 } ),
 		actionButton( "program-delete", "Delete", { pid: index }, "danger" ),

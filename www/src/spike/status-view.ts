@@ -9,7 +9,7 @@
  */
 import type { JcResponse, JoResponse, Capabilities } from "../api/types";
 import { getForkTag } from "../api/client";
-import { formatMinutesOfDay, formatClockTime } from "../api/time";
+import { formatMinutesOfDay, formatControllerDateTime } from "../api/time";
 import { esc, helpTip } from "../ui/help";
 import { actionBar, actionButton } from "../ui/controls";
 
@@ -49,7 +49,6 @@ function waterGauge( wl: number ): string {
 /** Render the controller-status screen as an HTML string. With `opts.actions`, append a control bar. */
 export function renderControllerStatus( jc: JcResponse, jo: JoResponse, caps: Capabilities, opts: ViewOptions = {} ): string {
 	const active = countActiveStations( jc.sbits );
-	const tz = typeof jo.tz === "number" ? jo.tz : 48;
 	const firmware = fmtVersion( jo.fwv ) + ( jo.fwm ? ` (${ jo.fwm })` : "" ) + getForkTag( jo );
 	const rows: Array<[ label: string, value: string, help?: string ]> = [
 		[ "Device", esc( jc.dname || "OpenSprinkler" ) ],
@@ -58,7 +57,7 @@ export function renderControllerStatus( jc: JcResponse, jo: JoResponse, caps: Ca
 		[ "Active stations", `${ active }` ],
 		[ "Water level", `<span class="gauge-cell">${ waterGauge( jo.wl ) }<span class="gauge-pct">${ esc( String( jo.wl ) ) }%</span></span>`,
 			"Scales every program's run time (100% = as programmed)." ],
-		[ "Rain delay", `${ jc.rd ? dotOff() : dotOk() }<span>${ jc.rd ? `Active until ${ esc( formatClockTime( jc.rdst, tz ) ) }` : "Off" }</span>`,
+		[ "Rain delay", `${ jc.rd ? dotOff() : dotOk() }<span>${ jc.rd ? `Active until ${ esc( formatControllerDateTime( jc.rdst ) ) }` : "Off" }</span>`,
 			"A timed pause on all watering." ],
 		[ "Weather restriction", caps.weatherRestricted && jc.wtrestr ? "Restricted" : "None",
 			"Watering is paused by a weather rule (e.g. a rain restriction)." ],

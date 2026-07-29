@@ -7,11 +7,13 @@ import { esc } from "./help";
 
 export function actionButton(
 	action: string, label: string, data: Record<string, string | number | boolean> = {}, cls = "",
+	ariaLabel?: string,
 ): string {
 	const attrs = Object.entries( data )
 		.map( ( [ k, v ] ) => ` data-${ esc( k ) }="${ esc( String( v ) ) }"` ).join( "" );
+	const accessibleName = ariaLabel === undefined ? "" : ` aria-label="${ esc( ariaLabel ) }"`;
 	return `<button type="button" class="action${ cls ? " " + cls : "" }" ` +
-		`data-action="${ esc( action ) }"${ attrs }>${ esc( label ) }</button>`;
+		`data-action="${ esc( action ) }"${ attrs }${ accessibleName }>${ esc( label ) }</button>`;
 }
 
 export function actionBar( buttons: string ): string {

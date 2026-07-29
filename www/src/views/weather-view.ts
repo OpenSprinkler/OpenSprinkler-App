@@ -17,15 +17,64 @@ const WTDATA_LABELS: Record<string, string> = {
 	p: "Total rain", eto: "ETo", wind: "Mean wind", radiation: "Mean radiation",
 };
 
-function renderMultiDayLevels( wls: number[] ): string {
-	const help = helpTip( "Per-day watering adjustments your weather service applied recently (100% = no change)." );
+interface MultiDayAdjustmentState {
+	active: boolean;
+	methodSupportsIt: boolean;
+	status: string;
+}
+
+function multiDayAdjustmentState( jc: JcResponse, jo: JoResponse ): MultiDayAdjustmentState {
+	const methodId = jo.uwt & ~( 1 << 7 );
+	const methodSupportsIt = methodId === 1 || methodId === 3;
+	const active = jc.wto?.mda === 100;
+	return { active, methodSupportsIt, status: active ? "Enabled" : "Disabled" };
+}
+
+function multiDayFreshnessNote( jc: JcResponse ): string {
+	const { devt, lwc, lswc, wterr } = jc;
+	if ( ( lwc > 0 && lwc > devt ) || ( lswc > 0 && lswc > devt ) ) {
+		return "Controller clock needs review, so the age of these retained weather levels cannot be verified.";
+	}
+	if ( lwc === 0 && lswc === 0 ) return "No weather update has completed yet; any retained levels are not current.";
+	if ( lwc === 0 && lswc > 0 ) return "A weather update is pending; these levels are retained from the last successful update.";
+	const stale = lswc === 0 || devt - lswc > 86400;
+	if ( wterr !== 0 ) {
+		return stale
+			? "The last weather update failed, and these retained levels are stale."
+			: "The last weather update failed; these levels are retained from the last successful update.";
+	}
+	return stale ? "These retained weather levels are stale because no successful update arrived in the last 24 hours." : "";
+}
+
+function renderMultiDayLevels( jc: JcResponse, state: MultiDayAdjustmentState ): string {
+	const wls = jc.wls;
+	const help = helpTip( "Rolling weather adjustments for interval programs; these are not separate calendar days or forecasts." );
+	const usage = state.active
+		? "Multi-day adjustment is enabled. An interval program with Use Weather enabled uses the N-day average for an N-day interval." +
+			( state.methodSupportsIt ? "" : " The toggle remains enabled; it is normally shown while Zimmerman or ETo is selected." )
+		: "Multi-day adjustment is disabled. These values are reference only; interval programs with Use Weather use the current overall " +
+			"Watering Level. " + ( state.methodSupportsIt
+				? "Enable multi-day adjustment under Settings > Weather to use these averages."
+				: "Select Zimmerman or ETo under Settings > Weather to expose the multi-day toggle." );
+	const explanation = infoNote(
+		"Each value combines the most recent N weather days; it is not a forecast or a reading for one calendar date. " + usage + " " +
+		"When enabled, an interval longer than this list uses the longest average available. " +
+		"100% keeps programmed run times, 80% makes them 20% shorter, " +
+		"150% makes them 50% longer, and 0% skips watering. An active weather restriction always skips watering.",
+	);
 	if ( !Array.isArray( wls ) || wls.length === 0 ) {
 		return `<h3>Multi-Day Levels ${ help }</h3>` +
-			emptyState( "None", "Your weather service isn't sending multi-day levels." );
+			explanation +
+			emptyState( "None", "No multi-day averages are available from this weather service." );
 	}
-	const items = wls.map( ( v, i ) =>
-		`<li><span class="muted">Day ${ i + 1 }</span> <b>${ esc( String( v ) ) }%</b></li>` ).join( "" );
-	return `<h3>Multi-Day Levels ${ help }</h3><ol class="wls">${ items }</ol>`;
+	const freshness = multiDayFreshnessNote( jc );
+	const freshnessHtml = freshness ? infoNote( freshness ) : "";
+	const items = wls.map( ( v, i ) => {
+		const effect = v === 0 ? "skip watering" : v === 100 ? "programmed run time" : `${ v }% of programmed run time`;
+		return `<li><span class="muted">${ i + 1 }-day rolling average</span> ` +
+			`<b>${ esc( String( v ) ) }%</b> <span class="muted">— ${ esc( effect ) }</span></li>`;
+	} ).join( "" );
+	return `<h3>Multi-Day Levels ${ help }</h3>${ explanation }${ freshnessHtml }<ol class="wls">${ items }</ol>`;
 }
 
 function renderWeatherData( wtdata: Record<string, unknown> ): string {
@@ -82,6 +131,7 @@ function methodGlyph( uwt: number ): string {
 }
 
 export function renderWeather( jc: JcResponse, jo: JoResponse ): string {
+	const multiDayState = multiDayAdjustmentState( jc, jo );
 	const summaryRows = [
 		typeof jo.uwt === "number"
 			? `<tr><th scope="row">Adjustment method ${ helpTip( "How weather changes the watering amount." ) }</th>` +
@@ -89,12 +139,14 @@ export function renderWeather( jc: JcResponse, jo: JoResponse ): string {
 		typeof jo.wl === "number"
 			? `<tr><th scope="row">Watering level ${ helpTip( "Current overall watering as a percentage of program durations." ) }</th>` +
 				`<td>${ esc( String( jo.wl ) ) }%</td></tr>` : "",
+		`<tr><th scope="row">Multi-day interval adjustment ${ helpTip( "When enabled, uses rolling averages for Use Weather interval programs. Its toggle is shown with Zimmerman or ETo." ) }</th>` +
+			`<td>${ esc( multiDayState.status ) }</td></tr>`,
 	].join( "" );
 
 	return `<section aria-label="Weather">` +
 		`<h2>Weather</h2>` +
 		`<table class="status"><tbody>${ summaryRows }</tbody></table>` +
-		renderMultiDayLevels( jc.wls ) +
+		renderMultiDayLevels( jc, multiDayState ) +
 		renderWeatherData( jc.wtdata ) +
 		renderSourceFooter( jc, jo ) +
 		`</section>`;
