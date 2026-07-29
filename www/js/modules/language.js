@@ -16,6 +16,8 @@
 // Configure module
 var OSApp = OSApp || {};
 OSApp.Language = OSApp.Language || {};
+OSApp.Language.activeRequest = null;
+OSApp.Language.requestGeneration = 0;
 
 OSApp.Language.Constants = {
 	languageCodes: {
@@ -115,16 +117,34 @@ OSApp.Language.updateLang = function( lang ) {
 
 	OSApp.Storage.set( { "lang": lang } );
 	OSApp.currentSession.lang = lang;
+	OSApp.Language.requestGeneration++;
+	var requestGeneration = OSApp.Language.requestGeneration;
+
+	if ( OSApp.Language.activeRequest ) {
+		OSApp.Language.activeRequest.abort();
+		OSApp.Language.activeRequest = null;
+	}
 
 	if ( lang === "en" ) {
 		OSApp.Language.setLang();
 		return;
 	}
 
-	$.getJSON( OSApp.UIDom.getAppURLPath() + "locale/" + lang + ".js", function( store ) {
+	OSApp.Language.activeRequest = $.getJSON( OSApp.UIDom.getAppURLPath() + "locale/" + lang + ".js" ).done( function( store ) {
+		if ( requestGeneration !== OSApp.Language.requestGeneration || OSApp.currentSession.lang !== lang ) {
+			return;
+		}
 		OSApp.uiState.language = store.messages;
 		OSApp.Language.setLang();
-	} ).fail( OSApp.Language.setLang );
+	} ).fail( function( xhr, status ) {
+		if ( status !== "abort" && requestGeneration === OSApp.Language.requestGeneration ) {
+			OSApp.Language.setLang();
+		}
+	} ).always( function() {
+		if ( requestGeneration === OSApp.Language.requestGeneration ) {
+			OSApp.Language.activeRequest = null;
+		}
+	} );
 };
 
 OSApp.Language.languageSelect = function() {

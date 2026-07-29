@@ -129,7 +129,7 @@ describe("Popup Checks", function () {
 
 		if ($("#sprinklers .station-settings").length === 0) {
 			OSApp.currentSession.ip = "demo.opensprinkler.com";
-			OSApp.currentSession.pass = "opendoor";
+			OSApp.currentSession.pass = "test-password";
 			OSApp.currentSession.prefix = "https://";
 			OSApp.currentSession.fw183 = false;
 			OSApp.currentSession.controller = {
@@ -158,7 +158,7 @@ describe("Popup Checks", function () {
 			OSApp.Sites.updateSiteList(["Test"], "Test");
 			OSApp.Storage.set({
 				current_site: "Test",
-				sites: JSON.stringify({ Test: { images: {}, notes: {}, os_ip: "demo.opensprinkler.com", os_pw: "opendoor" } })
+				sites: JSON.stringify({ Test: { images: {}, notes: {}, os_ip: "demo.opensprinkler.com", os_pw: "test-password" } })
 			});
 			OSApp.Dashboard.displayPage();
 		}

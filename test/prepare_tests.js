@@ -17,7 +17,7 @@ before(function () {
 });
 
 before(function() {
-	server = sinon.fakeServer.create();
+	server = nise.fakeServer.create();
 	server.autoRespond = true;
 
 	// Mock responses using a function to handle requests

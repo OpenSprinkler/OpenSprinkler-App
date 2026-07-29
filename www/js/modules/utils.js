@@ -77,6 +77,16 @@ OSApp.Utils.getBitFromByte = function( byte, bit ) {
 	return ( byte & ( 1 << bit ) ) !== 0;
 };
 
+OSApp.Utils.coerceFiniteNumber = function( value ) {
+	if ( ( typeof value !== "number" && typeof value !== "string" ) ||
+		( typeof value === "string" && value.trim() === "" ) ) {
+		return undefined;
+	}
+
+	var number = Number( value );
+	return isFinite( number ) ? number : undefined;
+};
+
 // Pad a single digit with a leading zero
 OSApp.Utils.pad = function( number ) {
 	var r = String( number );
@@ -100,17 +110,19 @@ OSApp.Utils.htmlEscape = function( str ) {
 
 // Generate export link for JSON data
 OSApp.Utils.exportObj = function( ele, obj, subject ) {
+	var exportLink = $( ele ).off( "click.exportObj" ),
+		controllerDate = OSApp.Dates.currentControllerDate();
 	obj = encodeURIComponent( JSON.stringify( obj ) );
 
 	if ( OSApp.currentDevice.isFileCapable ) {
-		$( ele ).attr( {
+		exportLink.attr( {
 			href: "data:text/json;charset=utf-8," + obj,
-			download: "backup-" + new Date().toLocaleDateString().replace( /\//g, "-" ) + ".json"
+			download: "backup-" + OSApp.Dates.dateOnly( controllerDate ).replace( /\//g, "-" ) + ".json"
 		} );
 	} else {
-		subject = subject || "OpenSprinkler Data Export on " + OSApp.Dates.dateToString( new Date() );
+		subject = subject || "OpenSprinkler Data Export on " + OSApp.Dates.dateToString( controllerDate );
 		var href = "mailto:?subject=" + encodeURIComponent( subject ) + "&body=" + obj;
-		$( ele ).attr( "href", href ).on( "click", function() {
+		exportLink.removeAttr( "download" ).attr( "href", href ).on( "click.exportObj", function() {
 			window.open( href );
 		} );
 	}
@@ -154,6 +166,43 @@ OSApp.Utils.parseIntArray = function( arr ) {
 
 OSApp.Utils.isValidOTC = function( token ) {
 	return /^OT[a-f0-9]{30}$/i.test( token );
+};
+
+OSApp.Utils.parseIPv4 = function( value ) {
+	var parts = Array.isArray( value ) ? value : ( typeof value === "string" ? value.split( "." ) : [] );
+	if ( parts.length !== 4 ) return null;
+
+	var address = [];
+	for ( var i = 0; i < parts.length; i++ ) {
+		var part = parts[ i ];
+		if ( typeof part === "string" ) {
+			part = part.trim();
+			if ( !/^\d{1,3}$/.test( part ) ) return null;
+			part = Number( part );
+		}
+		if ( typeof part !== "number" || !Number.isInteger( part ) || part < 0 || part > 255 ) return null;
+		address.push( part );
+	}
+
+	return address;
+};
+
+OSApp.Utils.getBasicAuthHeader = function( username, password ) {
+	if ( typeof username !== "string" || typeof password !== "string" || username.indexOf( ":" ) !== -1 ||
+		username.length > 2048 || password.length > 2048 ) return null;
+	var value = username + ":" + password;
+	try {
+		return "Basic " + btoa( value );
+	} catch ( error ) { // eslint-disable-line no-unused-vars
+		try {
+			var bytes = encodeURIComponent( value ).replace( /%([0-9A-F]{2})/g, function( match, hex ) {
+				return String.fromCharCode( parseInt( hex, 16 ) );
+			} );
+			return "Basic " + btoa( bytes );
+		} catch ( encodingError ) { // eslint-disable-line no-unused-vars
+			return null;
+		}
+	}
 };
 
 OSApp.Utils.flowCountToVolume = function( count ) {

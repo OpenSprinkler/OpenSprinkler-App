@@ -19,6 +19,46 @@ OSApp.UIDom = OSApp.UIDom || {};
 
 // FIXME: this file needs refactoring attention!
 
+/**
+ * Run a refresh on a fixed delay without allowing requests to overlap.
+ * Returns an idempotent stop function for page lifecycle cleanup.
+ */
+OSApp.UIDom.startSerialRefresh = function( refresh, delay ) {
+	var stopped = false,
+		timer,
+		schedule = function() {
+			if ( !stopped ) {
+				timer = setTimeout( run, delay );
+			}
+		},
+			run = function() {
+				var request;
+
+				if ( stopped ) {
+					return;
+				}
+				if ( OSApp.ImportExport && OSApp.ImportExport.isImportInProgress() ) {
+					schedule();
+					return;
+				}
+
+			try {
+				request = refresh();
+			} catch ( error ) { // eslint-disable-line no-unused-vars
+				schedule();
+				return;
+			}
+
+			$.when( request ).always( schedule );
+		};
+
+	schedule();
+	return function() {
+		stopped = true;
+		clearTimeout( timer );
+	};
+};
+
 // App entry point
 OSApp.UIDom.launchApp = function() {
        // Load any stored local settings immediately since the `mobileinit`
@@ -31,9 +71,12 @@ OSApp.UIDom.launchApp = function() {
                return Math.min( Math.max( this, min ), max );
        };
 
-	if ( "serviceWorker" in navigator ) {
+	// The browser-test harness sets this marker so it cannot register a root-scoped worker.
+	if ( "serviceWorker" in navigator && window.isSecureContext && !window.__karma__ ) {
 		window.addEventListener( "load", function() {
-			navigator.serviceWorker.register( "/sw.js" );
+			navigator.serviceWorker.register( "/sw.js" ).catch( function( error ) {
+				console.warn( "Service worker registration failed:", error );
+			} );
 		} );
 	}
 
@@ -119,10 +162,9 @@ OSApp.UIDom.launchApp = function() {
 			} );
 		}
 	} )
-	.one( "mobileinit", function() {
-		$.support.cors = true;
-		$.mobile.allowCrossDomainPages = true;
-		OSApp.Storage.loadLocalSettings();
+		.one( "mobileinit", function() {
+			$.support.cors = true;
+			OSApp.Storage.loadLocalSettings();
 	} )
 	.on( "pagebeforechange", function( e, data ) {
 		var page = data.toPage,
@@ -193,6 +235,9 @@ OSApp.UIDom.launchApp = function() {
 		if ( OSApp.currentSession.ip === undefined ) {
 			return;
 		}
+		if ( OSApp.ImportExport && OSApp.ImportExport.isImportInProgress() ) {
+			return;
+		}
 
 		// If cloud token is available then sync sites
 		OSApp.Network.cloudSync();
@@ -243,17 +288,18 @@ OSApp.UIDom.launchApp = function() {
 
 		if ( OSApp.currentSession.isControllerConnected() && newpage !== "#site-control" && newpage !== "#start" && newpage !== "#loadingPage" ) {
 
-			// Update the controller status every 5 seconds and the program and station data every 30 seconds
-			var refreshStatusInterval = setInterval( function() { OSApp.Status.refreshStatus(); }, 4000 ), // FIXME: refactor this 4000 interval out to Constants or config/settings
-				refreshDataInterval;
+			// Wait for each request to settle before starting its next delay. A slow or unreachable
+			// controller must not build an unbounded queue of overlapping AJAX requests.
+			var stopStatusRefresh = OSApp.UIDom.startSerialRefresh( OSApp.Status.refreshStatus, 4000 ), // FIXME: refactor this 4000 interval out to Constants or config/settings
+				stopDataRefresh = function() {};
 
 			if ( !OSApp.Firmware.checkOSVersion( 216 ) ) {
-				refreshDataInterval = setInterval( OSApp.Sites.refreshData, 20000 ); // FIXME: move the 20000 interval to Constants (or config/settings)
+				stopDataRefresh = OSApp.UIDom.startSerialRefresh( OSApp.Sites.refreshData, 20000 ); // FIXME: move the 20000 interval to Constants (or config/settings)
 			}
 
 			$newpage.one( "pagehide", function() {
-				clearInterval( refreshStatusInterval );
-				clearInterval( refreshDataInterval );
+				stopStatusRefresh();
+				stopDataRefresh();
 			} );
 		}
 	} )
@@ -380,6 +426,30 @@ OSApp.UIDom.showHomeMenu = ( function() {
 	return begin;
 } )();
 
+OSApp.UIDom.openExternalLink = function( link ) {
+	var target = OSApp.currentDevice.isOSXApp ? "_system" : "_blank",
+		button = $( link ),
+		features = "location=" + ( OSApp.currentDevice.isAndroid ? "yes" : "no" ) +
+			",enableViewportScale=" + ( button.hasClass( "iabNoScale" ) ? "no" : "yes" ) +
+			",toolbar=yes,toolbarposition=top,toolbarcolor=" + OSApp.uiState.theme.statusBarPrimary +
+			",closebuttoncaption=" +
+				( button.hasClass( "iabNoScale" ) ? OSApp.Language._( "Back" ) : OSApp.Language._( "Done" ) ),
+		openedWindow;
+
+	if ( target === "_blank" ) features += ",noopener=yes,noreferrer=yes";
+	openedWindow = window.open( link.href, target, features );
+	try {
+		if ( openedWindow && "opener" in openedWindow ) openedWindow.opener = null;
+	} catch ( error ) { // eslint-disable-line no-unused-vars
+		// Some native InAppBrowser handles do not expose browser window properties.
+	}
+
+	setTimeout( function() {
+		button.removeClass( "ui-btn-active" );
+	}, 100 );
+	return false;
+};
+
 OSApp.UIDom.initAppData = function() {
 
 	//Update the language on the page using the browser's locale
@@ -417,20 +487,7 @@ OSApp.UIDom.initAppData = function() {
 
 	// Handle In-App browser requests (marked with iab class)
 	$.mobile.document.on( "click", ".iab", function() {
-		var target = OSApp.currentDevice.isOSXApp ? "_system" : "_blank";
-
-		var button = $( this );
-		window.open( this.href, target, "location=" + ( OSApp.currentDevice.isAndroid ? "yes" : "no" ) +
-			",enableViewportScale=" + ( button.hasClass( "iabNoScale" ) ? "no" : "yes" ) +
-			",toolbar=yes,toolbarposition=top,toolbarcolor=" + OSApp.uiState.theme.statusBarPrimary +
-			",closebuttoncaption=" +
-				( button.hasClass( "iabNoScale" ) ? OSApp.Language._( "Back" ) : OSApp.Language._( "Done" ) )
-		);
-
-		setTimeout( function() {
-			button.removeClass( "ui-btn-active" );
-		}, 100 );
-		return false;
+		return OSApp.UIDom.openExternalLink( this );
 	} );
 
 	// Correctly handle popup events and prevent history navigation on custom selectmenu popup
@@ -659,7 +716,7 @@ OSApp.UIDom.bindPanel = function() {
 			OSApp.Firmware.sendToOS( "/cv?pw=&rbt=1" ).done( function() {
 				$.mobile.loading( "hide" );
 				OSApp.Errors.showError( OSApp.Language._( "OpenSprinkler is rebooting now" ) );
-			} );
+			} ).fail( OSApp.Firmware.settleLoadingFailure );
 		} );
 		return false;
 	} );
@@ -780,16 +837,28 @@ OSApp.UIDom.fixInputClick = function( page ) {
 
 // Bind buttons to allow push and hold effects
 OSApp.UIDom.holdButton = function( target, callback ) {
-	var intervalId;
+	target.each( function() {
+		var element = $( this ),
+			intervalId,
+			attachedAtHold;
 
-	target.on( OSApp.currentDevice.isTouchCapable ? "tap" : "click", callback ).on( "taphold", function( e ) {
-		intervalId = setInterval( function() {
-			callback( e );
-		}, 100 );
-	} ).on( "vmouseup vmouseout vmousecancel touchend", function() {
-		clearInterval( intervalId );
-	} ).on( "touchmove", function( e ) {
-		e.preventDefault();
+		element.on( OSApp.currentDevice.isTouchCapable ? "tap" : "click", callback ).on( "taphold", function( e ) {
+			clearInterval( intervalId );
+			attachedAtHold = document.documentElement.contains( element[ 0 ] );
+			intervalId = setInterval( function() {
+				if ( attachedAtHold && !document.documentElement.contains( element[ 0 ] ) ) {
+					clearInterval( intervalId );
+					intervalId = undefined;
+					return;
+				}
+				callback.call( element[ 0 ], e );
+			}, 100 );
+		} ).on( "vmouseup vmouseout vmousecancel touchend", function() {
+			clearInterval( intervalId );
+			intervalId = undefined;
+		} ).on( "touchmove", function( e ) {
+			e.preventDefault();
+		} );
 	} );
 };
 
@@ -917,11 +986,13 @@ OSApp.UIDom.changeHeader = function( opt ) {
 
 	// Generate new header content
 	var newHeader = $( "<button data-icon='" + opt.leftBtn.icon + "' " + ( opt.leftBtn.text === "" ? "data-iconpos='notext' " : "" ) +
-				"class='ui-btn-left " + opt.leftBtn.class + "'>" + opt.leftBtn.text + "</button>" +
-			"<h3 class='" + opt.class + "'>" + opt.title + "</h3>" +
-			"<button data-icon='" + opt.rightBtn.icon + "' " + ( opt.rightBtn.text === "" ? "data-iconpos='notext' " : "" ) +
-				"class='ui-btn-right " + opt.rightBtn.class + "'>" + opt.rightBtn.text + "</button>" ),
+					"class='ui-btn-left " + opt.leftBtn.class + "'>" + opt.leftBtn.text + "</button>" +
+				"<h3 class='" + opt.class + "'></h3>" +
+				"<button data-icon='" + opt.rightBtn.icon + "' " + ( opt.rightBtn.text === "" ? "data-iconpos='notext' " : "" ) +
+					"class='ui-btn-right " + opt.rightBtn.class + "'>" + opt.rightBtn.text + "</button>" ),
 		speed = opt.animate ? "fast" : 0;
+
+	newHeader.filter( "h3" ).text( opt.title );
 
 	// Fade out the header content, replace it, and update the header
 	header.children().stop().fadeOut( speed, function() {
@@ -999,9 +1070,8 @@ OSApp.UIDom.showHelpText = function( e ) {
 		text = button.data( "helptext" ),
 		popup;
 
-	popup = $( "<div data-role='popup' data-theme='a'>" +
-		"<p>" + text + "</p>" +
-	"</div>" );
+	popup = $( "<div data-role='popup' data-theme='a'><p></p></div>" );
+	popup.find( "p" ).text( text );
 
 	OSApp.UIDom.openPopup( popup, { positionTo: button } );
 
@@ -1041,10 +1111,10 @@ OSApp.UIDom.showTimeInput = function( opt ) {
 		},
 		popup = $( "<div data-role='popup' id='timeInput' data-theme='a'>" +
 			"<div data-role='header' data-theme='b'>" +
-				"<h1>" + opt.title + "</h1>" +
+				"<h1>" + OSApp.Utils.htmlEscape( opt.title ) + "</h1>" +
 			"</div>" +
 			"<div class='ui-content'>" +
-				( opt.helptext ? "<p class='pad-top rain-desc center smaller'>" + opt.helptext + "</p>" : "" ) +
+				( opt.helptext ? "<p class='pad-top rain-desc center smaller'>" + OSApp.Utils.htmlEscape( opt.helptext ) + "</p>" : "" ) +
 				"<span>" +
 					"<fieldset class='ui-grid-" + ( OSApp.uiState.is24Hour ? "a" : "b" ) + " incr'>" +
 						"<div class='ui-block-a'>" +
@@ -1152,7 +1222,7 @@ OSApp.UIDom.showTimeInput = function( opt ) {
 			var useSun = popup.find( ".useSun" ).find( "button.ui-btn-active" );
 
 			if ( useSun.length === 1 ) {
-				var st = 0,
+				var st,
 					offset = parseInt( popup.find( ".offsetInput input" ).val() );
 				if ( useSun.hasClass( "rise" ) ) {
 					if ( offset >= 0 ) {
@@ -1313,14 +1383,11 @@ OSApp.UIDom.showDateTimeInput = function( timestamp, callback ) {
 
 	if ( !( timestamp instanceof Date ) ) {
 		timestamp = new Date( timestamp * 1000 );
-		timestamp.setMinutes( timestamp.getMinutes() - timestamp.getTimezoneOffset() );
 	}
 
 	callback = callback || function() {};
 
 	var keys = [ "Month", "Date", "FullYear", "Hours", "Minutes" ],
-		monthNames = [ OSApp.Language._( "Jan" ), OSApp.Language._( "Feb" ), OSApp.Language._( "Mar" ), OSApp.Language._( "Apr" ), OSApp.Language._( "May" ), OSApp.Language._( "Jun" ), OSApp.Language._( "Jul" ),
-			OSApp.Language._( "Aug" ), OSApp.Language._( "Sep" ), OSApp.Language._( "Oct" ), OSApp.Language._( "Nov" ), OSApp.Language._( "Dec" ) ],
 		popup = $( "<div data-role='popup' id='datetimeInput' data-theme='a'>" +
 			"<div data-role='header' data-theme='b'>" +
 				"<h1>" + OSApp.Language._( "Enter Date/Time" ) + "</h1>" +
@@ -1334,20 +1401,27 @@ OSApp.UIDom.showDateTimeInput = function( timestamp, callback ) {
 			updateContent();
 		},
 		updateContent = function() {
-			var incrbts = "<fieldset class='ui-grid-d incr'>",
+			var incrbts = "<p class='datetime-preview center' aria-live='polite'>" +
+					OSApp.Dates.dateTimeNoSeconds( timestamp ) + "</p>" +
+					"<p class='smaller center'>" + OSApp.Language._( "MM/DD/YYYY" ) + "</p>" +
+					"<fieldset class='ui-grid-d incr'>",
 				inputs = "<div class='ui-grid-d inputs'>",
 				decrbts = "<fieldset class='ui-grid-d decr'>",
-				val, i;
+				val, hour, i;
 
 			for ( i = 0; i < 5; i++ ) {
 				val = timestamp[ "getUTC" + keys[ i ] ]();
 
 				if ( keys[ i ] === "Month" ) {
-					val = "<p class='center'>" + monthNames[ val ] + "</p>";
+					val = "<p class='center'>" + OSApp.Utils.pad( val + 1 ) + "/</p>";
 				} else if ( keys[ i ] === "Date" ) {
-					val = "<p class='center'>" + val + ",</p>";
+					val = "<p class='center'>" + OSApp.Utils.pad( val ) + "/</p>";
 				} else if ( keys[ i ] === "Hours" ) {
-					val = "<p style='width:90%;display:inline-block' class='center'>" + val + "</p><p style='display:inline-block'>:</p>";
+					hour = OSApp.uiState.is24Hour ? OSApp.Utils.pad( val ) : val % 12 || 12;
+					val = "<p style='width:90%;display:inline-block' class='center'>" + hour + "</p><p style='display:inline-block'>:</p>";
+				} else if ( keys[ i ] === "Minutes" ) {
+					val = "<p class='center'>" + OSApp.Utils.pad( val ) + ( OSApp.uiState.is24Hour ? "" :
+						" " + ( timestamp.getUTCHours() >= 12 ? "PM" : "AM" ) ) + "</p>";
 				} else {
 					val = "<p class='center'>" + val + "</p>";
 				}
@@ -1403,11 +1477,11 @@ OSApp.UIDom.showSingleDurationInput = function( opt ) {
 
 	var popup = $( "<div data-role='popup' id='singleDuration' data-theme='a'>" +
 			"<div data-role='header' data-theme='b'>" +
-				"<h1>" + opt.title + "</h1>" +
+				"<h1 class='duration-title'></h1>" +
 			"</div>" +
 			"<div class='ui-content'>" +
-				( opt.helptext ? "<p class='rain-desc center smaller'>" + opt.helptext + "</p>" : "" ) +
-				"<label class='center'>" + opt.label + "</label>" +
+				( opt.helptext ? "<p class='duration-help rain-desc center smaller'></p>" : "" ) +
+				"<label class='duration-label center'></label>" +
 				"<div class='input_with_buttons'>" +
 					"<button class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
 					"<input type='number' pattern='[0-9]*' value='" + opt.data + "'>" +
@@ -1415,7 +1489,7 @@ OSApp.UIDom.showSingleDurationInput = function( opt ) {
 				"</div>" +
 				( opt.updateOnChange && !opt.showBack ? "" : "<input type='submit' data-theme='b' value='" + OSApp.Language._( "Submit" ) + "'>" ) +
 			"</div>" +
-		"</div>" ),
+			"</div>" ),
 		input = popup.find( "input" ),
 		reply = function( val ) {
 			opt.callback( parseInt( val ).clamp( opt.minimum, opt.maximum ) );
@@ -1431,7 +1505,11 @@ OSApp.UIDom.showSingleDurationInput = function( opt ) {
 			if ( opt.updateOnChange ) {
 				reply( val + dir );
 			}
-		};
+			};
+
+	popup.find( ".duration-title" ).text( opt.title );
+	popup.find( ".duration-help" ).text( opt.helptext );
+	popup.find( ".duration-label" ).text( opt.label );
 
 	OSApp.UIDom.holdButton( popup.find( ".incr" ), function() {
 		changeValue( 1 );
@@ -1525,12 +1603,12 @@ OSApp.UIDom.showDurationBox = function( opt ) {
 	var incrbts = "<fieldset class='ui-grid-" + String.fromCharCode( 95 + ( total ) ) + " incr'>",
 		inputs = "<div class='ui-grid-" + String.fromCharCode( 95 + ( total ) ) + " inputs'>",
 		decrbts = "<fieldset class='ui-grid-" + String.fromCharCode( 95 + ( total ) ) + " decr'>",
-		popup = $( "<div data-role='popup' id='durationBox' data-theme='a'>" +
-			"<div data-role='header' data-theme='b'>" +
-				"<h1>" + opt.title + "</h1>" +
-			"</div>" +
-			"<div class='ui-content'>" +
-				( opt.helptext ? "<p class='rain-desc center smaller'>" + opt.helptext + "</p>" : "" ) +
+			popup = $( "<div data-role='popup' id='durationBox' data-theme='a'>" +
+				"<div data-role='header' data-theme='b'>" +
+					"<h1 class='duration-title'></h1>" +
+				"</div>" +
+				"<div class='ui-content'>" +
+					( opt.helptext ? "<p class='duration-help rain-desc center smaller'></p>" : "" ) +
 				"<span>" +
 				"</span>" +
 				( opt.showSun ? "<div class='ui-grid-a useSun'>" +
@@ -1547,7 +1625,7 @@ OSApp.UIDom.showDurationBox = function( opt ) {
 				"</label>" : "" ) +
 				( opt.showBack ? "<button class='submit' data-theme='b'>" + OSApp.Language._( "Submit" ) + "</button>" : "" ) +
 			"</div>" +
-		"</div>" ),
+				"</div>" ),
 		changeValue = function( pos, dir ) {
 			var input = popup.find( ".inputs input" ).eq( pos ),
 				apos = pos + start,
@@ -1624,7 +1702,10 @@ OSApp.UIDom.showDurationBox = function( opt ) {
 					return this.value;
 				}
 			} ).parent( ".ui-input-text" ).toggleClass( "ui-state-disabled", state );
-		};
+			};
+
+	popup.find( ".duration-title" ).text( opt.title );
+	popup.find( ".duration-help" ).text( opt.helptext );
 
 	for ( i = start; i < conv.length - opt.granularity; i++ ) {
 		incrbts += "<div " + ( ( total > 1 ) ? "class='ui-block-" + String.fromCharCode( 97 + i - start ) + "'" : "" ) + ">" +
@@ -1736,13 +1817,15 @@ OSApp.UIDom.areYouSure = function( text1, text2, success, fail, options ) {
 
 	var popup = $(
 		"<div data-role='popup' data-theme='a' id='sure'>" +
-			"<h3 class='sure-1 center'>" + text1 + "</h3>" +
-			"<p class='sure-2 center'>" + text2 + "</p>" +
+			"<h3 class='sure-1 center'></h3>" +
+			"<p class='sure-2 center'></p>" +
 			"<a class='sure-do ui-btn ui-btn-b ui-corner-all ui-shadow' href='#'>" + OSApp.Language._( "Yes" ) + "</a>" +
 			"<a class='sure-dont ui-btn ui-corner-all ui-shadow' href='#'>" + OSApp.Language._( "No" ) + "</a>" +
 			( showShiftDialog ? "<label><input id='shift-sta' type='checkbox'>Move up remaining stations in the same sequential group?</label>" : "" ) +
 		"</div>"
 	);
+	popup.find( ".sure-1" ).text( text1 );
+	popup.find( ".sure-2" ).text( text2 );
 
 	//Bind buttons
 	popup.find( ".sure-do" ).one( "click.sure", function() {
@@ -1773,7 +1856,7 @@ OSApp.UIDom.showIPRequest = function( opt ) {
 
 	var popup = $( "<div data-role='popup' id='ipInput' data-theme='a'>" +
 			"<div data-role='header' data-theme='b'>" +
-				"<h1>" + opt.title + "</h1>" +
+					"<h1>" + OSApp.Utils.htmlEscape( opt.title ) + "</h1>" +
 			"</div>" +
 			"<div class='ui-content'>" +
 				"<span>" +
@@ -1799,24 +1882,33 @@ OSApp.UIDom.showIPRequest = function( opt ) {
 				( opt.showBack ? "<button class='submit' data-theme='b'>" + OSApp.Language._( "Submit" ) + "</button>" : "" ) +
 			"</div>" +
 		"</div>" ),
-		changeValue = function( pos, dir ) {
-			var input = popup.find( ".inputs input" ).eq( pos ),
-				val = parseInt( input.val() );
+			changeValue = function( pos, dir ) {
+				var input = popup.find( ".inputs input" ).eq( pos ),
+					val = Number( input.val() );
 
-			if ( ( dir === -1 && val === 0 ) || ( dir === 1 && val >= 255 ) ) {
-				return;
-			}
+				if ( !Number.isInteger( val ) || val < 0 || val > 255 ) val = 0;
 
-			input.val( val + dir );
-			opt.callback( getIP() );
-		},
-		getIP = function() {
-			return $.makeArray( popup.find( ".ip_addr" ).map( function() {return parseInt( $( this ).val() );} ) );
-		};
+				input.val( Math.max( 0, Math.min( 255, val + dir ) ) );
+				var ip = getIP();
+				if ( ip ) opt.callback( ip );
+			},
+			getIP = function() {
+				return OSApp.Utils.parseIPv4( $.makeArray( popup.find( ".ip_addr" ).map( function() {
+					return $( this ).val();
+				} ) ) );
+			},
+			submitted = false;
 
 	popup.find( "button.submit" ).on( "click", function() {
-		opt.callback( getIP() );
+		var ip = getIP();
+		if ( !ip ) {
+			OSApp.Errors.showError( OSApp.Language._( "Please enter a valid IP address." ) );
+			return false;
+		}
+		submitted = true;
+		opt.callback( ip );
 		popup.popup( "destroy" ).remove();
+		return false;
 	} );
 
 	popup.on( "focus", "input[type='number']", function() {
@@ -1840,10 +1932,11 @@ OSApp.UIDom.showIPRequest = function( opt ) {
 	} );
 
 	popup
-	.css( "max-width", "350px" )
-	.one( "popupafterclose", function() {
-		opt.callback( getIP() );
-	} );
+		.css( "max-width", "350px" )
+		.one( "popupafterclose", function() {
+			var ip = getIP();
+			if ( !submitted && ip ) opt.callback( ip );
+		} );
 
 	OSApp.UIDom.openPopup( popup );
 };
@@ -2016,11 +2109,12 @@ OSApp.UIDom.clearPrograms = function( callback ) {
 		var url = "/dp?pw=&pid=-1";
 		$.mobile.loading( "show" );
 		OSApp.Firmware.sendToOS( url ).done( function() {
+			$.mobile.loading( "hide" );
 			if ( typeof callback === "function" ) {
 				callback();
 			}
 			OSApp.Errors.showError( OSApp.Language._( "Programs have been deleted" ) );
-		} );
+		} ).fail( OSApp.Firmware.settleLoadingFailure );
 	} );
 };
 

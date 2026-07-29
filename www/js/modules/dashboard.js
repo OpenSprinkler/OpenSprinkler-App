@@ -16,6 +16,73 @@
 // Configure module
 var OSApp = OSApp || {};
 OSApp.Dashboard = OSApp.Dashboard || {};
+OSApp.Dashboard.MAX_STATION_IMAGE_BASE64_LENGTH = 512 * 1024;
+OSApp.Dashboard.activeStationSubmission = null;
+
+OSApp.Dashboard.captureSessionIdentity = function() {
+	return {
+		generation: OSApp.currentSession.generation || 0,
+		endpoint: String( OSApp.currentSession.token || "" ) + "|" +
+			String( OSApp.currentSession.prefix || "" ) + String( OSApp.currentSession.ip || "" )
+	};
+};
+
+OSApp.Dashboard.isSessionIdentityCurrent = function( identity ) {
+	return !!identity && identity.generation === ( OSApp.currentSession.generation || 0 ) &&
+		identity.endpoint === String( OSApp.currentSession.token || "" ) + "|" +
+			String( OSApp.currentSession.prefix || "" ) + String( OSApp.currentSession.ip || "" );
+};
+
+OSApp.Dashboard.normalizeGPIOPins = function( pins ) {
+	if ( !Array.isArray( pins ) ) return null;
+	return pins.slice( 0, 64 ).filter( function( pin, index, values ) {
+		return Number.isInteger( pin ) && pin >= 0 && pin <= 99 && values.indexOf( pin ) === index;
+	} );
+};
+
+OSApp.Dashboard.beginStationSubmission = function() {
+	if ( OSApp.ImportExport && OSApp.ImportExport.isImportInProgress() ) return null;
+	var active = OSApp.Dashboard.activeStationSubmission;
+	if ( active && OSApp.Dashboard.isSessionIdentityCurrent( active ) ) return null;
+	if ( active ) active.loaderOwned = false;
+
+	var submission = OSApp.Dashboard.captureSessionIdentity();
+	submission.loaderOwned = true;
+	OSApp.Dashboard.activeStationSubmission = submission;
+	OSApp.uiState.operationLoaderOwner = submission;
+	$.mobile.loading( "show" );
+	return submission;
+};
+
+OSApp.Dashboard.finishStationSubmission = function( submission ) {
+	if ( OSApp.Dashboard.activeStationSubmission !== submission ) return;
+	OSApp.Dashboard.activeStationSubmission = null;
+	var loaderOwned = submission.loaderOwned;
+	submission.loaderOwned = false;
+	if ( !loaderOwned || OSApp.uiState.operationLoaderOwner !== submission ) return;
+	OSApp.uiState.operationLoaderOwner = null;
+	if ( submission.generation === ( OSApp.currentSession.generation || 0 ) ) {
+		$.mobile.loading( "hide" );
+	}
+};
+
+OSApp.Dashboard.getStationImageSource = function( value, placeholder ) {
+	var base64 = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
+	if ( typeof value !== "string" || value.length === 0 ||
+		value.length > OSApp.Dashboard.MAX_STATION_IMAGE_BASE64_LENGTH || !base64.test( value ) ) {
+		return placeholder;
+	}
+	return "data:image/jpeg;base64," + value;
+};
+
+OSApp.Dashboard.renderWaterLevel = function( container, value ) {
+	var waterLevel = OSApp.Utils.coerceFiniteNumber( value );
+	container.empty().append( document.createTextNode( OSApp.Language._( "Water Level" ) + ": " ) );
+	$( "<span>" ).addClass( "waterlevel" ).text( typeof waterLevel === "undefined" ? "--" : waterLevel ).appendTo( container );
+	if ( typeof waterLevel !== "undefined" ) {
+		container.append( document.createTextNode( "%" ) );
+	}
+};
 
 OSApp.Dashboard.displayPage = function() {
 	// Display the home dasbhoard main view
@@ -63,7 +130,8 @@ OSApp.Dashboard.displayPage = function() {
 				pname = isScheduled ? OSApp.Programs.pidToName( OSApp.Stations.getPID( sid ) ) : "",
 				rem = OSApp.Stations.getRemainingRuntime( sid ),
 				qPause = OSApp.Supported.pausing() && OSApp.StationQueue.isPaused(),
-				hasImage = sites[ currentSite ].images[ sid ] ? true : false;
+				imageSource = OSApp.Dashboard.getStationImageSource( sites[ currentSite ].images[ sid ], OSApp.UIDom.getAppURLPath() + "img/placeholder.png" ),
+				gid = OSApp.Supported.groups() ? OSApp.Stations.getGIDValue( sid ) : undefined;
 
 			if ( OSApp.Stations.getStatus( sid ) && rem > 0 ) {
 				addTimer( sid, rem );
@@ -75,19 +143,19 @@ OSApp.Dashboard.displayPage = function() {
 
 			cards += "<div class='ui-body ui-body-a center'>";
 
-			cards += "<img src='" + ( hasImage ? "data:image/jpeg;base64," + sites[ currentSite ].images[ sid ] : OSApp.UIDom.getAppURLPath() + "img/placeholder.png" ) + "' />";
+			cards += "<img src='" + OSApp.Utils.htmlEscape( imageSource ) + "' />";
 
 
-			cards += "<p class='station-name center inline-icon' id='station_" + sid + "'>" + OSApp.Stations.getName( sid) + "</p>";
+			cards += "<p class='station-name center inline-icon' id='station_" + sid + "'>" + OSApp.Utils.htmlEscape( OSApp.Stations.getName( sid) ) + "</p>";
 			cards += "<span class='bno-border ui-btn ui-btn-icon-notext ui-corner-all card-icon station-status " +
 				( isRunning ? "on" : ( isScheduled ? "wait" : "off" ) ) + "'></span>";
 
 			cards += "<span class='btn-no-border ui-btn ui-btn-icon-notext ui-icon-wifi card-icon special-station " +
 				( OSApp.Stations.isSpecial( sid ) ? "" : "hidden" ) + "'></span>";
 
-			if ( OSApp.Supported.groups() ) {
+			if ( typeof gid !== "undefined" ) {
 				cards += "<span class='btn-no-border ui-btn card-icon station-gid " + ( OSApp.Stations.isMaster( sid ) ? "hidden" : "" ) +
-					"'>" + OSApp.Groups.mapGIDValueToName( OSApp.Stations.getGIDValue( sid ) ) + "</span>";
+					"'>" + OSApp.Groups.mapGIDValueToName( gid ) + "</span>";
 			}
 
 			cards += "<span class='btn-no-border ui-btn " + ( ( OSApp.Stations.isMaster( sid ) ) ? "ui-icon-master" : "ui-icon-gear" ) +
@@ -101,13 +169,14 @@ OSApp.Dashboard.displayPage = function() {
 				( OSApp.Supported.disabled() ? ( "data-sd='" + ( OSApp.StationAttributes.getDisabled( sid ) ) + "' " ) : "" ) +
 				( OSApp.Supported.sequential() ? ( "data-us='" + ( OSApp.StationAttributes.getSequential( sid ) ) + "' " ) : "" ) +
 				( OSApp.Supported.special() ? ( "data-hs='" + ( OSApp.StationAttributes.getSpecial( sid ) ) + "' " ) : "" ) +
-				( OSApp.Supported.groups() ? ( "data-gid='" + OSApp.Stations.getGIDValue( sid ) + "' " ) : "" ) +
+				( typeof gid !== "undefined" ? ( "data-gid='" + gid + "' " ) : "" ) +
 				"></span>";
 
 			if ( !OSApp.Stations.isMaster( sid ) ) {
 				if ( isScheduled || isRunning ) {
 
 					// Generate status line for station
+					pname = OSApp.Utils.htmlEscape( pname );
 					cards += "<p class='rem center'>" + ( isRunning ? OSApp.Language._( "Running" ) + " " + pname : OSApp.Language._( "Scheduled" ) + " " +
 						( OSApp.Stations.getStartTime( sid ) ? OSApp.Language._( "for" ) + " " + OSApp.Dates.dateToString( new Date( OSApp.Stations.getStartTime( sid ) * 1000 ) ) : pname ) );
 
@@ -122,19 +191,70 @@ OSApp.Dashboard.displayPage = function() {
 
 			// Add sequential group divider and close current card group
 			cards += "</div><hr style='display:none' class='content-divider'" +
-				( OSApp.Supported.groups() ? "divider-gid=" + OSApp.Stations.getGIDValue( sid ) : "" ) + "></div>";
+				( typeof gid !== "undefined" ? " divider-gid='" + gid + "'" : "" ) + "></div>";
 
 		},
 		showAttributes = function() {
-			$( "#stn_attrib" ).popup( "destroy" ).remove();
+			var existingPopup = $( "#stn_attrib" );
+			existingPopup.triggerHandler( "stationcleanup" );
+			existingPopup.popup( "destroy" ).remove();
 
 			var button = $( this ),
 				sid = button.data( "station" ),
 				name = button.siblings( "[id='station_" + sid + "']" ),
+				sessionIdentity = OSApp.Dashboard.captureSessionIdentity(),
+				sessionSite = currentSite,
+				popupActive = true,
+				verificationRequest = null,
+				verificationToken = null,
+				verificationLoaderOwner = null,
+				remoteDialogOpen = false,
+				remoteDialogToken = null,
+				remoteDialogLoader = null,
+				isSessionCurrent = function() {
+					return OSApp.Dashboard.isSessionIdentityCurrent( sessionIdentity );
+				},
+				canHideOwnedLoader = function() {
+					return sessionIdentity.generation === ( OSApp.currentSession.generation || 0 );
+				},
+				showPopupLoader = function( owner, options ) {
+					OSApp.uiState.operationLoaderOwner = owner;
+					if ( options ) {
+						$.mobile.loading( "show", options );
+					} else {
+						$.mobile.loading( "show" );
+					}
+				},
+				releasePopupLoader = function( owner, hide ) {
+					if ( !owner || OSApp.uiState.operationLoaderOwner !== owner ) return;
+					OSApp.uiState.operationLoaderOwner = null;
+					if ( hide ) $.mobile.loading( "hide" );
+				},
+				cleanupStationPopup = function() {
+					if ( !popupActive ) return;
+					var hideOwnedLoader = canHideOwnedLoader();
+					popupActive = false;
+					verificationToken = null;
+					var request = verificationRequest;
+					verificationRequest = null;
+					if ( request && typeof request.abort === "function" ) request.abort();
+					releasePopupLoader( verificationLoaderOwner, hideOwnedLoader );
+					releasePopupLoader( remoteDialogToken, hideOwnedLoader );
+					verificationLoaderOwner = null;
+					remoteDialogToken = null;
+					remoteDialogOpen = false;
+					if ( select && typeof select.find === "function" ) {
+						select.find( ".attrib-submit" ).removeClass( "ui-disabled" );
+					}
+					if ( remoteDialogLoader ) remoteDialogLoader.css( "opacity", "" );
+					page.off( "pagehide.stationAttributes" );
+				},
 				showSpecialOptions = function( value ) {
 					var opts = select.find( "#specialOpts" ),
-						data = OSApp.currentSession.controller.special && Object.prototype.hasOwnProperty.call(OSApp.currentSession.controller.special,  sid ) ? OSApp.currentSession.controller.special[ sid ].sd : "",
-						type  = OSApp.currentSession.controller.special && Object.prototype.hasOwnProperty.call(OSApp.currentSession.controller.special,  sid ) ? OSApp.currentSession.controller.special[ sid ].st : 0;
+						special = OSApp.currentSession.controller.special && Object.prototype.hasOwnProperty.call(OSApp.currentSession.controller.special, sid ) ? OSApp.currentSession.controller.special[ sid ] : null,
+						data = special && typeof special === "object" && !Array.isArray( special ) && typeof special.sd === "string" ? special.sd : "",
+						type = special && typeof special === "object" && !Array.isArray( special ) &&
+							Number.isInteger( special.st ) && special.st >= 0 && special.st <= 6 ? special.st : 0;
 
 					opts.empty();
 
@@ -149,24 +269,26 @@ OSApp.Dashboard.displayPage = function() {
 
 						opts.append(
 							"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "RF Code" ) + ":</div>" +
-							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='rf-code' required='true' type='text' value='" + data + "'>"
+							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='rf-code' required='true' type='text' value='" + OSApp.Utils.htmlEscape( data ) + "'>"
 						).enhanceWithin();
 					} else if ( value === 2 ) {
-						data = OSApp.Stations.parseRemoteStationData( ( type === value ) ? data : "00000000005000" );
+						data = OSApp.Stations.parseRemoteStationData( ( type === value ) ? data : "00000000005000" ) ||
+							OSApp.Stations.parseRemoteStationData( "00000000005000" );
 
 						opts.append(
 							"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Remote Address" ) + ":</div>" +
-							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-address' required='true' type='text' pattern='^(?:[0-9]{1,3}.){3}[0-9]{1,3}$' value='" + data.ip + "'>" +
+							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-address' required='true' type='text' pattern='^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$' value='" + OSApp.Utils.htmlEscape( data.ip ) + "'>" +
 							"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Remote Port" ) + ":</div>" +
-							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-port' required='true' type='number' placeholder='80' min='0' max='65535' value='" + data.port + "'>" +
+							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-port' required='true' type='number' placeholder='80' min='1' max='65535' value='" + data.port + "'>" +
 							"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Remote Station" ) + ":</div>" +
 							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-station' required='true' type='number' min='1' max='200' placeholder='1' value='" + ( data.station + 1 ) + "'>"
 						).enhanceWithin();
 					} else if ( value === 6 ) {
-						data = OSApp.Stations.parseRemoteStationData( ( type === value ) ? data : "OT000000000000000000000000000000,00" );
+						data = OSApp.Stations.parseRemoteStationData( ( type === value ) ? data : "OT000000000000000000000000000000,00" ) ||
+							OSApp.Stations.parseRemoteStationData( "OT000000000000000000000000000000,00" );
 						opts.append(
 							"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Remote OTC Token" ) + ":</div>" +
-							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-otc' required='true' type='text' pattern='^OT[a-fA-F0-9]{30}$' value='" + data.otc + "'>" +
+							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-otc' required='true' type='text' pattern='^OT[a-fA-F0-9]{30}$' value='" + OSApp.Utils.htmlEscape( data.otc ) + "'>" +
 							"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Remote Station" ) + ":</div>" +
 							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-station' required='true' type='number' min='1' max='200' placeholder='1' value='" + ( data.station + 1 ) + "'>"
 						).enhanceWithin();
@@ -178,10 +300,11 @@ OSApp.Dashboard.displayPage = function() {
 						// First two bytes are zero padded GPIO pin number (default GPIO05)
 						// Third byte is either 0 or 1 for active low (GND) or high (+5V) relays (default 1 for HIGH)
 						// Restrict selection to GPIO pins available on the RPi R2.
-						var gpioPin = 5, activeState = 1, freePins = [ ], sel;
+						var gpioPin = 5, activeState = 1, freePins = [ ], sel,
+							configuredPins = OSApp.Dashboard.normalizeGPIOPins( OSApp.currentSession.controller.settings.gpio );
 
-						if ( OSApp.currentSession.controller.settings.gpio ) {
-							freePins = OSApp.currentSession.controller.settings.gpio;
+						if ( configuredPins ) {
+							freePins = configuredPins;
 						} else if ( OSApp.Firmware.getHWVersion() === "OSPi" ) {
 							freePins = [ 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 18, 19, 20, 21, 23, 24, 25, 26 ];
 						} else if ( OSApp.Firmware.getHWVersion() === "2.3" ) {
@@ -217,13 +340,13 @@ OSApp.Dashboard.displayPage = function() {
 
 						opts.append(
 							"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Server Name" ) + ":</div>" +
-							"<input class='center  validate-length' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='http-server' required='true' type='text' value='" + data[ 0 ] + "'>" +
+							"<input class='center  validate-length' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='http-server' required='true' type='text' value='" + OSApp.Utils.htmlEscape( data[ 0 ] ) + "'>" +
 							"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Server Port" ) + ":</div>" +
 							"<input class='center  validate-length' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='http-port' required='true' type='number' min='0' max='65535' value='" + parseInt( data[ 1 ] ) + "'>" +
 							"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "On Command" ) + ":</div>" +
-							"<input class='center validate-length' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='http-on' required='true' type='text' value='" + data[ 2 ] + "'>" +
+							"<input class='center validate-length' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='http-on' required='true' type='text' value='" + OSApp.Utils.htmlEscape( data[ 2 ] ) + "'>" +
 							"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Off Command" ) + ":</div>" +
-							"<input class='center validate-length' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='http-off' required='true' type='text' value='" + data[ 3 ] + "'>" +
+							"<input class='center validate-length' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='http-off' required='true' type='text' value='" + OSApp.Utils.htmlEscape( data[ 3 ] ) + "'>" +
 							"<div class='center smaller' id='character-tracking' style='color:#999;'>" +
 							"<p>" +	OSApp.Language._( "Note: There is a limit on the number of character used to configure this station type." ) + "</p>" +
 							"<span>" + OSApp.Language._( "Characters remaining" ) + ": </span><span id='character-count'>placeholder</span>" +
@@ -251,36 +374,73 @@ OSApp.Dashboard.displayPage = function() {
 					}
 				},
 				saveChanges = function( checkPassed ) {
+					if ( !popupActive || !isSessionCurrent() ) {
+						cleanupStationPopup();
+						return;
+					}
+					if ( verificationToken || remoteDialogOpen ) return;
+					if ( OSApp.Dashboard.activeStationSubmission &&
+						OSApp.Dashboard.isSessionIdentityCurrent( OSApp.Dashboard.activeStationSubmission ) ) return;
 					var hs = parseInt( select.find( "#hs" ).val() );
-					button.data( "hs", hs );
 
 					if ( hs === 1 ) {
 						button.data( "specialData", select.find( "#rf-code" ).val() );
 					} else if ( hs === 2 || hs === 6 ) {
-						var ip, port, otc, station, hex = "";
-						station = ( select.find( "#remote-station" ).val() || 1 ) - 1;
+						var ip, port, otc, station, stationInput, hex = "";
+						stationInput = Number( select.find( "#remote-station" ).val() );
+						if ( !Number.isInteger( stationInput ) || stationInput < 1 || stationInput > 200 ) {
+							OSApp.Errors.showError( OSApp.Language._( "Please check input and try again." ) );
+							return;
+						}
+						station = stationInput - 1;
 						if ( hs === 2 ) {
-							ip = select.find( "#remote-address" ).val().split( "." );
-							port = parseInt( select.find( "#remote-port" ).val() ) || 80;
+							ip = OSApp.Utils.parseIPv4( select.find( "#remote-address" ).val() );
+							port = Number( select.find( "#remote-port" ).val() );
+							if ( !ip || !Number.isInteger( port ) || port < 1 || port > 65535 ) {
+								OSApp.Errors.showError( OSApp.Language._( "Please check input and try again." ) );
+								return;
+							}
 							for ( var i = 0; i < 4; i++ ) {
-								hex += OSApp.Utils.pad( parseInt( ip[ i ] ).toString( 16 ) );
+								hex += OSApp.Utils.pad( ip[ i ].toString( 16 ) );
 							}
 							hex += OSApp.Utils.pad( (port>>8).toString( 16 ) ) + OSApp.Utils.pad( (port & 0xff).toString( 16 ) );
 							hex += OSApp.Utils.pad( station.toString( 16 ) );
 						} else {
 							otc = select.find( "#remote-otc" ).val();
+							if ( !OSApp.Utils.isValidOTC( otc ) ) {
+								OSApp.Errors.showError( OSApp.Language._( "Please check input and try again." ) );
+								return;
+							}
 							hex += otc;
 							hex += ",";
 							hex += OSApp.Utils.pad( station.toString( 16 ) );
 						}
 
 						if ( checkPassed !== true ) {
-							$.mobile.loading( "show" );
+							var token = {}, callbackCompleted = false;
+							verificationToken = token;
+							verificationLoaderOwner = token;
+							showPopupLoader( token );
 							select.find( ".attrib-submit" ).addClass( "ui-disabled" );
 
-							OSApp.Stations.verifyRemoteStation( hex, function( result ) {
-								var text;
+							var request = OSApp.Stations.verifyRemoteStation( hex, function( result ) {
+								callbackCompleted = true;
+								if ( verificationToken !== token || !popupActive || !select.closest( "html" ).length ) return;
+								if ( !isSessionCurrent() ) {
+									verificationToken = null;
+									verificationRequest = null;
+									releasePopupLoader( verificationLoaderOwner, canHideOwnedLoader() );
+									verificationLoaderOwner = null;
+									select.find( ".attrib-submit" ).removeClass( "ui-disabled" );
+									return;
+								}
+								verificationToken = null;
+								verificationRequest = null;
+								releasePopupLoader( verificationLoaderOwner, true );
+								verificationLoaderOwner = null;
+								select.find( ".attrib-submit" ).removeClass( "ui-disabled" );
 
+								var text;
 								if ( result === true ) {
 									saveChanges( true );
 									return;
@@ -296,12 +456,9 @@ OSApp.Dashboard.displayPage = function() {
 									text = OSApp.Language._( "Remote controller is not configured as an extender. Would you like to do this now?" );
 								}
 
-								select.one( "popupafterclose", function() {
-									$.mobile.loading( "hide" );
-									loader.css( "opacity", "" );
-								} );
-
-								$.mobile.loading( "show", {
+								remoteDialogOpen = true;
+								remoteDialogToken = {};
+								showPopupLoader( remoteDialogToken, {
 									html: "<h1>" + text + "</h1>" +
 										"<button class='ui-btn cancel'>" + OSApp.Language._( "Cancel" ) + "</button>" +
 										"<button class='ui-btn continue'>" + OSApp.Language._( "Continue" ) + "</button>",
@@ -309,28 +466,84 @@ OSApp.Dashboard.displayPage = function() {
 									theme: "b"
 								} );
 
-								var loader = $( ".ui-loader" );
+								remoteDialogLoader = $( ".ui-loader" );
 
-								loader.css( "opacity", ".96" );
+								remoteDialogLoader.css( "opacity", ".96" );
 
-								loader.find( ".cancel" ).one( "click", function() {
-									$.mobile.loading( "hide" );
-									loader.css( "opacity", "" );
+								remoteDialogLoader.find( ".cancel" ).one( "click", function() {
+									if ( !popupActive ) return;
+									if ( !isSessionCurrent() ) {
+										remoteDialogOpen = false;
+										releasePopupLoader( remoteDialogToken, canHideOwnedLoader() );
+										remoteDialogToken = null;
+										remoteDialogLoader.css( "opacity", "" );
+										return;
+									}
+									remoteDialogOpen = false;
+									releasePopupLoader( remoteDialogToken, true );
+									remoteDialogToken = null;
+									remoteDialogLoader.css( "opacity", "" );
 								} );
 
-								loader.find( ".continue" ).one( "click", function() {
-									$.mobile.loading( "hide" );
-									loader.css( "opacity", "" );
+								remoteDialogLoader.find( ".continue" ).one( "click", function() {
+									if ( !popupActive ) return;
+									if ( !isSessionCurrent() ) {
+										remoteDialogOpen = false;
+										releasePopupLoader( remoteDialogToken, canHideOwnedLoader() );
+										remoteDialogToken = null;
+										remoteDialogLoader.css( "opacity", "" );
+										return;
+									}
+									remoteDialogOpen = false;
+									releasePopupLoader( remoteDialogToken, true );
+									remoteDialogToken = null;
+									remoteDialogLoader.css( "opacity", "" );
 
 									if ( result === -3 ) {
-										OSApp.Stations.convertRemoteToExtender( hex );
+										var conversionToken = {},
+											conversion = OSApp.Stations.convertRemoteToExtender( hex );
+										verificationToken = conversionToken;
+										verificationLoaderOwner = conversionToken;
+										select.find( ".attrib-submit" ).addClass( "ui-disabled" );
+										showPopupLoader( conversionToken );
+
+										if ( !conversion || typeof conversion.done !== "function" ) {
+											verificationToken = null;
+											select.find( ".attrib-submit" ).removeClass( "ui-disabled" );
+											releasePopupLoader( verificationLoaderOwner, true );
+											verificationLoaderOwner = null;
+											OSApp.Errors.showError( OSApp.Language._( "Unable to configure the remote station as an extender." ) );
+											return;
+										}
+
+										verificationRequest = conversion;
+										conversion.done( function() {
+											if ( verificationToken !== conversionToken || !popupActive || !select.closest( "html" ).length ) return;
+											verificationToken = null;
+											verificationRequest = null;
+											select.find( ".attrib-submit" ).removeClass( "ui-disabled" );
+											releasePopupLoader( verificationLoaderOwner, canHideOwnedLoader() );
+											verificationLoaderOwner = null;
+											if ( !isSessionCurrent() ) return;
+											saveChanges( true );
+										} ).fail( function() {
+											if ( verificationToken !== conversionToken || !popupActive || !select.closest( "html" ).length ) return;
+											verificationToken = null;
+											verificationRequest = null;
+											select.find( ".attrib-submit" ).removeClass( "ui-disabled" );
+											releasePopupLoader( verificationLoaderOwner, canHideOwnedLoader() );
+											verificationLoaderOwner = null;
+											if ( !isSessionCurrent() ) return;
+											OSApp.Errors.showError( OSApp.Language._( "Unable to configure the remote station as an extender." ) );
+										} );
+										return;
 									}
 
 									saveChanges( true );
 								} );
 
-								select.find( ".attrib-submit" ).removeClass( "ui-disabled" );
 							} );
+							verificationRequest = callbackCompleted ? null : request;
 							return;
 						}
 
@@ -346,6 +559,7 @@ OSApp.Dashboard.displayPage = function() {
 						sdata += "," + select.find( "#http-off" ).val();
 						button.data( "specialData", sdata );
 					}
+					button.data( "hs", hs );
 
 					button.data( "um", select.find( "#um" ).is( ":checked" ) ? 1 : 0 );
 					button.data( "um2", select.find( "#um2" ).is( ":checked" ) ? 1 : 0 );
@@ -355,16 +569,17 @@ OSApp.Dashboard.displayPage = function() {
 					button.data( "ar", select.find( "#ar" ).is( ":checked" ) ? 1 : 0 );
 					button.data( "sd", select.find( "#sd" ).is( ":checked" ) ? 1 : 0 );
 					button.data( "us", select.find( "#us" ).is( ":checked" ) ? 1 : 0 );
-					name.html( select.find( "#stn-name" ).val() );
+					name.text( select.find( "#stn-name" ).val() );
 
 					var seqGroupName = select.find( "span.seqgrp" ).text();
 					button.attr( "data-gid", OSApp.Groups.mapGIDNameToValue( seqGroupName ) );
 
 					// Update the notes section
-					sites[ currentSite ].notes[ sid ] = select.find( "#stn-notes" ).val();
+					sites[ sessionSite ].notes[ sid ] = select.find( "#stn-notes" ).val();
 					OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
 
-					submitStations( sid );
+					if ( !submitStations( sid ) ) return;
+					select.triggerHandler( "stationcleanup" );
 					select.popup( "destroy" ).remove();
 				},
 				select = "<div data-overlay-theme='b' data-role='popup' data-theme='a' id='stn_attrib'>" +
@@ -387,10 +602,10 @@ OSApp.Dashboard.displayPage = function() {
 
 			select += "<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Station Name" ) + ":</div>" +
 				"<input class='bold center' data-corners='false' data-wrapper-class='tight stn-name ui-btn' id='stn-name' type='text' value=\"" +
-				OSApp.currentSession.controller.stations.snames[sid] + "\">";
+				OSApp.Utils.htmlEscape( OSApp.currentSession.controller.stations.snames[sid] ) + "\">";
 
 			select += "<button type='button' class='changeBackground'>" +
-				( typeof sites[ currentSite ].images[ sid ] !== "string" ? OSApp.Language._( "Add" ) : OSApp.Language._( "Change" ) ) + " " + OSApp.Language._( "Image" ) +
+				( typeof sites[ sessionSite ].images[ sid ] !== "string" ? OSApp.Language._( "Add" ) : OSApp.Language._( "Change" ) ) + " " + OSApp.Language._( "Image" ) +
 				"</button>";
 
 			if ( !OSApp.Stations.isMaster( sid ) ) {
@@ -445,7 +660,7 @@ OSApp.Dashboard.displayPage = function() {
 
 			select += "<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Station Notes" ) + ":</div>" +
 				"<textarea data-corners='false' class='tight stn-notes' id='stn-notes'>" +
-				( sites[ currentSite ].notes[ sid ] ? sites[ currentSite ].notes[ sid ] : "" ) +
+				OSApp.Utils.htmlEscape( sites[ sessionSite ].notes[ sid ] || "" ) +
 				"</textarea>";
 
 			select += "</div>";
@@ -490,7 +705,8 @@ OSApp.Dashboard.displayPage = function() {
 			select = $( select ).enhanceWithin().on( "submit", "form", function() {
 				saveChanges( sid );
 				return false;
-			} );
+			} ).on( "stationcleanup.stationAttributes popupafterclose.stationAttributes", cleanupStationPopup );
+			page.off( "pagehide.stationAttributes" ).one( "pagehide.stationAttributes", cleanupStationPopup );
 
 			// Populate sequential group selection menu
 			if ( OSApp.Supported.groups() ) {
@@ -546,11 +762,27 @@ OSApp.Dashboard.displayPage = function() {
 
 			// Refresh station data from firmware and update the Advanced tab to reflect special station type
 			if ( OSApp.Stations.isSpecial( sid ) ) {
-				OSApp.Sites.updateControllerStationSpecial( function() {
-					select.find( "#hs" )
-						.removeClass( "ui-disabled" )
-						.find( "option[data-hs='" + OSApp.currentSession.controller.special[ sid ].st + "']" ).prop( "selected", true );
-					select.find( "#hs" ).change();
+				var cachedSpecial = OSApp.currentSession.controller.special && OSApp.currentSession.controller.special[ sid ],
+					callbackInvoked = false,
+					refreshSpecialOptions = function() {
+						if ( !popupActive || !isSessionCurrent() ) return;
+						var special = OSApp.currentSession.controller.special && OSApp.currentSession.controller.special[ sid ] || cachedSpecial,
+							type = special && Number.isInteger( special.st ) && special.st >= 0 && special.st <= 6 ? special.st : 0;
+
+						select.find( "#hs" )
+							.removeClass( "ui-disabled" )
+							.find( "option[data-hs='" + type + "']" ).prop( "selected", true );
+						select.find( "#hs" ).change();
+					},
+					request = OSApp.Sites.updateControllerStationSpecial( function() {
+						callbackInvoked = true;
+						refreshSpecialOptions();
+					} );
+
+				// updateControllerStationSpecial deliberately converts request failures into a resolved
+				// promise. Recover the editor even though its success-only callback was not invoked.
+				$.when( request ).always( function() {
+					if ( !callbackInvoked ) refreshSpecialOptions();
 				} );
 			} else {
 				select.find( "#hs" ).removeClass( "ui-disabled" );
@@ -563,7 +795,8 @@ OSApp.Dashboard.displayPage = function() {
 				var button = this;
 
 				OSApp.UIDom.getPicture( function( image ) {
-					sites[ currentSite ].images[ sid ] = image;
+					if ( !popupActive || !isSessionCurrent() || !select.closest( "html" ).length ) return;
+					sites[ sessionSite ].images[ sid ] = image;
 					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
 					updateContent();
 
@@ -585,11 +818,11 @@ OSApp.Dashboard.displayPage = function() {
 			}
 
 			select.popup( opts ).popup( "open" );
-		},
-		submitStations = function( id ) {
-			var is208 = ( OSApp.Firmware.checkOSVersion( 208 ) === true ),
-				master = {},
-				master2 = {},
+			},
+			submitStations = function( id ) {
+				var is208 = ( OSApp.Firmware.checkOSVersion( 208 ) === true ),
+					master = {},
+					master2 = {},
 				sequential = {},
 				special = {},
 				rain = {},
@@ -692,9 +925,10 @@ OSApp.Dashboard.displayPage = function() {
 				}
 			}
 
-			$.mobile.loading( "show" );
-			OSApp.Firmware.sendToOS( "/cs?pw=&" + $.param( names ) +
-				( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ? "&" + $.param( master ) : "" ) +
+				var submission = OSApp.Dashboard.beginStationSubmission();
+				if ( !submission ) return false;
+				OSApp.Firmware.sendToOS( "/cs?pw=&" + $.param( names ) +
+					( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ? "&" + $.param( master ) : "" ) +
 				( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ? "&" + $.param( master2 ) : "" ) +
 				( OSApp.Supported.sequential() ? "&" + $.param( sequential ) : "" ) +
 				( OSApp.Supported.special() ? "&" + $.param( special ) : "" ) +
@@ -703,21 +937,32 @@ OSApp.Dashboard.displayPage = function() {
 				( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_2 ) ? "&" + $.param( sensor2 ) : "" ) +
 				( OSApp.Supported.actRelay() ? "&" + $.param( relay ) : "" ) +
 				( OSApp.Supported.disabled() ? "&" + $.param( disable ) : "" ) +
-				( OSApp.Supported.groups() ? "&g" + id + "=" + gid : "" )
-			).done( function() {
-				OSApp.Errors.showError( OSApp.Language._( "Stations have been updated" ) );
-				OSApp.Sites.updateController( function() {
-					$( "html" ).trigger( "datarefresh" );
+					( OSApp.Supported.groups() ? "&g" + id + "=" + gid : "" )
+				).then( function() {
+					if ( !OSApp.Dashboard.isSessionIdentityCurrent( submission ) ) {
+						return $.Deferred().reject( { status:0, statusText:"stale-session" } ).promise();
+					}
+					return OSApp.Sites.updateController( function() {
+						if ( !OSApp.Dashboard.isSessionIdentityCurrent( submission ) ) return;
+						$( "html" ).trigger( "datarefresh" );
+					} );
+				} ).done( function() {
+					if ( !OSApp.Dashboard.isSessionIdentityCurrent( submission ) ) return;
+					OSApp.Errors.showError( OSApp.Language._( "Stations have been updated" ) );
+				} ).always( function() {
+					OSApp.Dashboard.finishStationSubmission( submission );
 				} );
-			} );
-		},
+				return true;
+			},
 		updateClock = function() {
 
 			// Update the current time
 			OSApp.uiState.timers.clock = {
 				val: OSApp.currentSession.controller.settings.devt,
 				update: function() {
-					page.find( "#clock-s" ).text( OSApp.Dates.dateToString( new Date( this.val * 1000 ), null, 1 ) );
+					var timestamp = Number( this.val );
+					page.find( "#clock-s" ).text( Number.isSafeInteger( timestamp ) && timestamp > 0 ?
+						OSApp.Dates.dateToString( new Date( timestamp * 1000 ), null, 1 ) : "--" );
 				}
 			};
 		},
@@ -818,13 +1063,15 @@ OSApp.Dashboard.displayPage = function() {
 		},
 
 		updateGroupView = function( cardHolder, cardList ) {
-			var thisCard, nextCard, divider, label, idx;
+			var thisCard, nextCard, divider, label, idx,
+				cardCount = cardHolder.children().length;
+			if ( cardCount === 0 ) return;
 
-			for ( idx = 0; idx < cardHolder.children().length; idx++ ) {
+			for ( idx = 0; idx < cardCount; idx++ ) {
 				thisCard = OSApp.CardList.getCardByIndex( cardList, idx );
 				OSApp.Cards.setGroupLabel( thisCard, OSApp.Cards.getGIDName( thisCard ) );
 			}
-			for ( idx = 0; idx < cardHolder.children().length - 1; idx++ ) {
+			for ( idx = 0; idx < cardCount - 1; idx++ ) {
 				thisCard = OSApp.CardList.getCardByIndex( cardList, idx );
 				nextCard = OSApp.CardList.getCardByIndex( cardList, idx + 1 );
 
@@ -848,12 +1095,15 @@ OSApp.Dashboard.displayPage = function() {
 					divider.hide();
 				}
 			}
+			nextCard = OSApp.CardList.getCardByIndex( cardList, cardCount - 1 );
 			OSApp.Cards.getDivider( nextCard ).show(); // Last group divider
 			OSApp.Cards.setGroupLabel( nextCard, OSApp.Cards.getGIDName( nextCard ) );
 		},
 		updateStandardView = function( cardHolder, cardList ) {
-			var thisCard, nextCard, divider, label, idx;
-			for ( idx = 0; idx < cardHolder.children().length - 1; idx++ ) {
+			var thisCard, nextCard, divider, label, idx,
+				cardCount = cardHolder.children().length;
+			if ( cardCount === 0 ) return;
+			for ( idx = 0; idx < cardCount - 1; idx++ ) {
 				thisCard = OSApp.CardList.getCardByIndex( cardList, idx );
 				nextCard = OSApp.CardList.getCardByIndex( cardList, idx + 1 );
 
@@ -872,6 +1122,7 @@ OSApp.Dashboard.displayPage = function() {
 					divider.show();
 				}
 			}
+			nextCard = OSApp.CardList.getCardByIndex( cardList, cardCount - 1 );
 			OSApp.Cards.getDivider( nextCard ).hide();
 			OSApp.Cards.setGroupLabel( nextCard, OSApp.Groups.mapGIDValueToName( OSApp.Stations.getGIDValue( OSApp.Cards.getSID( nextCard ) ) ) );
 			label = OSApp.Cards.getGroupLabel( nextCard );
@@ -896,7 +1147,7 @@ OSApp.Dashboard.displayPage = function() {
 		updateContent = function() {
 			var cardHolder = page.find( "#os-stations-list" ),
 				cardList = cardHolder.children(),
-				isScheduled, isRunning, pname, rem, qPause, card, line, hasImage;
+				isScheduled, isRunning, pname, rem, qPause, card, line, imageSource;
 
 			if ( !page.hasClass( "ui-page-active" ) ) {
 				return;
@@ -918,10 +1169,10 @@ OSApp.Dashboard.displayPage = function() {
 			for ( var sid = 0; sid < OSApp.currentSession.controller.stations.snames.length; sid++ ) {
 				isScheduled = OSApp.Stations.getPID( sid ) > 0;
 				isRunning = OSApp.Stations.getStatus( sid ) > 0;
-				pname = isScheduled ? OSApp.Programs.pidToName( OSApp.Stations.getPID( sid ) ) : "";
+				pname = isScheduled ? OSApp.Utils.htmlEscape( OSApp.Programs.pidToName( OSApp.Stations.getPID( sid ) ) ) : "";
 				rem = OSApp.Stations.getRemainingRuntime( sid ),
 					qPause = OSApp.StationQueue.isPaused(),
-					hasImage = sites[ currentSite ].images[ sid ] ? true : false;
+					imageSource = OSApp.Dashboard.getStationImageSource( sites[ currentSite ].images[ sid ], OSApp.UIDom.getAppURLPath() + "img/placeholder.png" );
 
 				card = OSApp.CardList.getCardBySID( cardList, sid );
 
@@ -930,7 +1181,7 @@ OSApp.Dashboard.displayPage = function() {
 					addCard( sid );
 					cardHolder.append( cards );
 				} else {
-					card.find( ".ui-body > img" ).attr( "src", ( hasImage ? "data:image/jpeg;base64," + sites[ currentSite ].images[ sid ] : OSApp.UIDom.getAppURLPath() + "img/placeholder.png" ) );
+					card.find( ".ui-body > img" ).attr( "src", imageSource );
 
 					if ( OSApp.Stations.isDisabled( sid ) ) {
 						if ( !page.hasClass( "show-hidden" ) ) {
@@ -1023,8 +1274,10 @@ OSApp.Dashboard.displayPage = function() {
 		};
 
 
-	page.one( "pageshow", function() {
-		$( "html" ).on( "datarefresh", updateContent );
+	page.on( "pageshow.dashboardRefresh", function() {
+		$( "html" ).off( "datarefresh.dashboard", updateContent ).on( "datarefresh.dashboard", updateContent );
+	} ).on( "pagehide.dashboardRefresh pageremove.dashboardRefresh", function() {
+		$( "html" ).off( "datarefresh.dashboard", updateContent );
 	} );
 
 	function begin( firstLoad ) {
@@ -1046,7 +1299,7 @@ OSApp.Dashboard.displayPage = function() {
 
 		page.find( ".sitename" ).toggleClass( "hidden", OSApp.currentSession.local ? (OSApp.currentSession.controller.settings?.dname ? false : true) : false );
 		page.find( ".sitename" ).text( OSApp.currentSession.local ? OSApp.currentSession.controller.settings?.dname || "" : siteSelect.val() );
-		page.find( ".waterlevel" ).text( OSApp.currentSession.controller.options.wl );
+		OSApp.Dashboard.renderWaterLevel( page.find( "#water-level" ), OSApp.currentSession.controller.options.wl );
 
 		OSApp.Analog.updateSensorShowArea( page );
 		updateClock();
@@ -1070,6 +1323,8 @@ OSApp.Dashboard.displayPage = function() {
 			var el = $( this ),
 				sid = OSApp.Cards.getSID( el ),
 				stationGID = OSApp.Cards.getGIDValue( el ),
+				actionIdentity = OSApp.Dashboard.captureSessionIdentity(),
+				actionSite = currentSite,
 				currentStatus = OSApp.Stations.getStatus( sid ),
 				name = OSApp.Stations.getName( sid ),
 				question, dialogOptions = {};
@@ -1096,8 +1351,12 @@ OSApp.Dashboard.displayPage = function() {
 						helptext: OSApp.Language._( "Enter a duration to manually run " ) + name,
 						showQOCheckbox: OSApp.Groups.canPreempt( stationGID ) && OSApp.Stations.isSequential( sid ),
 						callback: function( duration, qo ) {
+							if ( !OSApp.Dashboard.isSessionIdentityCurrent( actionIdentity ) ) return;
+							var action = OSApp.Stations.beginAction( actionIdentity );
+							if ( !action ) return;
 							var preParam = qo ? "&qo=1" : "";
 							OSApp.Firmware.sendToOS( "/cm?sid=" + sid + "&en=1&t=" + duration + preParam + "&pw=", "json" ).done( function() {
+								if ( !OSApp.Dashboard.isSessionIdentityCurrent( actionIdentity ) ) return;
 
 								// Update local state until next device refresh occurs
 								OSApp.Stations.setPID( sid, OSApp.Constants.options.MANUAL_STATION_PID );
@@ -1107,8 +1366,10 @@ OSApp.Dashboard.displayPage = function() {
 								OSApp.Errors.showError( OSApp.Language._( "Station has been queued" ) );
 
 								// Save run time for this station
-								sites[ currentSite ].lastRunTime[ sid ] = duration;
+								sites[ actionSite ].lastRunTime[ sid ] = duration;
 								OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
+							} ).always( function() {
+								OSApp.Stations.finishAction( action );
 							} );
 						}
 					} );
@@ -1117,10 +1378,14 @@ OSApp.Dashboard.displayPage = function() {
 			}
 
 			OSApp.UIDom.areYouSure( question, OSApp.Stations.getName( sid ), function() {
+				if ( !OSApp.Dashboard.isSessionIdentityCurrent( actionIdentity ) ) return;
+				var action = OSApp.Stations.beginAction( actionIdentity );
+				if ( !action ) return;
 
 				var shiftStations = OSApp.uiState.popupData.shift === true ? 1 : 0;
 
 				OSApp.Firmware.sendToOS( "/cm?sid=" + sid + "&ssta=" + shiftStations + "&en=0&pw=" ).done( function() {
+					if ( !OSApp.Dashboard.isSessionIdentityCurrent( actionIdentity ) ) return;
 
 					// Update local state until next device refresh occurs
 					OSApp.Stations.setPID( sid, 0 );
@@ -1132,6 +1397,8 @@ OSApp.Dashboard.displayPage = function() {
 
 					OSApp.Status.refreshStatus();
 					OSApp.Errors.showError( OSApp.Language._( "Station has been stopped" ) );
+				} ).always( function() {
+					OSApp.Stations.finishAction( action );
 				} );
 			}, null, dialogOptions );
 		} )
@@ -1139,17 +1406,21 @@ OSApp.Dashboard.displayPage = function() {
 			.on( "click", "img", function() {
 				var image = $( this ),
 					id = image.parents( ".card" ).data( "station" ),
+					imageIdentity = OSApp.Dashboard.captureSessionIdentity(),
+					imageSite = currentSite,
 					hasImage = image.attr( "src" ).indexOf( "data:image/jpeg;base64" ) === -1 ? false : true;
 
 				if ( hasImage ) {
 					OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to delete the current image?" ), "", function() {
-						delete sites[ currentSite ].images[ id ];
+						if ( !OSApp.Dashboard.isSessionIdentityCurrent( imageIdentity ) ) return;
+						delete sites[ imageSite ].images[ id ];
 						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
 						updateContent();
 					} );
 				} else {
 					OSApp.UIDom.getPicture( function( image ) {
-						sites[ currentSite ].images[ id ] = image;
+						if ( !OSApp.Dashboard.isSessionIdentityCurrent( imageIdentity ) ) return;
+						sites[ imageSite ].images[ id ] = image;
 						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
 						updateContent();
 					} );
@@ -1187,6 +1458,7 @@ OSApp.Dashboard.displayPage = function() {
 				}
 			} );
 
+		$( "html" ).off( "datarefresh.dashboard" );
 		$( "#sprinklers" ).remove();
 		$.mobile.pageContainer.append( page );
 
@@ -1203,7 +1475,7 @@ OSApp.Dashboard.updateWaterLevel = function() {
 	if ( !OSApp.currentSession.controller.options ) {
 		return;
 	}
-	$( "#water-level" ).html(OSApp.Language._( "Water Level" ) + ": <span class='waterlevel'>" + OSApp.currentSession.controller.options.wl + "</span>%");
+	OSApp.Dashboard.renderWaterLevel( $( "#water-level" ), OSApp.currentSession.controller.options.wl );
 };
 
 OSApp.Dashboard.updateRestrictNotice = function() {

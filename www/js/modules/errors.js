@@ -22,49 +22,87 @@ OSApp.Errors.showError = function( msg, dur ) {
 	dur = dur || 2500;
 
 	clearTimeout( OSApp.uiState.errorTimeout );
-
-	$.mobile.loading( "show", {
-		text: msg,
-		textVisible: true,
-		textonly: true,
-		theme: "b"
-	} );
+	var toast = $( "#os-error-toast" );
+	if ( !toast.length ) {
+		toast = $( "<div id='os-error-toast' class='os-error-toast' role='alert' aria-live='assertive'></div>" )
+			.appendTo( document.body );
+	}
+	toast.text( String( msg ) ).addClass( "visible" );
 
 	// Hide after provided delay
-	OSApp.uiState.errorTimeout = setTimeout( function() {$.mobile.loading( "hide" );}, dur );
+	OSApp.uiState.errorTimeout = setTimeout( function() {
+		toast.removeClass( "visible" ).empty();
+	}, dur );
 };
 
 
-OSApp.Errors.showCorruptedJsonModal = function(badJson, currentSession) {
-	// Create and display a modal prompting user to update firmware
-	let cs = OSApp.Language._('Unknown');
-	OSApp.Storage.get("current_site", function(x) {
-		cs = x?.current_site || OSApp.Language._('Unknown');
-	});
-	console.log("*** showCorruptedJsonModal", {badJson, currentSession, currentSite: cs});
+OSApp.Errors.showCorruptedJsonModal = function() {
+	var previous = OSApp.Errors.corruptedJsonModal;
+	if ( previous && previous.parentNode ) previous.parentNode.removeChild( previous );
 
-	const modal = document.createElement('div');
-	modal.innerHTML = `
-	  <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid #ccc; z-index: 1000;">
-		<h2>${OSApp.Language._('Corrupted Response')}</h2>
-		<p>${OSApp.Language._('The OpenSprinkler controller sent unexpected data, likely due to outdated firmware.')}</p>
-		<p><b>${OSApp.Language._('Site Name')}</b>: ${cs}</p>
-		<p>${OSApp.Language._('To fix this, please update your firmware. Remember to use the "API Tool" to save your current settings beforehand!')}</p>
-		<p style="text-align: right">
-			<button id="recoveryButton">${OSApp.Language._('API Tool')}</button>
-			<button id="instructionsButton">${OSApp.Language._('Help')}</button>
-		</p>
-	  </div>
-	`;
-	document.body.appendChild(modal);
+	var unknownSite = OSApp.Language._( "Unknown" ),
+		modal = document.createElement( "div" ),
+		panel = document.createElement( "div" ),
+		title = document.createElement( "h2" ),
+		description = document.createElement( "p" ),
+		siteLine = document.createElement( "p" ),
+		siteLabel = document.createElement( "b" ),
+		siteName = document.createElement( "span" ),
+		advice = document.createElement( "p" ),
+		actions = document.createElement( "p" ),
+		recoveryButton = document.createElement( "button" ),
+		instructionsButton = document.createElement( "button" ),
+		dismissButton = document.createElement( "button" ),
+		cleanup = function() {
+			if ( OSApp.Errors.corruptedJsonModal === modal ) OSApp.Errors.corruptedJsonModal = null;
+			if ( modal.parentNode ) modal.parentNode.removeChild( modal );
+		},
+		openExternal = function( url ) {
+			var opened = window.open( url, "_blank", "noopener" );
+			if ( opened ) opened.opener = null;
+		};
 
-	const recoveryButton = document.getElementById('recoveryButton');
-	recoveryButton.addEventListener('click', () => {
-		window.open('https://raysfiles.com/os/TestOSAPI220.html', "_blank");
-	});
+	modal.className = "corrupted-json-modal";
+	modal.setAttribute( "role", "dialog" );
+	modal.setAttribute( "aria-modal", "true" );
+	panel.className = "corrupted-json-panel";
+	title.textContent = OSApp.Language._( "Corrupted Response" );
+	description.textContent = OSApp.Language._( "The OpenSprinkler controller sent unexpected data, likely due to outdated firmware." );
+	siteLabel.textContent = OSApp.Language._( "Site Name" ) + ": ";
+	siteName.className = "corrupted-site-name";
+	siteName.textContent = unknownSite;
+	siteLine.appendChild( siteLabel );
+	siteLine.appendChild( siteName );
+	advice.textContent = OSApp.Language._( "To fix this, please update your firmware. Remember to use the \"API Tool\" to save your current settings beforehand!" );
+	actions.className = "corrupted-json-actions";
+	recoveryButton.type = instructionsButton.type = dismissButton.type = "button";
+	recoveryButton.textContent = OSApp.Language._( "API Tool" );
+	instructionsButton.textContent = OSApp.Language._( "Help" );
+	dismissButton.textContent = OSApp.Language._( "Dismiss" );
+	actions.appendChild( recoveryButton );
+	actions.appendChild( instructionsButton );
+	actions.appendChild( dismissButton );
+	panel.appendChild( title );
+	panel.appendChild( description );
+	panel.appendChild( siteLine );
+	panel.appendChild( advice );
+	panel.appendChild( actions );
+	modal.appendChild( panel );
+	document.body.appendChild( modal );
+	OSApp.Errors.corruptedJsonModal = modal;
 
-	const instructionsButton = document.getElementById('instructionsButton');
-	instructionsButton.addEventListener('click', () => {
-		window.open('https://openthings.freshdesk.com/support/solutions/articles/5000381694-opensprinkler-firmware-update-guide-summary-', "_blank");
-	});
+	OSApp.Storage.get( "current_site", function( data ) {
+		if ( OSApp.Errors.corruptedJsonModal !== modal || !modal.parentNode ) return;
+		siteName.textContent = data && data.current_site || unknownSite;
+	} );
+	recoveryButton.addEventListener( "click", function() {
+		openExternal( "https://raysfiles.com/os/TestOSAPI220.html" );
+	} );
+	instructionsButton.addEventListener( "click", function() {
+		openExternal( "https://openthings.freshdesk.com/support/solutions/articles/5000381694-opensprinkler-firmware-update-guide-summary-" );
+	} );
+	dismissButton.addEventListener( "click", cleanup );
+	modal.addEventListener( "click", function( event ) {
+		if ( event.target === modal ) cleanup();
+	} );
 };

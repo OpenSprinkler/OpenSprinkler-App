@@ -16,6 +16,7 @@
 // Configure module
 var OSApp = OSApp || {};
 OSApp.Stations = OSApp.Stations || {};
+OSApp.Stations.activeAction = null;
 
 /* Station accessor methods */
 OSApp.Stations.Constants = {
@@ -25,6 +26,56 @@ OSApp.Stations.Constants = {
 		START: 2,
 		GID: 3
 	}
+};
+
+OSApp.Stations.captureSessionIdentity = function() {
+	return {
+		generation: OSApp.currentSession.generation || 0,
+		endpoint: String( OSApp.currentSession.token || "" ) + "|" +
+			String( OSApp.currentSession.prefix || "" ) + String( OSApp.currentSession.ip || "" )
+	};
+};
+
+OSApp.Stations.isSessionIdentityCurrent = function( identity ) {
+	return !!identity && identity.generation === ( OSApp.currentSession.generation || 0 ) &&
+		identity.endpoint === String( OSApp.currentSession.token || "" ) + "|" +
+			String( OSApp.currentSession.prefix || "" ) + String( OSApp.currentSession.ip || "" );
+};
+
+OSApp.Stations.beginAction = function( identity ) {
+	if ( OSApp.ImportExport && OSApp.ImportExport.isImportInProgress() ) return null;
+	var active = OSApp.Stations.activeAction;
+	if ( active && OSApp.Stations.isSessionIdentityCurrent( active ) ) return null;
+	if ( active ) OSApp.Stations.finishAction( active );
+
+	var action = identity || OSApp.Stations.captureSessionIdentity();
+	action.loaderOwned = false;
+	OSApp.Stations.activeAction = action;
+	return action;
+};
+
+OSApp.Stations.showActionLoader = function( action ) {
+	if ( OSApp.Stations.activeAction !== action || !OSApp.Stations.isSessionIdentityCurrent( action ) ) return false;
+	action.loaderOwned = true;
+	OSApp.uiState.operationLoaderOwner = action;
+	$.mobile.loading( "show" );
+	return true;
+};
+
+OSApp.Stations.releaseActionLoader = function( action ) {
+	if ( !action || !action.loaderOwned ) return;
+	action.loaderOwned = false;
+	if ( OSApp.uiState.operationLoaderOwner !== action ) return;
+	OSApp.uiState.operationLoaderOwner = null;
+
+	// A generation change transfers the global loader to the new site load. Endpoint-only
+	// invalidation still releases and dismisses the loader owned by this action.
+	if ( action.generation === ( OSApp.currentSession.generation || 0 ) ) $.mobile.loading( "hide" );
+};
+
+OSApp.Stations.finishAction = function( action ) {
+	OSApp.Stations.releaseActionLoader( action );
+	if ( OSApp.Stations.activeAction === action ) OSApp.Stations.activeAction = null;
 };
 
 OSApp.Stations.getNumberProgramStatusOptions = function() {
@@ -37,24 +88,22 @@ OSApp.Stations.getNumberProgramStatusOptions = function() {
 
 OSApp.Stations.getName = function( sid ) {
 	var result = sid;
-	if (!OSApp.currentSession.controller?.stations?.snames || OSApp.currentSession.controller?.stations?.snames.length < sid)
+	if ( !OSApp.currentSession.controller?.stations?.snames || sid < 0 || sid >= OSApp.currentSession.controller.stations.snames.length )
 	{
 		return result;
 	}
 
 	result = OSApp.currentSession.controller.stations.snames[ sid ];
 
-	OSApp.Storage.get( "showStationNum", function( data ) {
-		if ( data.showStationNum && data.showStationNum === "true" ) {
-			result += ` (S${sid + 1})`;
-		}
-	});
+	if ( OSApp.Storage.getItemSync( "showStationNum" ) === "true" ) {
+		result += " (S" + ( sid + 1 ) + ")";
+	}
 
 	return result;
 };
 
 OSApp.Stations.setName = function( sid, value ) {
-	OSApp.currentSession.controller.settings.snames[ sid ] = value;
+	OSApp.currentSession.controller.stations.snames[ sid ] = value;
 };
 
 OSApp.Stations.getPID = function( sid ) {
@@ -85,7 +134,9 @@ OSApp.Stations.getGIDValue = function( sid ) {
 	if ( !OSApp.Supported.groups() ) {
 		return undefined;
 	}
-	return OSApp.currentSession.controller.settings.ps[ sid ][ OSApp.Stations.Constants.programStatusOptions.GID ];
+	return OSApp.Groups.normalizeGIDValue(
+		OSApp.currentSession.controller.settings.ps[ sid ][ OSApp.Stations.Constants.programStatusOptions.GID ]
+	);
 };
 
 OSApp.Stations.setGIDValue = function( sid, value ) {
@@ -139,15 +190,30 @@ OSApp.Stations.stopAllStations = function() {
 		return false;
 	}
 
+	var action = OSApp.Stations.beginAction();
+	if ( !action ) return false;
 	OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to stop all stations?" ), "", function() {
-		$.mobile.loading( "show" );
+		action.confirmed = true;
+		if ( !OSApp.Stations.showActionLoader( action ) ) {
+			OSApp.Stations.finishAction( action );
+			return;
+		}
 		OSApp.Firmware.sendToOS( "/cv?pw=&rsn=1" ).done( function() {
-			$.mobile.loading( "hide" );
+			if ( !OSApp.Stations.isSessionIdentityCurrent( action ) ) return;
 			OSApp.Stations.removeStationTimers();
 			OSApp.Status.refreshStatus();
 			OSApp.Errors.showError( OSApp.Language._( "All stations have been stopped" ) );
+		} ).always( function() {
+			OSApp.Stations.finishAction( action );
 		} );
+	}, function() {
+		OSApp.Stations.finishAction( action );
 	} );
+
+	$( "#sure" ).one( "popupafterclose.stationAction", function() {
+		if ( !action.confirmed ) OSApp.Stations.finishAction( action );
+	} );
+	return true;
 };
 
 OSApp.Stations.removeStationTimers = function() {
@@ -160,59 +226,92 @@ OSApp.Stations.removeStationTimers = function() {
 	}
 };
 
-OSApp.Stations.stopStations = function( callback ) {
+OSApp.Stations.stopStations = function( callback, identity, action ) {
 	callback = callback || function() {};
-	$.mobile.loading( "show" );
+	identity = identity || OSApp.Stations.captureSessionIdentity();
+	var reuseAction = !!action;
+	action = action || OSApp.Stations.beginAction( identity );
+	if ( !action || !OSApp.Stations.isSessionIdentityCurrent( identity ) ||
+		OSApp.Stations.activeAction !== action || !OSApp.Stations.showActionLoader( action ) ) {
+		if ( action ) OSApp.Stations.finishAction( action );
+		return $.Deferred().reject( { status:0, statusText:"stale-session" } ).promise();
+	}
 
 	// It can take up to a second before stations actually stop
-	OSApp.Firmware.sendToOS( "/cv?pw=&rsn=1" ).done( function() {
+	return OSApp.Firmware.sendToOS( "/cv?pw=&rsn=1" ).done( function() {
 		setTimeout( function() {
-			$.mobile.loading( "hide" );
+			if ( !OSApp.Stations.isSessionIdentityCurrent( identity ) ) {
+				OSApp.Stations.finishAction( action );
+				return;
+			}
+			if ( reuseAction ) {
+				OSApp.Stations.releaseActionLoader( action );
+			} else {
+				OSApp.Stations.finishAction( action );
+			}
 			callback();
 		}, 1000 );
+	} ).fail( function() {
+		OSApp.Stations.finishAction( action );
 	} );
 };
 
-OSApp.Stations.parseRemoteStationData = function( hex ) {
-	var fields = hex.split( "," );
-	var result = {};
-	if ( fields.length === 2 && OSApp.Utils.isValidOTC( fields[ 0 ] ) ) {
+OSApp.Stations.parseRemoteStationData = function( value ) {
+	if ( typeof value !== "string" ) return null;
+
+	var fields = value.split( "," ),
+		result = {},
+		station;
+	if ( fields.length === 2 ) {
+		if ( !OSApp.Utils.isValidOTC( fields[ 0 ] ) || !/^[a-f0-9]{2}$/i.test( fields[ 1 ] ) ) return null;
+		station = parseInt( fields[ 1 ], 16 );
+		if ( station < 0 || station > 199 ) return null;
 		result.otc = fields[ 0 ];
-		result.station = parseInt( fields[ 1 ], 16 );
-	} else {
-		hex = hex.split( "" );
-
-		var ip = [], value;
-
-		for ( var i = 0; i < 8; i++ ) {
-			value = parseInt( hex[ i ] + hex[ i + 1 ], 16 ) || 0;
-			ip.push( value );
-			i++;
-		}
-
-		result.ip = ip.join( "." );
-		result.port = parseInt( hex[ 8 ] + hex[ 9 ] + hex[ 10 ] + hex[ 11 ], 16 );
-		result.station = parseInt( hex[ 12 ] + hex[ 13 ], 16 );
+		result.station = station;
+		return result;
 	}
 
+	if ( fields.length !== 1 || !/^[a-f0-9]{14}$/i.test( value ) ) return null;
+	var ip = [],
+		port = parseInt( value.slice( 8, 12 ), 16 );
+	station = parseInt( value.slice( 12, 14 ), 16 );
+	if ( port < 1 || port > 65535 || station < 0 || station > 199 ) return null;
+	for ( var i = 0; i < 8; i += 2 ) {
+		ip.push( parseInt( value.slice( i, i + 2 ), 16 ) );
+	}
+
+	result.ip = ip.join( "." );
+	result.port = port;
+	result.station = station;
 	return result;
 };
 
 OSApp.Stations.verifyRemoteStation = function( data, callback ) {
 	callback = callback || function() {};
 	data = OSApp.Stations.parseRemoteStationData( data );
+	if ( !data ) {
+		callback( -1 );
+		return $.Deferred().reject( { status:0, statusText:"invalid-data" } ).promise();
+	}
 
-	$.ajax( {
+	var request = $.ajax( {
 		url: ( data.otc ? ( "https://cloud.openthings.io/forward/v1/" + data.otc ) : ( "http://" + data.ip + ":" + data.port ) ) + "/jo?pw=" + encodeURIComponent( OSApp.currentSession.pass ),
 		type: "GET",
-		dataType: "json"
-	} ).then(
+		dataType: "json",
+		timeout: 10000
+	} );
+	request.then(
 		function( result ) {
-			if ( typeof result !== "object" || !Object.prototype.hasOwnProperty.call(result,  "fwv" ) ) {
+			if ( !result || typeof result !== "object" || Array.isArray( result ) ||
+				!OSApp.Firmware.isValidFirmwareVersion( result.fwv ) ) {
 				callback( -1 );
 			} else if ( Object.keys( result ).length === 1 ) {
 				callback( -2 );
-			} else if ( !Object.prototype.hasOwnProperty.call(result,  "re" ) || result.re === 0 ) {
+			} else if ( !OSApp.Firmware.isFullOptionsResponse( result ) ) {
+				callback( -1 );
+			} else if ( !Number.isSafeInteger( result.re ) || result.re < 0 || result.re > 1 ) {
+				callback( -1 );
+			} else if ( result.re === 0 ) {
 				callback( -3 );
 			} else {
 				callback( true );
@@ -222,10 +321,12 @@ OSApp.Stations.verifyRemoteStation = function( data, callback ) {
 			callback( false );
 		}
 	);
+	return request;
 };
 
 OSApp.Stations.convertRemoteToExtender = function( data ) {
 	data = OSApp.Stations.parseRemoteStationData( data );
+	if ( !data ) return false;
 	var comm;
 	if ( data.otc ) {
 		comm = "https://cloud.openthings.io/forward/v1/" + data.otc;
@@ -234,14 +335,25 @@ OSApp.Stations.convertRemoteToExtender = function( data ) {
 	}
 	comm += "/cv?re=1&pw=" + encodeURIComponent( OSApp.currentSession.pass );
 
-	$.ajax( {
+	var request = $.ajax( {
 		url: comm,
 		type: "GET",
-		dataType: "json"
-	} );
+		dataType: "json",
+		timeout: 10000
+	} ),
+		validated = request.then( function( result ) {
+			if ( !result || typeof result !== "object" || Array.isArray( result ) || result.result !== 1 ) {
+				return $.Deferred().reject( { status:0, statusText:"invalid-response" } ).promise();
+			}
+			return result;
+		} );
+	validated.abort = function() { request.abort(); };
+	return validated;
 };
 
 OSApp.Stations.submitRunonce = function( runonce, uwt, interval, repeat, annotation, qo ) {
+	var identity = OSApp.Stations.captureSessionIdentity();
+
 	// This block is for the Run-Once Page *only*.
 	// It detects if `runonce` is not an array, meaning it's being called from the page.
 	if ( !( runonce instanceof Array ) ) {
@@ -273,7 +385,10 @@ OSApp.Stations.submitRunonce = function( runonce, uwt, interval, repeat, annotat
 	}
 
 	var submit = function() {
-		$.mobile.loading( "show" );
+		if ( !OSApp.Stations.isSessionIdentityCurrent( identity ) || !OSApp.Stations.showActionLoader( action ) ) {
+			OSApp.Stations.finishAction( action );
+			return;
+		}
 		OSApp.Storage.set( { "runonce": JSON.stringify( runonce ) } );
 
 		let request = "/cr?pw=&t=" + JSON.stringify( runonce );
@@ -281,7 +396,7 @@ OSApp.Stations.submitRunonce = function( runonce, uwt, interval, repeat, annotat
 		if ( OSApp.Supported.repeatedRunonce() ) {
 			request += "&int=" + interval + "&cnt=" + repeat + "&uwt=" + uwt;
 			if ( annotation?.length > 0 ) {
-				request += "&anno=" + annotation;
+				request += "&anno=" + encodeURIComponent( annotation );
 			}
 		}
 		if ( OSApp.Firmware.checkOSVersion ( 2214 ) ) {
@@ -291,23 +406,47 @@ OSApp.Stations.submitRunonce = function( runonce, uwt, interval, repeat, annotat
 		}
 
 		OSApp.Firmware.sendToOS( request ).done( function() {
-			$.mobile.loading( "hide" );
+			if ( !OSApp.Stations.isSessionIdentityCurrent( identity ) ) return;
 			$.mobile.document.one( "pageshow", function() {
 				OSApp.Errors.showError( OSApp.Language._( "Run-once program has been scheduled" ) );
 			} );
 			OSApp.Status.refreshStatus();
 			OSApp.UIDom.goBack();
+		} ).always( function() {
+			OSApp.Stations.finishAction( action );
 		} );
 	},
-	isOn = OSApp.StationQueue.isActive();
+		isOn = OSApp.StationQueue.isActive(),
+		activeProgramName = isOn !== -1 ? OSApp.Programs.pidToName( OSApp.Stations.getPID( isOn ) ) : "",
+		action = OSApp.Stations.beginAction( identity );
+
+	if ( !action ) return false;
 
 	var checkIsOnAndSubmit = function() {
+		if ( !OSApp.Stations.isSessionIdentityCurrent( identity ) ) {
+			OSApp.Stations.finishAction( action );
+			return;
+		}
 		if ( !OSApp.Firmware.checkOSVersion ( 2214 ) && isOn !== -1 ){
 			// Add a short delay to allow the first popup to finish closing
 			setTimeout(function() {
-				OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to stop the currently running program?" ), OSApp.Programs.pidToName( OSApp.Stations.getPID( isOn ) ), function() {
-					$.mobile.loading( "show" );
-					OSApp.Stations.stopStations( submit );
+				if ( !OSApp.Stations.isSessionIdentityCurrent( identity ) ) {
+					OSApp.Stations.finishAction( action );
+					return;
+				}
+				action.confirmed = false;
+				OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to stop the currently running program?" ), activeProgramName, function() {
+					action.confirmed = true;
+					if ( !OSApp.Stations.isSessionIdentityCurrent( identity ) ) {
+						OSApp.Stations.finishAction( action );
+						return;
+					}
+					OSApp.Stations.stopStations( submit, identity, action );
+				}, function() {
+					OSApp.Stations.finishAction( action );
+				} );
+				$( "#sure" ).one( "popupafterclose.runonceAction", function() {
+					if ( !action.confirmed ) OSApp.Stations.finishAction( action );
 				} );
 			}, 100); // 100ms delay is usually enough for the DOM to settle
 		} else {
@@ -316,6 +455,7 @@ OSApp.Stations.submitRunonce = function( runonce, uwt, interval, repeat, annotat
 	};
 
 	checkIsOnAndSubmit();
+	return true;
 };
 
 OSApp.Stations.getStationDuration = function( duration, date ) {

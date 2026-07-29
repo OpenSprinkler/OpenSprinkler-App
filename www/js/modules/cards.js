@@ -44,7 +44,7 @@ OSApp.Cards.getGIDValue = function( cardObj ) {
 	if ( !OSApp.Supported.groups() ) { return 0; }
 	var cardButtons = $( cardObj.children()[ 0 ] ).children().filter( "span" ),
 		cardAttributes = $( cardButtons[ cardButtons.length - 1 ] );
-	return parseInt( cardAttributes.attr( "data-gid" ) );
+	return OSApp.Groups.normalizeGIDValue( cardAttributes.attr( "data-gid" ) );
 };
 
 OSApp.Cards.getGIDName = function( cardObj ) {

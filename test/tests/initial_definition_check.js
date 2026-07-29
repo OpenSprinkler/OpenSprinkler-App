@@ -21,7 +21,7 @@ describe("Initial Definition Check", function () {
 				"sites": JSON.stringify({
 					"Test": {
 						"os_ip": "127.0.0.1:8080",
-						"os_pw": "opendoor"
+						"os_pw": "test-password"
 					}
 				}),
 				"current_site": "Test"

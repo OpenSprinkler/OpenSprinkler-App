@@ -16,7 +16,7 @@
 describe("Page Navigation Checks", function () {
 	before(function () {
 		OSApp.currentSession.ip = "demo.opensprinkler.com";
-		OSApp.currentSession.pass = "opendoor";
+		OSApp.currentSession.pass = "test-password";
 		OSApp.currentSession.prefix = "https://";
 		OSApp.currentSession.fw183 = false;
 

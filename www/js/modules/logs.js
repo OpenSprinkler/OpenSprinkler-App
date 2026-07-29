@@ -16,6 +16,65 @@
 // Configure module
 var OSApp = OSApp || {};
 OSApp.Logs = OSApp.Logs || {};
+OSApp.Logs.MAX_CONTROLLER_EPOCH = 0xffffffff;
+
+OSApp.Logs.logFileDay = function( endTimestamp ) {
+	return Number.isSafeInteger( endTimestamp ) && endTimestamp >= 0 && endTimestamp <= OSApp.Logs.MAX_CONTROLLER_EPOCH ?
+		Math.floor( endTimestamp / 86400 ) : null;
+};
+
+OSApp.Logs.normalizeRows = function( rows, kind ) {
+	if ( !Array.isArray( rows ) ) return [];
+	return rows.slice( 0, 100000 ).reduce( function( result, row ) {
+		if ( !Array.isArray( row ) || row.length < 4 ||
+			typeof row[ 3 ] !== "number" || !Number.isSafeInteger( row[ 3 ] ) || row[ 3 ] < 0 || row[ 3 ] > 0xffffffff ) {
+			return result;
+		}
+
+		if ( kind === "water" ) {
+			if ( row[ 1 ] !== "wl" || typeof row[ 0 ] !== "number" || !Number.isFinite( row[ 0 ] ) ||
+				typeof row[ 2 ] !== "number" || !Number.isFinite( row[ 2 ] ) || Math.abs( row[ 2 ] ) > 1000000 ) return result;
+			result.push( [ row[ 0 ], "wl", row[ 2 ], row[ 3 ] ] );
+			return result;
+		}
+
+		if ( kind === "flow" ) {
+			if ( row[ 1 ] !== "fl" || typeof row[ 0 ] !== "number" || !Number.isSafeInteger( row[ 0 ] ) ||
+				row[ 0 ] < 0 || row[ 0 ] > 0xffffffff || typeof row[ 2 ] !== "number" ||
+				!Number.isSafeInteger( row[ 2 ] ) || row[ 2 ] < 0 || row[ 2 ] > 0xffffffff ) return result;
+			result.push( [ row[ 0 ], "fl", row[ 2 ], row[ 3 ] ] );
+			return result;
+		}
+
+		var station = row[ 1 ],
+			validStation = typeof station === "number" && Number.isSafeInteger( station ) && station >= 0 ||
+				[ "rd", "s1", "s2", "rs" ].indexOf( station ) !== -1;
+		if ( !validStation || typeof row[ 0 ] !== "number" || !Number.isSafeInteger( row[ 0 ] ) || row[ 0 ] < 0 || row[ 0 ] > 255 ||
+				typeof row[ 2 ] !== "number" || !Number.isSafeInteger( row[ 2 ] ) || row[ 2 ] < -65535 || row[ 2 ] > 0xffffffff ||
+				( row[ 4 ] !== undefined && ( typeof row[ 4 ] !== "number" || !Number.isFinite( row[ 4 ] ) || Math.abs( row[ 4 ] ) > 1000000000 ) ) ) return result;
+		result.push( row[ 4 ] === undefined ? [ row[ 0 ], station, row[ 2 ], row[ 3 ] ] :
+			[ row[ 0 ], station, row[ 2 ], row[ 3 ], row[ 4 ] ] );
+		return result;
+	}, [] );
+};
+
+OSApp.Logs.formatTime = function( date, includeDate ) {
+	return includeDate ? OSApp.Dates.dateToString( date ) : OSApp.Dates.timeToString( date, undefined, true );
+};
+
+OSApp.Logs.parseDateRange = function( startText, endText ) {
+	var start = OSApp.Dates.parseDisplayDate( startText ),
+		end = OSApp.Dates.parseDisplayDate( endText );
+	if ( !start || !end ) return null;
+
+	var startSeconds = start.getTime() / 1000,
+		endSeconds = end.getTime() / 1000;
+	if ( !Number.isSafeInteger( startSeconds ) || !Number.isSafeInteger( endSeconds ) ||
+		startSeconds < 0 || endSeconds < 0 || startSeconds > OSApp.Logs.MAX_CONTROLLER_EPOCH ||
+		endSeconds > OSApp.Logs.MAX_CONTROLLER_EPOCH ) return null;
+
+	return { start:start, end:end };
+};
 
 OSApp.Logs.displayPage = function() {
 	// Build the log page and add it to DOM
@@ -38,10 +97,10 @@ OSApp.Logs.displayPage = function() {
 						<label for="table-sort-station">${OSApp.Language._("Station")}</label>
 					</fieldset>
 					<div class="ui-field-contain">
-						<label for="log_start">${OSApp.Language._("Start:")}</label>
-						<input data-mini="true" type="date" id="log_start">
-						<label for="log_end">${OSApp.Language._("End:")}</label>
-						<input data-mini="true" type="date" id="log_end">
+						<label for="log_start">${OSApp.Language._("Start (MM/DD/YYYY):")}</label>
+						<input data-mini="true" type="text" inputmode="numeric" maxlength="10" placeholder="MM/DD/YYYY" id="log_start">
+						<label for="log_end">${OSApp.Language._("End (MM/DD/YYYY):")}</label>
+						<input data-mini="true" type="text" inputmode="numeric" maxlength="10" placeholder="MM/DD/YYYY" id="log_end">
 					</div>
 					<a data-role="button" data-icon="action" class="export_logs" href="#" data-mini="true">${OSApp.Language._("Export")}</a>
 					<a data-role="button" class="red clear_logs" href="#" data-mini="true" data-icon="alert">
@@ -61,6 +120,26 @@ OSApp.Logs.displayPage = function() {
 		groups = [],
 		waterlog = [],
 		flowlog = [],
+		requestGeneration = 0,
+		loadingGeneration = 0,
+		timeline,
+		destroyTimeline = function() {
+			$.mobile.window.off( "resize.logsTimeline" );
+			logsList.off( ".logsTimeline" );
+			if ( timeline ) {
+				timeline.destroy();
+				timeline = null;
+			}
+		},
+		clearExport = function() {
+			page.find( ".export_logs" ).off( ".exportObj" ).removeAttr( "href download" );
+		},
+		settleLoading = function( generation ) {
+			if ( generation !== 0 && loadingGeneration === generation ) {
+				loadingGeneration = 0;
+				$.mobile.loading( "hide" );
+			}
+		},
 		sortData = function( type, grouping ) {
 
 			var sortedData = [],
@@ -85,9 +164,8 @@ OSApp.Logs.displayPage = function() {
 					duration += 65536;
 				}
 
-				var date = new Date( parseInt( this[ 3 ] * 1000 ) - ( duration * 1000 ) ),
-					utc = new Date( date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),  date.getUTCHours(),
-						date.getUTCMinutes(), date.getUTCSeconds() );
+				var endDate = new Date( this[ 3 ] * 1000 ),
+					date = new Date( endDate.getTime() - ( duration * 1000 ) );
 
 				if ( typeof station === "string" ) {
 					if ( station === "rd" ) {
@@ -115,12 +193,13 @@ OSApp.Logs.displayPage = function() {
 				if ( type === "table" ) {
 					switch ( grouping ) {
 						case "station":
-							var stationItem = [ utc, OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( duration ) ), station, new Date( utc.getTime() + ( duration * 1000 ) ), flowRate ];
+							var stationItem = [ date, OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( duration ) ), station, endDate, flowRate ];
 							sortedData[ station ].push( stationItem );
 							break;
 						case "day":
-							var day = Math.floor( date.getTime() / 1000 / 60 / 60 / 24 ),
-								item = [ utc, OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( duration ) ), station, new Date( utc.getTime() + ( duration * 1000 ) ), flowRate ];
+							var day = OSApp.Logs.logFileDay( this[ 3 ] ),
+								item = [ date, OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( duration ) ), station, endDate, flowRate ];
+							if ( day === null ) return;
 
 							// Item structure: [startDate, runtime, station, endDate, flowRate]
 
@@ -161,17 +240,17 @@ OSApp.Logs.displayPage = function() {
 					}
 
 					sortedData.push( {
-						"start": utc,
-						"end": new Date( utc.getTime() + ( duration * 1000 ) ),
+						"start": date,
+						"end": new Date( date.getTime() + ( duration * 1000 ) ),
 						"className": className,
-						"content": name,
+						"content": OSApp.Utils.htmlEscape( name ),
 						"pid": pid - 1,
 						"group": group,
 					} );
 					if ( !groups.some( elem => elem.id === group ) ) {
 						groups.push( {
 							"id": group,
-							"content": group
+							"content": OSApp.Utils.htmlEscape( group )
 						} );
 					}
 				}
@@ -202,13 +281,11 @@ OSApp.Logs.displayPage = function() {
 					var volume = OSApp.Utils.flowCountToVolume( this[ 0 ] );
 
 					if ( type === "timeline" ) {
-						var date = new Date( parseInt( this[ 3 ] * 1000 ) ),
-							utc = new Date( date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),  date.getUTCHours(),
-								date.getUTCMinutes(), date.getUTCSeconds() );
+						var date = new Date( parseInt( this[ 3 ] * 1000 ) );
 
 						flSorted.push( {
-							"start": new Date( utc.getTime() - parseInt( this[ 2 ] * 1000 ) ),
-							"end": utc,
+							"start": new Date( date.getTime() - parseInt( this[ 2 ] * 1000 ) ),
+							"end": date,
 							"className": "",
 							"content": volume + " L",
 							"group": OSApp.Language._( "Flow Sensor" )
@@ -230,30 +307,34 @@ OSApp.Logs.displayPage = function() {
 
 			return [ wlSorted, flSorted, stats ];
 		},
-		success = function( items, wl, fl ) {
-			if ( typeof items !== "object" || items.length < 1 || ( items.result && items.result === 32 ) ) {
-				$.mobile.loading( "hide" );
-				resetLogsPage();
-				return;
+			success = function( items, wl, fl ) {
+				if ( !Array.isArray( items ) || items.length < 1 ) {
+					resetLogsPage();
+					return;
 			}
 
-			try {
-				flowlog = JSON.parse( flowlog.replace( /,\s*inf/g, "" ) );
-				//eslint-disable-next-line no-unused-vars
-			} catch ( err ) {
-				flowlog = [];
+			if ( typeof fl === "string" ) {
+				try {
+					fl = JSON.parse( fl.replace( /,\s*inf/g, "" ) );
+					//eslint-disable-next-line no-unused-vars
+				} catch ( err ) {
+					fl = [];
+				}
 			}
 
-			data = items;
-			waterlog = $.isEmptyObject( wl ) ? [] : wl;
-			flowlog = $.isEmptyObject( fl ) ? [] : fl;
+			data = OSApp.Logs.normalizeRows( items, "station" );
+			waterlog = OSApp.Logs.normalizeRows( wl, "water" );
+			flowlog = OSApp.Logs.normalizeRows( fl, "flow" );
 
 			updateView();
 
-			OSApp.Utils.exportObj( ".export_logs", data );
+			if ( data.length > 0 ) {
+				OSApp.Utils.exportObj( ".export_logs", data );
+			} else {
+				clearExport();
+			}
 
-			$.mobile.loading( "hide" );
-		},
+			},
 		updateView = function() {
 			if ( page.find( "#log_table" ).prop( "checked" ) ) {
 				prepTable();
@@ -262,6 +343,7 @@ OSApp.Logs.displayPage = function() {
 			}
 		},
 		prepTimeline = function() {
+			destroyTimeline();
 			if ( data.length < 1 ) {
 				resetLogsPage();
 				return;
@@ -272,14 +354,14 @@ OSApp.Logs.displayPage = function() {
 
 			logOptions.collapsible( "collapse" );
 
-			// Sync time format with 24 hour option
+			// Sync time format with the user's clock preference.
 			var format = {};
 			if ( !OSApp.uiState.is24Hour ) {
 				format = {
 					"minorLabels": {
 						"hour": "h:mm A",
 						"minute": "h:mm A",
-						"day": "ddd D"
+						"day": "MM/DD/YYYY"
 					}
 				};
 			} else {
@@ -287,11 +369,12 @@ OSApp.Logs.displayPage = function() {
 					"minorLabels": {
 						"hour": "HH:mm",
 						"minute": "HH:mm",
-						"day": "ddd D"
+						"day": "MM/DD/YYYY"
 					}
 				};
 			}
 
+			groups = [];
 			var sortedData = sortData( "timeline" ),
 				extraData = sortExtraData( sortedData[ 1 ], "timeline" ),
 				fullData = sortedData[ 0 ].concat( extraData[ 1 ] ),
@@ -301,38 +384,39 @@ OSApp.Logs.displayPage = function() {
 					"editable": false,
 					"margin": {"item": 10, "axis": 0},
 					"min": dates().start,
-					"max": new Date( dates().end.getTime() + 86340000 ),
+					"max": new Date( dates().end.getTime() + 86400000 ),
 					"selectable": false,
 					"showMajorLabels": false,
 					"groupEditable": false,
 					"zoomMin": 1000 * 60 * 60,
 					"format": format,
+					"moment": function( value ) {
+						return vis.moment( value ).utc();
+					},
 					"zoomFriction": 1,
 					"preferZoom": true
 				},
 				resize = function() {
-					timeline.redraw();
-				},
-				reset = function() {
-					$.mobile.window.off( "resize", resize );
+					if ( timeline ) {
+						timeline.redraw();
+					}
 				};
 
-			logsList.on( "swiperight swipeleft", function( e ) {
+			logsList.off( ".logsTimeline" ).on( "swiperight.logsTimeline swipeleft.logsTimeline", function( e ) {
 				e.stopImmediatePropagation();
 			} );
 
 			page.find( "#logs_list" ).empty();
 
-			var timeline = new vis.Timeline( logsList.get( 0 ), fullData, options );
+			timeline = new vis.Timeline( logsList.get( 0 ), fullData, options );
 			timeline.setGroups( groups );
 
-			$.mobile.window.on( "resize", resize );
-			page.one( "pagehide", reset );
-			page.find( "input:radio[name='log_type']" ).one( "change", reset );
+			$.mobile.window.on( "resize.logsTimeline", resize );
 
 			logsList.prepend( showStats( stats ) );
 		},
 		prepTable = function() {
+			destroyTimeline();
 			if ( data.length < 1 ) {
 				resetLogsPage();
 				return;
@@ -360,33 +444,6 @@ OSApp.Logs.displayPage = function() {
 				i = 0,
 				group, ct, k;
 
-			// Return HH:MM:SS formatting for dt datetime object.
-			var formatTime = function( dt, g ) {
-				if ( g === "station" ) {
-					return OSApp.Dates.dateToString( dt, false );
-				} else {
-					if ( OSApp.uiState.is24Hour ) {
-						return OSApp.Utils.pad( dt.getHours() ) + ":" + OSApp.Utils.pad( dt.getMinutes() ) + ":" + OSApp.Utils.pad( dt.getSeconds() );
-					} else {
-						var period, hour;
-						if ( dt.getHours() > 12 ) {
-							hour = dt.getHours() - 12;
-							period = "PM";
-						} else if ( dt.getHours() === 12 ) {
-							hour = 12;
-							period = "PM";
-						} else {
-							hour = dt.getHours();
-							period = "AM";
-						}
-
-						return hour + ":" + OSApp.Utils.pad( dt.getMinutes() ) + ":" + OSApp.Utils.pad( dt.getSeconds() ) + " " + period;
-
-					}
-
-				}
-			};
-
 			for ( group in sortedData ) {
 				if ( Object.prototype.hasOwnProperty.call(sortedData,  group ) ) {
 					ct = sortedData[ group ].length;
@@ -398,9 +455,9 @@ OSApp.Logs.displayPage = function() {
 							group + "'>" + OSApp.Language._( "delete" ) + "</a>" : "" ) +
 						"<div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>" +
 						ct + " " + ( ( ct === 1 ) ? OSApp.Language._( "run" ) : OSApp.Language._( "runs" ) ) +
-						"</div>" + ( grouping === "station" ? stations[ group ] : OSApp.Dates.dateToString(
+						"</div>" + ( grouping === "station" ? OSApp.Utils.htmlEscape( stations[ group ] ) : OSApp.Dates.dateOnly(
 							new Date( group * 1000 * 60 * 60 * 24 )
-						).slice( 0, -9 ) ) +
+						) ) +
 						"</h2>";
 
 					if ( wlSorted[ group ] ) {
@@ -421,13 +478,13 @@ OSApp.Logs.displayPage = function() {
 						var sid = ( grouping === 'station' ) ? group  : sortedData[group][k][2];
 						var stationName = stations[sid];
 						var runTime = sortedData[ group ][ k ][ 1 ];
-						var startTime = formatTime( sortedData[ group ][ k ][ 0 ], grouping ) ;
-						var endTime = formatTime( sortedData[ group ][ k ][ 3 ], grouping );
+						var startTime = OSApp.Logs.formatTime( sortedData[ group ][ k ][ 0 ], grouping === "station" ) ;
+						var endTime = OSApp.Logs.formatTime( sortedData[ group ][ k ][ 3 ], grouping === "station" );
 						var fRate = sortedData[ group ][ k ][ 4 ];
 						var flowDisplay = ( typeof fRate === "number" ) ? fRate.toFixed( 2 ) + " L/min" : "";
 
 						groupArray[ i ] += "<tr>" +
-							"<td>" + stationName + "</td>" + // Station name
+								"<td>" + OSApp.Utils.htmlEscape( stationName ) + "</td>" + // Station name
 							"<td>" + runTime + "</td>" + // Runtime
 							"<td>" + startTime + "</td>" + // Startdate
 							"<td>" + endTime + "</td>" + // Enddate
@@ -460,14 +517,14 @@ OSApp.Logs.displayPage = function() {
 					}
 				} );
 
-				date = OSApp.Dates.dateToString( new Date( day * 1000 * 60 * 60 * 24 ) ).slice( 0, -9 );
+				date = OSApp.Dates.dateOnly( new Date( day * 1000 * 60 * 60 * 24 ) );
 
 				OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to " ) + OSApp.Language._( "delete" ) + " " + date + "?", "", function() {
 					$.mobile.loading( "show" );
 					OSApp.Firmware.sendToOS( "/dl?pw=&day=" + day ).done( function() {
 						requestData();
 						OSApp.Errors.showError( date + " " + OSApp.Language._( "deleted" ) );
-					} );
+					} ).fail( OSApp.Firmware.settleLoadingFailure );
 				} );
 
 				return false;
@@ -496,72 +553,102 @@ OSApp.Logs.displayPage = function() {
 				"</div>";
 		},
 		resetLogsPage = function() {
+			destroyTimeline();
+			clearExport();
 			data = [];
+			waterlog = [];
+			flowlog = [];
 			logOptions.collapsible( "expand" );
 			tableSort.hide();
 			logsList.show().html( OSApp.Language._( "No entries found in the selected date range" ) );
-		},
-		fail = function() {
-			$.mobile.loading( "hide" );
-
-			tableSort.empty().hide();
+			},
+				fail = function() {
+					destroyTimeline();
+					clearExport();
+					data = [];
+					waterlog = [];
+					flowlog = [];
+					tableSort.hide();
 			logsList.show().html( OSApp.Language._( "Error retrieving log data. Please refresh to try again." ) );
 		},
 		dates = function() {
-			var sDate = logStart.val().split( "-" ),
-				eDate = logEnd.val().split( "-" );
-			return {
-				start: new Date( sDate[ 0 ], sDate[ 1 ] - 1, sDate[ 2 ] ),
-				end: new Date( eDate[ 0 ], eDate[ 1 ] - 1, eDate[ 2 ] )
+			return OSApp.Logs.parseDateRange( logStart.val(), logEnd.val() ) || {
+				start:new Date( NaN ), end:new Date( NaN )
 			};
 		},
-		parms = function() {
-			return "start=" + ( dates().start.getTime() / 1000 ) + "&end=" + ( ( dates().end.getTime() / 1000 ) + 86340 );
-		},
-		requestData = function() {
-			var endtime = dates().end.getTime() / 1000,
-				starttime = dates().start.getTime() / 1000;
+			requestData = function() {
+				var selectedDates = dates(),
+					endtime = selectedDates.end.getTime() / 1000,
+					starttime = selectedDates.start.getTime() / 1000,
+					generation = ++requestGeneration,
+					sessionGeneration = OSApp.currentSession.generation || 0;
 
-			if ( endtime < starttime ) {
+				if ( !isFinite( starttime ) || !isFinite( endtime ) ) {
+					resetLogsPage();
+					OSApp.Errors.showError( OSApp.Language._( "Please enter a valid date range" ) );
+					return;
+				}
+
+				if ( endtime < starttime ) {
 				resetLogsPage();
 				OSApp.Errors.showError( OSApp.Language._( "Start time cannot be greater than end time" ) );
 				return;
 			}
 
-			var delay = 0;
-			$.mobile.loading( "show" );
+					$.mobile.loading( "show" );
+					loadingGeneration = generation;
 
 			if ( ( endtime - starttime ) > 31540000 ) {
 				OSApp.Errors.showError( OSApp.Language._( "The requested time span exceeds the maximum of 1 year and has been adjusted" ), 3500 );
-				var nDate = dates().start;
-				nDate.setFullYear( nDate.getFullYear() + 1 );
-				$( "#log_end" ).val( nDate.getFullYear() + "-" + OSApp.Utils.pad( nDate.getMonth() + 1 ) + "-" + OSApp.Utils.pad( nDate.getDate() ) );
-				delay = 500;
-			}
+					var nDate = new Date( selectedDates.start.getTime() );
+					nDate.setUTCFullYear( nDate.getUTCFullYear() + 1 );
+					logEnd.val( OSApp.Dates.dateOnly( nDate ) );
+					endtime = nDate.getTime() / 1000;
+				}
 
-			var wlDefer = $.Deferred().resolve(),
+				var params = "start=" + Math.floor( starttime ) + "&end=" + Math.floor( endtime );
+
+				var wlDefer = $.Deferred().resolve(),
 				flDefer = $.Deferred().resolve();
 
 			if ( OSApp.Firmware.checkOSVersion( 211 ) ) {
-				wlDefer = OSApp.Firmware.sendToOS( "/jl?pw=&type=wl&" + parms(), "json" );
+					wlDefer = OSApp.Firmware.sendToOS( "/jl?pw=&type=wl&" + params, "json" );
 			}
 
 			if ( OSApp.Firmware.checkOSVersion( 216 ) ) {
-				flDefer = OSApp.Firmware.sendToOS( "/jl?pw=&type=fl&" + parms() );
-			}
+					flDefer = OSApp.Firmware.sendToOS( "/jl?pw=&type=fl&" + params );
+				}
 
-			setTimeout( function() {
 				$.when(
-					OSApp.Firmware.sendToOS( "/jl?pw=&" + parms(), "json" ),
+					OSApp.Firmware.sendToOS( "/jl?pw=&" + params, "json" ),
 					wlDefer,
 					flDefer
-				).then( success, fail );
-			}, delay );
+					).then( function( items, wl, fl ) {
+						try {
+							if ( generation === requestGeneration && sessionGeneration === ( OSApp.currentSession.generation || 0 ) ) {
+								success( items, wl, fl );
+							}
+						} finally {
+							settleLoading( generation );
+						}
+					}, function() {
+						try {
+							if ( generation === requestGeneration && sessionGeneration === ( OSApp.currentSession.generation || 0 ) ) {
+								fail();
+							}
+						} finally {
+							settleLoading( generation );
+						}
+				} );
 		},
 		isNarrow = window.innerWidth < 640 ? true : false,
 		logStart = page.find( "#log_start" ),
 		logEnd = page.find( "#log_end" ),
 		stations, logtimeout, i;
+
+	logStart.add( logEnd ).on( "input", function() {
+		this.value = OSApp.Dates.formatDateInput( this.value );
+	} );
 
 	// Bind clear logs button
 	page.find( ".clear_logs" ).on( "click", function() {
@@ -591,8 +678,13 @@ OSApp.Logs.displayPage = function() {
 	//Bind view change buttons
 	page.find( "input:radio[name='log_type']" ).change( updateView );
 
-	page.on( {
-		pagehide: function() {
+		page.on( {
+			pagehide: function() {
+				destroyTimeline();
+				clearExport();
+				settleLoading( loadingGeneration );
+				requestGeneration++;
+			clearTimeout( logtimeout );
 			page.detach();
 		},
 		pageshow: requestData
@@ -613,8 +705,9 @@ OSApp.Logs.displayPage = function() {
 
 		if ( logStart.val() === "" || logEnd.val() === "" ) {
 			var now = new Date( OSApp.currentSession.controller.settings.devt * 1000 );
-			logStart.val( new Date( now.getTime() - 604800000 ).toISOString().slice( 0, 10 ) );
-			logEnd.val( now.toISOString().slice( 0, 10 ) );
+			// /jl treats both endpoint days as inclusive: today plus the six prior days is seven files.
+			logStart.val( OSApp.Dates.dateOnly( new Date( now.getTime() - 6 * 86400000 ) ) );
+			logEnd.val( OSApp.Dates.dateOnly( now ) );
 		}
 
 		OSApp.UIDom.changeHeader( {
@@ -640,15 +733,23 @@ OSApp.Logs.displayPage = function() {
 };
 
 OSApp.Logs.clearLogs = function( callback ) {
-	callback = callback || function() {};
+	var completion = typeof callback === "function" ? callback : null;
 	OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to clear ALL your log data?" ), "", function() {
-		var url = OSApp.Firmware.isOSPi() ? "/cl?pw=" : "/dl?pw=&day=all";
+		var url = OSApp.Firmware.isOSPi() ? "/cl?pw=" : "/dl?pw=&day=all",
+			sessionGeneration = OSApp.currentSession.generation || 0,
+			loaderOwned = true,
+			settle = function() {
+				if ( loaderOwned && sessionGeneration === ( OSApp.currentSession.generation || 0 ) ) {
+					$.mobile.loading( "hide" );
+				}
+				loaderOwned = false;
+			};
 		$.mobile.loading( "show" );
 		OSApp.Firmware.sendToOS( url ).done( function() {
-			if ( typeof callback === "function" ) {
-				callback();
-			}
+			settle();
+			if ( sessionGeneration !== ( OSApp.currentSession.generation || 0 ) ) return;
+			if ( completion ) completion();
 			OSApp.Errors.showError( OSApp.Language._( "Logs have been cleared" ) );
-		} );
+		} ).fail( settle );
 	} );
 };

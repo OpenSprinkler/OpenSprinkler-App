@@ -18,8 +18,9 @@ OSApp.Dates = OSApp.Dates || {};
 OSApp.Dates.Constants = {
 	MIN_DATE: "01/01",
 	MAX_DATE: "12/31",
-	DATE_REGEX: /[0-9]{1,2}[/][0-9]{1,2}/g,
-	DATE_REGEX_YEAR: /[0-9]{1,2}[/][0-9]{1,2}[/][0-9]{4}/g
+	DATE_REGEX: /^\d{1,2}\/\d{1,2}$/,
+	DATE_REGEX_YEAR: /^\d{1,2}\/\d{1,2}\/\d{4}$/,
+	DISPLAY_DATE_REGEX: /^\d{2}\/\d{2}\/\d{4}$/
 };
 
 // TODO: mellodev some of this should refactor out to programs.js?
@@ -53,32 +54,75 @@ OSApp.Dates.getDateRangeEnd = function( pid ) {
 };
 
 OSApp.Dates.extractDateFromString = function( inputString ) {
+	if ( typeof inputString !== "string" ) {
+		return false;
+	}
+
 	return inputString.match( OSApp.Dates.Constants.DATE_REGEX );
 };
 
 OSApp.Dates.extractDateFromStringYear = function( inputString ) {
+	if ( typeof inputString !== "string" ) {
+		return false;
+	}
+
 	return inputString.match( OSApp.Dates.Constants.DATE_REGEX_YEAR );
 };
 
 OSApp.Dates.isValidDateFormat = function( dateString ) {
-	var dates = OSApp.Dates.extractDateFromString( dateString );
+	var dates = OSApp.Dates.extractDateFromString( dateString ),
+		parts, month, day, date;
 
-	return dates !== null;
+	if ( !dates ) {
+		return false;
+	}
+
+	parts = dates[ 0 ].split( "/" );
+	month = parseInt( parts[ 0 ], 10 );
+	day = parseInt( parts[ 1 ], 10 );
+	date = new Date( Date.UTC( 2000, month - 1, day ) );
+
+	return date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
 };
 
 OSApp.Dates.isValidDateRange = function( startDate, endDate ) {
 	return OSApp.Dates.isValidDateFormat( startDate ) && OSApp.Dates.isValidDateFormat( endDate );
 };
 
+OSApp.Dates.parseDisplayDate = function( dateString ) {
+	if ( typeof dateString !== "string" || !OSApp.Dates.Constants.DISPLAY_DATE_REGEX.test( dateString ) ) {
+		return null;
+	}
+
+	var parts = dateString.split( "/" ),
+		month = Number( parts[ 0 ] ),
+		day = Number( parts[ 1 ] ),
+		year = Number( parts[ 2 ] ),
+		date = new Date( Date.UTC( year, month - 1, day ) );
+
+	return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day ? date : null;
+};
+
+OSApp.Dates.formatDateInput = function( value ) {
+	var digits = String( value || "" ).replace( /\D/g, "" ).slice( 0, 8 );
+
+	return digits.slice( 0, 2 ) + ( digits.length > 2 ? "/" + digits.slice( 2, 4 ) : "" ) +
+		( digits.length > 4 ? "/" + digits.slice( 4 ) : "" );
+};
+
 OSApp.Dates.encodeDate = function( dateString ) {
 	var dateValues = OSApp.Dates.extractDateFromString( dateString );
-	if ( dateValues === null ) {
+	if ( !dateValues ) {
 		return -1;
 	}
 	var dateToEncode = dateValues[ 0 ].split( "/", 2 );
 
-	var month = parseInt( dateToEncode[ 0 ] ),
-		day = parseInt( dateToEncode[ 1 ] );
+	var month = parseInt( dateToEncode[ 0 ], 10 ),
+		day = parseInt( dateToEncode[ 1 ], 10 );
+
+	if ( !OSApp.Dates.isValidDateFormat( dateString ) ) {
+		return -1;
+	}
 
 	return ( month << 5 ) + day;
 };
@@ -108,11 +152,55 @@ OSApp.Dates.decodeDate = function( dateValue ) {
 };
 
 OSApp.Dates.getTimezoneOffsetOS = function() {
-	var tz = OSApp.currentSession.controller.options.tz - 48,
-		sign = tz >= 0 ? 1 : -1;
+	var options = OSApp.currentSession && OSApp.currentSession.controller && OSApp.currentSession.controller.options,
+		tz = options ? Number( options.tz ) : NaN;
 
-	tz = ( ( Math.abs( tz ) / 4 >> 0 ) * 60 ) + ( ( Math.abs( tz ) % 4 ) * 15 / 10 >> 0 ) + ( ( Math.abs( tz ) % 4 ) * 15 % 10 );
-	return tz * sign;
+	// The controller stores timezone offsets in 15-minute units, biased by 48.
+	return Number.isFinite( tz ) ? ( tz - 48 ) * 15 : 0;
+};
+
+OSApp.Dates.parseTimezoneOffset = function( value ) {
+	var match = /^([+-])(\d{2}):(\d{2})$/.exec( String( value || "" ) );
+	if ( !match ) return undefined;
+
+	var hours = Number( match[ 2 ] ),
+		minutes = Number( match[ 3 ] ),
+		offset = hours * 60 + minutes;
+	if ( minutes > 59 || minutes % 15 !== 0 || offset > 15 * 60 ||
+		( match[ 1 ] === "-" && offset > 12 * 60 ) ) {
+		return undefined;
+	}
+
+	return match[ 1 ] === "-" ? -offset : offset;
+};
+
+OSApp.Dates.formatTimezoneOffset = function( offsetMinutes ) {
+	offsetMinutes = Number( offsetMinutes );
+	if ( !Number.isInteger( offsetMinutes ) || offsetMinutes % 15 !== 0 ||
+		offsetMinutes < -12 * 60 || offsetMinutes > 15 * 60 ) {
+		return undefined;
+	}
+
+	var absolute = Math.abs( offsetMinutes );
+	return ( offsetMinutes < 0 ? "-" : "+" ) + OSApp.Utils.pad( Math.floor( absolute / 60 ) ) +
+		":" + OSApp.Utils.pad( absolute % 60 );
+};
+
+// Convert a real Unix timestamp to a Date whose UTC fields represent the
+// controller's wall clock. Reading UTC fields keeps display independent of the
+// browser timezone and avoids applying daylight-saving rules from the browser.
+OSApp.Dates.controllerDateFromUnix = function( epochSeconds ) {
+	var seconds = Number( epochSeconds );
+
+	if ( !Number.isFinite( seconds ) ) {
+		return new Date( NaN );
+	}
+
+	return new Date( ( seconds + OSApp.Dates.getTimezoneOffsetOS() * 60 ) * 1000 );
+};
+
+OSApp.Dates.currentControllerDate = function() {
+	return OSApp.Dates.controllerDateFromUnix( Date.now() / 1000 );
 };
 
 // Credit Stacktrace
@@ -162,84 +250,92 @@ OSApp.Dates.humaniseDuration = function( base, relative ) {
 	}
 };
 
-OSApp.Dates.dateToString = function( date, toUTC, shorten ) {
-	if (!date) {
-		return '--';
+OSApp.Dates.format12Hour = function( hours, minutes, seconds ) {
+	hours = ( Number( hours ) % 24 + 24 ) % 24;
+	minutes = Number( minutes );
+
+	var period = hours >= 12 ? "PM" : "AM",
+		displayHour = hours % 12 || 12,
+		result = displayHour + ":" + OSApp.Utils.pad( minutes );
+
+	if ( seconds !== undefined ) {
+		result += ":" + OSApp.Utils.pad( Number( seconds ) );
 	}
 
-	var dayNames = [ OSApp.Language._( "Sun" ), OSApp.Language._( "Mon" ), OSApp.Language._( "Tue" ),
-					OSApp.Language._( "Wed" ), OSApp.Language._( "Thu" ), OSApp.Language._( "Fri" ), OSApp.Language._( "Sat" ) ],
-		monthNames = [ OSApp.Language._( "Jan" ), OSApp.Language._( "Feb" ), OSApp.Language._( "Mar" ), OSApp.Language._( "Apr" ), OSApp.Language._( "May" ), OSApp.Language._( "Jun" ),
-					OSApp.Language._( "Jul" ), OSApp.Language._( "Aug" ), OSApp.Language._( "Sep" ), OSApp.Language._( "Oct" ), OSApp.Language._( "Nov" ), OSApp.Language._( "Dec" ) ];
+	return result + " " + period;
+};
 
-	if ( date.getTime() === 0 ) {
+OSApp.Dates.formatDisplayYear = function( year ) {
+	var value = Number( year ),
+		sign = value < 0 ? "-" : "",
+		result = String( Math.abs( value ) );
+
+	if ( !Number.isSafeInteger( value ) ) return String( year );
+	while ( result.length < 4 ) result = "0" + result;
+	return sign + result;
+};
+
+OSApp.Dates.dateOnly = function( date, toUTC ) {
+	if ( !date || !Number.isFinite( date.getTime() ) ) {
 		return "--";
 	}
 
-	if ( toUTC !== false ) {
-		date.setMinutes( date.getMinutes() + date.getTimezoneOffset() );
+	var prefix = toUTC === false ? "get" : "getUTC";
+
+	return OSApp.Utils.pad( date[ prefix + "Month" ]() + 1 ) + "/" +
+		OSApp.Utils.pad( date[ prefix + "Date" ]() ) + "/" +
+		OSApp.Dates.formatDisplayYear( date[ prefix + "FullYear" ]() );
+};
+
+OSApp.Dates.timeToString = function( date, toUTC, includeSeconds ) {
+	if ( !date || !Number.isFinite( date.getTime() ) ) {
+		return "--";
 	}
 
-	var period = "";
-	var hours = date.getHours();
-	if ( !OSApp.uiState.is24Hour ) {
-		if ( hours > 12 ) {
-			hours = hours - 12;
-			period = " PM";
-		} else if (hours === 0 ) {
-			hours = 12;
-			period = " AM";
-		} else if ( hours === 12 ) {
-			period = " PM";
-		} else {
-			period = " AM";
-		}
-	} else {
-		hours = OSApp.Utils.pad( hours );
+	var prefix = toUTC === false ? "get" : "getUTC",
+		hours = date[ prefix + "Hours" ](),
+		minutes = date[ prefix + "Minutes" ](),
+		seconds = includeSeconds === false ? undefined : date[ prefix + "Seconds" ]();
+
+	if ( OSApp.uiState && OSApp.uiState.is24Hour ) {
+		return OSApp.Utils.pad( hours ) + ":" + OSApp.Utils.pad( minutes ) +
+			( seconds === undefined ? "" : ":" + OSApp.Utils.pad( seconds ) );
 	}
 
-	if ( OSApp.currentSession.lang === "de" ) {
-		return OSApp.Utils.pad( date.getDate() ) + "." + OSApp.Utils.pad( date.getMonth() + 1 ) + "." +
-				date.getFullYear() + " " + hours + ":" +
-				OSApp.Utils.pad( date.getMinutes() ) + ":" + OSApp.Utils.pad( date.getSeconds() ) + period;
-	} else {
-		if ( shorten === 1 ) {
-			return monthNames[ date.getMonth() ] + " " + OSApp.Utils.pad( date.getDate() ) + ", " +
-					date.getFullYear() + " " + hours + ":" +
-					OSApp.Utils.pad( date.getMinutes() ) + ":" + OSApp.Utils.pad( date.getSeconds() ) + period;
-		} else if ( shorten === 2 ) {
-			return monthNames[ date.getMonth() ] + " " + OSApp.Utils.pad( date.getDate() ) + ", " +
-					hours + ":" + OSApp.Utils.pad( date.getMinutes() ) + ":" +
-					OSApp.Utils.pad( date.getSeconds() ) + period;
-		} else {
-			return dayNames[ date.getDay() ] + ", " + OSApp.Utils.pad( date.getDate() ) + " " +
-					monthNames[ date.getMonth() ] + " " + date.getFullYear() + " " +
-					hours + ":" + OSApp.Utils.pad( date.getMinutes() ) + ":" +
-					OSApp.Utils.pad( date.getSeconds() ) + period;
-		}
-	}
+	return OSApp.Dates.format12Hour( hours, minutes, seconds );
+};
+
+OSApp.Dates.dateTimeNoSeconds = function( date, toUTC ) {
+	var dateText = OSApp.Dates.dateOnly( date, toUTC ),
+		timeText = OSApp.Dates.timeToString( date, toUTC, false );
+
+	return dateText === "--" || timeText === "--" ? "--" : dateText + " " + timeText;
+};
+
+OSApp.Dates.dateToString = function( date, toUTC ) {
+	var dateText = OSApp.Dates.dateOnly( date, toUTC ),
+		timeText = OSApp.Dates.timeToString( date, toUTC, true );
+
+	return dateText === "--" || timeText === "--" ? "--" : dateText + " " + timeText;
 };
 
 OSApp.Dates.minutesToTime = function( minutes ) {
-	var period = minutes > 719 ? "PM" : "AM",
-		hour = parseInt( minutes / 60 ) % 12;
-
-	if ( hour === 0 ) {
-		hour = 12;
+	minutes = Number( minutes );
+	if ( OSApp.uiState && OSApp.uiState.is24Hour ) {
+		return OSApp.Utils.pad( Math.floor( minutes / 60 ) % 24 ) + ":" + OSApp.Utils.pad( minutes % 60 );
 	}
-
-	return OSApp.uiState.is24Hour ? ( OSApp.Utils.pad( ( minutes / 60 >> 0 ) % 24 ) + ":" + OSApp.Utils.pad( minutes % 60 ) ) : ( hour + ":" + OSApp.Utils.pad( minutes % 60 ) + " " + period );
+	return OSApp.Dates.format12Hour( Math.floor( minutes / 60 ), minutes % 60 );
 };
 
 // Return day of the week
-OSApp.Dates.getDayName = function( day, type ) {
+OSApp.Dates.getDayName = function( day, type, toUTC ) {
 	var ldays = [ OSApp.Language._( "Sunday" ), OSApp.Language._( "Monday" ), OSApp.Language._( "Tuesday" ), OSApp.Language._( "Wednesday" ), OSApp.Language._( "Thursday" ), OSApp.Language._( "Friday" ), OSApp.Language._( "Saturday" ) ],
 		sdays = [ OSApp.Language._( "Sun" ), OSApp.Language._( "Mon" ), OSApp.Language._( "Tue" ), OSApp.Language._( "Wed" ), OSApp.Language._( "Thu" ), OSApp.Language._( "Fri" ), OSApp.Language._( "Sat" ) ];
 
 	if ( type === "short" ) {
-		return sdays[ day.getDay() ];
+		return sdays[ toUTC === false ? day.getDay() : day.getUTCDay() ];
 	} else {
-		return ldays[ day.getDay() ];
+		return ldays[ toUTC === false ? day.getDay() : day.getUTCDay() ];
 	}
 };
 
@@ -305,21 +401,28 @@ OSApp.Dates.dhms2sec = function( arr ) {
 OSApp.Dates.dateToEpoch = function( dateString ) {
 	//return epoch days from date
 	var dateValues = OSApp.Dates.extractDateFromStringYear( dateString );
-	if ( dateValues === null ) {
+	if ( !dateValues ) {
 		return -1;
 	}
 
 	dateValues = dateValues[ 0 ].split( "/" );
-	var date = new Date(Date.UTC(parseInt(dateValues[ 2 ]), parseInt(dateValues[ 0 ]) - 1, parseInt(dateValues[ 1 ])));
+	var year = parseInt( dateValues[ 2 ], 10 ),
+		month = parseInt( dateValues[ 0 ], 10 ),
+		day = parseInt( dateValues[ 1 ], 10 ),
+		date = new Date( Date.UTC( year, month - 1, day ) );
 
-	return Math.floor(date.getTime() / (1000 * 86400));
+	if ( date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day ) {
+		return -1;
+	}
+
+	return Math.floor( date.getTime() / ( 1000 * 86400 ) );
 };
 
 OSApp.Dates.epochToDate = function( epochTime ) {
 	//return a date string from an epoch time in days
 	var date = new Date(epochTime * (1000 * 86400) );
 
-	return (date.getUTCMonth() + 1) + "/" + date.getUTCDate() + "/" + date.getUTCFullYear();
+	return OSApp.Utils.pad( date.getUTCMonth() + 1 ) + "/" + OSApp.Utils.pad( date.getUTCDate() ) + "/" + date.getUTCFullYear();
 };
 
 OSApp.Dates.isLastDayOfMonth = function( month, year, day ) {

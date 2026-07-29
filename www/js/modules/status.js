@@ -20,6 +20,9 @@ OSApp.Status = OSApp.Status || {};
 // Current status related functions
 OSApp.Status.refreshStatus = function( callback ) {
 	callback = callback || function() {};
+	if ( OSApp.ImportExport && OSApp.ImportExport.isImportInProgress() ) {
+		return $.Deferred().resolve().promise();
+	}
 	if ( !OSApp.currentSession.isControllerConnected() ) {
 		return;
 	}
@@ -33,13 +36,11 @@ OSApp.Status.refreshStatus = function( callback ) {
 	};
 
 	if ( OSApp.Firmware.checkOSVersion( 216 ) ) {
-		OSApp.Sites.updateController( finish, OSApp.Network.networkFail );
+		return OSApp.Sites.updateController( finish, OSApp.Network.networkFail );
 	} else {
-		$.when(
-			OSApp.Sites.updateControllerStatus(),
-			OSApp.Sites.updateControllerSettings(),
-			OSApp.Sites.updateControllerOptions()
-		).then( finish, OSApp.Network.networkFail );
+		return OSApp.Sites.updateControllerSnapshot( [
+			"updateControllerOptions", "updateControllerSettings", "updateControllerStatus"
+		] ).then( finish, OSApp.Network.networkFail );
 	}
 };
 
@@ -47,7 +48,9 @@ OSApp.Status.refreshStatus = function( callback ) {
 OSApp.Status.changeStatus = function( seconds, color, line, onclick ) {
 	onclick = onclick || function() {};
 	var footer = $( "#footer-running" ),
-		html = "";
+		html = "",
+		current = OSApp.currentSession.isControllerConnected() ?
+			OSApp.Utils.coerceFiniteNumber( OSApp.currentSession.controller.settings.curr ) : undefined;
 
 	if ( seconds > 1 ) {
 		OSApp.uiState.timers.statusbar = {
@@ -59,8 +62,8 @@ OSApp.Status.changeStatus = function( seconds, color, line, onclick ) {
 		};
 	}
 
-	if ( OSApp.currentSession.isControllerConnected() && typeof OSApp.currentSession.controller.settings.curr !== "undefined" ) {
-		html += OSApp.Language._( "Current" ) + ": " + OSApp.currentSession.controller.settings.curr + " mA ";
+	if ( typeof current !== "undefined" ) {
+		html += OSApp.Language._( "Current" ) + ": " + OSApp.Utils.htmlEscape( current ) + " mA ";
 	}
 
 	if (
@@ -95,9 +98,9 @@ OSApp.Status.checkStatus = function() {
 		OSApp.Status.changeStatus( 0, "blue", "<p class='running-text center pointer'>" + OSApp.Language._( "Configured as Extender" ) + "</p>", function() {
 			OSApp.UIDom.areYouSure( OSApp.Language._( "Do you wish to disable extender mode?" ), "", function() {
 				OSApp.UIDom.showLoading( "#footer-running" );
-				OSApp.Firmware.sendToOS( "/cv?pw=&re=0" ).done( function() {
-					OSApp.Sites.updateController();
-				} );
+					OSApp.Firmware.sendToOS( "/cv?pw=&re=0" ).done( function() {
+						OSApp.Sites.updateController();
+					} ).fail( OSApp.Status.checkStatus );
 			} );
 		} );
 		return;
@@ -108,9 +111,9 @@ OSApp.Status.checkStatus = function() {
 		OSApp.Status.changeStatus( 0, "blue", "<p class='running-text center pointer'>" + OSApp.Language._( "System Disabled" ) + "</p>", function() {
 			OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to re-enable system operation?" ), "", function() {
 				OSApp.UIDom.showLoading( "#footer-running" );
-				OSApp.Firmware.sendToOS( "/cv?pw=&en=1" ).done( function() {
-					OSApp.Sites.updateController();
-				} );
+					OSApp.Firmware.sendToOS( "/cv?pw=&en=1" ).done( function() {
+						OSApp.Sites.updateController();
+					} ).fail( OSApp.Status.checkStatus );
 			} );
 		} );
 		return;
@@ -156,7 +159,7 @@ OSApp.Status.checkStatus = function() {
 
 		sample = Object.keys( open )[ 0 ];
 		pid    = OSApp.Stations.getPID( sample );
-		pname  = OSApp.Programs.pidToName( pid );
+		pname  = OSApp.Utils.htmlEscape( OSApp.Programs.pidToName( pid ) );
 		line   = "<div><div class='running-icon'></div><div class='running-text pointer'>";
 
 		line += pname + " " + OSApp.Language._( "is running on" ) + " " + Object.keys( open ).length + " " + OSApp.Language._( "stations" ) + " ";
@@ -174,9 +177,9 @@ OSApp.Status.checkStatus = function() {
 		if ( OSApp.currentSession.controller.settings.ps[ i ] && OSApp.Stations.getPID( i ) && OSApp.Stations.getStatus( i ) && !OSApp.Stations.isMaster( i ) ) {
 			match = true;
 			pid = OSApp.Stations.getPID( i );
-			pname = OSApp.Programs.pidToName( pid );
+			pname = OSApp.Utils.htmlEscape( OSApp.Programs.pidToName( pid ) );
 			line = "<div><div class='running-icon'></div><div class='running-text pointer'>";
-			line += pname + " " + OSApp.Language._( "is running on station" ) + " <span class='nobr'>" + OSApp.Stations.getName( i ) + "</span> ";
+			line += pname + " " + OSApp.Language._( "is running on station" ) + " <span class='nobr'>" + OSApp.Utils.htmlEscape( OSApp.Stations.getName( i ) ) + "</span> ";
 			if ( OSApp.Stations.getRemainingRuntime( i ) > 0 ) {
 				line += "<span id='countdown' class='nobr'>(" + OSApp.Dates.sec2hms( OSApp.Stations.getRemainingRuntime( i ) ) + " " + OSApp.Language._( "remaining" ) + ")</span>";
 			}
@@ -191,9 +194,10 @@ OSApp.Status.checkStatus = function() {
 	}
 
 	// Show overcurrent fault status
-	if ( OSApp.currentSession.controller.settings.ocs ) {
+	var overcurrentStation = OSApp.Utils.coerceFiniteNumber( OSApp.currentSession.controller.settings.ocs );
+	if ( typeof overcurrentStation !== "undefined" && overcurrentStation !== 0 ) {
 		OSApp.Status.changeStatus( 0, "red", "<p class='running-text center pointer'>" + OSApp.Language._( "Overcurrent Fault detected" ) +
-			( OSApp.currentSession.controller.settings.ocs === 255 ? "" : ( OSApp.Language._( " when opening Station " ) + OSApp.currentSession.controller.settings.ocs ) ) + "!</p>",
+			( overcurrentStation === 255 ? "" : ( OSApp.Language._( " when opening Station " ) + OSApp.Utils.htmlEscape( overcurrentStation ) ) ) + "!</p>",
 			function() {
 				var infoText = OSApp.Language._(
 					"The controller detected one or more zones drawing too much current, exceeding the limit. " +
@@ -243,9 +247,9 @@ OSApp.Status.checkStatus = function() {
 			function() {
 				OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to turn off rain delay?" ), "", function() {
 					OSApp.UIDom.showLoading( "#footer-running" );
-					OSApp.Firmware.sendToOS( "/cv?pw=&rd=0" ).done( function() {
-						OSApp.Status.refreshStatus( OSApp.Weather.updateWeather );
-					} );
+						OSApp.Firmware.sendToOS( "/cv?pw=&rd=0" ).done( function() {
+							OSApp.Status.refreshStatus( OSApp.Weather.updateWeather );
+						} ).fail( OSApp.Status.checkStatus );
 				} );
 			}
 		);
@@ -273,9 +277,9 @@ OSApp.Status.checkStatus = function() {
 		OSApp.Status.changeStatus( 0, "blue", "<p class='running-text center pointer'>" + OSApp.Language._( "Manual mode enabled" ) + "</p>", function() {
 			OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to turn off manual mode?" ), "", function() {
 				OSApp.UIDom.showLoading( "#footer-running" );
-				OSApp.Firmware.sendToOS( "/cv?pw=&mm=0" ).done( function() {
-					OSApp.Sites.updateController();
-				} );
+					OSApp.Firmware.sendToOS( "/cv?pw=&mm=0" ).done( function() {
+						OSApp.Sites.updateController();
+					} ).fail( OSApp.Status.checkStatus );
 			} );
 		} );
 		return;
@@ -286,10 +290,10 @@ OSApp.Status.checkStatus = function() {
 	// If last run duration is given, add it to the footer
 	if ( lrdur !== 0 ) {
 		var lrpid = OSApp.currentSession.controller.settings.lrun[ 1 ];
-		pname = OSApp.Programs.pidToName( lrpid );
+		pname = OSApp.Utils.htmlEscape( OSApp.Programs.pidToName( lrpid ) );
 
 		OSApp.Status.changeStatus( 0, "transparent", "<p class='running-text smaller center pointer'>" + pname + " " + OSApp.Language._( "last ran station" ) + " " +
-		OSApp.Stations.getName( OSApp.currentSession.controller.settings.lrun[ 0 ] ) + " " + OSApp.Language._( "for" ) + " " + ( lrdur / 60 >> 0 ) + "m " + ( lrdur % 60 ) + "s " +
+		OSApp.Utils.htmlEscape( OSApp.Stations.getName( OSApp.currentSession.controller.settings.lrun[ 0 ] ) ) + " " + OSApp.Language._( "for" ) + " " + ( lrdur / 60 >> 0 ) + "m " + ( lrdur % 60 ) + "s " +
 			OSApp.Language._( "on" ) + " " + OSApp.Dates.dateToString( new Date( ( OSApp.currentSession.controller.settings.lrun[ 3 ] - lrdur ) * 1000 ) ) + "</p>", OSApp.UIDom.goHome );
 		return;
 	}

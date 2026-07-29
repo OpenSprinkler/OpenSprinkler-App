@@ -41,8 +41,11 @@ OSApp.Notifications.updateNotificationBadge = function() {
 };
 
 OSApp.Notifications.createNotificationItem = function( item ) {
-	var listItem = $( "<li><a class='primary' href='#'><h2>" + item.title + "</h2>" + ( item.desc ? "<p>" + item.desc + "</p>" : "" ) +
-		"</a><a class='ui-btn ui-btn-icon-notext ui-icon-delete'></a></li>" );
+	var listItem = $( "<li><a class='primary' href='#'><h2></h2>" + ( item.desc ? "<p></p>" : "" ) +
+		"</a><a class='ui-btn ui-btn-icon-notext ui-icon-delete'></a></li>" ).data( "notification", item );
+
+	listItem.find( "h2" ).text( item.title );
+	listItem.find( "p" ).text( item.desc );
 
 	listItem.find( ".primary" ).on( "click", item.on );
 	listItem.find( ".ui-icon-delete" ).on( "click", function() {
@@ -103,7 +106,13 @@ OSApp.Notifications.clearNotifications = function() {
 
 OSApp.Notifications.removeNotification = function( button ) {
 	var panel = $( "#notificationPanel" ),
-		off = OSApp.uiState.notifications[ button.index() - 1 ].off;
+		item = button.data( "notification" ),
+		index = OSApp.uiState.notifications.indexOf( item ),
+		off = item && item.off;
+
+	if ( index === -1 ) {
+		return;
+	}
 
 	if ( typeof off === "function" ) {
 		if ( !off() ) {
@@ -111,7 +120,7 @@ OSApp.Notifications.removeNotification = function( button ) {
 		}
 	}
 
-	OSApp.uiState.notifications.remove( button.index() - 1 );
+	OSApp.uiState.notifications.splice( index, 1 );
 	button.remove();
 	OSApp.Notifications.updateNotificationBadge();
 	if ( OSApp.uiState.notifications.length === 0 && panel.hasClass( "ui-panel-open" ) ) {

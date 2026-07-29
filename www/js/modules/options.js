@@ -17,6 +17,60 @@
 var OSApp = OSApp || {};
 OSApp.Options = OSApp.Options || {};
 
+OSApp.Options.mapOptionIdForOSPi = function( id ) {
+	if ( id === "loc" || id === "lg" ) return "o" + id;
+	var match = /^o(\d+)$/.exec( id );
+	if ( !match ) return null;
+	var index = Number( match[ 1 ] ),
+		key = Object.keys( OSApp.Constants.keyIndex ).find( function( name ) {
+			return OSApp.Constants.keyIndex[ name ] === index;
+		} );
+	return key ? "o" + key : null;
+};
+
+OSApp.Options.clearStationMetadata = function( siteName ) {
+	var saved = $.Deferred();
+	OSApp.Storage.get( "sites", function( data ) {
+		var sites = OSApp.Sites.parseSites( data.sites ),
+			site = sites[ siteName ];
+		if ( !site ) {
+			saved.reject( { statusText:"missing-site" } );
+			return;
+		}
+
+		site.notes = {};
+		site.images = {};
+		site.lastRunTime = {};
+		OSApp.Storage.set( { sites:JSON.stringify( sites ) }, function() {
+			OSApp.Network.cloudSaveSites();
+			saved.resolve();
+		} );
+	} );
+	return saved.promise();
+};
+
+OSApp.Options.getManualTimeOptions = function( controllerWallEpoch, timezoneOffsetMinutes, usesUtcClock ) {
+	var wallEpoch = Math.round( Number( controllerWallEpoch ) ),
+		offsetMinutes = Number( timezoneOffsetMinutes ),
+		date = new Date( wallEpoch * 1000 ),
+		deviceEpoch = wallEpoch - ( usesUtcClock ? offsetMinutes * 60 : 0 );
+
+	if ( !Number.isFinite( wallEpoch ) || !Number.isInteger( offsetMinutes ) ||
+		offsetMinutes % 15 !== 0 || offsetMinutes < -12 * 60 || offsetMinutes > 15 * 60 ||
+		!Number.isFinite( date.getTime() ) || deviceEpoch < 0 || deviceEpoch > 0xffffffff ) {
+		return null;
+	}
+
+	return {
+		yy: date.getUTCFullYear(),
+		mm: date.getUTCMonth(),
+		dd: date.getUTCDate(),
+		hh: date.getUTCHours(),
+		mi: date.getUTCMinutes(),
+		tt: deviceEpoch
+	};
+};
+
 // FIXME: please, please, please refactor me!
 // Device setting management functions
 OSApp.Options.showOptions = function( expandItem ) {
@@ -27,7 +81,32 @@ OSApp.Options.showOptions = function( expandItem ) {
 				"</div>" +
 				"<a class='submit preventBack' style='display:none'></a>" +
 			"</div>" +
-		"</div>" ),
+			"</div>" ),
+		apiVerificationRequest,
+		optionsGeneration = OSApp.currentSession.generation || 0,
+		optionsEndpoint = String( OSApp.currentSession.token || "" ) + "|" +
+			String( OSApp.currentSession.prefix || "" ) + String( OSApp.currentSession.ip || "" ),
+			pageActive = true,
+			optionsRequest,
+			resetStationsRequest,
+			optionsLoaderOwned = false,
+			isOptionsSessionCurrent = function() {
+				return pageActive && optionsGeneration === ( OSApp.currentSession.generation || 0 ) &&
+					optionsEndpoint === String( OSApp.currentSession.token || "" ) + "|" +
+						String( OSApp.currentSession.prefix || "" ) + String( OSApp.currentSession.ip || "" );
+			},
+			readRestrictionValue = function( input, decimal, minimum, maximum ) {
+				var match = String( input.val() || "" ).match( decimal ? /^\s*(-?\d+(?:\.\d+)?)/ : /^\s*(-?\d+)/ ),
+					value = match ? Number( match[ 1 ] ) : NaN;
+				return Number.isFinite( value ) && value >= minimum && value <= maximum ? value : null;
+			},
+			cancelAPIKeyVerification = function() {
+			if ( apiVerificationRequest && typeof apiVerificationRequest.abort === "function" ) {
+				apiVerificationRequest.abort();
+			}
+			apiVerificationRequest = null;
+			page.find( "#verify-api" ).prop( "disabled", false );
+		},
 		generateSensorOptions = function( index, sensorType, number ) {
 			return "<div class='ui-field-contain'>" +
 				"<fieldset data-role='controlgroup' class='ui-mini center sensor-options' data-type='horizontal'>" +
@@ -49,13 +128,13 @@ OSApp.Options.showOptions = function( expandItem ) {
 			var opt = {},
 				invalid = false,
 				isPi = OSApp.Firmware.isOSPi(),
-				button = header.eq( 2 ),
-				key;
+				button = header.eq( 2 );
+			if ( !isOptionsSessionCurrent() || optionsRequest ) return;
 
 			button.prop( "disabled", true );
 			page.find( ".submit" ).removeClass( "hasChanges" );
 
-			page.find( "#os-options-list" ).find( ":input,button" ).filter( ":not(.noselect)" ).each( function() {
+			page.find( "#os-options-list" ).find( ":input,button" ).filter( ":not(.noselect):enabled" ).each( function() {
 				var $item = $( this ),
 					id = $item.attr( "id" ),
 					data = $item.val(),
@@ -75,20 +154,33 @@ OSApp.Options.showOptions = function( expandItem ) {
 						data = ( ( tz[ 0 ] + 12 ) * 4 ) >> 0;
 						break;
 					case "datetime":
-						var dt = new Date( data * 1000 );
+						if ( !$item.data( "timeChanged" ) ) return true;
 
-						opt.tyy = dt.getUTCFullYear();
-						opt.tmm = dt.getUTCMonth();
-						opt.tdd = dt.getUTCDate();
-						opt.thh = dt.getUTCHours();
-						opt.tmi = dt.getUTCMinutes();
-						opt.ttt = Math.round( dt.getTime() / 1000 );
+						var timezoneOffset = OSApp.Dates.parseTimezoneOffset( page.find( "#o1" ).val() );
+						if ( typeof timezoneOffset === "undefined" ) {
+							timezoneOffset = OSApp.Dates.getTimezoneOffsetOS();
+						}
+						var manualTime = OSApp.Options.getManualTimeOptions(
+							data, timezoneOffset, OSApp.Firmware.checkOSVersion( 213 )
+						);
+						if ( !manualTime ) {
+							OSApp.Errors.showError( OSApp.Language._( "Please enter a valid device time" ) );
+							invalid = true;
+							return false;
+						}
+
+						opt.tyy = manualTime.yy;
+						opt.tmm = manualTime.mm;
+						opt.tdd = manualTime.dd;
+						opt.thh = manualTime.hh;
+						opt.tmi = manualTime.mi;
+						opt.ttt = manualTime.tt;
 
 						return true;
 					case "ip_addr":
-						ip = data.split( "." );
+						ip = OSApp.Utils.parseIPv4( data );
 
-						if ( ip === "0.0.0.0" ) {
+						if ( !ip || ip.every( function( octet ) { return octet === 0; } ) ) {
 							OSApp.Errors.showError( OSApp.Language._( "A valid IP address is required when DHCP is not used" ) );
 							invalid = true;
 							return false;
@@ -101,9 +193,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 						return true;
 					case "subnet":
-						ip = data.split( "." );
+						ip = OSApp.Utils.parseIPv4( data );
 
-						if ( ip === "0.0.0.0" ) {
+						if ( !ip || ip.every( function( octet ) { return octet === 0; } ) ) {
 							OSApp.Errors.showError( OSApp.Language._( "A valid subnet address is required when DHCP is not used" ) );
 							invalid = true;
 							return false;
@@ -116,9 +208,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 						return true;
 					case "gateway":
-						ip = data.split( "." );
+						ip = OSApp.Utils.parseIPv4( data );
 
-						if ( ip === "0.0.0.0" ) {
+						if ( !ip || ip.every( function( octet ) { return octet === 0; } ) ) {
 							OSApp.Errors.showError( OSApp.Language._( "A valid gateway address is required when DHCP is not used" ) );
 							invalid = true;
 							return false;
@@ -131,9 +223,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 						return true;
 					case "dns":
-						ip = data.split( "." );
+						ip = OSApp.Utils.parseIPv4( data );
 
-						if ( ip === "0.0.0.0" ) {
+						if ( !ip || ip.every( function( octet ) { return octet === 0; } ) ) {
 							OSApp.Errors.showError( OSApp.Language._( "A valid DNS address is required when DHCP is not used" ) );
 							invalid = true;
 							return false;
@@ -146,7 +238,12 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 						return true;
 					case "ntp_addr":
-						ip = data.split( "." );
+						ip = OSApp.Utils.parseIPv4( data );
+						if ( !ip ) {
+							OSApp.Errors.showError( OSApp.Language._( "A valid NTP address is required" ) );
+							invalid = true;
+							return false;
+						}
 
 						opt.o32 = ip[ 0 ];
 						opt.o33 = ip[ 1 ];
@@ -273,14 +370,10 @@ OSApp.Options.showOptions = function( expandItem ) {
 						}
 						break;
 				}
-				if ( isPi ) {
-					if ( id === "loc" || id === "lg" ) {
-						id = "o" + id;
-					} else {
-						key = /\d+/.exec( id );
-						id = "o" + Object.keys( OSApp.Constants.keyIndex ).find( function( index ) { return OSApp.Constants.keyIndex[ index ] === key; } );
+					if ( isPi ) {
+						id = OSApp.Options.mapOptionIdForOSPi( id );
+						if ( !id ) return true;
 					}
-				}
 
 				// Because the firmware has a bug regarding spaces, let us replace them out now with a compatible separator
 				if ( OSApp.Firmware.checkOSVersion( 208 ) === true && id === "loc" ) {
@@ -311,17 +404,28 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 			opt = OSApp.Utils.transformKeys( opt );
 			$.mobile.loading( "show" );
+			optionsLoaderOwned = true;
 
-			OSApp.Firmware.sendToOS( "/co?pw=&" + $.param( opt ) ).done( function() {
+			var request = OSApp.Firmware.sendToOS( "/co?pw=&" + $.param( opt ) );
+			optionsRequest = request;
+			request.done( function() {
+				if ( !isOptionsSessionCurrent() || optionsRequest !== request ) return;
+				optionsRequest = null;
+				optionsLoaderOwned = false;
+				$.mobile.loading( "hide" );
 				$.mobile.document.one( "pageshow", function() {
 					OSApp.Errors.showError( OSApp.Language._( "Settings have been saved" ) );
 				} );
 				OSApp.UIDom.goBack();
 				OSApp.Sites.updateController( OSApp.Weather.updateWeather );
-			} ).fail( function() {
-				button.prop( "disabled", false );
-				page.find( ".submit" ).addClass( "hasChanges" );
-			} );
+				} ).fail( function( error ) {
+					if ( optionsRequest === request ) optionsRequest = null;
+					if ( !isOptionsSessionCurrent() ) return;
+					button.prop( "disabled", false );
+					page.find( ".submit" ).addClass( "hasChanges" );
+					optionsLoaderOwned = false;
+					OSApp.Firmware.settleLoadingFailure( error );
+				} );
 		},
 		header = OSApp.UIDom.changeHeader( {
 			title: OSApp.Language._( "Edit Options" ),
@@ -354,23 +458,28 @@ OSApp.Options.showOptions = function( expandItem ) {
 	list = "<fieldset data-role='collapsible'" + ( typeof expandItem !== "string" || expandItem === "system" ? " data-collapsed='false'" : "" ) + ">" +
 		"<legend>" + OSApp.Language._( "System" ) + "</legend>";
 
-	if ( typeof OSApp.currentSession.controller.options.ntp !== "undefined" ) {
+	var deviceTime = OSApp.Utils.coerceFiniteNumber( OSApp.currentSession.controller.settings.devt ),
+		deviceDate = typeof deviceTime === "undefined" ? undefined : new Date( deviceTime * 1000 );
+	if ( typeof OSApp.currentSession.controller.options.ntp !== "undefined" && deviceTime >= 0 &&
+		deviceDate && isFinite( deviceDate.getTime() ) ) {
 		list += "<div class='ui-field-contain datetime-input'><label for='datetime'>" + OSApp.Language._( "Device Time" ) + "</label>" +
 			"<button " + ( OSApp.currentSession.controller.options.ntp ? "disabled " : "" ) + "data-mini='true' id='datetime' " +
-				"value='" + ( OSApp.currentSession.controller.settings.devt + ( new Date( OSApp.currentSession.controller.settings.devt * 1000 ).getTimezoneOffset() * 60 ) ) + "'>" +
-			OSApp.Dates.dateToString( new Date( OSApp.currentSession.controller.settings.devt * 1000 ) ).slice( 0, -3 ) + "</button></div>";
+				"value='" + deviceTime + "'>" +
+			( deviceTime === 0 ? "--" : OSApp.Dates.dateTimeNoSeconds( deviceDate ) ) + "</button></div>";
 	}
 
-	if ( !OSApp.Firmware.isOSPi() && typeof OSApp.currentSession.controller.options.tz !== "undefined" ) {
-		timezones = [ "-12:00", "-11:30", "-11:00", "-10:00", "-09:30", "-09:00", "-08:30", "-08:00", "-07:00", "-06:00",
-			"-05:00", "-04:30", "-04:00", "-03:30", "-03:00", "-02:30", "-02:00", "+00:00", "+01:00", "+02:00", "+03:00",
-			"+03:30", "+04:00", "+04:30", "+05:00", "+05:30", "+05:45", "+06:00", "+06:30", "+07:00", "+08:00", "+08:45",
-			"+09:00", "+09:30", "+10:00", "+10:30", "+11:00", "+11:30", "+12:00", "+12:45", "+13:00", "+13:45", "+14:00" ];
+	var rawControllerLocation = OSApp.currentSession.controller.settings.loc,
+		hasControllerLocation = typeof rawControllerLocation === "string" && rawControllerLocation.trim() !== "" && rawControllerLocation.trim() !== "''";
 
-		tz = OSApp.currentSession.controller.options.tz - 48;
-		tz = ( ( tz >= 0 ) ? "+" : "-" ) + OSApp.Utils.pad( ( Math.abs( tz ) / 4 >> 0 ) ) + ":" + ( ( Math.abs( tz ) % 4 ) * 15 / 10 >> 0 ) + ( ( Math.abs( tz ) % 4 ) * 15 % 10 );
+	if ( !OSApp.Firmware.isOSPi() && typeof OSApp.currentSession.controller.options.tz !== "undefined" ) {
+		timezones = [];
+		for ( i = -48; i <= 60; i++ ) {
+			timezones.push( OSApp.Dates.formatTimezoneOffset( i * 15 ) );
+		}
+
+		tz = OSApp.Dates.formatTimezoneOffset( OSApp.Dates.getTimezoneOffsetOS() );
 		list += "<div class='ui-field-contain'><label for='o1' class='select'>" + OSApp.Language._( "Timezone" ) + "</label>" +
-			"<select " + ( OSApp.Firmware.checkOSVersion( 210 ) && typeof OSApp.currentSession.weather === "object" ? "disabled='disabled' " : "" ) + "data-mini='true' id='o1'>";
+			"<select " + ( OSApp.Firmware.checkOSVersion( 210 ) && hasControllerLocation ? "disabled='disabled' " : "" ) + "data-mini='true' id='o1'>";
 
 		for ( i = 0; i < timezones.length; i++ ) {
 			list += "<option " + ( ( timezones[ i ] === tz ) ? "selected" : "" ) + " value='" + timezones[ i ] + "'>" + timezones[ i ] + "</option>";
@@ -378,10 +487,11 @@ OSApp.Options.showOptions = function( expandItem ) {
 		list += "</select></div>";
 	}
 
+	var controllerLocation = hasControllerLocation ? rawControllerLocation : OSApp.Language._( "Not specified" );
 	list += "<div class='ui-field-contain'>" +
 		"<label for='loc'>" + OSApp.Language._( "Location" ) + "</label>" +
-		"<button data-mini='true' id='loc' value='" + ( OSApp.currentSession.controller.settings.loc.trim() === "''" ? OSApp.Language._( "Not specified" ) : OSApp.currentSession.controller.settings.loc ) + "'>" +
-			"<span>" + OSApp.currentSession.controller.settings.loc + "</span>" +
+		"<button data-mini='true' id='loc' value='" + OSApp.Utils.htmlEscape( controllerLocation ) + "'>" +
+			"<span>" + OSApp.Utils.htmlEscape( controllerLocation ) + "</span>" +
 			"<a class='ui-btn btn-no-border ui-btn-icon-notext ui-icon-edit ui-btn-corner-all edit-loc'></a>" +
 			"<a class='ui-btn btn-no-border ui-btn-icon-notext ui-icon-delete ui-btn-corner-all clear-loc'></a>" +
 		"</button></div>";
@@ -438,7 +548,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 		for ( i = 0; i < OSApp.currentSession.controller.stations.snames.length; i++ ) {
 			list += "<option " + ( ( OSApp.Stations.isMaster( i ) === 1 ) ? "selected" : "" ) + " value='" + ( i + 1 ) + "'>" +
-				OSApp.Stations.getName( i ) + "</option>";
+					OSApp.Utils.htmlEscape( OSApp.Stations.getName( i ) ) + "</option>";
 
 			if ( !OSApp.Firmware.checkOSVersion( 214 ) && i === 7 ) {
 				break;
@@ -469,7 +579,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 			"</label><select data-mini='true' id='o37'><option value='0'>" + OSApp.Language._( "None" ) + "</option>";
 
 		for ( i = 0; i < OSApp.currentSession.controller.stations.snames.length; i++ ) {
-			list += "<option " + ( ( OSApp.Stations.isMaster( i ) === 2 ) ? "selected" : "" ) + " value='" + ( i + 1 ) + "'>" + OSApp.Stations.getName(i) +
+				list += "<option " + ( ( OSApp.Stations.isMaster( i ) === 2 ) ? "selected" : "" ) + " value='" + ( i + 1 ) + "'>" + OSApp.Utils.htmlEscape( OSApp.Stations.getName(i) ) +
 				"</option>";
 
 			if ( !OSApp.Firmware.checkOSVersion( 214 ) && i === 7 ) {
@@ -554,10 +664,10 @@ OSApp.Options.showOptions = function( expandItem ) {
 					"<button data-helptext='" +
 						OSApp.Language._( "Uses multiple days of historical weather data to calculate ETo or Zimmerman watering percentage for programs that run on a regular interval." ) +
 						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-					"<input data-mini='true' id='mda' type='checkbox' " + ( ( OSApp.currentSession.controller.settings.wto.mda === 100 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Adjust Interval Programs Using Multiple Days of Weather Data" ) + "</label></div>";
+						"<input data-mini='true' class='noselect' id='mda' type='checkbox' " + ( ( OSApp.currentSession.controller.settings.wto.mda === 100 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Adjust Interval Programs Using Multiple Days of Weather Data" ) + "</label></div>";
 			}
 			list += "<div class='ui-field-contain" + ( method === 0  ? " hidden" : "" ) + "'><label for='wto'>" + OSApp.Language._( "Adjustment Method Options" ) + "</label>" +
-				"<button data-mini='true' id='wto' value='" + OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto ) + "'>" +
+					"<button data-mini='true' id='wto' value='" + OSApp.Utils.htmlEscape( OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto ) ) + "'>" +
 					OSApp.Language._( "Tap to Configure" ) +
 				"</button></div>";
 		}
@@ -569,9 +679,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 					"<button data-helptext='" + OSApp.Language._( "Prevents watering when the selected restrictions are met." ) +
 						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 					"</label>" +
-					"<button data-mini='true' id='weatherRestriction' " +
-						( ( ( typeof wto.rainDays !== "undefined" && typeof wto.rainAmt !== "undefined" && wto.rainDays > 0 && wto.rainAmt > 0 ) || ( typeof wto.minTemp !== "undefined" && wto.minTemp !== -40 ) || ( typeof wto.cali !== "undefined" && wto.cali ) ) ? "class='blue' " : "" ) +
-						"value='" + (OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto )) + "'>" +
+						"<button data-mini='true' id='weatherRestriction' class='noselect" +
+							( ( ( typeof wto.rainDays !== "undefined" && typeof wto.rainAmt !== "undefined" && wto.rainDays > 0 && wto.rainAmt > 0 ) || ( typeof wto.minTemp !== "undefined" && wto.minTemp !== -40 ) || ( typeof wto.cali !== "undefined" && wto.cali ) ) ? " blue" : "" ) + "' " +
+						"value='" + OSApp.Utils.htmlEscape( OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto ) ) + "'>" +
 							OSApp.Language._( "Tap to Configure" ) +
 					"</button></div>";
 			} else {
@@ -595,7 +705,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 					"<button data-helptext='" +
 						OSApp.Language._( "Select your preferred weather service provider." ) +
 						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-				"</label><select data-mini='true' id='weatherSelect'>";
+				"</label><select data-mini='true' class='noselect' id='weatherSelect'>";
 			for ( i = 0; i < OSApp.Constants.weather.PROVIDERS.length; i++ ) {
 				var weatherProvider = OSApp.Weather.getWeatherProviderById( i );
 				list += "<option " + ( ( weatherProvider.id === OSApp.currentSession.controller.settings.wto.provider ) ? "selected" : "" ) + " value='" + weatherProvider.id + "'>" + weatherProvider.name + "</option>";
@@ -616,7 +726,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 							( ( OSApp.currentSession.controller.settings.wto.key && OSApp.currentSession.controller.settings.wto.key !== "" ) ? "" : "red " ) +
 							"ui-input-text controlgroup-textinput ui-btn ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'>" +
 								"<input data-role='none' data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' " +
-									"type='text' id='wtkey' value='" + ( OSApp.currentSession.controller.settings.wto.key || "" ) + "'>" +
+									"type='text' id='wtkey' value='" + OSApp.Utils.htmlEscape( OSApp.currentSession.controller.settings.wto.key || "" ) + "'>" +
 								"<a href='#' tabindex='-1' aria-hidden='true' data-helptext='" + OSApp.Language._( "An invalid API key has been detected." ) +
 									"' class='hidden help-icon ui-input-clear ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'>" +
 								"</a>" +
@@ -746,7 +856,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 								"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'>" +
 							"</button>" +
 						"</label>" +
-						"<button data-mini='true' id='otc' class=" + (OSApp.currentSession.controller.settings.otc.en ? "'blue'" : "''") + " value='" + OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.otc ) + "'>" +
+						"<button data-mini='true' id='otc' class=" + (OSApp.currentSession.controller.settings.otc.en ? "'blue'" : "''") + " value='" + OSApp.Utils.htmlEscape( OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.otc ) ) + "'>" +
 							OSApp.Language._( "Tap to Configure" ) +
 						"</button>" +
 					"</div>";
@@ -760,7 +870,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 								"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'>" +
 							"</button>" +
 						"</label>" +
-						"<button data-mini='true' id='mqtt' class=" + (OSApp.currentSession.controller.settings.mqtt.en ? "'blue'" : "''") + " value='" + OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.mqtt ) + "'>" +
+						"<button data-mini='true' id='mqtt' class=" + (OSApp.currentSession.controller.settings.mqtt.en ? "'blue'" : "''") + " value='" + OSApp.Utils.htmlEscape( OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.mqtt ) ) + "'>" +
 							OSApp.Language._( "Tap to Configure" ) +
 						"</button>" +
 					"</div>";
@@ -774,7 +884,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 								"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'>" +
 							"</button>" +
 						"</label>" +
-						"<button data-mini='true' id='email' class=" + (OSApp.currentSession.controller.settings.email.en ? "'blue'" : "''") + " value='" + OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.email ) + "'>" +
+						"<button data-mini='true' id='email' class=" + (OSApp.currentSession.controller.settings.email.en ? "'blue'" : "''") + " value='" + OSApp.Utils.htmlEscape( OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.email ) ) + "'>" +
 							OSApp.Language._( "Tap to Configure" ) +
 						"</button>" +
 					"</div>";
@@ -785,7 +895,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 				"<button data-helptext='" +
 					OSApp.Language._( "To enable IFTTT, a Webhooks key is required which can be obtained from https://ifttt.com" ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-			"</label><input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='ifkey' placeholder='IFTTT webhooks key' value='" + OSApp.currentSession.controller.settings.ifkey + "'>" +
+			"</label><input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='ifkey' placeholder='IFTTT webhooks key' value='" + OSApp.Utils.htmlEscape( OSApp.currentSession.controller.settings.ifkey ) + "'>" +
 			"</div>";
 
 			let ife2 = OSApp.currentSession.controller.options.ife2;
@@ -802,7 +912,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 				"<button data-helptext='" +
 					OSApp.Language._( "Device name is attached to all IFTTT and email notifications to help distinguish multiple devices" ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-			"</label><input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='dname' value=\"" + OSApp.currentSession.controller.settings.dname + "\">" +
+			"</label><input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='dname' value=\"" + OSApp.Utils.htmlEscape( OSApp.currentSession.controller.settings.dname ) + "\">" +
 			"</div>";
 		}
 	}
@@ -996,10 +1106,10 @@ OSApp.Options.showOptions = function( expandItem ) {
 				"<label id='loc-warning'></label>" +
 				"<input class='loc-entry' type='text' id='loc-entry' data-mini='true' maxlength='64' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
 				" placeholder='" + OSApp.Language._( "Enter GPS Coordinates" ) +
-				"' value='" + ( OSApp.currentSession.controller.settings.loc.trim() === "''" ? OSApp.Language._( "Not specified" ) : OSApp.currentSession.controller.settings.loc ) + "' required />" +
-				"<button class='locSubmit' data-theme='b'>" + OSApp.Language._( "Submit" ) + "</button>" +
-			"</div>" +
-		"</div>" );
+					"' value='" + OSApp.Utils.htmlEscape( controllerLocation ) + "' required />" +
+					"<button class='locSubmit' data-theme='b'>" + OSApp.Language._( "Submit" ) + "</button>" +
+				"</div>" +
+					"</div>" );
 
 		popup.find( ".locSubmit" ).on( "click", function() {
 			var input = popup.find( "#loc-entry" ).val();
@@ -1049,6 +1159,11 @@ OSApp.Options.showOptions = function( expandItem ) {
         page.find( "#is24Hour" ).on( "change", function() {
                 OSApp.uiState.is24Hour = this.checked;
                 OSApp.Storage.set( { is24Hour: this.checked } );
+				var datetime = page.find( "#datetime" ),
+					timestamp = Number( datetime.val() );
+				if ( datetime.length && Number.isFinite( timestamp ) ) {
+					datetime.text( timestamp === 0 ? "--" : OSApp.Dates.dateTimeNoSeconds( new Date( timestamp * 1000 ) ) );
+				}
                 return false;
         } );
 
@@ -1068,7 +1183,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 		var loc = $( this );
 
 		loc.prop( "disabled", true );
-		OSApp.Options.overlayMap( function( selected, station ) {
+		OSApp.Options.overlayMap( function( selected, station, locationName ) {
 			if ( selected === false ) {
 				if ( loc.val() === "" ) {
 					loc.removeClass( "green" );
@@ -1103,9 +1218,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 					}
 
 					loc.val( selected );
-					OSApp.Options.coordsToLocation( selected[ 0 ], selected[ 1 ], function( result ) {
-						loc.find( "span" ).text( result );
-					} );
+					loc.find( "span" ).text( typeof locationName === "string" ? locationName : selected.join( "," ) );
 				}
 				header.eq( 2 ).prop( "disabled", false );
 				page.find( ".submit" ).addClass( "hasChanges" );
@@ -1141,13 +1254,13 @@ OSApp.Options.showOptions = function( expandItem ) {
 			return;
 		}
 		var self = this,
-			options = $.extend( {}, {
+			options = OSApp.Weather.normalizeRestrictionOptions( $.extend( {}, {
 				cali: false,
 				rainDays: 0,
 				rainAmt: 0,
 				minTemp: -40
 			}, OSApp.currentSession.controller.settings.wto,
-			OSApp.Utils.unescapeJSON( self.value ) );
+			OSApp.Utils.unescapeJSON( self.value ) ) );
 
 		var rainUnit = " in";
 		var tempUnit = " \u00B0F";
@@ -1197,14 +1310,18 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 		OSApp.UIDom.holdButton( popup.find( "#incr1" ), function() {
 			const input = popup.find( "#rainAmt" );
-			const value = parseFloat( input.val().match( /[0-9.]+/g )[0] ) + 0.1;
+			const currentValue = readRestrictionValue( input, true, 0, 100 );
+			if ( currentValue === null ) return false;
+			const value = currentValue + 0.1;
 			if ( value > 100 ) return;
 			input.val( Math.round( value * 100 ) / 100 + rainUnit);
 			return false;
 		} );
 		OSApp.UIDom.holdButton( popup.find( "#decr1" ), function() {
 			const input = popup.find( "#rainAmt" );
-			const value = parseFloat( input.val().match( /[0-9.]+/g )[0] ) - 0.1;
+			const currentValue = readRestrictionValue( input, true, 0, 100 );
+			if ( currentValue === null ) return false;
+			const value = currentValue - 0.1;
 			if ( value < 0 ) return;
 			input.val( Math.round( value * 100 ) / 100 + rainUnit);
 			return false;
@@ -1212,14 +1329,18 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 		OSApp.UIDom.holdButton( popup.find( "#incr2" ), function() {
 			const input = popup.find( "#rainDays" );
-			const value = parseInt( input.val().match( /\d+/g )[0] ) + 1;
+			const currentValue = readRestrictionValue( input, false, 0, 10 );
+			if ( currentValue === null ) return false;
+			const value = currentValue + 1;
 			if ( value > 10 ) return;
 			input.val( value + " days");
 			return false;
 		} );
 		OSApp.UIDom.holdButton( popup.find( "#decr2" ), function() {
 			const input = popup.find( "#rainDays" );
-			const value = parseInt( input.val().match( /\d+/g )[0] ) - 1;
+			const currentValue = readRestrictionValue( input, false, 0, 10 );
+			if ( currentValue === null ) return false;
+			const value = currentValue - 1;
 			if ( value < 0 ) return;
 			input.val( value + " days");
 			return false;
@@ -1227,7 +1348,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 		OSApp.UIDom.holdButton( popup.find( "#incr3" ), function() {
 			const input = popup.find( "#minTemp" );
-			const value = parseInt( input.val().match( /^-?\d+/g )[0] ) + 1;
+			const currentValue = readRestrictionValue( input, false, -100, 100 );
+			if ( currentValue === null ) return false;
+			const value = currentValue + 1;
 			if ( value > 100 ) return;
 			input.val( value + tempUnit);
 			return false;
@@ -1235,7 +1358,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 		OSApp.UIDom.holdButton( popup.find( "#decr3" ), function() {
 			const input = popup.find( "#minTemp" );
-			const value = parseInt( input.val().match( /^-?\d+/g )[0] ) - 1;
+			const currentValue = readRestrictionValue( input, false, -100, 100 );
+			if ( currentValue === null ) return false;
+			const value = currentValue - 1;
 			if ( value < -100 ) return;
 			input.val( value + tempUnit);
 			return false;
@@ -1252,10 +1377,17 @@ OSApp.Options.showOptions = function( expandItem ) {
 		} );
 
 		popup.find( ".submit" ).on( "click", function() {
+			var rainAmount = readRestrictionValue( popup.find( "#rainAmt" ), true, 0, 100 ),
+				rainDays = readRestrictionValue( popup.find( "#rainDays" ), false, 0, 10 ),
+				minimumTemperature = readRestrictionValue( popup.find( "#minTemp" ), false, -100, 100 );
+			if ( rainAmount === null || rainDays === null || minimumTemperature === null ) {
+				OSApp.Errors.showError( OSApp.Language._( "Please enter valid weather restriction values." ) );
+				return false;
+			}
 			options.cali = ( popup.find( "#cali" ).prop( "checked" ) ? 1 : 0 );
-			options.rainAmt = parseFloat(popup.find( "#rainAmt" ).val().match( /[0-9.]+/g )[0]);
-			options.rainDays = parseInt(popup.find( "#rainDays" ).val().match( /\d+/g )[0]);
-			options.minTemp = parseInt(popup.find( "#minTemp" ).val().match( /^-?\d+/g )[0]);
+			options.rainAmt = rainAmount;
+			options.rainDays = rainDays;
+			options.minTemp = minimumTemperature;
 
 
 			// Do metric conversions
@@ -1304,7 +1436,11 @@ OSApp.Options.showOptions = function( expandItem ) {
 	} );
 
 	page.find( ".reset-stations" ).on( "click", function() {
-		var cs = "", i;
+		var cs = "",
+			targetSiteName = $( "#site-selector" ).val(),
+			boardCount = Math.ceil( OSApp.currentSession.controller.stations.snames.length / 8 ),
+			i;
+		if ( !isOptionsSessionCurrent() || optionsRequest || resetStationsRequest || !targetSiteName ) return;
 
 		if ( OSApp.Supported.groups() ) {
 			for ( i = 0; i < OSApp.currentSession.controller.stations.snames.length; i++ ) {
@@ -1313,73 +1449,84 @@ OSApp.Options.showOptions = function( expandItem ) {
 		}
 
 		if ( typeof OSApp.currentSession.controller.options.mas !== "undefined" ) {
-			for ( i = 0; i < OSApp.currentSession.controller.settings.nbrd; i++ ) {
+			for ( i = 0; i < boardCount; i++ ) {
 				cs += "m" + i + "=255&";
 			}
 		}
 
 		if ( typeof OSApp.currentSession.controller.options.mas2 !== "undefined" ) {
-			for ( i = 0; i < OSApp.currentSession.controller.settings.nbrd; i++ ) {
+			for ( i = 0; i < boardCount; i++ ) {
 				cs += "n" + i + "=0&";
 			}
 		}
 
 		if ( typeof OSApp.currentSession.controller.stations.ignore_rain === "object" ) {
-			for ( i = 0; i < OSApp.currentSession.controller.settings.nbrd; i++ ) {
+			for ( i = 0; i < boardCount; i++ ) {
 				cs += "i" + i + "=0&";
 			}
 		}
 
 		if ( typeof OSApp.currentSession.controller.stations.ignore_sn1 === "object" ) {
-			for ( i = 0; i < OSApp.currentSession.controller.settings.nbrd; i++ ) {
+			for ( i = 0; i < boardCount; i++ ) {
 				cs += "j" + i + "=0&";
 			}
 		}
 
 		if ( typeof OSApp.currentSession.controller.stations.ignore_sn2 === "object" ) {
-			for ( i = 0; i < OSApp.currentSession.controller.settings.nbrd; i++ ) {
+			for ( i = 0; i < boardCount; i++ ) {
 				cs += "k" + i + "=0&";
 			}
 		}
 
 		if ( typeof OSApp.currentSession.controller.stations.act_relay === "object" ) {
-			for ( i = 0; i < OSApp.currentSession.controller.settings.nbrd; i++ ) {
+			for ( i = 0; i < boardCount; i++ ) {
 				cs += "a" + i + "=0&";
 			}
 		}
 
 		if ( typeof OSApp.currentSession.controller.stations.stn_dis === "object" ) {
-			for ( i = 0; i < OSApp.currentSession.controller.settings.nbrd; i++ ) {
+			for ( i = 0; i < boardCount; i++ ) {
 				cs += "d" + i + "=0&";
 			}
 		}
 
 		if ( typeof OSApp.currentSession.controller.stations.stn_seq === "object" ) {
-			for ( i = 0; i < OSApp.currentSession.controller.settings.nbrd; i++ ) {
+			for ( i = 0; i < boardCount; i++ ) {
 				cs += "q" + i + "=255&";
 			}
 		}
 
 		if ( typeof OSApp.currentSession.controller.stations.stn_spe === "object" ) {
-			for ( i = 0; i < OSApp.currentSession.controller.settings.nbrd; i++ ) {
+			for ( i = 0; i < boardCount; i++ ) {
 				cs += "p" + i + "=0&";
 			}
 		}
 
 		OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to reset station attributes?" ), OSApp.Language._( "This will reset all station attributes" ), function() {
+			if ( !isOptionsSessionCurrent() || optionsRequest || resetStationsRequest ) return;
 			$.mobile.loading( "show" );
-			OSApp.Storage.get( [ "sites", "current_site" ], function( data ) {
-				var sites = OSApp.Sites.parseSites( data.sites );
-
-				sites[ data.current_site ].notes = {};
-				sites[ data.current_site ].images = {};
-				sites[ data.current_site ].lastRunTime = {};
-
-				OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
-			} );
-			OSApp.Firmware.sendToOS( "/cs?pw=&" + cs ).done( function() {
+			optionsLoaderOwned = true;
+			var request = OSApp.Firmware.sendToOS( "/cs?pw=&" + cs );
+			resetStationsRequest = request;
+			request.then( function() {
+				return OSApp.Options.clearStationMetadata( targetSiteName );
+			} ).then( function() {
+				if ( !isOptionsSessionCurrent() || resetStationsRequest !== request ) {
+					return OSApp.Sites.rejectInvalidResponse( { status:0, statusText:"stale-session" } );
+				}
+				return OSApp.Sites.updateController();
+			} ).then( function() {
+				if ( !isOptionsSessionCurrent() || resetStationsRequest !== request ) return;
+				resetStationsRequest = null;
+				optionsLoaderOwned = false;
+				$.mobile.loading( "hide" );
 				OSApp.Errors.showError( OSApp.Language._( "Stations have been updated" ) );
-				OSApp.Sites.updateController();
+			}, function( error ) {
+				if ( resetStationsRequest !== request ) return;
+				resetStationsRequest = null;
+				if ( !isOptionsSessionCurrent() ) return;
+				optionsLoaderOwned = false;
+				OSApp.Firmware.settleLoadingFailure( error );
 			} );
 		} );
 	} );
@@ -1453,11 +1600,23 @@ OSApp.Options.showOptions = function( expandItem ) {
 	page.find( "#verify-api" ).on( "click", function() {
 		var key = page.find( "#wtkey" ),
 			button = $( this ),
-			provider = page.find( "#weatherSelect" );
+			provider = page.find( "#weatherSelect" ),
+			keyValue = String( key.val() || "" ),
+			providerValue = String( provider.val() || "" ),
+			isCurrent = function() {
+				return pageActive && optionsGeneration === ( OSApp.currentSession.generation || 0 ) &&
+					optionsEndpoint === String( OSApp.currentSession.token || "" ) + "|" +
+						String( OSApp.currentSession.prefix || "" ) + String( OSApp.currentSession.ip || "" ) &&
+					keyValue === String( key.val() || "" ) &&
+					providerValue === String( provider.val() || "" ) && $.contains( document.documentElement, page[ 0 ] );
+			};
 
+		cancelAPIKeyVerification();
 		button.prop( "disabled", true );
 
-		OSApp.Weather.testAPIKey( key.val(), provider.val(), function( result ) {
+		apiVerificationRequest = OSApp.Weather.testAPIKey( keyValue, providerValue, function( result ) {
+			if ( !isCurrent() ) return;
+			apiVerificationRequest = null;
 			if ( result === true ) {
 				key.parent().find( ".ui-icon-alert" ).hide();
 				key.parent().removeClass( "red" ).addClass( "green" );
@@ -1470,11 +1629,13 @@ OSApp.Options.showOptions = function( expandItem ) {
 	} );
 
 	page.find( "#weatherSelect" ).on( "change", function() {
+		cancelAPIKeyVerification();
 		//remove status from API key entry to prompt re-verify
 		page.find( "#wtkey" ).siblings( ".help-icon" ).hide();
 		page.find( "#wtkey" ).parent().removeClass( "red green" );
 		//make API key input appear if needed
-		page.find( "#wtkey" ).parents( ".ui-field-contain" ).toggleClass( "hidden", !(OSApp.Weather.getWeatherProviderById( this.value ).needsKey));
+		var selectedProvider = OSApp.Weather.getWeatherProviderById( this.value );
+		page.find( "#wtkey" ).parents( ".ui-field-contain" ).toggleClass( "hidden", !( selectedProvider && selectedProvider.needsKey ) );
 		//change wto value based on new selection
 		let curr = OSApp.Utils.unescapeJSON(page.find( "#wto" ).val());
 		curr.provider = this.value;
@@ -1653,6 +1814,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 	} );
 
 	page.find( "#wtkey" ).on( "change input", function() {
+		cancelAPIKeyVerification();
 
 		// Hide the invalid key status after change
 		page.find( "#wtkey" ).siblings( ".help-icon" ).hide();
@@ -1761,28 +1923,28 @@ OSApp.Options.showOptions = function( expandItem ) {
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
 								"<input class='mqtt-input' type='text' id='server' data-mini='true' maxlength='64' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
-									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + OSApp.Language._( "broker" ) + "' value='" + options.host + "' required />" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + OSApp.Language._( "broker" ) + "' value='" + OSApp.Utils.htmlEscape( options.host ) + "' required />" +
 							"</div>" +
 							"<div class='ui-block-a' style='width:40%'>" +
 								"<label for='port' style='padding-top:10px'>" + OSApp.Language._( "Port" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
-								"<input class='mqtt-input' type='number' id='port' data-mini='true' pattern='[0-9]*' min='0' max='65535'" +
-									( options.en ? "" : "disabled='disabled'" ) + " placeholder='1883' value='" + options.port + "' required />" +
+									"<input class='mqtt-input' type='number' id='port' data-mini='true' pattern='[0-9]*' min='1' max='65535'" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='1883' value='" + OSApp.Utils.htmlEscape( options.port ) + "' required />" +
 							"</div>" +
 							"<div class='ui-block-a' style='width:40%'>" +
 								"<label for='username' style='padding-top:10px'>" + OSApp.Language._( "Username" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
 								"<input class='mqtt-input' type='text' id='username' data-mini='true' maxlength='" + ( largeSOPTSupport ? "50" : "32" ) + "' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
-									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + OSApp.Language._( "username (optional)" ) + "' value='" + options.user + "' required />" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + OSApp.Language._( "username (optional)" ) + "' value='" + OSApp.Utils.htmlEscape( options.user ) + "' required />" +
 							"</div>" +
 							"<div class='ui-block-a' style='width:40%'>" +
 								"<label for='password' style='padding-top:10px'>" + OSApp.Language._( "Password" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
 								"<input class='mqtt-input' type='password' id='password' data-mini='true' maxlength='" + ( largeSOPTSupport ? "100" : "32" ) + "' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
-									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + OSApp.Language._( "password (optional)" ) + "' value='" + options.pass + "' required />" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + OSApp.Language._( "password (optional)" ) + "' value='" + OSApp.Utils.htmlEscape( options.pass ) + "' required />" +
 							"</div>" +
 							( largeSOPTSupport ?
 							"<div class='ui-block-a' style='width:40%'>" +
@@ -1790,7 +1952,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
 								"<input class='mqtt-input' type='text' id='pubt' data-mini='true' maxlength='24' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
-									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + OSApp.Language._( "publish topic" ) + "' value='" + options.pubt + "' required />" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + OSApp.Language._( "publish topic" ) + "' value='" + OSApp.Utils.htmlEscape( options.pubt ) + "' required />" +
 							"</div>" : "" ) +
 							( largeSOPTSupport ?
 							"<div class='ui-block-a' style='width:40%'>" +
@@ -1798,7 +1960,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
 								"<input class='mqtt-input' type='text' id='subt' data-mini='true' maxlength='24' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
-									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + OSApp.Language._( "subscribe topic" ) + "' value='" + options.subt + "' required />" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + OSApp.Language._( "subscribe topic" ) + "' value='" + OSApp.Utils.htmlEscape( options.subt ) + "' required />" +
 								"<div data-role='controlgroup' data-mini='true' data-type='horizontal'>" +
 								"<button data-theme='a' id='defaultsubt'>Use Default</button><button data-theme='a' id='clearsubt'>Clear</button>" +
 								"</div>" +
@@ -1828,13 +1990,22 @@ OSApp.Options.showOptions = function( expandItem ) {
 		popup.find( ".submit" ).on( "click", function() {
 			var options = {
 				en: ( popup.find( "#enable" ).prop( "checked" ) ? 1 : 0 ),
-				host: popup.find( "#server" ).val(),
+				host: String( popup.find( "#server" ).val() || "" ).trim(),
 				port: parseInt( popup.find( "#port" ).val() ),
-				user: popup.find( "#username" ).val(),
-				pass: popup.find( "#password" ).val(),
-				pubt: popup.find( "#pubt" ).val(),
-				subt: popup.find( "#subt" ).val()
+				user: String( popup.find( "#username" ).val() || "" ),
+				pass: String( popup.find( "#password" ).val() || "" ),
+				pubt: String( popup.find( "#pubt" ).val() || "" ).trim(),
+				subt: String( popup.find( "#subt" ).val() || "" ).trim()
 			};
+			if ( options.en && ( options.host === "" || options.host.length > 64 ||
+				!Number.isInteger( options.port ) || options.port < 1 || options.port > 65535 ||
+				options.user.length > ( largeSOPTSupport ? 50 : 32 ) ||
+				options.pass.length > ( largeSOPTSupport ? 100 : 32 ) ||
+				largeSOPTSupport && ( options.pubt === "" || options.pubt.length > 24 || options.subt.length > 24 ) ) ) {
+				OSApp.Errors.showError( OSApp.Language._( "Please enter valid MQTT settings." ) );
+				return false;
+			}
+			if ( !Number.isInteger( options.port ) ) options.port = 1883;
 
 			if ( options.en ) {
 				page.find( "#mqtt" ).addClass( "blue" );
@@ -1885,35 +2056,35 @@ OSApp.Options.showOptions = function( expandItem ) {
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
 								"<input class='email-input' type='text' id='server' data-mini='true' maxlength='64' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
-									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + OSApp.Language._( "smtp.gmail.com" ) + "' value='" + options.host + "' required />" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + OSApp.Language._( "smtp.gmail.com" ) + "' value='" + OSApp.Utils.htmlEscape( options.host ) + "' required />" +
 							"</div>" +
 							"<div class='ui-block-a' style='width:40%'>" +
 								"<label for='port' style='padding-top:10px'>" + OSApp.Language._( "Port" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
-								"<input class='email-input' type='number' id='port' data-mini='true' pattern='[0-9]*' min='0' max='65535'" +
-									( options.en ? "" : "disabled='disabled'" ) + " placeholder='465' value='" + options.port + "' required />" +
+									"<input class='email-input' type='number' id='port' data-mini='true' pattern='[0-9]*' min='1' max='65535'" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='465' value='" + OSApp.Utils.htmlEscape( options.port ) + "' required />" +
 							"</div>" +
 							"<div class='ui-block-a' style='width:40%'>" +
 								"<label for='username' style='padding-top:10px'>" + OSApp.Language._( "Sender Email" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
 								"<input class='email-input' type='text' id='username' data-mini='true' maxlength='64' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
-									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + OSApp.Language._( "user@gmail.com" ) + "' value='" + options.user + "' required />" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + OSApp.Language._( "user@gmail.com" ) + "' value='" + OSApp.Utils.htmlEscape( options.user ) + "' required />" +
 							"</div>" +
 							"<div class='ui-block-a' style='width:40%'>" +
 								"<label for='password' style='padding-top:10px'>" + OSApp.Language._( "App Password" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
 								"<input class='email-input' type='password' id='password' data-mini='true' maxlength='64' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
-									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + OSApp.Language._( "app password" ) + "' value='" + options.pass + "' required />" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + OSApp.Language._( "app password" ) + "' value='" + OSApp.Utils.htmlEscape( options.pass ) + "' required />" +
 							"</div>" +
 							"<div class='ui-block-a' style='width:40%'>" +
 								"<label for='recipient' style='padding-top:10px'>" + OSApp.Language._( "Recipient Email" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
 								"<input class='email-input' type='text' id='recipient' data-mini='true' maxlength='64' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
-									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + OSApp.Language._( "user@gmail.com" ) + "' value='" + options.recipient + "' required />" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + OSApp.Language._( "user@gmail.com" ) + "' value='" + OSApp.Utils.htmlEscape( options.recipient ) + "' required />" +
 							"</div>" +
 						"</div>" +
 					"</div>" +
@@ -1932,12 +2103,20 @@ OSApp.Options.showOptions = function( expandItem ) {
 		popup.find( ".submit" ).on( "click", function() {
 			var options = {
 				en: ( popup.find( "#enable" ).prop( "checked" ) ? 1 : 0 ),
-				host: popup.find( "#server" ).val(),
+				host: String( popup.find( "#server" ).val() || "" ).trim(),
 				port: parseInt( popup.find( "#port" ).val() ),
-				user: popup.find( "#username" ).val(),
-				pass: popup.find( "#password" ).val(),
-				recipient: popup.find( "#recipient" ).val()
+				user: String( popup.find( "#username" ).val() || "" ).trim(),
+				pass: String( popup.find( "#password" ).val() || "" ),
+				recipient: String( popup.find( "#recipient" ).val() || "" ).trim()
 			};
+			if ( options.en && ( options.host === "" || options.host.length > 64 ||
+				!Number.isInteger( options.port ) || options.port < 1 || options.port > 65535 ||
+				options.user === "" || options.user.length > 64 || options.pass === "" || options.pass.length > 64 ||
+				options.recipient === "" || options.recipient.length > 64 ) ) {
+				OSApp.Errors.showError( OSApp.Language._( "Please enter valid email settings." ) );
+				return false;
+			}
+			if ( !Number.isInteger( options.port ) ) options.port = 465;
 
 			if ( options.en ) {
 				page.find( "#email" ).addClass( "blue" );
@@ -1986,21 +2165,21 @@ OSApp.Options.showOptions = function( expandItem ) {
 							"</div>" +
 							"<div class='ui-block-b' style='width:75%'>" +
 								"<input class='otc-input' type='text' id='token' data-mini='true' maxlength='36' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
-									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + OSApp.Language._( "token" ) + "' value='" + options.token + "' required />" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + OSApp.Language._( "token" ) + "' value='" + OSApp.Utils.htmlEscape( options.token ) + "' required />" +
 							"</div>" +
 							"<div class='ui-block-a' style='width:25%'>" +
 								"<label for='server' style='padding-top:10px'>" + OSApp.Language._( "Server" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:75%'>" +
 								"<input class='otc-input' type='text' id='server' data-mini='true' maxlength='50' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
-									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + OSApp.Language._( "server" ) + "' value='" + options.server + "' required />" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + OSApp.Language._( "server" ) + "' value='" + OSApp.Utils.htmlEscape( options.server ) + "' required />" +
 							"</div>" +
 							"<div class='ui-block-a' style='width:25%'>" +
 								"<label for='port' style='padding-top:10px'>" + OSApp.Language._( "Port" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:75%'>" +
-								"<input class='otc-input' type='number' id='port' data-mini='true' pattern='[0-9]*' min='0' max='65535'" +
-									( options.en ? "" : "disabled='disabled'" ) + " placeholder='80' value='" + options.port + "' required />" +
+									"<input class='otc-input' type='number' id='port' data-mini='true' pattern='[0-9]*' min='1' max='65535'" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='80' value='" + OSApp.Utils.htmlEscape( options.port ) + "' required />" +
 							"</div>" +
 						"</div>" +
 					"</div>" +
@@ -2016,17 +2195,19 @@ OSApp.Options.showOptions = function( expandItem ) {
 			}
 		} );
 		popup.find( ".submit" ).on( "click", function() {
-			if ( popup.find( "#enable" ).prop( "checked" ) && popup.find( "#token" ).val().length !== 32 ) {
-				OSApp.Errors.showError( OSApp.Language._( "OpenThings Token must be 32 characters long." ) );
-				return;
-			}
-
 			var options = {
 				en: ( popup.find( "#enable" ).prop( "checked" ) ? 1 : 0 ),
-				token: popup.find( "#token" ).val(),
-				server: popup.find( "#server" ).val(),
+				token: String( popup.find( "#token" ).val() || "" ).trim(),
+				server: String( popup.find( "#server" ).val() || "" ).trim(),
 				port: parseInt( popup.find( "#port" ).val() )
 			};
+			if ( options.en && ( !OSApp.Utils.isValidOTC( options.token ) || options.server === "" ||
+				options.server.length > 50 || !Number.isInteger( options.port ) || options.port < 1 ||
+				options.port > 65535 ) ) {
+				OSApp.Errors.showError( OSApp.Language._( "Please enter valid OpenThings Cloud settings." ) );
+				return false;
+			}
+			if ( !Number.isInteger( options.port ) ) options.port = 80;
 
 			if ( options.en ) {
 				page.find( "#otc" ).addClass( "blue" );
@@ -2056,17 +2237,32 @@ OSApp.Options.showOptions = function( expandItem ) {
 			return;
 		}
 
-		header.eq( 2 ).prop( "disabled", false );
-		page.find( ".submit" ).addClass( "hasChanges" );
+		// An unset controller clock is still editable. Seed its popup from the current
+		// instant shifted into the controller's configured wall-clock timezone.
+		var timestamp = Number( input.val() );
+		if ( !Number.isFinite( timestamp ) || timestamp <= 0 ) {
+			timestamp = Math.round( OSApp.Dates.currentControllerDate().getTime() / 1000 );
+		}
 
 		// Show date time input popup
-		OSApp.UIDom.showDateTimeInput( input.val(), function( data ) {
-			input.text( OSApp.Dates.dateToString( data ).slice( 0, -3 ) ).val( Math.round( data.getTime() / 1000 ) );
+		OSApp.UIDom.showDateTimeInput( timestamp, function( data ) {
+			input.text( OSApp.Dates.dateTimeNoSeconds( data ) )
+				.val( Math.round( data.getTime() / 1000 ) ).data( "timeChanged", true );
+			header.eq( 2 ).prop( "disabled", false );
+			page.find( ".submit" ).addClass( "hasChanges" );
 		} );
 		return false;
 	} );
 
 	page.one( "pagehide", function() {
+		pageActive = false;
+		cancelAPIKeyVerification();
+		optionsRequest = null;
+		resetStationsRequest = null;
+		if ( optionsLoaderOwned ) {
+			optionsLoaderOwned = false;
+			$.mobile.loading( "hide" );
+		}
 		page.remove();
 	} );
 
@@ -2076,102 +2272,135 @@ OSApp.Options.showOptions = function( expandItem ) {
 	$.mobile.pageContainer.append( page );
 };
 
-OSApp.Options.coordsToLocation = function( lat, lon, callback, fallback ) {
-	callback = callback || function() {};
-	fallback = fallback || lat + "," + lon;
+OSApp.Options.normalizeMapCoordinates = function( latitude, longitude ) {
+	var coordinates = {
+		lat: Number( latitude ),
+		lon: Number( longitude )
+	};
 
-	$.getJSON( "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lon + "&key=AIzaSyDaT_HTZwFojXmvYIhwWudK00vFXzMmOKc&result_type=locality|sublocality|administrative_area_level_1|country", function( data ) {
-		if ( data.results.length === 0 ) {
-			callback( fallback );
-			return;
-		}
+	if ( !isFinite( coordinates.lat ) || coordinates.lat < -90 || coordinates.lat > 90 ||
+		!isFinite( coordinates.lon ) || coordinates.lon < -180 || coordinates.lon > 180 ) {
+		return { lat: 0, lon: 0 };
+	}
 
-		data = data.results;
-		fallback = data[ 0 ].formatted_address;
+	return coordinates;
+};
 
-		var hasEnd = false;
+OSApp.Options.normalizeMapOrigin = function( origin ) {
+	return origin === "null" ? "*" : origin;
+};
 
-		for ( var item in data ) {
-			if ( Object.prototype.hasOwnProperty.call(data,  item ) ) {
-				if ( $.inArray( "locality", data[ item ].types ) > -1 ||
-					 $.inArray( "sublocality", data[ item ].types ) > -1 ||
-					 $.inArray( "postal_code", data[ item ].types ) > -1 ||
-					 $.inArray( "street_address", data[ item ].types ) > -1 ) {
-						hasEnd = true;
-						break;
-				}
-			}
-		}
-
-		if ( hasEnd === false ) {
-			callback( fallback );
-			return;
-		}
-
-		data = data[ item ].address_components;
-
-		var location = "",
-			country = "";
-
-		hasEnd = false;
-
-		for ( item in data ) {
-			if ( Object.prototype.hasOwnProperty.call(data,  item ) && !hasEnd ) {
-				if ( location === "" && $.inArray( "locality", data[ item ].types ) > -1 ) {
-					location = data[ item ].long_name + ", " + location;
-				}
-
-				if ( location === "" && $.inArray( "sublocality", data[ item ].types ) > -1 ) {
-					location = data[ item ].long_name + ", " + location;
-				}
-
-				if ( $.inArray( "administrative_area_level_1", data[ item ].types ) > -1 ) {
-					location += data[ item ].long_name;
-					hasEnd = true;
-				}
-
-				if ( $.inArray( "country", data[ item ].types ) > -1 ) {
-					country = data[ item ].long_name;
-				}
-			}
-		}
-
-		if ( !hasEnd ) {
-			location += country;
-		}
-
-		callback( location );
-	} );
+OSApp.Options.mapFrameURL = function() {
+	// Cordova's local/custom-scheme webviews commonly omit Referer, defeating website key
+	// restrictions. Host only the isolated map frame on the controlled HTTPS legacy UI origin.
+	return window.cordova ? "https://ui.opensprinkler.com/map.html" : OSApp.UIDom.getAppURLPath() + "map.html";
 };
 
 OSApp.Options.overlayMap = function( callback ) {
 	callback = callback || function() {};
-
-	// Looks up the location and shows a list possible matches for selection
-	// Returns the selection to the callback
-	$( "#location-list" ).popup( "destroy" ).remove();
+	if ( OSApp.Options.activeMapOverlay && typeof OSApp.Options.activeMapOverlay.teardown === "function" ) {
+		OSApp.Options.activeMapOverlay.teardown( true, true );
+	}
+	var leftover = $( "#location-list" );
+	if ( leftover.length ) {
+		var leftoverCleanup = leftover.data( "map-overlay-cleanup" );
+		if ( typeof leftoverCleanup === "function" ) {
+			leftoverCleanup( true, true );
+		} else {
+			leftover.popup( "destroy" ).remove();
+		}
+	}
 	$.mobile.loading( "show" );
 
 	var popup = $( "<div data-role='popup' id='location-list' data-theme='a' style='background-color:rgb(229, 227, 223);'>" +
 			"<a href='#' data-rel='back' class='ui-btn ui-corner-all ui-shadow ui-btn-b ui-icon-delete ui-btn-icon-notext ui-btn-right'>" + OSApp.Language._( "Close" ) + "</a>" +
-				"<iframe style='border:none' src='" + OSApp.UIDom.getAppURLPath() + "map.html' width='100%' height='100%' seamless=''></iframe>" +
+				"<iframe style='border:none' src='" + OSApp.Options.mapFrameURL() + "' width='100%' height='100%' seamless=''></iframe>" +
 		"</div>" ),
+		iframe = popup.find( "iframe" ),
+		iframeElement = iframe.get( 0 ),
+		mapOrigin = OSApp.Options.normalizeMapOrigin( new URL( iframe.attr( "src" ), window.location.href ).origin ),
+		messageEvent = "message.osMapOverlay" + ( ++OSApp.Options.mapOverlaySequence ),
+		generation = OSApp.currentSession.generation || 0,
+		endpoint = String( OSApp.currentSession.token || "" ) + "|" +
+			String( OSApp.currentSession.prefix || "" ) + String( OSApp.currentSession.ip || "" ),
+		locInput = String( $( "#loc" ).val() || "" ),
+		usesCoordinates = OSApp.Constants.regex.GPS.test( locInput ),
+		current = OSApp.Options.normalizeMapCoordinates(
+			usesCoordinates ? locInput.split( "," )[ 0 ] : OSApp.currentSession.coordinates[ 0 ],
+			usesCoordinates ? locInput.split( "," )[ 1 ] : OSApp.currentSession.coordinates[ 1 ]
+		),
+		active = true,
+		frameReady = false,
+		mapLoaded = false,
+		dataSent = false,
+		callbackSent = false,
+		loaderOwned = true,
+		stationRequest, handshakeTimer, loadedTimer, pendingStationData, attempt,
+		isCurrent = function() {
+			return active && generation === ( OSApp.currentSession.generation || 0 ) &&
+				endpoint === String( OSApp.currentSession.token || "" ) + "|" +
+					String( OSApp.currentSession.prefix || "" ) + String( OSApp.currentSession.ip || "" ) &&
+				OSApp.Options.activeMapOverlay === attempt;
+		},
+		settleLoader = function() {
+			if ( loaderOwned && isCurrent() ) {
+				loaderOwned = false;
+				$.mobile.loading( "hide" );
+			}
+		},
+		frameWindow = function() {
+			return active && iframeElement ? iframeElement.contentWindow : null;
+		},
+		postToMap = function( data ) {
+			var target = frameWindow();
+			if ( target && frameReady ) target.postMessage( data, mapOrigin );
+		},
+		invokeCallback = function() {
+			if ( callbackSent ) return;
+			callbackSent = true;
+			callback.apply( null, arguments );
+		},
+		cleanup = function( notifyDismissal, removePopup ) {
+			if ( !active ) return;
+			var owned = OSApp.Options.activeMapOverlay === attempt;
+			if ( owned ) settleLoader();
+			active = false;
+			clearTimeout( handshakeTimer );
+			clearTimeout( loadedTimer );
+			$.mobile.window.off( messageEvent );
+			if ( stationRequest && typeof stationRequest.abort === "function" ) stationRequest.abort();
+			stationRequest = null;
+			if ( owned ) OSApp.Options.activeMapOverlay = null;
+			if ( notifyDismissal && !dataSent ) invokeCallback( false );
+			if ( removePopup && popup.length ) popup.popup( "destroy" ).remove();
+		},
+		failMap = function( message ) {
+			if ( !isCurrent() ) {
+				cleanup( false, true );
+				return;
+			}
+			settleLoader();
+			OSApp.Errors.showError( message );
+			invokeCallback( false );
+			cleanup( false, true );
+		},
 		getCurrentLocation = function( callback ) {
 			callback = callback || function( result ) {
-				if ( result ) {
-					iframe.get( 0 ).contentWindow.postMessage( {
+					if ( result && isCurrent() ) {
+					postToMap( {
 						type: "currentLocation",
 						payload: {
 							lat: result.coords.latitude,
 							lon: result.coords.longitude
 						}
-					}, "*" );
+					} );
 				}
 			};
 
 			var exit = function( result ) {
 					clearTimeout( loadMsg );
-					$.mobile.loading( "hide" );
+					if ( !isCurrent() ) return;
+					settleLoader();
 
 					if ( !result ) {
 						OSApp.Errors.showError( OSApp.Language._( "Unable to retrieve your current location" ) );
@@ -2183,6 +2412,8 @@ OSApp.Options.overlayMap = function( callback ) {
 
 			try {
 				loadMsg = setTimeout( function() {
+						if ( !isCurrent() ) return;
+					loaderOwned = true;
 					$.mobile.loading( "show", {
 						html: "<div class='logo'></div><h1 style='padding-top:5px'>" + OSApp.Language._( "Attempting to retrieve your current location" ) + "</h1></p>",
 						textVisible: true,
@@ -2198,82 +2429,118 @@ OSApp.Options.overlayMap = function( callback ) {
 				//eslint-disable-next-line no-unused-vars
 			} catch ( err ) { exit( false ); }
 		},
-		updateMapStations = function( latitude, longitude ) {
-			var key = $( "#wtkey" ).val();
-			if ( key === "" ) {
-				return;
-			}
+			updateMapStations = function( latitude, longitude ) {
+				if ( !isCurrent() || !frameReady || !isFinite( latitude ) || latitude < -90 || latitude > 90 ||
+				!isFinite( longitude ) || longitude < -180 || longitude > 180 ) return;
+			var key = String( $( "#wtkey" ).val() || "" );
+			if ( key === "" ) return;
+			if ( stationRequest && typeof stationRequest.abort === "function" ) stationRequest.abort();
 
-			$.ajax( {
-				url: "https://api.weather.com/v3/location/near?format=json&product=pws&apiKey=" + key +
+			stationRequest = $.ajax( {
+					url: "https://api.weather.com/v3/location/near?format=json&product=pws&apiKey=" + encodeURIComponent( key ) +
 						"&geocode=" + encodeURIComponent( latitude ) + "," + encodeURIComponent( longitude ),
 				cache: true
 			} ).done( function( data ) {
-				var sortedData = [];
+					if ( !isCurrent() || !data || typeof data !== "object" || Array.isArray( data ) ||
+					!data.location || typeof data.location !== "object" || Array.isArray( data.location ) ||
+					!Array.isArray( data.location.stationId ) || !Array.isArray( data.location.latitude ) ||
+					!Array.isArray( data.location.longitude ) ) return;
+				var sortedData = [],
+					limit = Math.min( data.location.stationId.length, data.location.latitude.length,
+						data.location.longitude.length, 100 );
 
-				data.location.stationId.forEach( function( id, index ) {
+				data.location.stationId.slice( 0, limit ).forEach( function( id, index ) {
+					var stationLatitude = data.location.latitude[ index ],
+						stationLongitude = data.location.longitude[ index ];
+					if ( typeof id !== "string" || id.length > 100 || !isFinite( stationLatitude ) ||
+						stationLatitude < -90 || stationLatitude > 90 || !isFinite( stationLongitude ) ||
+						stationLongitude < -180 || stationLongitude > 180 ) return;
 					sortedData.push( {
 						id: id,
-						lat: data.location.latitude[ index ],
-						lon: data.location.longitude[ index ],
-						message: data.location.stationId[ index ]
+						lat: stationLatitude,
+						lon: stationLongitude,
+						message: id
 					} );
 				} );
 
-				if ( sortedData.length > 0 ) {
-					sortedData = encodeURIComponent( JSON.stringify( sortedData ) );
-					iframe.get( 0 ).contentWindow.postMessage( {
-						type: "pwsData",
-						payload: sortedData
-					}, "*" );
-				}
-			} );
-		},
-		iframe = popup.find( "iframe" ),
-		locInput = $( "#loc" ).val(),
-		current = {
-			lat: locInput.match( OSApp.Constants.regex.GPS ) ? locInput.split( "," )[ 0 ] : OSApp.currentSession.coordinates[ 0 ],
-			lon: locInput.match( OSApp.Constants.regex.GPS ) ? locInput.split( "," )[ 1 ] : OSApp.currentSession.coordinates[ 1 ]
-		},
-		dataSent = false;
+					if ( sortedData.length > 0 ) {
+						pendingStationData = {
+							type: "pwsData",
+							payload: encodeURIComponent( JSON.stringify( sortedData ) )
+						};
+						if ( mapLoaded ) postToMap( pendingStationData );
+					}
+				} );
+			};
+
+	attempt = {
+		popup: popup,
+		teardown: cleanup
+	};
+	popup.data( "map-overlay-cleanup", cleanup );
+	OSApp.Options.activeMapOverlay = attempt;
 
 	// Wire in listener for communication from iframe
-	$.mobile.window.off( "message onmessage" ).on( "message onmessage", function( e ) {
-		var data = e.originalEvent.data;
+	$.mobile.window.on( messageEvent, function( e ) {
+		var originalEvent = e.originalEvent,
+			data;
 
-		if ( typeof data.WS !== "undefined" ) {
+		if ( !isCurrent() || !originalEvent || originalEvent.source !== frameWindow() ||
+			( mapOrigin !== "*" && originalEvent.origin !== mapOrigin ) ) {
+			return;
+		}
+
+		data = originalEvent.data;
+		if ( !data || typeof data !== "object" || Array.isArray( data ) ) {
+			return;
+		}
+
+		if ( data.ready === true && !frameReady ) {
+			frameReady = true;
+			clearTimeout( handshakeTimer );
+			loadedTimer = setTimeout( function() {
+				failMap( OSApp.Language._( "The map did not finish loading. Please try again." ) );
+			}, 12000 );
+			postToMap( {
+				type: "startLocation",
+				payload: { start: current }
+			} );
+			if ( current.lat === 0 && current.lon === 0 ) getCurrentLocation();
+			updateMapStations( current.lat, current.lon );
+		} else if ( data.mapError === true ) {
+			failMap( OSApp.Language._( "Unable to load the map. Please check your connection and Maps API configuration." ) );
+		} else if ( typeof data.WS === "string" && data.WS.length <= 100 ) {
 			var coords = data.WS.split( "," );
-			callback( coords.length > 1 ? coords : data.WS, data.station );
+			if ( coords.length > 1 ) {
+				var latitude = Number( coords[ 0 ] ),
+					longitude = Number( coords[ 1 ] );
+				if ( coords.length !== 2 || !isFinite( latitude ) || latitude < -90 || latitude > 90 ||
+					!isFinite( longitude ) || longitude < -180 || longitude > 180 ) {
+					return;
+				}
+			}
+			var locationName = typeof data.locationName === "string" && data.locationName.length <= 500 ? data.locationName : undefined;
 			dataSent = true;
-			popup.popup( "destroy" ).remove();
+			invokeCallback( coords.length > 1 ? coords : data.WS,
+				typeof data.station === "string" && data.station.length <= 100 ? data.station : undefined,
+				locationName );
+			cleanup( false, true );
 		} else if ( data.loaded === true ) {
-			$.mobile.loading( "hide" );
-		} else if ( typeof data.location === "object" ) {
+			mapLoaded = true;
+			clearTimeout( loadedTimer );
+			settleLoader();
+			if ( pendingStationData ) postToMap( pendingStationData );
+		} else if ( Array.isArray( data.location ) && data.location.length >= 2 && isFinite( data.location[ 0 ] ) && isFinite( data.location[ 1 ] ) ) {
 			updateMapStations( data.location[ 0 ], data.location[ 1 ] );
 		} else if ( data.dismissKeyboard === true ) {
-			document.activeElement.blur();
+			if ( document.activeElement && typeof document.activeElement.blur === "function" ) document.activeElement.blur();
 		} else if ( data.getLocation === true ) {
 			getCurrentLocation();
 		}
 	} );
 
-	iframe.one( "load", function() {
-		if ( current.lat === 0 && current.lon === 0 ) {
-			getCurrentLocation();
-		}
-
-		this.contentWindow.postMessage( {
-			type: "startLocation",
-			payload: {
-				start: current
-			}
-		}, "*" );
-	} );
-
 	popup.one( "popupafterclose", function() {
-		if ( dataSent === false ) {
-			callback( false );
-		}
+		cleanup( true, true );
 	} );
 
 	OSApp.UIDom.openPopup( popup, {
@@ -2285,7 +2552,11 @@ OSApp.Options.overlayMap = function( callback ) {
 		},
 		x: 0,
 		y: 0
-	} );
+		} );
 
-	updateMapStations( current.lat, current.lon );
+	handshakeTimer = setTimeout( function() {
+		failMap( OSApp.Language._( "The map did not finish loading. Please try again." ) );
+	}, 12000 );
 };
+
+OSApp.Options.mapOverlaySequence = OSApp.Options.mapOverlaySequence || 0;

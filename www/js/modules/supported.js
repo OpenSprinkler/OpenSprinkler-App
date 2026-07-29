@@ -19,15 +19,39 @@ OSApp.Supported = OSApp.Supported || {};
  * sent from the controller to the UI without explicitly
  * checking for OS version. */
 
+OSApp.Supported.hasStationMask = function( name ) {
+	var stations = OSApp.currentSession.controller && OSApp.currentSession.controller.stations,
+		names = stations && stations.snames,
+		mask = stations && stations[ name ],
+		boardCount = Array.isArray( names ) ? Math.ceil( names.length / 8 ) : -1;
+
+	return boardCount >= 0 && Array.isArray( mask ) && mask.length === boardCount && mask.every( function( value ) {
+		return Number.isSafeInteger( value ) && value >= 0 && value <= 255;
+	} );
+};
+
 OSApp.Supported.master = function( masid ) {
+	var options = OSApp.currentSession.controller && OSApp.currentSession.controller.options || {},
+		stations = OSApp.currentSession.controller && OSApp.currentSession.controller.stations,
+		stationCount = stations && Array.isArray( stations.snames ) ? stations.snames.length : 0,
+		masterStation,
+		maskName;
+
 	switch ( masid ) {
 		case OSApp.Constants.options.MASTER_STATION_1:
-			return OSApp.currentSession.controller.options.mas ? true : false;
+			masterStation = options.mas;
+			maskName = "masop";
+			break;
 		case OSApp.Constants.options.MASTER_STATION_2:
-			return OSApp.currentSession.controller.options.mas2 ? true : false;
+			masterStation = options.mas2;
+			maskName = "masop2";
+			break;
 		default:
 			return false;
 	}
+
+	return Number.isSafeInteger( masterStation ) && masterStation > 0 && masterStation <= stationCount &&
+		OSApp.Supported.hasStationMask( maskName );
 };
 
 OSApp.Supported.ignoreRain = function() {
@@ -74,6 +98,10 @@ OSApp.Supported.groups = function() {
 
 OSApp.Supported.dateRange = function() {
 	return OSApp.Firmware.checkOSVersion( 220 );
+};
+
+OSApp.Supported.sensors = function() {
+	return Array.isArray( OSApp.currentSession.controller?.sensors?.sn );
 };
 
 OSApp.Supported.changePause = function() {

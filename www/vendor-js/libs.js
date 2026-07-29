@@ -39,7 +39,54 @@
    Copyright (c) 2012 Foliotek Inc.
    MIT License
    https://github.com/Foliotek/ajaxq */
-!function(e){var n={},t={};e.ajaxq=function(r,a){function i(e){if(n[r])n[r].push(e);else{n[r]=[];var a=e();t[r]=a}}function u(){if(n[r]){var e=n[r].shift();if(e){var a=e();t[r]=a}else delete n[r],delete t[r]}}if("undefined"==typeof a)throw"AjaxQ: queue name is not provided";var o=e.Deferred(),f=o.promise();f.success=f.done,f.error=f.fail,f.complete=f.always;var s="function"==typeof a,c=s?null:e.extend(!0,{},a);return i(function(){var n=e.ajax.apply(window,[s?a():c]);return n.done(function(){o.resolve.apply(this,arguments)}),n.fail(function(){o.reject.apply(this,arguments)}),n.always(u),n}),f},e.each(["getq","postq"],function(n,t){e[t]=function(n,r,a,i,u){return e.isFunction(a)&&(u=u||i,i=a,a=void 0),e.ajaxq(n,{type:"postq"===t?"post":"get",url:r,data:a,success:i,dataType:u})}});var r=function(e){return n.hasOwnProperty(e)&&n[e].length>0},a=function(){for(var e in n)if(r(e))return!0;return!1};e.ajaxq.isRunning=function(e){return e?r(e):a()},e.ajaxq.getActiveRequest=function(e){if(!e)throw"AjaxQ: queue name is required";return t[e]},e.ajaxq.abort=function(r){if(!r)throw"AjaxQ: queue name is required";var a=e.ajaxq.getActiveRequest(r);delete n[r],delete t[r],a&&a.abort()},e.ajaxq.clear=function(e){if(e)n[e]&&(n[e]=[]);else for(var t in n)n.hasOwnProperty(t)&&(n[t]=[])}}(jQuery);
+!function(e){
+	var queues={},active={},abortError=function(){return{status:0,statusText:"abort"};},rejectQueued=function(entry){
+		if(entry&&entry.deferred.state()==="pending")entry.deferred.reject(abortError(),"abort","abort");
+	},advance=function(name,entry){
+		if(active[name]!==entry)return;
+		var next=queues[name]&&queues[name].shift();
+		if(next){active[name]=next;next.start();}else{delete queues[name];delete active[name];}
+	};
+	e.ajaxq=function(name,settings){
+		if(typeof settings==="undefined")throw"AjaxQ: queue name is not provided";
+		var deferred=e.Deferred(),promise=deferred.promise(),isFunction=typeof settings==="function",
+			copy=isFunction?null:e.extend(true,{},settings),entry={deferred:deferred,request:null};
+		promise.success=promise.done;promise.error=promise.fail;promise.complete=promise.always;
+		entry.start=function(){
+			var request=e.ajax.apply(window,[isFunction?settings():copy]);
+			entry.request=request;
+			request.done(function(){deferred.resolve.apply(this,arguments);});
+			request.fail(function(){deferred.reject.apply(this,arguments);});
+			request.always(function(){advance(name,entry);});
+		};
+		promise.abort=function(){
+			if(active[name]===entry&&entry.request&&typeof entry.request.abort==="function")entry.request.abort();
+			else if(queues[name]){var index=queues[name].indexOf(entry);if(index!==-1){queues[name].splice(index,1);rejectQueued(entry);}}
+			return promise;
+		};
+		if(active[name]){queues[name].push(entry);}else{queues[name]=queues[name]||[];active[name]=entry;entry.start();}
+		return promise;
+	};
+	e.each(["getq","postq"],function(index,method){e[method]=function(name,url,data,success,dataType){
+		return e.isFunction(data)&&(dataType=dataType||success,success=data,data=void 0),e.ajaxq(name,{type:method==="postq"?"post":"get",url:url,data:data,success:success,dataType:dataType});
+	};});
+	e.ajaxq.isRunning=function(name){
+		if(name)return!!active[name]||!!(queues[name]&&queues[name].length);
+		for(var key in active)if(Object.prototype.hasOwnProperty.call(active,key))return true;
+		return false;
+	};
+	e.ajaxq.getActiveRequest=function(name){if(!name)throw"AjaxQ: queue name is required";return active[name]&&active[name].request;};
+	e.ajaxq.abort=function(name){
+		if(!name)throw"AjaxQ: queue name is required";
+		var current=active[name],pending=queues[name]||[];
+		delete queues[name];delete active[name];pending.forEach(rejectQueued);
+		if(current&&current.request&&typeof current.request.abort==="function")current.request.abort();else rejectQueued(current);
+	};
+	e.ajaxq.clear=function(name){
+		var clearOne=function(queueName){var pending=queues[queueName]||[];queues[queueName]=[];pending.forEach(rejectQueued);};
+		if(name)clearOne(name);else for(var key in queues)if(Object.prototype.hasOwnProperty.call(queues,key))clearOne(key);
+	};
+}(jQuery);
 
 /*
  (c) 2011-2014, Vladimir Agafonkin

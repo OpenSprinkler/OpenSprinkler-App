@@ -1170,3 +1170,54 @@ button[id^="start_1-"] {
         width: 100%;
     }
 }
+.os-error-toast {
+	background: #262626;
+	border-radius: 0.35em;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+	box-sizing: border-box;
+	color: #fff;
+	font-weight: 700;
+	left: 50%;
+	max-width: calc(100% - 2em);
+	opacity: 0;
+	padding: 0.8em 1.1em;
+	pointer-events: none;
+	position: fixed;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	transition: opacity 120ms linear;
+	visibility: hidden;
+	white-space: normal;
+	z-index: 11000;
+}
+
+.os-error-toast.visible {
+	opacity: 1;
+	visibility: visible;
+}
+
+.corrupted-json-modal {
+	position: fixed;
+	inset: 0;
+	z-index: 1100;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 20px;
+	background: rgba(0, 0, 0, 0.55);
+}
+
+.corrupted-json-panel {
+	max-width: 620px;
+	padding: 20px;
+	border: 1px solid #ccc;
+	background: #fff;
+	color: #222;
+}
+
+.corrupted-json-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	justify-content: flex-end;
+}

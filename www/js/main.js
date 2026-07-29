@@ -27,6 +27,7 @@ OSApp.Constants = {
 		REMOVE_STATION: 1
 	},
 	http: {
+		REQUEST_TIMEOUT_MS: 10000,
 		RETRY_COUNT: 2 // Define the amount of times the app will retry an HTTP request before marking it failed
 	},
 	keyIndex: { // Define the mapping between options and JSON keys

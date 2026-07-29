@@ -56,23 +56,34 @@ OSApp.About.displayPage = function() {
 					</li>
 				</ul>
 				<p class="smaller">
-					${OSApp.Language._("App Version")}: ${OSApp.uiState.appVersion}
-					<br>
-					${OSApp.Language._("Firmware")}: <span class="firmware"></span>
-					<br>
-					<span class="hardwareLabel">${OSApp.Language._("Hardware Version")}:</span> <span class="hardware"></span>
+					<span class="app-version">${OSApp.Language._("App Version")}: ${OSApp.uiState.appVersion}</span>
+					<span class="controller-version firmware-version">
+						<br>
+						${OSApp.Language._("Firmware")}: <span class="firmware"></span>
+					</span>
+					<span class="controller-version hardware-version">
+						<br>
+						${OSApp.Language._("Hardware Version")}: <span class="hardware"></span>
+					</span>
 				</p>
 			</div>
 		</div>
 	`),
-	showHardware;
+		controllerConnected,
+		showHardware;
 
 	function begin() {
-		showHardware = typeof OSApp.currentSession.controller.options.hwv !== "undefined" ? false : true;
-		page.find( ".hardware" ).toggleClass( "hidden", showHardware ).text( OSApp.Firmware.getHWVersion() + OSApp.Firmware.getHWType() );
-		page.find( ".hardwareLabel" ).toggleClass( "hidden", showHardware );
+		controllerConnected = OSApp.currentSession.isControllerConnected();
+		page.find( ".controller-version" ).toggleClass( "hidden", !controllerConnected );
+		if ( controllerConnected ) {
+			showHardware = typeof OSApp.currentSession.controller.options.hwv !== "undefined";
+			page.find( ".hardware-version" ).toggleClass( "hidden", !showHardware );
+			if ( showHardware ) {
+				page.find( ".hardware" ).text( OSApp.Firmware.getHWVersion() + OSApp.Firmware.getHWType() );
+			}
 
-		page.find( ".firmware" ).text( OSApp.Firmware.getOSVersion() + OSApp.Firmware.getOSMinorVersion() + OSApp.Firmware.getForkTag() + ( OSApp.Analog.checkAnalogSensorAvail() ? " - ASB" : "" ) );
+			page.find( ".firmware" ).text( OSApp.Firmware.getOSVersion() + OSApp.Firmware.getOSMinorVersion() + OSApp.Firmware.getForkTag() + ( OSApp.Analog.checkAnalogSensorAvail() ? " - ASB" : "" ) );
+		}
 
 		page.one( "pagehide", function() {
 			page.detach();

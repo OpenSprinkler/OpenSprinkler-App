@@ -19,12 +19,36 @@ OSApp.Groups = OSApp.Groups || {};
 
 /* Gid conversions */
 
+OSApp.Groups.normalizeGIDValue = function( value ) {
+	if ( ( typeof value !== "number" && typeof value !== "string" ) ||
+		( typeof value === "string" && value.trim() === "" ) ) {
+		return undefined;
+	}
+
+	var gid = Number( value );
+	if ( !isFinite( gid ) || Math.floor( gid ) !== gid ) {
+		return undefined;
+	}
+
+	if ( ( gid >= 0 && gid < OSApp.Constants.options.NUM_SEQ_GROUPS ) ||
+		gid === OSApp.Constants.options.PARALLEL_GID_VALUE || gid === OSApp.Constants.options.MASTER_GID_VALUE ) {
+		return gid;
+	}
+	return undefined;
+};
+
 // Last index value is dedicated to the parallel group
 OSApp.Groups.mapIndexToGIDValue = function( index ) {
-	return ( index - OSApp.Constants.options.NUM_SEQ_GROUPS ) ? index : OSApp.Constants.options.PARALLEL_GID_VALUE;
+	return OSApp.Groups.normalizeGIDValue(
+		( index - OSApp.Constants.options.NUM_SEQ_GROUPS ) ? index : OSApp.Constants.options.PARALLEL_GID_VALUE
+	);
 };
 
 OSApp.Groups.mapGIDValueToName = function( value ) {
+	value = OSApp.Groups.normalizeGIDValue( value );
+	if ( typeof value === "undefined" ) {
+		return "";
+	}
 	switch ( value ) {
 		case OSApp.Constants.options.PARALLEL_GID_VALUE:
 			return OSApp.Constants.options.PARALLEL_GROUP_NAME;
@@ -36,14 +60,18 @@ OSApp.Groups.mapGIDValueToName = function( value ) {
 };
 
 OSApp.Groups.mapGIDNameToValue = function( groupName ) {
+	var value;
 	switch ( groupName ) {
 		case OSApp.Constants.options.PARALLEL_GROUP_NAME:
-			return OSApp.Constants.options.PARALLEL_GID_VALUE;
+			value = OSApp.Constants.options.PARALLEL_GID_VALUE;
+			break;
 		case OSApp.Constants.options.MASTER_GROUP_NAME:
-			return OSApp.Constants.options.MASTER_GID_VALUE;
+			value = OSApp.Constants.options.MASTER_GID_VALUE;
+			break;
 		default:
-			return groupName.charCodeAt( 0 ) - 65;
+			value = typeof groupName === "string" && groupName ? groupName.charCodeAt( 0 ) - 65 : undefined;
 	}
+	return OSApp.Groups.normalizeGIDValue( value );
 };
 
 // Determines the number of station that are on or scheduled (active)

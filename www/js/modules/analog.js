@@ -13,11 +13,252 @@ var OSApp = OSApp || {};
 OSApp.Analog = {
 	analogSensors: {},
 	progAdjusts: {},
+	editorLifecycleGeneration: 0,
 	Constants: {
 		CHARTS: 11,
+		SENSOR_LOG_MAX_BYTES: 4 * 1024 * 1024,
 		USERDEF_SENSOR: 49,
 		USERDEF_UNIT: 99
 	}
+};
+
+OSApp.Analog.boundedInteger = function( value, min, max, fallback ) {
+	return typeof value === "number" && Number.isSafeInteger( value ) && value >= min && value <= max ? value : fallback;
+};
+
+OSApp.Analog.finiteNumber = function( value, fallback ) {
+	return typeof value === "number" && Number.isFinite( value ) ? value : fallback;
+};
+
+OSApp.Analog.safeString = function( value ) {
+	return typeof value === "string" ? value.slice( 0, 256 ) : "";
+};
+
+OSApp.Analog.parseIntegerInput = function( value, min, max ) {
+	if ( typeof value === "string" && value.trim() === "" ) return undefined;
+	var parsed = Number( value );
+	return Number.isSafeInteger( parsed ) && parsed >= min && parsed <= max ? parsed : undefined;
+};
+
+OSApp.Analog.parseFiniteInput = function( value ) {
+	if ( typeof value === "string" && value.trim() === "" ) return undefined;
+	var parsed = Number( value );
+	return Number.isFinite( parsed ) && Math.abs( parsed ) <= Number.MAX_SAFE_INTEGER ? parsed : undefined;
+};
+
+OSApp.Analog.parseIPv4Input = function( value ) {
+	if ( value === "" ) return 0;
+	if ( typeof value !== "string" ) return undefined;
+	var octets = value.split( "." );
+	if ( octets.length !== 4 || octets.some( function( octet ) {
+		return !/^\d{1,3}$/.test( octet ) || Number( octet ) > 255;
+	} ) ) return undefined;
+	return OSApp.Analog.intFromBytes( octets );
+};
+
+OSApp.Analog.normalizeSensorEditorInput = function( input ) {
+	var type = OSApp.Analog.parseIntegerInput( input.type, 0, 99999 ),
+		result = {
+			nr: OSApp.Analog.parseIntegerInput( input.nr, 1, 99999 ),
+			type: type,
+			group: OSApp.Analog.parseIntegerInput( input.group, 0, 99999 ),
+			name: OSApp.Analog.safeString( input.name ),
+			ip: OSApp.Analog.parseIPv4Input( input.ip ),
+			port: OSApp.Analog.parseIntegerInput( input.port, 0, 65535 ),
+			id: OSApp.Analog.parseIntegerInput( input.id, 0, 65535 ),
+			ri: OSApp.Analog.parseIntegerInput( input.ri, 1, 999999 ),
+			fac: type === OSApp.Analog.Constants.USERDEF_SENSOR ?
+				OSApp.Analog.parseIntegerInput( input.fac, -32768, 32767 ) : 0,
+			div: type === OSApp.Analog.Constants.USERDEF_SENSOR ?
+				OSApp.Analog.parseIntegerInput( input.div, -32768, 32767 ) : 1,
+			unit: type === OSApp.Analog.Constants.USERDEF_SENSOR ? OSApp.Analog.safeString( input.unit ) : "",
+			enable: input.enable ? 1 : 0,
+			log: input.log ? 1 : 0,
+			show: input.show ? 1 : 0
+		};
+	if ( Object.keys( result ).some( function( key ) { return result[ key ] === undefined; } ) || result.div === 0 ) {
+		return null;
+	}
+	return result;
+};
+
+OSApp.Analog.normalizeAdjustmentEditorInput = function( input ) {
+	var result = {
+		nr: OSApp.Analog.parseIntegerInput( input.nr, 1, 99999 ),
+		type: OSApp.Analog.parseIntegerInput( input.type, 0, 99999 ),
+		sensor: OSApp.Analog.parseIntegerInput( input.sensor, 1, 99999 ),
+		prog: OSApp.Analog.parseIntegerInput( input.prog, 1, 255 ),
+		factor1: OSApp.Analog.parseFiniteInput( input.factor1 ),
+		factor2: OSApp.Analog.parseFiniteInput( input.factor2 ),
+		min: OSApp.Analog.parseFiniteInput( input.min ),
+		max: OSApp.Analog.parseFiniteInput( input.max )
+	};
+	if ( Object.keys( result ).some( function( key ) { return result[ key ] === undefined; } ) || result.min > result.max ) {
+		return null;
+	}
+	return result;
+};
+
+OSApp.Analog.normalizeSensors = function( records ) {
+	if ( !Array.isArray( records ) ) return [];
+	return records.slice( 0, 1000 ).reduce( function( result, sensor ) {
+		var nr = sensor && OSApp.Analog.boundedInteger( sensor.nr, 1, 99999 );
+		if ( typeof nr === "undefined" ) return result;
+		result.push( {
+			nr: nr,
+			type: OSApp.Analog.boundedInteger( sensor.type, 0, 99999, 0 ),
+			group: OSApp.Analog.boundedInteger( sensor.group, 0, 99999, 0 ),
+			name: OSApp.Analog.safeString( sensor.name ),
+			ip: OSApp.Analog.boundedInteger( sensor.ip, 0, 0xffffffff, 0 ),
+			port: OSApp.Analog.boundedInteger( sensor.port, 0, 65535, 0 ),
+			id: OSApp.Analog.boundedInteger( sensor.id, 0, 65535, 0 ),
+			ri: OSApp.Analog.boundedInteger( sensor.ri, 1, 999999, 1 ),
+			fac: OSApp.Analog.boundedInteger( sensor.fac, -32768, 32767, 0 ),
+			div: OSApp.Analog.boundedInteger( sensor.div, -32768, 32767, 1 ),
+			unit: OSApp.Analog.safeString( sensor.unit ),
+			unitid: OSApp.Analog.boundedInteger( sensor.unitid, 0, 99999, 0 ),
+			data: OSApp.Analog.finiteNumber( sensor.data, 0 ),
+			nativedata: OSApp.Analog.finiteNumber( sensor.nativedata, 0 ),
+			last: OSApp.Analog.boundedInteger( sensor.last, 0, 0xffffffff, 0 ),
+			data_ok: sensor.data_ok === undefined ? undefined : Boolean( sensor.data_ok ),
+			enable: sensor.enable === 1 || sensor.enable === true ? 1 : 0,
+			log: sensor.log === 1 || sensor.log === true ? 1 : 0,
+			show: sensor.show === 1 || sensor.show === true ? 1 : 0
+		} );
+		return result;
+	}, [] );
+};
+
+OSApp.Analog.normalizeProgramAdjustments = function( records ) {
+	if ( !Array.isArray( records ) ) return [];
+	return records.slice( 0, 1000 ).reduce( function( result, adjustment ) {
+		var nr = adjustment && OSApp.Analog.boundedInteger( adjustment.nr, 1, 99999 );
+		if ( typeof nr === "undefined" ) return result;
+		result.push( {
+			nr: nr,
+			type: OSApp.Analog.boundedInteger( adjustment.type, 0, 99999, 0 ),
+			sensor: OSApp.Analog.boundedInteger( adjustment.sensor, 1, 99999, 0 ),
+			prog: OSApp.Analog.boundedInteger( adjustment.prog, 1, 255, 0 ),
+			factor1: OSApp.Analog.finiteNumber( adjustment.factor1, 0 ),
+			factor2: OSApp.Analog.finiteNumber( adjustment.factor2, 0 ),
+			min: OSApp.Analog.finiteNumber( adjustment.min, 0 ),
+			max: OSApp.Analog.finiteNumber( adjustment.max, 0 ),
+			current: OSApp.Analog.finiteNumber( adjustment.current, 0 )
+		} );
+		return result;
+	}, [] );
+};
+
+OSApp.Analog.normalizeTypeOptions = function( records ) {
+	if ( !Array.isArray( records ) ) return [];
+	return records.slice( 0, 1000 ).reduce( function( result, option ) {
+		var type = option && OSApp.Analog.boundedInteger( option.type, 0, 99999 );
+		if ( typeof type !== "undefined" ) result.push( { type: type, name: OSApp.Analog.safeString( option.name ) } );
+		return result;
+	}, [] );
+};
+
+OSApp.Analog.findRecordIndex = function( records, number ) {
+	if ( !Array.isArray( records ) || !Number.isSafeInteger( number ) ) return -1;
+	for ( var i = 0; i < records.length; i++ ) {
+		if ( records[ i ] && records[ i ].nr === number ) return i;
+	}
+	return -1;
+};
+
+OSApp.Analog.removeRecord = function( records, number ) {
+	var index = OSApp.Analog.findRecordIndex( records, number );
+	if ( index < 0 ) return false;
+	records.splice( index, 1 );
+	return true;
+};
+
+OSApp.Analog.replaceRecord = function( records, number, replacement ) {
+	var index = OSApp.Analog.findRecordIndex( records, number );
+	if ( index < 0 ) return false;
+	records[ index ] = replacement;
+	return true;
+};
+
+OSApp.Analog.normalizeDeletedCount = function( result ) {
+	return result && Number.isSafeInteger( result.deleted ) && result.deleted >= 0 ? result.deleted : null;
+};
+
+OSApp.Analog.downloadSensorLog = function() {
+	var sessionGeneration = OSApp.currentSession.generation || 0,
+		maxBytes = OSApp.Analog.Constants.SENSOR_LOG_MAX_BYTES,
+		dest = "/so?pw=" + encodeURIComponent( String( OSApp.currentSession.pass || "" ) ) + "&csv=1",
+		url = OSApp.currentSession.token ? "https://cloud.openthings.io/forward/v1/" + OSApp.currentSession.token + dest :
+			OSApp.currentSession.prefix + OSApp.currentSession.ip + dest,
+		authHeader = OSApp.currentSession.auth ?
+			OSApp.Utils.getBasicAuthHeader( OSApp.currentSession.authUser, OSApp.currentSession.authPass ) : null,
+		tooLarge = false,
+		requestOptions = {
+			url: url,
+			type: "GET",
+			dataType: "text",
+			cache: false,
+			xhr: function() {
+				var xhr = $.ajaxSettings.xhr();
+				if ( xhr && typeof xhr.addEventListener === "function" ) {
+					xhr.addEventListener( "progress", function( event ) {
+						if ( event.loaded > maxBytes ) {
+							tooLarge = true;
+							xhr.abort();
+						}
+					} );
+				}
+				return xhr;
+			}
+		};
+
+	if ( authHeader ) {
+		requestOptions.beforeSend = function( xhr ) {
+			xhr.setRequestHeader( "Authorization", authHeader );
+		};
+	}
+
+	return $.ajax( requestOptions ).then( function( csv ) {
+		if ( sessionGeneration !== ( OSApp.currentSession.generation || 0 ) ) return false;
+		if ( typeof csv !== "string" || !window.URL ||
+			typeof window.URL.createObjectURL !== "function" || typeof window.Blob !== "function" ) {
+			OSApp.Errors.showError( OSApp.Language._( "Unable to download sensor log." ) );
+			return false;
+		}
+		if ( tooLarge || csv.length > maxBytes ) {
+			OSApp.Errors.showError( OSApp.Language._( "Sensor log is too large to download." ) );
+			return false;
+		}
+
+		var blob = new window.Blob( [ csv ], { type:"text/csv;charset=utf-8" } );
+		if ( blob.size > maxBytes ) {
+			OSApp.Errors.showError( OSApp.Language._( "Sensor log is too large to download." ) );
+			return false;
+		}
+
+		var controllerDate = OSApp.Dates.currentControllerDate(),
+			objectUrl = window.URL.createObjectURL( blob ),
+			link = $( "<a>" ).css( "display", "none" ).attr( {
+				download: "sensorlog-" + OSApp.Dates.dateOnly( controllerDate ).replace( /\//g, "-" ) + ".csv",
+				href: objectUrl
+			} ).appendTo( document.body );
+		try {
+			link.get( 0 ).click();
+		} finally {
+			link.remove();
+			if ( typeof window.URL.revokeObjectURL === "function" ) {
+				setTimeout( function() {
+					window.URL.revokeObjectURL( objectUrl );
+				}, 0 );
+			}
+		}
+		return true;
+	}, function() {
+		if ( sessionGeneration === ( OSApp.currentSession.generation || 0 ) ) {
+			OSApp.Errors.showError( OSApp.Language._( tooLarge ? "Sensor log is too large to download." : "Unable to download sensor log." ) );
+		}
+		return false;
+	} );
 };
 
 OSApp.Analog.checkAnalogSensorAvail = function() {
@@ -33,7 +274,7 @@ OSApp.Analog.refresh = function() {
 OSApp.Analog.updateProgramAdjustments = function( callback ) {
 	callback = callback || function() { };
 	return OSApp.Firmware.sendToOS( "/se?pw=", "json" ).then( function( data ) {
-		OSApp.Analog.progAdjusts = data.progAdjust;
+		OSApp.Analog.progAdjusts = OSApp.Analog.normalizeProgramAdjustments( data && data.progAdjust );
 		callback();
 	} );
 };
@@ -41,14 +282,13 @@ OSApp.Analog.updateProgramAdjustments = function( callback ) {
 OSApp.Analog.updateAnalogSensor = function( callback ) {
 	callback = callback || function() { };
 	return OSApp.Firmware.sendToOS( "/sl?pw=", "json" ).then( function( data ) {
-		OSApp.Analog.analogSensors = data.sensors;
+		OSApp.Analog.analogSensors = OSApp.Analog.normalizeSensors( data && data.sensors );
 		callback();
 	} );
 };
 
 OSApp.Analog.updateSensorShowArea = function( page ) {
-	var showArea = page.find( "#os-sensor-show" ),
-		html = "";
+	var showArea = page.find( "#os-sensor-show" ).empty();
 
 	if ( OSApp.Analog.checkAnalogSensorAvail() ) {
 		var i, j;
@@ -65,25 +305,23 @@ OSApp.Analog.updateSensorShowArea = function( page ) {
 				progName = OSApp.Programs.readProgram( OSApp.currentSession.controller.programs.pd[ progAdjust.prog - 1 ] ).name;
 			}
 
-			html += "<div id='progAdjust-show-" + progAdjust.nr + "' class='ui-body ui-body-a center'>";
-			html += "<label>" + sensorName + " - " + progName + ": " + Math.round( progAdjust.current * 100 ) + "%</label>";
-			html += "</div>";
+			$( "<div>" ).attr( "id", "progAdjust-show-" + progAdjust.nr )
+				.addClass( "ui-body ui-body-a center" )
+				.append( $( "<label>" ).text( sensorName + " - " + progName + ": " + Math.round( progAdjust.current * 100 ) + "%" ) )
+				.appendTo( showArea );
 		}
 
 		for ( i = 0; i < OSApp.Analog.analogSensors.length; i++ ) {
 			var sensor = OSApp.Analog.analogSensors[ i ];
 			if ( sensor.show ) {
-				html += "<div id='sensor-show-" + sensor.nr + "' class='ui-body ui-body-a center'>";
-				html += "<label>" + sensor.name + ": " + ( Number( Math.round( sensor.data + "e+2" ) + "e-2" ) ) + sensor.unit + "</label>";
-				html += "</div>";
+				$( "<div>" ).attr( "id", "sensor-show-" + sensor.nr )
+					.addClass( "ui-body ui-body-a center" )
+					.append( $( "<label>" ).text( sensor.name + ": " +
+						Number( Math.round( sensor.data + "e+2" ) + "e-2" ) + sensor.unit ) )
+					.appendTo( showArea );
 			}
 		}
 	}
-
-	while ( showArea.firstChild ) {
-		showArea.removeChild( showArea.firstChild );
-	}
-	showArea.html( html );
 };
 
 OSApp.Analog.toByteArray = function( b ) {
@@ -112,9 +350,18 @@ OSApp.Analog.intFromBytes = function( x ) {
 
 //Program adjustments editor
 OSApp.Analog.showAdjustmentsEditor = function( progAdjust, callback ) {
+	var editorGeneration = OSApp.Analog.editorLifecycleGeneration,
+		sessionGeneration = OSApp.currentSession.generation || 0,
+		configPage = $( "#analogsensorconfig" ),
+		isRequestCurrent = function() {
+			return editorGeneration === OSApp.Analog.editorLifecycleGeneration &&
+				sessionGeneration === ( OSApp.currentSession.generation || 0 ) && configPage.length > 0 &&
+				$.contains( document.documentElement, configPage.get( 0 ) );
+		};
 
 	OSApp.Firmware.sendToOS( "/sh?pw=", "json" ).then( function( data ) {
-		var supportedAdjustmentTypes = data.progTypes;
+		if ( !isRequestCurrent() ) return;
+		var supportedAdjustmentTypes = OSApp.Analog.normalizeTypeOptions( data && data.progTypes );
 		var i;
 
 		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
@@ -146,7 +393,7 @@ OSApp.Analog.showAdjustmentsEditor = function( progAdjust, callback ) {
 		for ( i = 0; i < supportedAdjustmentTypes.length; i++ ) {
 			list += "<option " + ( ( progAdjust.type === supportedAdjustmentTypes[ i ].type ) ? "selected" : "" ) +
 				" value='" + supportedAdjustmentTypes[ i ].type + "'>" +
-				supportedAdjustmentTypes[ i ].name + "</option>";
+				OSApp.Utils.htmlEscape( supportedAdjustmentTypes[ i ].name ) + "</option>";
 		}
 		list += "</select></div>" +
 
@@ -158,7 +405,7 @@ OSApp.Analog.showAdjustmentsEditor = function( progAdjust, callback ) {
 		for ( i = 0; i < OSApp.Analog.analogSensors.length; i++ ) {
 			list += "<option " + ( ( progAdjust.sensor === OSApp.Analog.analogSensors[ i ].nr ) ? "selected" : "" ) +
 				" value='" + OSApp.Analog.analogSensors[ i ].nr + "'>" +
-				OSApp.Analog.analogSensors[ i ].nr + " - " + OSApp.Analog.analogSensors[ i ].name + "</option>";
+				OSApp.Analog.analogSensors[ i ].nr + " - " + OSApp.Utils.htmlEscape( OSApp.Analog.analogSensors[ i ].name ) + "</option>";
 		}
 		list += "</select></div>" +
 
@@ -173,7 +420,7 @@ OSApp.Analog.showAdjustmentsEditor = function( progAdjust, callback ) {
 
 			list += "<option " + ( ( progAdjust.prog === progNr ) ? "selected" : "" ) +
 				" value='" + progNr + "'>" +
-				progName + "</option>";
+				OSApp.Utils.htmlEscape( progName ) + "</option>";
 		}
 		list += "</select></div>" +
 
@@ -217,16 +464,16 @@ OSApp.Analog.showAdjustmentsEditor = function( progAdjust, callback ) {
 
 		popup.find( ".submit" ).on( "click", function() {
 
-			var progAdjust = {
-				nr: parseInt( popup.find( ".nr" ).val() ),
-				type: parseInt( popup.find( "#type" ).val() ),
-				sensor: parseInt( popup.find( "#sensor" ).val() ),
-				prog: parseInt( popup.find( "#prog" ).val() ),
-				factor1: parseFloat( popup.find( ".factor1" ).val() ),
-				factor2: parseFloat( popup.find( ".factor2" ).val() ),
-				min: parseFloat( popup.find( ".min" ).val() ),
-				max: parseFloat( popup.find( ".max" ).val() )
-			};
+			var progAdjust = OSApp.Analog.normalizeAdjustmentEditorInput( {
+				nr: popup.find( ".nr" ).val(), type: popup.find( "#type" ).val(),
+				sensor: popup.find( "#sensor" ).val(), prog: popup.find( "#prog" ).val(),
+				factor1: popup.find( ".factor1" ).val(), factor2: popup.find( ".factor2" ).val(),
+				min: popup.find( ".min" ).val(), max: popup.find( ".max" ).val()
+			} );
+			if ( !progAdjust ) {
+				OSApp.Errors.showError( OSApp.Language._( "Please enter valid program adjustment values." ) );
+				return false;
+			}
 			callback( progAdjust );
 
 			popup.popup( "close" );
@@ -278,9 +525,18 @@ OSApp.Analog.isSmt100 = function( sensorType ) {
 
 // Analog sensor editor
 OSApp.Analog.showSensorEditor = function( sensor, callback ) {
+	var editorGeneration = OSApp.Analog.editorLifecycleGeneration,
+		sessionGeneration = OSApp.currentSession.generation || 0,
+		configPage = $( "#analogsensorconfig" ),
+		isRequestCurrent = function() {
+			return editorGeneration === OSApp.Analog.editorLifecycleGeneration &&
+				sessionGeneration === ( OSApp.currentSession.generation || 0 ) && configPage.length > 0 &&
+				$.contains( document.documentElement, configPage.get( 0 ) );
+		};
 
 	OSApp.Firmware.sendToOS( "/sf?pw=", "json" ).then( function( data ) {
-		var supportedSensorTypes = data.sensorTypes;
+		if ( !isRequestCurrent() ) return;
+		var supportedSensorTypes = OSApp.Analog.normalizeTypeOptions( data && data.sensorTypes );
 		var i;
 
 		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
@@ -307,7 +563,7 @@ OSApp.Analog.showSensorEditor = function( sensor, callback ) {
 		for ( i = 0; i < supportedSensorTypes.length; i++ ) {
 			list += "<option " + ( ( sensor.type === supportedSensorTypes[ i ].type ) ? "selected" : "" ) +
 				" value='" + supportedSensorTypes[ i ].type + "'>" +
-				supportedSensorTypes[ i ].name + "</option>";
+				OSApp.Utils.htmlEscape( supportedSensorTypes[ i ].name ) + "</option>";
 		}
 		list += "</select></div>";
 
@@ -321,7 +577,7 @@ OSApp.Analog.showSensorEditor = function( sensor, callback ) {
 			"<label>" +
 			OSApp.Language._( "Name" ) +
 			"</label>" +
-			"<input class='name' type='text'  value='" + sensor.name + "'>" +
+			"<input class='name' type='text'  value='" + OSApp.Utils.htmlEscape( sensor.name || "" ) + "'>" +
 
 			"<label>" +
 			OSApp.Language._( "IP Address" ) +
@@ -352,7 +608,7 @@ OSApp.Analog.showSensorEditor = function( sensor, callback ) {
 						"<label>" +
 							OSApp.Language._( "Unit" ) +
 						"</label>" +
-						"<input class='unit' type='text'  value='" + sensor.unit + "'>"
+						"<input class='unit' type='text'  value='" + OSApp.Utils.htmlEscape( sensor.unit || "" ) + "'>"
 						) : "" ) +
 
 			"<label>" +
@@ -393,8 +649,12 @@ OSApp.Analog.showSensorEditor = function( sensor, callback ) {
 
 		//SMT 100 Toolbox function: SET ID
 		popup.find( "#smt100id" ).on( "click", function() {
-			var nr = parseInt( popup.find( ".nr" ).val() ),
-				newid = parseInt( popup.find( ".id" ).val() );
+			var nr = OSApp.Analog.parseIntegerInput( popup.find( ".nr" ).val(), 1, 99999 ),
+				newid = OSApp.Analog.parseIntegerInput( popup.find( ".id" ).val(), 0, 65535 );
+			if ( nr === undefined || newid === undefined ) {
+				OSApp.Errors.showError( OSApp.Language._( "Please enter a valid sensor number and ID." ) );
+				return false;
+			}
 			popup.popup( "close" );
 			OSApp.UIDom.areYouSure( OSApp.Language._( "This function sets the Modbus ID for one SMT100 sensor. Disconnect all other sensors on this Modbus port. Please confirm." ),
 				"new id=" + newid, function() {
@@ -420,22 +680,19 @@ OSApp.Analog.showSensorEditor = function( sensor, callback ) {
 					}
 				}
 			}
-			var sensorOut = {
-				nr: parseInt( popup.find( ".nr" ).val() ),
-				type: parseInt( popup.find( "#type" ).val() ),
-				group: parseInt( popup.find( ".group" ).val() ),
-				name: popup.find( ".name" ).val(),
-				ip: OSApp.Analog.intFromBytes( popup.find( ".ip" ).val().split( "." ) ),
-				port: parseInt( popup.find( ".port" ).val() ),
-				id: parseInt( popup.find( ".id" ).val() ),
-				ri: parseInt( popup.find( ".ri" ).val() ),
-				fac: parseInt( popup.find( ".fac" ).val() ),
-				div: parseInt( popup.find( ".div" ).val() ),
-				unit: popup.find( ".unit" ).val(),
-				enable: popup.find( "#enable" ).is( ":checked" ) ? 1 : 0,
-				log: popup.find( "#log" ).is( ":checked" ) ? 1 : 0,
-				show: popup.find( "#show" ).is( ":checked" ) ? 1 : 0
-			};
+			var sensorOut = OSApp.Analog.normalizeSensorEditorInput( {
+				nr: popup.find( ".nr" ).val(), type: popup.find( "#type" ).val(),
+				group: popup.find( ".group" ).val(), name: popup.find( ".name" ).val(),
+				ip: popup.find( ".ip" ).val(), port: popup.find( ".port" ).val(),
+				id: popup.find( ".id" ).val(), ri: popup.find( ".ri" ).val(),
+				fac: popup.find( ".fac" ).val(), div: popup.find( ".div" ).val(),
+				unit: popup.find( ".unit" ).val(), enable: popup.find( "#enable" ).is( ":checked" ),
+				log: popup.find( "#log" ).is( ":checked" ), show: popup.find( "#show" ).is( ":checked" )
+			} );
+			if ( !sensorOut ) {
+				OSApp.Errors.showError( OSApp.Language._( "Please enter valid sensor values." ) );
+				return false;
+			}
 
 			callback( sensorOut );
 
@@ -487,6 +744,7 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 	page
 		.on( "sensorrefresh", updateSensorContent )
 		.on( "pagehide", function() {
+			OSApp.Analog.editorLifecycleGeneration++;
 			page.detach();
 		} );
 
@@ -497,11 +755,11 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 		list.find( "#delete-sensor" ).on( "click", function() {
 			var dur = $( this ),
 				value = dur.attr( "value" ),
-				row = dur.attr( "row" );
+				sensorNumber = Number( value );
 
 			OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to delete the sensor?" ), value, function() {
 				OSApp.Firmware.sendToOS( "/sc?pw=&nr=" + value + "&type=0" ).done( function() {
-					OSApp.Analog.analogSensors.splice( row, 1 );
+					OSApp.Analog.removeRecord( OSApp.Analog.analogSensors, sensorNumber );
 					updateSensorContent();
 				} );
 			} );
@@ -512,7 +770,8 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 			var dur = $( this ),
 				row = dur.attr( "row" );
 
-			var sensor = OSApp.Analog.analogSensors[ row ];
+			var sensor = OSApp.Analog.analogSensors[ row ],
+				sensorNumber = sensor.nr;
 
 			OSApp.Analog.showSensorEditor( sensor, function( sensorOut ) {
 				sensorOut.nativedata = sensor.nativedata;
@@ -521,7 +780,7 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 				OSApp.Firmware.sendToOS( "/sc?pw=&nr=" + sensorOut.nr +
 					"&type=" + sensorOut.type +
 					"&group=" + sensorOut.group +
-					"&name=" + sensorOut.name +
+					"&name=" + encodeURIComponent( sensorOut.name ) +
 					"&ip=" + sensorOut.ip +
 					"&port=" + sensorOut.port +
 					"&id=" + sensorOut.id +
@@ -529,13 +788,13 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 					( ( sensorOut.type === OSApp.Analog.Constants.USERDEF_SENSOR ) ?
 						( "&fac=" + sensorOut.fac +
 						"&div=" + sensorOut.div +
-						"&unit=" + sensorOut.unit
+						"&unit=" + encodeURIComponent( sensorOut.unit )
 						) : "" ) +
 					"&enable=" + sensorOut.enable +
 					"&log=" + sensorOut.log +
 					"&show=" + sensorOut.show
 				).done( function() {
-					OSApp.Analog.analogSensors[ row ] = sensorOut;
+					OSApp.Analog.replaceRecord( OSApp.Analog.analogSensors, sensorNumber, sensorOut );
 					updateSensorContent();
 				} );
 			} );
@@ -544,18 +803,26 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 		// Add a new analog sensor:
 		list.find( "#add-sensor" ).on( "click", function() {
 			var sensor = {
+				nr: "",
 				name: "new sensor",
 				type: 1,
+				group: 0,
+				ip: 0,
+				port: 0,
+				id: 0,
 				ri: 600,
+				fac: 0,
+				div: 1,
 				enable: 1,
-				log: 1
+				log: 1,
+				show: 0
 			};
 
 			OSApp.Analog.showSensorEditor( sensor, function( sensorOut ) {
 				OSApp.Firmware.sendToOS( "/sc?pw=&nr=" + sensorOut.nr +
 					"&type=" + sensorOut.type +
 					"&group=" + sensorOut.group +
-					"&name=" + sensorOut.name +
+					"&name=" + encodeURIComponent( sensorOut.name ) +
 					"&ip=" + sensorOut.ip +
 					"&port=" + sensorOut.port +
 					"&id=" + sensorOut.id +
@@ -563,7 +830,7 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 				( ( sensorOut.type === OSApp.Analog.Constants.USERDEF_SENSOR ) ?
 					( "&fac=" + sensorOut.fac +
 					"&div=" + sensorOut.div +
-					"&unit=" + sensorOut.unit
+					"&unit=" + encodeURIComponent( sensorOut.unit )
 				) : "" ) +
 					"&enable=" + sensorOut.enable +
 					"&log=" + sensorOut.log +
@@ -588,11 +855,11 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 		list.find( "#delete-progadjust" ).on( "click", function() {
 			var dur = $( this ),
 				value = dur.attr( "value" ),
-				row = dur.attr( "row" );
+				adjustmentNumber = Number( value );
 
 			OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to delete this program adjustment?" ), value, function() {
 				OSApp.Firmware.sendToOS( "/sb?pw=&nr=" + value + "&type=0" ).done( function() {
-					OSApp.Analog.progAdjusts.splice( row, 1 );
+					OSApp.Analog.removeRecord( OSApp.Analog.progAdjusts, adjustmentNumber );
 					updateSensorContent();
 				} );
 			} );
@@ -603,7 +870,8 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 			var dur = $( this ),
 				row = dur.attr( "row" );
 
-			var progAdjust = OSApp.Analog.progAdjusts[ row ];
+			var progAdjust = OSApp.Analog.progAdjusts[ row ],
+				adjustmentNumber = progAdjust.nr;
 
 			OSApp.Analog.showAdjustmentsEditor( progAdjust, function( progAdjustOut ) {
 
@@ -616,7 +884,7 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 					"&min=" + progAdjustOut.min +
 					"&max=" + progAdjustOut.max
 				).done( function() {
-					OSApp.Analog.progAdjusts[ row ] = progAdjustOut;
+					OSApp.Analog.replaceRecord( OSApp.Analog.progAdjusts, adjustmentNumber, progAdjustOut );
 					updateSensorContent();
 				} );
 			} );
@@ -625,7 +893,12 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 		//Add a new program adjust:
 		list.find( "#add-progadjust" ).on( "click", function() {
 			var progAdjust = {
-				type: 1
+				nr: "",
+				type: 1,
+				factor1: 0,
+				factor2: 0,
+				min: 0,
+				max: 0
 			};
 
 			OSApp.Analog.showAdjustmentsEditor( progAdjust, function( progAdjustOut ) {
@@ -648,23 +921,20 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 		list.find( "#clear-log" ).on( "click", function() {
 			OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to clear the sensor log?" ), "", function() {
 				OSApp.Firmware.sendToOS( "/sn?pw=&" ).done( function( result ) {
-					window.alert( OSApp.Language._( "Log cleared:" ) + " " + result.deleted + " " + OSApp.Language._( "records" ) );
+					var deleted = OSApp.Analog.normalizeDeletedCount( result );
+					if ( deleted === null ) {
+						OSApp.Errors.showError( OSApp.Language._( "Unable to clear sensor log." ) );
+						return;
+					}
+					window.alert( OSApp.Language._( "Log cleared:" ) + " " + deleted + " " + OSApp.Language._( "records" ) );
 					updateSensorContent();
 				} );
 			} );
 		} );
 
 		list.find( "#download-log" ).on( "click", function() {
-			var link = document.createElement( "a" );
-			link.style.display = "none";
-			link.setAttribute( "download", "sensorlog-" + new Date().toLocaleDateString().replace( /\//g, "-" ) + ".csv" );
-
-			var dest = "/so?pw=&csv=1";
-			dest = dest.replace( "pw=", "pw=" + encodeURIComponent( OSApp.currentSession.pass ) );
-			link.target = "_blank";
-			link.href = OSApp.currentSession.token ? "https://cloud.openthings.io/forward/v1/" + OSApp.currentSession.token + dest : OSApp.currentSession.prefix + OSApp.currentSession.ip + dest;
-			document.body.appendChild( link ); // Required for FF
-			link.click();
+			OSApp.Analog.downloadSensorLog();
+			return false;
 		} );
 
 		list.find( "#show-log" ).on( "click", function() {
@@ -676,6 +946,7 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 	}
 
 	function begin() {
+		OSApp.Analog.editorLifecycleGeneration++;
 		OSApp.UIDom.changeHeader( {
 			title: OSApp.Language._( "Analog Sensor Config" ),
 			leftBtn: {
@@ -720,7 +991,8 @@ OSApp.Analog.buildSensorConfig = function() {
 			"<td>" + ( item.enable ? checkpng : "" ) + "</td>",
 			"<td class=\"hidecol\">" + ( item.log ? checkpng : "" ) + "</td>",
 			"<td class=\"hidecol\">" + ( item.show ? checkpng : "" ) + "</td>",
-			$( "<td class=\"hidecol2\">" ).text( ( item.data_ok === undefined || item.data_ok ) ? OSApp.Dates.dateToString( new Date( item.last * 1000 ) ) : "Error", null, 2 ),
+			$( "<td class=\"hidecol2\">" ).text( ( item.data_ok === undefined || item.data_ok ) ?
+				( item.last > 0 ? OSApp.Dates.dateToString( new Date( item.last * 1000 ) ) : "--" ) : "Error" ),
 			"<td><button data-mini='true' class='center-div' id='edit-sensor' value='" + item.nr + "' row='" + row + "'>" + OSApp.Language._( "Edit" ) + "</button></td>",
 			"<td><button data-mini='true' class='center-div' id='delete-sensor' value='" + item.nr + "' row='" + row + "'>" + OSApp.Language._( "Delete" ) + "</button></td>"
 		);
@@ -791,38 +1063,57 @@ OSApp.Analog.buildSensorConfig = function() {
 
 // Show Sensor Charts with apexcharts
 OSApp.Analog.showAnalogSensorCharts = ( function() {
-
-	var max = OSApp.Analog.Constants.CHARTS;
-	for ( var j = 0; j < OSApp.Analog.analogSensors.length; j++ ) {
-		if ( !OSApp.Analog.analogSensors[ j ].log ) {
-			continue;
-		}
-		var unitid = OSApp.Analog.analogSensors[ j ].unitid;
-		if ( unitid === OSApp.Analog.Constants.USERDEF_UNIT ) {
-			max++;
-		}
-	}
-
-	var last = "", week = "", month = "";
-	for ( j = 1; j <= max; j++ ) {
-		last  += "<div id='myChart" + j + "'></div>";
-		week  += "<div id='myChartW" + j + "'></div>";
-		month += "<div id='myChartM" + j + "'></div>";
-	}
-
-	var page = $( "<div data-role='page' id='analogsensorchart'>" +
-		"<div class='ui-content' role='main' style='width: 95%'>" +
-		last + week + month +
-		"</div></div>" );
-
 	function begin() {
-		$.mobile.loading( "show" );
+		var max = OSApp.Analog.Constants.CHARTS,
+			last = "",
+			week = "",
+			month = "",
+			active = true,
+			loaderOwned = false,
+			sessionGeneration = OSApp.currentSession.generation || 0,
+			isActive = function() {
+				return active && sessionGeneration === ( OSApp.currentSession.generation || 0 );
+			},
+			stopChain = function() {
+				return $.Deferred().reject( { statusText:"stale-session" } ).promise();
+			},
+			settleLoader = function() {
+				if ( loaderOwned ) {
+					loaderOwned = false;
+					$.mobile.loading( "hide" );
+				}
+			},
+			j;
+
+		for ( j = 0; j < OSApp.Analog.analogSensors.length; j++ ) {
+			if ( OSApp.Analog.analogSensors[ j ].log && OSApp.Analog.analogSensors[ j ].unitid === OSApp.Analog.Constants.USERDEF_UNIT ) {
+				max++;
+			}
+		}
+
+		for ( j = 0; j < max; j++ ) {
+			last  += "<div id='myChart" + j + "'></div>";
+			week  += "<div id='myChartW" + j + "'></div>";
+			month += "<div id='myChartM" + j + "'></div>";
+		}
+
+		var page = $( "<div data-role='page' id='analogsensorchart'>" +
+			"<div class='ui-content' role='main' style='width: 95%'>" +
+			last + week + month +
+			"</div></div>" );
 
 		var chart1 = new Array( OSApp.Analog.Constants.CHARTS ),
 			chart2 = new Array( OSApp.Analog.Constants.CHARTS ),
 			chart3 = new Array( OSApp.Analog.Constants.CHARTS );
 
 		page.one( "pagehide", function() {
+			active = false;
+			[ chart1, chart2, chart3 ].forEach( function( charts ) {
+				charts.forEach( function( chart ) {
+					if ( chart && typeof chart.destroy === "function" ) chart.destroy();
+				} );
+			} );
+			settleLoader();
 			page.detach();
 		} );
 
@@ -838,26 +1129,61 @@ OSApp.Analog.showAnalogSensorCharts = ( function() {
 
 		$( "#analogsensorchart" ).remove();
 		$.mobile.pageContainer.append( page );
+		$.mobile.loading( "show" );
+		loaderOwned = true;
 
-		OSApp.Firmware.sendToOS( "/so?pw=&lasthours=24&csv=2", "text" ).then( function( csv1 ) {
-			OSApp.Analog.buildGraph( "#myChart", chart1, csv1, OSApp.Language._( "last 24h" ), "HH:mm" );
+		var dateFormats = OSApp.Analog.getChartDateFormats();
 
-			OSApp.Firmware.sendToOS( "/so?pw=&csv=2&log=1", "text" ).then( function( csv2 ) {
-				OSApp.Analog.buildGraph( "#myChartW", chart2, csv2, OSApp.Language._( "last weeks" ), "dd.MM.yyyy" );
-
-				OSApp.Firmware.sendToOS( "/so?pw=&csv=2&log=2", "text" ).then( function( csv3 ) {
-					OSApp.Analog.buildGraph( "#myChartM", chart3, csv3, OSApp.Language._( "last months" ), "MM.yyyy" );
-					$.mobile.loading( "hide" );
-				} );
-			} );
+		return OSApp.Firmware.sendToOS( "/so?pw=&lasthours=24&csv=2", "text" ).then( function( csv1 ) {
+			if ( !isActive() ) return stopChain();
+			OSApp.Analog.buildGraph( "#myChart", chart1, csv1, OSApp.Language._( "last 24h" ), dateFormats.time );
+			return OSApp.Firmware.sendToOS( "/so?pw=&csv=2&log=1", "text" );
+		} ).then( function( csv2 ) {
+			if ( !isActive() ) return stopChain();
+			OSApp.Analog.buildGraph( "#myChartW", chart2, csv2, OSApp.Language._( "last weeks" ), dateFormats.date );
+			return OSApp.Firmware.sendToOS( "/so?pw=&csv=2&log=2", "text" );
+		} ).then( function( csv3 ) {
+			if ( !isActive() ) return;
+			OSApp.Analog.buildGraph( "#myChartM", chart3, csv3, OSApp.Language._( "last months" ), dateFormats.date );
+		} ).always( function() {
+			if ( isActive() ) settleLoader();
 		} );
 	}
 
 	return begin;
 } )();
 
+OSApp.Analog.getChartDateFormats = function() {
+	return {
+		time: OSApp.uiState.is24Hour ? "HH:mm" : "hh:mm TT",
+		date: "MM/dd/yyyy",
+		dateTime: "MM/dd/yyyy " + ( OSApp.uiState.is24Hour ? "HH:mm:ss" : "hh:mm:ss TT" )
+	};
+};
+
+OSApp.Analog.normalizeChartCsv = function( csv ) {
+	if ( typeof csv !== "string" || csv.length > 4 * 1024 * 1024 ) return null;
+	var result = Object.create( null ),
+		lines = csv.split( /(?:\r\n|\n)+/ );
+	if ( lines.length > 50001 ) return null;
+	for ( var index = 1; index < lines.length; index++ ) {
+		if ( lines[ index ] === "" ) continue;
+		var line = lines[ index ].split( ";" ),
+			nr = Number( line[ 0 ] ),
+			timestamp = Number( line[ 1 ] ),
+			value = Number( line[ 2 ] );
+		if ( line.length < 3 || !Number.isSafeInteger( nr ) || nr < 1 || nr > 99999 ||
+			!Number.isSafeInteger( timestamp ) || timestamp < 0 || timestamp > 0xffffffff ||
+			!Number.isFinite( value ) || Math.abs( value ) > Number.MAX_SAFE_INTEGER ) continue;
+		if ( !result[ nr ] ) result[ nr ] = [];
+		result[ nr ].push( { x:timestamp * 1000, y:value } );
+	}
+	return result;
+};
+
 OSApp.Analog.buildGraph = function( prefix, chart, csv, titleAdd, timestr ) {
-	var csvlines = csv.split( /(?:\r\n|\n)+/ ).filter( function( el ) { return el.length !== 0; } );
+	var chartData = OSApp.Analog.normalizeChartCsv( csv );
+	if ( !chartData ) return false;
 
 	for ( var j = 0; j < OSApp.Analog.analogSensors.length; j++ ) {
 		if ( !OSApp.Analog.analogSensors[ j ].log ) {
@@ -865,15 +1191,8 @@ OSApp.Analog.buildGraph = function( prefix, chart, csv, titleAdd, timestr ) {
 		}
 
 		var nr = OSApp.Analog.analogSensors[ j ].nr,
-			logdata = [],
+			logdata = chartData[ nr ] || [],
 			unitid = OSApp.Analog.analogSensors[ j ].unitid;
-
-		for ( var k = 1; k < csvlines.length; k++ ) {
-			var line = csvlines[ k ].split( ";" );
-			if ( line.length >= 3 && Number( line[ 0 ] ) === nr ) {
-				logdata.push( { x: Number( line[ 1 ] ) * 1000, y: Number( line[ 2 ] ) } );
-			}
-		}
 		var series = { name: OSApp.Analog.analogSensors[ j ].name, data: logdata };
 
 		// User defined sensor:
@@ -885,6 +1204,8 @@ OSApp.Analog.buildGraph = function( prefix, chart, csv, titleAdd, timestr ) {
 		}
 
 		if ( !chart[ unitid ] ) {
+			var chartElement = document.querySelector( prefix + unitid );
+			if ( !chartElement ) continue;
 			var unit, title, unitStr,
 				minFunc = function( val ) { return Math.floor( Math.max( 0, val - 4 ) ); },
 				maxFunc = function( val ) { return Math.ceil( val ); },
@@ -982,7 +1303,7 @@ OSApp.Analog.buildGraph = function( prefix, chart, csv, titleAdd, timestr ) {
 				},
 				tooltip: {
 					x: {
-						format: "dd.MM.yyyy HH:mm:ss"
+						format: OSApp.Analog.getChartDateFormats().dateTime
 					}
 				},
 				xaxis: {
@@ -1005,7 +1326,7 @@ OSApp.Analog.buildGraph = function( prefix, chart, csv, titleAdd, timestr ) {
 				title: { text: title }
 			};
 
-			chart[ unitid ] = new ApexCharts( document.querySelector( prefix + unitid ), options );
+			chart[ unitid ] = new ApexCharts( chartElement, options );
 			chart[ unitid ].render();
 		} else {
 			chart[ unitid ].appendSeries( series );
@@ -1020,4 +1341,5 @@ OSApp.Analog.buildGraph = function( prefix, chart, csv, titleAdd, timestr ) {
 			}
 		}
 	}
+	return true;
 };

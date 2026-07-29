@@ -18,9 +18,12 @@ OSApp.StationAttributes = OSApp.StationAttributes || {};
 // Determines if a station is bound to the master (masid)
 OSApp.StationAttributes.getMasterOperation = function( sid, masid ) {
 	var bid = ( sid / 8 ) >> 0,
+		stationNames = OSApp.currentSession.controller && OSApp.currentSession.controller.stations &&
+			OSApp.currentSession.controller.stations.snames,
 		sourceMasterAttribute;
 
-	if ( !OSApp.Supported.master( masid ) ) { return 0; }
+	if ( !Number.isSafeInteger( sid ) || sid < 0 || !Array.isArray( stationNames ) || sid >= stationNames.length ||
+		!OSApp.Supported.master( masid ) ) { return 0; }
 
 	switch ( masid ) {
 		case OSApp.Constants.options.MASTER_STATION_1:
@@ -32,6 +35,8 @@ OSApp.StationAttributes.getMasterOperation = function( sid, masid ) {
 		default:
 			return 0;
 	}
+
+	if ( !Array.isArray( sourceMasterAttribute ) || bid < 0 || bid >= sourceMasterAttribute.length ) return 0;
 
 	var boardMasterAttribute = sourceMasterAttribute[ bid ],
 		boardStationID = 1 << ( sid % 8 );
