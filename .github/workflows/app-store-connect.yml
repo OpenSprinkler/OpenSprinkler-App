@@ -5,16 +5,61 @@ on:
     branches:
       - master
 
-permissions:
-  contents: read
+permissions: {}
+
+concurrency:
+  group: app-store-deploy
+  cancel-in-progress: false
 
 jobs:
-  build_ios:
-    runs-on: macos-15
+  validate:
+    name: Validate application
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install and validate
+        run: |
+          npm ci
+          npm run deps:rebuild
+          npm run ci
+
+  build_packages:
+    name: Build signed Apple packages
+    needs: validate
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: macos-15
+    environment:
+      name: app-store-publish
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm run deps:rebuild
 
       - name: Install the Apple certificate and provisioning profile
         id: profile
@@ -24,134 +69,130 @@ jobs:
           BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}
           MACOS_BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.MACOS_BUILD_PROVISION_PROFILE_BASE64 }}
         run: |
+          umask 077
           # create variables
-          CERTIFICATE_PATH=${{ runner.temp }}/build_certificate.p12
-          PP_PATH=${{ runner.temp }}/build_pp.mobileprovision
-          MAC_PP_PATH=${{ runner.temp }}/mac_build_pp.provisionprofile
-          KEYCHAIN_PATH=${{ runner.temp }}/app-signing.keychain-db
+          CERTIFICATE_PATH="${{ runner.temp }}/build_certificate.p12"
+          PP_PATH="${{ runner.temp }}/build_pp.mobileprovision"
+          MAC_PP_PATH="${{ runner.temp }}/mac_build_pp.provisionprofile"
+          KEYCHAIN_PATH="${{ runner.temp }}/app-signing.keychain-db"
 
           # import certificate and provisioning profile from secrets
-          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
-          echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $PP_PATH
-          echo -n "$MACOS_BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $MAC_PP_PATH
-          uuid=`grep UUID -A1 -a $PP_PATH | grep -io "[-A-F0-9]\{36\}"`
-          echo "uuid=$uuid" >> $GITHUB_OUTPUT
-          muuid=`grep UUID -A1 -a $MAC_PP_PATH | grep -io "[-A-F0-9]\{36\}"`
-          echo "muuid=$muuid" >> $GITHUB_OUTPUT
+          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o "$CERTIFICATE_PATH"
+          echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o "$PP_PATH"
+          echo -n "$MACOS_BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o "$MAC_PP_PATH"
+          uuid=$(grep UUID -A1 -a "$PP_PATH" | grep -io "[-A-F0-9]\{36\}")
+          echo "uuid=$uuid" >> "$GITHUB_OUTPUT"
+          muuid=$(grep UUID -A1 -a "$MAC_PP_PATH" | grep -io "[-A-F0-9]\{36\}")
+          echo "muuid=$muuid" >> "$GITHUB_OUTPUT"
 
           # create temporary keychain
-          security create-keychain -p "KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
-          security unlock-keychain -p "KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security create-keychain -p "KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
 
           # import certificate to keychain
-          security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
-          security set-key-partition-list -S apple-tool:,apple: -k "KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-          security list-keychain -d user -s $KEYCHAIN_PATH
+          security import "$CERTIFICATE_PATH" -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
+          security set-key-partition-list -S apple-tool:,apple: -k "KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security list-keychain -d user -s "$KEYCHAIN_PATH"
 
           # apply provisioning profile
-          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
-          cp $MAC_PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          cp "$PP_PATH" "$HOME/Library/MobileDevice/Provisioning Profiles"
+          cp "$MAC_PP_PATH" "$HOME/Library/MobileDevice/Provisioning Profiles"
 
       - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v3.0.0
+        uses: gittools/actions/gitversion/setup@a94a3b62ee018ef5346cb08fd0d63d93811fe691 # v3.0.0
         with:
-          versionSpec: "5.x"
+          versionSpec: "5.12.0"
 
       - name: Determine Version via GitVersion
         id: gitversion
-        uses: gittools/actions/gitversion/execute@v3.0.0
+        uses: gittools/actions/gitversion/execute@a94a3b62ee018ef5346cb08fd0d63d93811fe691 # v3.0.0
         with:
           useConfigFile: false
 
       - name: Update package.json version
         run: |
           sed -i.bak "s|\"version\": \"[0-9\.]*\"|\"version\": \"${{ steps.gitversion.outputs.semVer }}\"|" package.json
+          rm -f package.json.bak
 
       - name: Update sw.js version
         run: |
-          sed -i.bak "s|OpenSprinkler-v[0-9\.]*|OpenSprinkler-v${{ steps.gitversion.outputs.semVer }}|" www/sw.js
+          sed -i.bak -E 's|var cacheName = "OpenSprinkler-v[^"]+";|var cacheName = "OpenSprinkler-v${{ steps.gitversion.outputs.semVer }}";|' www/sw.js
+          rm -f www/sw.js.bak
 
       - name: Update main.js App Version
         run: |
           sed -i.bak "s|appVersion: '[0-9\.]*'|appVersion: '${{ steps.gitversion.outputs.semVer }}'|" www/js/main.js
+          rm -f www/js/main.js.bak
 
       - name: Update config.xml versions
+        env:
+          SEMANTIC_VERSION: ${{ steps.gitversion.outputs.majorMinorPatch }}
         run: |
-          # Update version attribute
-          sed -i.bak "s|version=\"[0-9\.]*\"|version=\"${{ steps.gitversion.outputs.majorMinorPatch }}\"|" config.xml
-          # Calculate versionCode
-          major=${{ steps.gitversion.outputs.major }}
-          minor=${{ steps.gitversion.outputs.minor }}
-          patch=${{ steps.gitversion.outputs.patch }}
-          version_code=$((major * 10000 + minor * 100 + patch))
-          # Update versionCode attribute
-          sed -i.bak "s|versionCode=\"[0-9]*\"|versionCode=\"$version_code\"|" config.xml
-          # Update <string> element
-          sed -i.bak "s|<string>[0-9\.]*</string>|<string>$version_code</string>|" config.xml
-
-      - name: Cache Node Modules
-        id: cache_npm
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-npm-
-
-      - name: Install Dependencies
-        if: steps.cache_npm.outputs.cache-hit != 'true'
-        run: npm install
+          # Apple limits the first CFBundleVersion component to four digits, so use the raw,
+          # monotonic first-parent revision rather than Android's reserved 1-billion range.
+          apple_build_number=$(node scripts/release-version-code.mjs --apple)
+          sed -i.bak -E "s| version=\"[^\"]*\"| version=\"$SEMANTIC_VERSION\"|" config.xml
+          sed -i.bak -E "s|ios-CFBundleVersion=\"[^\"]*\"|ios-CFBundleVersion=\"$apple_build_number\"|" config.xml
+          rm -f config.xml.bak
+          grep -Fq " version=\"$SEMANTIC_VERSION\"" config.xml || {
+            echo "Failed to set the semantic widget version." >&2
+            exit 1
+          }
+          grep -Fq "ios-CFBundleVersion=\"$apple_build_number\"" config.xml || {
+            echo "Failed to set ios-CFBundleVersion." >&2
+            exit 1
+          }
 
       - name: Prepare and Build iOS
         run: |
           npx cordova platform add ios
 
+      - name: Verify generated Apple version metadata
+        env:
+          EXPECTED_SEMANTIC_VERSION: ${{ steps.gitversion.outputs.majorMinorPatch }}
+        run: |
+          plist_path="platforms/ios/OpenSprinkler/OpenSprinkler-Info.plist"
+          expected_build_number=$(node scripts/release-version-code.mjs --apple)
+          actual_semantic_version=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$plist_path")
+          actual_build_number=$(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$plist_path")
+
+          if [[ "$actual_semantic_version" != "$EXPECTED_SEMANTIC_VERSION" ]]; then
+            echo "CFBundleShortVersionString mismatch: expected $EXPECTED_SEMANTIC_VERSION, got $actual_semantic_version" >&2
+            exit 1
+          fi
+          if [[ "$actual_build_number" != "$expected_build_number" ]]; then
+            echo "CFBundleVersion mismatch: expected $expected_build_number, got $actual_build_number" >&2
+            exit 1
+          fi
+
       - name: Export .ipa for iOS
         env:
           EXPORT_PLIST: ${{ secrets.IOS_EXPORT_PRODUCTION }}
+          IOS_TEAM_ID: ${{ secrets.IOS_TEAM_ID }}
         run: |
           cd platforms/ios
 
           xcodebuild \
             PROVISIONING_PROFILE=${{ steps.profile.outputs.uuid }} \
-            DEVELOPMENT_TEAM="${{ secrets.IOS_TEAM_ID }}" \
+            DEVELOPMENT_TEAM="$IOS_TEAM_ID" \
             CODE_SIGN_STYLE="Manual" \
             -workspace "OpenSprinkler.xcworkspace" \
             -scheme "OpenSprinkler" \
             -sdk iphoneos \
             -arch arm64 \
             -configuration Release \
-            -archivePath "$PWD/build/OpenSprinkler.xcarchive" archive
+            -archivePath "$PWD/build/OpenSprinkler-iOS.xcarchive" archive
 
-          EXPORT_PLIST_PATH=${{ runner.temp }}/ExportOptions.plist
-          echo -n "$EXPORT_PLIST" | base64 --decode --output $EXPORT_PLIST_PATH
+          EXPORT_PLIST_PATH="${{ runner.temp }}/ExportOptions.plist"
+          echo -n "$EXPORT_PLIST" | base64 --decode -o "$EXPORT_PLIST_PATH"
 
           xcodebuild \
             -exportArchive \
-            -archivePath "$PWD/build/OpenSprinkler.xcarchive" \
+            -archivePath "$PWD/build/OpenSprinkler-iOS.xcarchive" \
             -exportPath "${{ runner.temp }}/export" \
-            -exportOptionsPlist $EXPORT_PLIST_PATH
-
-      - name: Swap CFBundleShortVersionString and CFBundleVersion for macOS build
-        run: |
-          PLIST_PATH="platforms/ios/OpenSprinkler/OpenSprinkler-Info.plist"
-
-          # Read current values
-          SHORT_VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$PLIST_PATH")
-          BUNDLE_VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$PLIST_PATH")
-
-          echo "Current CFBundleShortVersionString: $SHORT_VERSION"
-          echo "Current CFBundleVersion: $BUNDLE_VERSION"
-
-          # Swap them
-          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $BUNDLE_VERSION" "$PLIST_PATH"
-          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $SHORT_VERSION" "$PLIST_PATH"
-
-          echo "Swapped them!"
-          echo "New CFBundleShortVersionString: $(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$PLIST_PATH")"
-          echo "New CFBundleVersion: $(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$PLIST_PATH")"
+            -exportOptionsPlist "$EXPORT_PLIST_PATH"
 
       - name: Create macOS App Sandbox Entitlements file
         run: |
@@ -176,42 +217,107 @@ jobs:
       - name: Export .app for macOS
         env:
           MAC_EXPORT_PLIST: ${{ secrets.MACOS_EXPORT_PRODUCTION }}
+          IOS_TEAM_ID: ${{ secrets.IOS_TEAM_ID }}
         run: |
           cd platforms/ios
 
           xcodebuild \
             PROVISIONING_PROFILE=${{ steps.profile.outputs.muuid }} \
-            DEVELOPMENT_TEAM="${{ secrets.IOS_TEAM_ID }}" \
+            PRODUCT_BUNDLE_IDENTIFIER="com.albahra.Sprinklers.osx" \
+            DEVELOPMENT_TEAM="$IOS_TEAM_ID" \
             CODE_SIGN_STYLE="Manual" \
             CODE_SIGN_ENTITLEMENTS="${{ runner.temp }}/macos_app_sandbox.entitlements" \
             -destination "platform=macOS,variant=Mac Catalyst" \
             -workspace "OpenSprinkler.xcworkspace" \
             -scheme "OpenSprinkler" \
             -configuration Release \
-            -archivePath "$PWD/build/OpenSprinkler.xcarchive" archive
+            -archivePath "$PWD/build/OpenSprinkler-macOS.xcarchive" archive
 
-          MAC_EXPORT_PLIST_PATH=${{ runner.temp }}/ExportOptionsMac.plist
-          echo -n "$MAC_EXPORT_PLIST" | base64 --decode --output $MAC_EXPORT_PLIST_PATH
+          MAC_EXPORT_PLIST_PATH="${{ runner.temp }}/ExportOptionsMac.plist"
+          echo -n "$MAC_EXPORT_PLIST" | base64 --decode -o "$MAC_EXPORT_PLIST_PATH"
 
           xcodebuild \
             -exportArchive \
-            -archivePath "$PWD/build/OpenSprinkler.xcarchive" \
+            -archivePath "$PWD/build/OpenSprinkler-macOS.xcarchive" \
             -exportPath "${{ runner.temp }}/mac_export" \
-            -exportOptionsPlist $MAC_EXPORT_PLIST_PATH
+            -exportOptionsPlist "$MAC_EXPORT_PLIST_PATH"
+
+      - name: Preserve signed iOS package
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: opensprinkler-ios
+          path: ${{ runner.temp }}/export/OpenSprinkler.ipa
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Preserve signed macOS package
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: opensprinkler-macos
+          path: ${{ runner.temp }}/mac_export/OpenSprinkler.pkg
+          if-no-files-found: error
+          retention-days: 1
+
+  upload_ios:
+    name: Upload iOS package to TestFlight
+    needs: build_packages
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: macos-15
+    environment:
+      name: app-store-publish
+    permissions: {}
+    steps:
+      - name: Download signed iOS package
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: opensprinkler-ios
+          path: ${{ runner.temp }}/ios
 
       - name: Decode API key
         env:
           API_KEY_BASE64: ${{ secrets.IOS_APPSTORE_API_PRIVATE_KEY }}
+          API_KEY_ID: ${{ secrets.IOS_APPSTORE_API_KEY_ID }}
         run: |
-          mkdir -p ~/private_keys
-          echo -n "$API_KEY_BASE64" | base64 --decode --output ~/private_keys/AuthKey_${{ secrets.IOS_APPSTORE_API_KEY_ID }}.p8
+          umask 077
+          mkdir -p "$HOME/private_keys"
+          echo -n "$API_KEY_BASE64" | base64 --decode -o "$HOME/private_keys/AuthKey_${API_KEY_ID}.p8"
 
       - name: Upload iOS to TestFlight
+        env:
+          API_KEY_ID: ${{ secrets.IOS_APPSTORE_API_KEY_ID }}
+          API_ISSUER_ID: ${{ secrets.IOS_APPSTORE_ISSUER_ID }}
         run: |
-          xcrun altool --validate-app -f ${{ runner.temp }}/export/OpenSprinkler.ipa -t ios --apiKey ${{ secrets.IOS_APPSTORE_API_KEY_ID }} --apiIssuer ${{ secrets.IOS_APPSTORE_ISSUER_ID }}
-          xcrun altool --upload-app -f ${{ runner.temp }}/export/OpenSprinkler.ipa -t ios --apiKey ${{ secrets.IOS_APPSTORE_API_KEY_ID }} --apiIssuer ${{ secrets.IOS_APPSTORE_ISSUER_ID }}
+          xcrun altool --validate-app -f "${{ runner.temp }}/ios/OpenSprinkler.ipa" -t ios --apiKey "$API_KEY_ID" --apiIssuer "$API_ISSUER_ID"
+          xcrun altool --upload-app -f "${{ runner.temp }}/ios/OpenSprinkler.ipa" -t ios --apiKey "$API_KEY_ID" --apiIssuer "$API_ISSUER_ID"
+
+  upload_macos:
+    name: Upload macOS package to TestFlight
+    needs: build_packages
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: macos-15
+    environment:
+      name: app-store-publish
+    permissions: {}
+    steps:
+      - name: Download signed macOS package
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: opensprinkler-macos
+          path: ${{ runner.temp }}/macos
+
+      - name: Decode API key
+        env:
+          API_KEY_BASE64: ${{ secrets.IOS_APPSTORE_API_PRIVATE_KEY }}
+          API_KEY_ID: ${{ secrets.IOS_APPSTORE_API_KEY_ID }}
+        run: |
+          umask 077
+          mkdir -p "$HOME/private_keys"
+          echo -n "$API_KEY_BASE64" | base64 --decode -o "$HOME/private_keys/AuthKey_${API_KEY_ID}.p8"
 
       - name: Upload macOS to TestFlight
+        env:
+          API_KEY_ID: ${{ secrets.IOS_APPSTORE_API_KEY_ID }}
+          API_ISSUER_ID: ${{ secrets.IOS_APPSTORE_ISSUER_ID }}
         run: |
-          xcrun altool --validate-app -f ${{ runner.temp }}/mac_export/OpenSprinkler.pkg -t osx --apiKey ${{ secrets.IOS_APPSTORE_API_KEY_ID }} --apiIssuer ${{ secrets.IOS_APPSTORE_ISSUER_ID }}
-          xcrun altool --upload-app -f ${{ runner.temp }}/mac_export/OpenSprinkler.pkg -t osx --apiKey ${{ secrets.IOS_APPSTORE_API_KEY_ID }} --apiIssuer ${{ secrets.IOS_APPSTORE_ISSUER_ID }}
+          xcrun altool --validate-app -f "${{ runner.temp }}/macos/OpenSprinkler.pkg" -t osx --apiKey "$API_KEY_ID" --apiIssuer "$API_ISSUER_ID"
+          xcrun altool --upload-app -f "${{ runner.temp }}/macos/OpenSprinkler.pkg" -t osx --apiKey "$API_KEY_ID" --apiIssuer "$API_ISSUER_ID"

@@ -18,77 +18,106 @@ on:
           - prod
 
 permissions:
-  checks: write
   contents: read
-  pull-requests: write
+
+concurrency:
+  group: firebase-hosting-${{ github.event_name == 'pull_request' && github.ref || (github.event_name == 'workflow_dispatch' && inputs.environment || 'dev') }}
+  cancel-in-progress: true
 
 jobs:
-  build_and_deploy:
+  build:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) || github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.actor != 'dependabot[bot]' && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) || github.event_name == 'workflow_dispatch') }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Guard manual deployment provenance
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        env:
+          SOURCE_REF: ${{ github.ref }}
+        run: |
+          if [ "$SOURCE_REF" != "refs/heads/master" ]; then
+            echo "Firebase deployments may only be dispatched from master." >&2
+            exit 1
+          fi
+
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install and validate
+        run: |
+          npm ci
+          npm run deps:rebuild
+          npm run ci
 
       - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v3.0.0
+        uses: gittools/actions/gitversion/setup@a94a3b62ee018ef5346cb08fd0d63d93811fe691 # v3.0.0
         with:
-          versionSpec: "5.x"
+          versionSpec: "5.12.0"
 
       - name: Run GitVersion
         id: gitversion
-        uses: gittools/actions/gitversion/execute@v3.0.0
+        uses: gittools/actions/gitversion/execute@a94a3b62ee018ef5346cb08fd0d63d93811fe691 # v3.0.0
         with:
           useConfigFile: false
 
       - name: Update package.json version
         run: |
           sed -i.bak "s|\"version\": \"[0-9\.]*\"|\"version\": \"${{ steps.gitversion.outputs.semVer }}\"|" package.json
+          rm -f package.json.bak
 
       - name: Update sw.js version
         run: |
-          sed -i.bak "s|OpenSprinkler-v[0-9\.]*|OpenSprinkler-v${{ steps.gitversion.outputs.semVer }}|" www/sw.js
+          sed -i.bak -E 's|var cacheName = "OpenSprinkler-v[^"]+";|var cacheName = "OpenSprinkler-v${{ steps.gitversion.outputs.semVer }}";|' www/sw.js
+          rm -f www/sw.js.bak
 
       - name: Update main.js App Version
         run: |
           sed -i.bak "s|appVersion: '[0-9\.]*'|appVersion: '${{ steps.gitversion.outputs.semVer }}'|" www/js/main.js
-
-      - name: Update config.xml versions
-        run: |
-          # Update version attribute
-          sed -i.bak "s|version=\"[0-9\.]*\"|version=\"${{ steps.gitversion.outputs.semVer }}\"|" config.xml
-          # Calculate versionCode
-          major=${{ steps.gitversion.outputs.major }}
-          minor=${{ steps.gitversion.outputs.minor }}
-          patch=${{ steps.gitversion.outputs.patch }}
-          version_code=$((major * 10000 + minor * 100 + patch))
-          # Update versionCode attribute
-          sed -i.bak "s|versionCode=\"[0-9]*\"|versionCode=\"$version_code\"|" config.xml
-          # Update <string> element
-          sed -i.bak "s|<string>[0-9\.]*</string>|<string>${{ steps.gitversion.outputs.semVer }}</string>|" config.xml
-
-      - name: Cache Dependencies
-        id: cache_npm
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-npm-
-
-      - name: Install dependencies
-        if: steps.cache_npm.outputs.cache-hit != 'true'
-        run: npm install
+          rm -f www/js/main.js.bak
 
       - name: Build UI
-        run: npx grunt prepareFW
+        run: npm run build:firmware
+
+      - name: Preserve validated firmware bundle
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: firebase-firmware
+          path: build/firmware
+          if-no-files-found: error
+          retention-days: 1
+
+  deploy:
+    needs: build
+    if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/master' }}
+    runs-on: ubuntu-latest
+    environment:
+      name: firebase-hosting
+    permissions:
+      contents: read
+    steps:
+      # This write-capable job consumes only the inert static artifact; it runs no package scripts.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Restore validated firmware bundle
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: firebase-firmware
+          path: build/firmware
 
       - name: Deploy to Firebase Hosting
-        uses: FirebaseExtended/action-hosting-deploy@v0
+        uses: FirebaseExtended/action-hosting-deploy@500ac625ca2dd40cbd15f7659af953801858032a # v0
         with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_OPENSPRINKLER_UI }}
+          firebaseToolsVersion: "15.24.0"
           projectId: opensprinkler-ui
           target: ${{
             github.event_name == 'workflow_dispatch' && (
@@ -99,6 +128,7 @@ jobs:
           channelId: ${{ (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && 'live' || '' }}
 
       - name: Purge Cloudflare Cache
+        if: ${{ github.event_name != 'pull_request' }}
         env:
           CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
           CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
@@ -110,7 +140,7 @@ jobs:
           else
             HOST="${ENV_NAME}ui.opensprinkler.com"
           fi
-          curl https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache \
+          curl --fail-with-body "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache" \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer ${CLOUDFLARE_API_KEY}" \
             --data "{\"hosts\": [\"${HOST}\"]}"

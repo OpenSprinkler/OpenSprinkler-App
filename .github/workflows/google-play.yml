@@ -5,102 +5,163 @@ on:
     branches:
       - master
 
-permissions:
-  contents: read
+permissions: {}
+
+concurrency:
+  group: google-play-deploy
+  cancel-in-progress: false
 
 jobs:
-  build_android:
+  validate_and_build_unsigned:
+    name: Validate and build unsigned Android bundle
     runs-on: macos-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install and validate
+        run: |
+          npm ci
+          npm run deps:rebuild
+          npm run ci
 
       - name: Setup Java 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4
         with:
           distribution: temurin
           java-version: "17"
 
-      - name: Setup Gradle 8.9
-        uses: gradle/actions/setup-gradle@v4
+      - name: Setup Gradle 8.13
+        uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
         with:
-          gradle-version: "8.9"
+          gradle-version: "8.13"
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
 
       - name: Install Android SDK packages (API 35)
         run: |
+          set +o pipefail
           yes | sdkmanager --licenses
+          set -o pipefail
           sdkmanager --install "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
-      - name: Decode Keystore
-        env:
-          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-        run: |
-          echo -n "$ANDROID_KEYSTORE_BASE64" | base64 --decode > ${{ runner.temp }}/keystore.jks
-
       - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v3.0.0
+        uses: gittools/actions/gitversion/setup@a94a3b62ee018ef5346cb08fd0d63d93811fe691 # v3.0.0
         with:
-          versionSpec: "5.x"
+          versionSpec: "5.12.0"
 
       - name: Determine Version via GitVersion
         id: gitversion
-        uses: gittools/actions/gitversion/execute@v3.0.0
+        uses: gittools/actions/gitversion/execute@a94a3b62ee018ef5346cb08fd0d63d93811fe691 # v3.0.0
         with:
           useConfigFile: false
 
       - name: Update package.json Version
         run: |
           sed -i.bak "s|\"version\": \"[0-9\.]*\"|\"version\": \"${{ steps.gitversion.outputs.semVer }}\"|" package.json
+          rm -f package.json.bak
 
       - name: Update sw.js Version
         run: |
-          sed -i.bak "s|OpenSprinkler-v[0-9\.]*|OpenSprinkler-v${{ steps.gitversion.outputs.semVer }}|" www/sw.js
+          sed -i.bak -E 's|var cacheName = "OpenSprinkler-v[^"]+";|var cacheName = "OpenSprinkler-v${{ steps.gitversion.outputs.semVer }}";|' www/sw.js
+          rm -f www/sw.js.bak
 
       - name: Update main.js App Version
         run: |
           sed -i.bak "s|appVersion: '[0-9\.]*'|appVersion: '${{ steps.gitversion.outputs.semVer }}'|" www/js/main.js
+          rm -f www/js/main.js.bak
 
       - name: Update config.xml Versions
         run: |
           # Update version attribute (version name)
           sed -i.bak "s|version=\"[0-9\.]*\"|version=\"${{ steps.gitversion.outputs.majorMinorPatch }}\"|" config.xml
-          # Calculate android-versionCode
-          major=${{ steps.gitversion.outputs.major }}
-          minor=${{ steps.gitversion.outputs.minor }}
-          patch=${{ steps.gitversion.outputs.patch }}
-          version_code=$((major * 10000 + minor * 100 + patch))
+          # Use a monotonic first-parent build number. Semver packing collides when a field reaches 100.
+          version_code=$(node scripts/release-version-code.mjs)
           # Update android-versionCode attribute
           sed -i.bak "s|android-versionCode=\"[0-9]*\"|android-versionCode=\"$version_code\"|" config.xml
-
-      - name: Cache Node Modules
-        id: cache_npm
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-npm-
-
-      - name: Install Dependencies
-        if: steps.cache_npm.outputs.cache-hit != 'true'
-        run: npm install
+          rm -f config.xml.bak
 
       - name: Add Android Platform
         run: npx cordova platform add android
 
-      - name: Build Android Release AAB
+      - name: Build unsigned Android release AAB
+        run: npx cordova build android --release -- --packageType=bundle
+
+      - name: Preserve unsigned Android bundle
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: opensprinkler-android-unsigned
+          path: platforms/android/app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+          retention-days: 1
+
+  sign_and_publish:
+    name: Sign and publish to Google Play
+    needs: validate_and_build_unsigned
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    environment:
+      name: google-play-publish
+    permissions: {}
+    steps:
+      - name: Download unsigned Android bundle
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: opensprinkler-android-unsigned
+          path: ${{ runner.temp }}/android-unsigned
+
+      - name: Setup Java 17
+        uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Decode signing keystore
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/keystore.jks
         run: |
-          npx cordova build android --release -- --keystore=${{ runner.temp }}/keystore.jks --storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }} --alias=release --password=${{ secrets.ANDROID_KEY_PASSWORD }} --packageType=bundle
+          umask 077
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$ANDROID_KEYSTORE_PATH"
+
+      - name: Sign and verify Android bundle
+        env:
+          ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/keystore.jks
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          UNSIGNED_AAB: ${{ runner.temp }}/android-unsigned/app-release.aab
+          SIGNED_AAB: ${{ runner.temp }}/android-signed/app-release.aab
+        run: |
+          mkdir -p "$(dirname "$SIGNED_AAB")"
+          jarsigner \
+            -keystore "$ANDROID_KEYSTORE_PATH" \
+            -storepass:env ANDROID_KEYSTORE_PASSWORD \
+            -keypass:env ANDROID_KEY_PASSWORD \
+            -signedjar "$SIGNED_AAB" \
+            "$UNSIGNED_AAB" release
+          # Trust the release key explicitly so strict mode rejects real signature/certificate
+          # failures without treating the expected private signing chain as an unknown signer.
+          jarsigner -verify -strict -verbose -certs \
+            -keystore "$ANDROID_KEYSTORE_PATH" \
+            -storepass:env ANDROID_KEYSTORE_PASSWORD \
+            "$SIGNED_AAB"
 
       - name: Upload to Google Play Internal Testing
-        uses: r0adkll/upload-google-play@v1
+        uses: r0adkll/upload-google-play@e738b9dd8f2476ea806d921b64aacd24f34515a5 # v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
           packageName: com.albahra.sprinklers
-          releaseFiles: platforms/android/app/build/outputs/bundle/release/app-release.aab
+          releaseFiles: ${{ runner.temp }}/android-signed/app-release.aab
           track: internal

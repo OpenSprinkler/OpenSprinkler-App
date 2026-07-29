@@ -6,38 +6,74 @@ on:
       - master
 
 permissions:
-  contents: write
+  contents: read
+
+concurrency:
+  group: version-tag-publish
+  cancel-in-progress: false
 
 jobs:
-  tag:
+  validate:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.gitversion.outputs.semVer }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install and validate
+        run: |
+          npm ci
+          npm run deps:rebuild
+          npm run ci
 
       - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v3.0.0
+        uses: gittools/actions/gitversion/setup@a94a3b62ee018ef5346cb08fd0d63d93811fe691 # v3.0.0
         with:
-          versionSpec: "5.x"
+          versionSpec: "5.12.0"
 
       - name: Determine Version via GitVersion
         id: gitversion
-        uses: gittools/actions/gitversion/execute@v3.0.0
+        uses: gittools/actions/gitversion/execute@a94a3b62ee018ef5346cb08fd0d63d93811fe691 # v3.0.0
         with:
           useConfigFile: false
 
+  tag:
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      # The write-capable job intentionally runs no package or repository build scripts.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
       - name: Tag repository
         env:
-          TAG: ${{ steps.gitversion.outputs.semVer }}
+          TAG: ${{ needs.validate.outputs.version }}
         run: |
-          git fetch --prune --unshallow || true
-          if git rev-parse "refs/tags/$TAG" >/dev/null 2>&1; then
-            echo "Tag $TAG already exists"
+          tag_ref="refs/tags/$TAG"
+          if existing_commit=$(git rev-parse --verify "${tag_ref}^{commit}" 2>/dev/null); then
+            if [[ "$existing_commit" != "$GITHUB_SHA" ]]; then
+              echo "Tag $TAG points to $existing_commit, not workflow commit $GITHUB_SHA." >&2
+              exit 1
+            fi
+            echo "Tag $TAG already points to workflow commit $GITHUB_SHA."
+          elif git show-ref --verify --quiet "$tag_ref"; then
+            echo "Tag $TAG exists but does not dereference to a commit." >&2
+            exit 1
           else
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
-            git tag "$TAG"
+            git tag "$TAG" "$GITHUB_SHA"
             git push origin "$TAG"
           fi
-

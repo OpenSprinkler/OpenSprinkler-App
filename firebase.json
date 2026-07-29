@@ -15,6 +15,40 @@
             {
               "key": "Access-Control-Allow-Origin",
               "value": "*"
+            },
+            {
+              "key": "X-Content-Type-Options",
+              "value": "nosniff"
+            },
+            {
+              "key": "Referrer-Policy",
+              "value": "strict-origin-when-cross-origin"
+            }
+          ]
+        },
+        {
+          "source": "/index.html",
+          "headers": [
+            {
+              "key": "X-Frame-Options",
+              "value": "SAMEORIGIN"
+            },
+            {
+              "key": "Content-Security-Policy",
+              "value": "frame-ancestors 'self'; object-src 'none'; base-uri 'none'"
+            }
+          ]
+        },
+        {
+          "source": "/",
+          "headers": [
+            {
+              "key": "X-Frame-Options",
+              "value": "SAMEORIGIN"
+            },
+            {
+              "key": "Content-Security-Policy",
+              "value": "frame-ancestors 'self'; object-src 'none'; base-uri 'none'"
             }
           ]
         },
@@ -53,6 +87,40 @@
             {
               "key": "Access-Control-Allow-Origin",
               "value": "*"
+            },
+            {
+              "key": "X-Content-Type-Options",
+              "value": "nosniff"
+            },
+            {
+              "key": "Referrer-Policy",
+              "value": "strict-origin-when-cross-origin"
+            }
+          ]
+        },
+        {
+          "source": "/index.html",
+          "headers": [
+            {
+              "key": "X-Frame-Options",
+              "value": "SAMEORIGIN"
+            },
+            {
+              "key": "Content-Security-Policy",
+              "value": "frame-ancestors 'self'; object-src 'none'; base-uri 'none'"
+            }
+          ]
+        },
+        {
+          "source": "/",
+          "headers": [
+            {
+              "key": "X-Frame-Options",
+              "value": "SAMEORIGIN"
+            },
+            {
+              "key": "Content-Security-Policy",
+              "value": "frame-ancestors 'self'; object-src 'none'; base-uri 'none'"
             }
           ]
         },
@@ -91,6 +159,40 @@
             {
               "key": "Access-Control-Allow-Origin",
               "value": "*"
+            },
+            {
+              "key": "X-Content-Type-Options",
+              "value": "nosniff"
+            },
+            {
+              "key": "Referrer-Policy",
+              "value": "strict-origin-when-cross-origin"
+            }
+          ]
+        },
+        {
+          "source": "/index.html",
+          "headers": [
+            {
+              "key": "X-Frame-Options",
+              "value": "SAMEORIGIN"
+            },
+            {
+              "key": "Content-Security-Policy",
+              "value": "frame-ancestors 'self'; object-src 'none'; base-uri 'none'"
+            }
+          ]
+        },
+        {
+          "source": "/",
+          "headers": [
+            {
+              "key": "X-Frame-Options",
+              "value": "SAMEORIGIN"
+            },
+            {
+              "key": "Content-Security-Policy",
+              "value": "frame-ancestors 'self'; object-src 'none'; base-uri 'none'"
             }
           ]
         },
@@ -136,6 +238,22 @@
             {
               "key": "Access-Control-Allow-Origin",
               "value": "*"
+            },
+            {
+              "key": "X-Content-Type-Options",
+              "value": "nosniff"
+            },
+            {
+              "key": "Referrer-Policy",
+              "value": "no-referrer"
+            },
+            {
+              "key": "X-Frame-Options",
+              "value": "SAMEORIGIN"
+            },
+            {
+              "key": "Content-Security-Policy",
+              "value": "frame-ancestors 'self'; object-src 'none'; base-uri 'none'"
             }
           ]
         },

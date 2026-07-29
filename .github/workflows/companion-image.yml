@@ -1,18 +1,19 @@
 name: Build & push companion image
 
 # Builds the companion Docker image for amd64 + arm64 and pushes to Docker Hub.
-# Requires repo secrets DOCKERHUB_USERNAME (e.g. kars85) and DOCKERHUB_TOKEN (a Docker Hub access
-# token with read/write on the repo). Nothing is pushed without them.
+# Requires DOCKERHUB_USERNAME (e.g. kars85) and DOCKERHUB_TOKEN in the protected
+# `companion-image-publish` environment. Nothing is pushed without them.
 #
 # Triggers:
 #   - workflow_dispatch: publishes the explicit `tag` input (default "edge"). `:latest` is ONLY moved
-#     when dispatched from `master`, so a build from a feature branch can't clobber everyone's latest.
-#   - push of a `companion-v*` tag: publishes that tag AND `:latest`.
+#     when dispatched from `master`; feature-branch dispatches fail before the publish environment.
+#   - push of a protected `companion-v*` tag: publishes that tag when its commit is on master;
+#     `:latest` moves only when the tagged commit is the current protected master tip.
 on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Image tag to publish (e.g. v0.1.0). ':latest' only updates from master or a companion-v* tag."
+        description: "Mutable image tag to publish (e.g. edge). companion-v* is reserved for protected Git tags."
         required: true
         default: "edge"
   push:
@@ -22,43 +23,424 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: companion-image-publish
+  cancel-in-progress: false
+
 jobs:
-  build-push:
+  validate-source:
     runs-on: ubuntu-latest
+    outputs:
+      publish_latest: ${{ steps.source.outputs.publish_latest }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Validate trusted publish source and image tag
+        id: source
+        shell: bash
+        env:
+          IMAGE_TAG: ${{ inputs.tag }}
+          SOURCE_NAME: ${{ github.ref_name }}
+          SOURCE_REF: ${{ github.ref }}
+          SOURCE_TYPE: ${{ github.ref_type }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            if [[ "$SOURCE_REF" != "refs/heads/master" ]]; then
+              echo "Image publication may only be dispatched from master." >&2
+              exit 1
+            fi
+            if ! [[ "$IMAGE_TAG" =~ ^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$ ]]; then
+              echo "Invalid Docker image tag: $IMAGE_TAG" >&2
+              exit 1
+            fi
+            if [[ "$IMAGE_TAG" == companion-v* ]]; then
+              echo "The companion-v* namespace is reserved for protected Git tag releases." >&2
+              exit 1
+            fi
+            if [[ "$IMAGE_TAG" == "latest" ]]; then
+              echo "latest is managed automatically; choose a distinct mutable channel tag." >&2
+              exit 1
+            fi
+            echo "publish_latest=true" >> "$GITHUB_OUTPUT"
+          elif [[ "$SOURCE_TYPE" == "tag" && "$SOURCE_NAME" == companion-v* ]]; then
+            if ! [[ "$SOURCE_NAME" =~ ^companion-v[A-Za-z0-9_.-]{1,117}$ ]]; then
+              echo "Release tag is not a valid immutable Docker tag: $SOURCE_NAME" >&2
+              exit 1
+            fi
+            git fetch --no-tags origin master:refs/remotes/origin/master
+            if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/master; then
+              echo "Release tag $SOURCE_NAME is not on master; refusing to access publish credentials." >&2
+              exit 1
+            fi
+            if [[ "$GITHUB_SHA" == "$(git rev-parse origin/master)" ]]; then
+              echo "publish_latest=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "publish_latest=false" >> "$GITHUB_OUTPUT"
+              echo "::notice::Publishing $SOURCE_NAME without moving latest because it is not the master tip."
+            fi
+          else
+            echo "Unsupported image publication source: $SOURCE_REF" >&2
+            exit 1
+          fi
+
+  build-push:
+    needs: validate-source
+    runs-on: ubuntu-latest
+    environment:
+      name: companion-image-publish
+    steps:
+      - name: Checkout validated source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Validate companion before publishing
+        run: |
+          npm ci
+          npm run deps:rebuild
+          npm run ci:proxmox
 
       - name: Set up QEMU (arm64 emulation)
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
+        with:
+          image: docker.io/tonistiigi/binfmt@sha256:400a4873b838d1b89194d982c45e5fb3cda4593fbfd7e08a02e76b03b21166f0
+          platforms: arm64
 
       - name: Set up Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+        with:
+          driver-opts: image=moby/buildkit@sha256:2f5adac4ecd194d9f8c10b7b5d7bceb5186853db1b26e5abd3a657af0b7e26ec
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Preflight immutable release tag
+        id: release_preflight
+        if: ${{ github.event_name == 'push' }}
+        shell: bash
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          IMAGE_REPOSITORY: ${{ secrets.DOCKERHUB_USERNAME }}/opensprinkler-companion
+          RELEASE_TAG: ${{ github.ref_name }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          RUN_ID: ${{ github.run_id }}
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          if ! [[ "$DOCKERHUB_USERNAME" =~ ^[A-Za-z0-9_-]+$ ]]; then
+            echo "DOCKERHUB_USERNAME is not a valid Docker Hub namespace." >&2
+            exit 1
+          fi
+          status=$(curl --silent --show-error --location --head --proto '=https' --proto-redir '=https' \
+            --output /dev/null --write-out '%{http_code}' \
+            "https://hub.docker.com/v2/namespaces/${DOCKERHUB_USERNAME}/repositories/opensprinkler-companion/tags/${RELEASE_TAG}")
+          case "$status" in
+            404)
+              echo "release_exists=false" >> "$GITHUB_OUTPUT"
+              ;;
+            200)
+              if ! [[ "$RUN_ATTEMPT" =~ ^[0-9]+$ ]] || (( RUN_ATTEMPT <= 1 )); then
+                echo "Docker Hub release tag $RELEASE_TAG already exists; refusing to reuse it." >&2
+                exit 1
+              fi
+              inspect_file="${RUNNER_TEMP}/existing-release.json"
+              docker buildx imagetools inspect "$IMAGE_REPOSITORY:$RELEASE_TAG" \
+                --format '{{json .}}' > "$inspect_file"
+              node --input-type=commonjs - \
+                "$inspect_file" "$SOURCE_SHA" "$RELEASE_TAG" "$RUN_ID" "$GITHUB_OUTPUT" <<'NODE'
+              const { appendFileSync, readFileSync } = require("node:fs");
+              const [reportPath, sourceSha, releaseTag, runId, outputPath] = process.argv.slice(2);
+              const report = JSON.parse(readFileSync(reportPath, "utf8"));
+              const digest = report.manifest?.digest;
+              if (!/^sha256:[0-9a-f]{64}$/.test(digest ?? "")) {
+                throw new Error("The existing release does not expose a valid manifest digest.");
+              }
+              for (const platform of ["linux/amd64", "linux/arm64"]) {
+                const labels = report.image?.[platform]?.config?.Labels;
+                if (labels?.["org.opencontainers.image.revision"] !== sourceSha) {
+                  throw new Error(`The existing ${platform} release was not built from ${sourceSha}.`);
+                }
+                if (labels?.["org.opencontainers.image.version"] !== releaseTag) {
+                  throw new Error(`The existing ${platform} release has an unexpected version label.`);
+                }
+                if (labels?.["io.github.opensprinkler.release-run-id"] !== runId) {
+                  throw new Error(`The existing ${platform} release came from a different workflow run.`);
+                }
+              }
+              appendFileSync(outputPath, `release_exists=true\nrelease_digest=${digest}\n`);
+              console.log(`Verified retry-safe existing release ${releaseTag}@${digest}.`);
+              NODE
+              ;;
+            *)
+              echo "Could not prove that Docker Hub release tag $RELEASE_TAG is unused (HTTP $status)." >&2
+              exit 1
+              ;;
+          esac
+
       - name: Image metadata (tags + labels)
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5
         with:
           images: ${{ secrets.DOCKERHUB_USERNAME }}/opensprinkler-companion
+          flavor: latest=false
           tags: |
             type=ref,event=tag
             type=raw,value=${{ inputs.tag }},enable=${{ github.event_name == 'workflow_dispatch' }}
-            type=raw,value=latest,enable=${{ github.ref_type == 'tag' || (github.event_name == 'workflow_dispatch' && github.ref_name == 'master') }}
+            type=raw,value=latest,enable=${{ needs.validate-source.outputs.publish_latest == 'true' }}
+          labels: |
+            io.github.opensprinkler.release-run-id=${{ github.run_id }}
 
-      - name: Build & push (linux/amd64, linux/arm64)
-        uses: docker/build-push-action@v6
+      # Each platform is pushed once under its content digest. The smoke tests below pull those
+      # exact registry objects, and the final step only joins them into named manifest tags.
+      - name: Build amd64 artifact by digest
+        id: build_amd64
+        if: ${{ steps.release_preflight.outputs.release_exists != 'true' }}
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
         with:
           context: .
           file: server/Dockerfile
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          platforms: linux/amd64
+          outputs: type=image,name=${{ secrets.DOCKERHUB_USERNAME }}/opensprinkler-companion,push-by-digest=true,name-canonical=true,push=true
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=companion-amd64
+          cache-to: type=gha,mode=max,scope=companion-amd64
+
+      - name: Build arm64 artifact by digest
+        id: build_arm64
+        if: ${{ steps.release_preflight.outputs.release_exists != 'true' }}
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: .
+          file: server/Dockerfile
+          platforms: linux/arm64
+          outputs: type=image,name=${{ secrets.DOCKERHUB_USERNAME }}/opensprinkler-companion,push-by-digest=true,name-canonical=true,push=true
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=companion-arm64
+          cache-to: type=gha,mode=max,scope=companion-arm64
+
+      - name: Smoke-test the exact amd64 registry artifact
+        if: ${{ steps.release_preflight.outputs.release_exists != 'true' }}
+        env:
+          SMOKE_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/opensprinkler-companion@${{ steps.build_amd64.outputs.digest }}
+          SMOKE_PLATFORM: linux/amd64
+        run: npm run test:container
+
+      - name: Smoke-test the exact arm64 registry artifact under emulation
+        if: ${{ steps.release_preflight.outputs.release_exists != 'true' }}
+        env:
+          SMOKE_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/opensprinkler-companion@${{ steps.build_arm64.outputs.digest }}
+          SMOKE_PLATFORM: linux/arm64
+        run: npm run test:container
+
+      # If a previous attempt created the immutable release but failed while moving a mutable
+      # channel, verify and re-smoke that canonical release instead of trying to rebuild/rewrite it.
+      - name: Re-smoke the existing amd64 release on a retry
+        if: ${{ steps.release_preflight.outputs.release_exists == 'true' }}
+        env:
+          SMOKE_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/opensprinkler-companion@${{ steps.release_preflight.outputs.release_digest }}
+          SMOKE_PLATFORM: linux/amd64
+        run: npm run test:container
+
+      - name: Re-smoke the existing arm64 release on a retry
+        if: ${{ steps.release_preflight.outputs.release_exists == 'true' }}
+        env:
+          SMOKE_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/opensprinkler-companion@${{ steps.release_preflight.outputs.release_digest }}
+          SMOKE_PLATFORM: linux/arm64
+        run: npm run test:container
+
+      - name: Require immutable Docker Hub release tags
+        shell: bash
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        run: |
+          if ! [[ "$DOCKERHUB_USERNAME" =~ ^[A-Za-z0-9_-]+$ ]]; then
+            echo "DOCKERHUB_USERNAME is not a valid Docker Hub namespace." >&2
+            exit 1
+          fi
+          settings_file="${RUNNER_TEMP}/docker-hub-repository.json"
+          curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' --tlsv1.2 \
+            "https://hub.docker.com/v2/namespaces/${DOCKERHUB_USERNAME}/repositories/opensprinkler-companion" \
+            --output "$settings_file"
+          node --input-type=commonjs - "$settings_file" <<'NODE'
+          const { readFileSync } = require("node:fs");
+          const repository = JSON.parse(readFileSync(process.argv[2], "utf8"));
+          const settings = repository.immutable_tags_settings;
+          const requiredRule = "^companion-v.*$";
+          if (settings?.enabled !== true || !Array.isArray(settings.rules) ||
+              settings.rules.length !== 1 || settings.rules[0] !== requiredRule) {
+            console.error(`Docker Hub must enable only the exact immutable-tag rule ${requiredRule} before publication.`);
+            process.exit(1);
+          }
+          console.log(`Verified Docker Hub immutable-tag rule ${requiredRule}.`);
+          NODE
+
+      - name: Promote the tested digests to image tags
+        shell: bash
+        env:
+          AMD64_DIGEST: ${{ steps.build_amd64.outputs.digest }}
+          ARM64_DIGEST: ${{ steps.build_arm64.outputs.digest }}
+          EVENT_NAME: ${{ github.event_name }}
+          EXISTING_RELEASE_DIGEST: ${{ steps.release_preflight.outputs.release_digest }}
+          IMAGE_REPOSITORY: ${{ secrets.DOCKERHUB_USERNAME }}/opensprinkler-companion
+          IMAGE_TAGS: ${{ steps.meta.outputs.tags }}
+          RELEASE_EXISTS: ${{ steps.release_preflight.outputs.release_exists }}
+          RELEASE_TAG: ${{ github.ref_name }}
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          require_digest() {
+            local label=$1
+            local digest=$2
+            if ! [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+              echo "$label is not a valid sha256 digest: $digest" >&2
+              exit 1
+            fi
+          }
+
+          inspect_digest() {
+            local image_ref=$1
+            local digest
+            digest=$(docker buildx imagetools inspect "$image_ref" --format '{{.Manifest.Digest}}')
+            require_digest "Manifest for $image_ref" "$digest"
+            printf '%s\n' "$digest"
+          }
+
+          verify_tag_digest() {
+            local image_tag=$1
+            local expected_digest=$2
+            local actual_digest
+            actual_digest=$(inspect_digest "$image_tag")
+            if [[ "$actual_digest" != "$expected_digest" ]]; then
+              echo "$image_tag resolved to $actual_digest, expected $expected_digest." >&2
+              exit 1
+            fi
+            echo "Verified $image_tag@$actual_digest"
+          }
+
+          source_is_current_master() {
+            local remote_line
+            local remote_sha
+            local remote_ref
+            local unexpected
+            if ! remote_line=$(git ls-remote --exit-code origin refs/heads/master); then
+              echo "Could not re-check the protected master tip before moving latest." >&2
+              exit 1
+            fi
+            unexpected=""
+            read -r remote_sha remote_ref unexpected <<< "$remote_line"
+            if ! [[ "$remote_sha" =~ ^[0-9a-f]{40,64}$ ]] || \
+               [[ "$remote_ref" != "refs/heads/master" || -n "$unexpected" ]]; then
+              echo "Received an invalid protected master ref while re-checking latest." >&2
+              exit 1
+            fi
+            if [[ "$remote_sha" != "$SOURCE_SHA" ]]; then
+              echo "::notice::Skipping latest because protected master advanced to $remote_sha."
+              return 1
+            fi
+            return 0
+          }
+
+          publication_tags=()
+          while IFS= read -r tag; do
+            [[ -n "$tag" ]] || continue
+            if [[ "$tag" != "$IMAGE_REPOSITORY":* ]]; then
+              echo "Refusing unexpected publication tag: $tag" >&2
+              exit 1
+            fi
+            duplicate=false
+            for existing_tag in "${publication_tags[@]}"; do
+              if [[ "$existing_tag" == "$tag" ]]; then
+                duplicate=true
+                break
+              fi
+            done
+            if [[ "$duplicate" == "true" ]]; then
+              echo "::notice::Ignoring duplicate publication tag $tag."
+              continue
+            fi
+            publication_tags+=("$tag")
+          done <<< "$IMAGE_TAGS"
+          if (( ${#publication_tags[@]} == 0 )); then
+            echo "No image tags were generated for publication." >&2
+            exit 1
+          fi
+
+          if [[ "$EVENT_NAME" == "push" ]]; then
+            release_ref="$IMAGE_REPOSITORY:$RELEASE_TAG"
+            mutable_tags=()
+            release_matches=0
+            for tag in "${publication_tags[@]}"; do
+              if [[ "$tag" == "$release_ref" ]]; then
+                release_matches=$((release_matches + 1))
+              else
+                mutable_tags+=("$tag")
+              fi
+            done
+            if (( release_matches != 1 )); then
+              echo "Expected exactly one canonical release tag $release_ref; found $release_matches." >&2
+              exit 1
+            fi
+
+            if [[ "$RELEASE_EXISTS" == "true" ]]; then
+              canonical_digest=$EXISTING_RELEASE_DIGEST
+              require_digest "Existing release" "$canonical_digest"
+            else
+              require_digest "amd64 build output" "$AMD64_DIGEST"
+              require_digest "arm64 build output" "$ARM64_DIGEST"
+              docker buildx imagetools create --tag "$release_ref" \
+                "$IMAGE_REPOSITORY@$AMD64_DIGEST" \
+                "$IMAGE_REPOSITORY@$ARM64_DIGEST"
+              canonical_digest=$(inspect_digest "$release_ref")
+            fi
+            verify_tag_digest "$release_ref" "$canonical_digest"
+
+            # Publish the immutable release first. Moving channels happens one at a time from that
+            # verified manifest, so a failed alias update can be retried without rewriting release.
+            for tag in "${mutable_tags[@]}"; do
+              if [[ "$tag" == "$IMAGE_REPOSITORY:latest" ]] && ! source_is_current_master; then
+                continue
+              fi
+              docker buildx imagetools create --tag "$tag" "$IMAGE_REPOSITORY@$canonical_digest"
+              verify_tag_digest "$tag" "$canonical_digest"
+            done
+          else
+            require_digest "amd64 build output" "$AMD64_DIGEST"
+            require_digest "arm64 build output" "$ARM64_DIGEST"
+            canonical_digest=""
+            published_tags=0
+            # Manual channels are mutable and therefore safely retryable. Create and verify each
+            # tag independently so a later failure cannot hide which aliases were updated.
+            for tag in "${publication_tags[@]}"; do
+              if [[ "$tag" == "$IMAGE_REPOSITORY:latest" ]] && ! source_is_current_master; then
+                continue
+              fi
+              docker buildx imagetools create --tag "$tag" \
+                "$IMAGE_REPOSITORY@$AMD64_DIGEST" \
+                "$IMAGE_REPOSITORY@$ARM64_DIGEST"
+              actual_digest=$(inspect_digest "$tag")
+              if [[ -z "$canonical_digest" ]]; then
+                canonical_digest=$actual_digest
+              elif [[ "$actual_digest" != "$canonical_digest" ]]; then
+                echo "$tag produced $actual_digest, expected canonical manifest $canonical_digest." >&2
+                exit 1
+              fi
+              verify_tag_digest "$tag" "$canonical_digest"
+              published_tags=$((published_tags + 1))
+            done
+            if (( published_tags == 0 )); then
+              echo "No image tag was eligible for publication." >&2
+              exit 1
+            fi
+          fi

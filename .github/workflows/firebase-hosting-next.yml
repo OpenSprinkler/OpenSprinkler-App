@@ -4,7 +4,8 @@
 # the live sites:
 #   - triggers ONLY on manual workflow_dispatch (no push/PR),
 #   - deploys to a temporary PREVIEW CHANNEL (an expiring URL), never the live channel,
-#   - requires a FIREBASE_SERVICE_ACCOUNT_NEXT secret; without it the deploy step is skipped.
+#   - requires FIREBASE_SERVICE_ACCOUNT_NEXT in the protected `firebase-next-preview` environment;
+#     without it the workflow fails instead of reporting a successful no-op.
 #
 # Promotion to live (the parallel `opensprinkler-nextui` site) and the SOPT_JAVASCRIPTURL flip are
 # manual, operator-run steps documented in docs/DEPLOY.md.
@@ -19,42 +20,94 @@ on:
         default: "phase1-preview"
 
 permissions:
-  checks: write
   contents: read
-  pull-requests: write
+
+concurrency:
+  group: firebase-next-${{ inputs.channel }}
+  cancel-in-progress: true
 
 jobs:
-  build_and_preview:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Validate trusted source and preview channel
+        shell: bash
+        env:
+          CHANNEL: ${{ inputs.channel }}
+          SOURCE_REF: ${{ github.ref }}
+        run: |
+          if [[ "$SOURCE_REF" != "refs/heads/master" ]]; then
+            echo "Preview deployments may only be dispatched from master." >&2
+            exit 1
+          fi
+          if [[ "$CHANNEL" == "live" ]]; then
+            echo "The live channel is reserved; this workflow is preview-only." >&2
+            exit 1
+          fi
+          if ! [[ "$CHANNEL" =~ ^[a-z0-9][a-z0-9-]{0,62}$ ]]; then
+            echo "Preview channel must be 1-63 lowercase letters, numbers, or hyphens." >&2
+            exit 1
+          fi
 
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
-          node-version: "20"
+          persist-credentials: false
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+          cache: npm
 
       - name: Install deps
-        run: npm ci
+        run: |
+          npm ci
+          npm run deps:rebuild
 
-      - name: Build the Phase-1 app
-        run: npm run build:app   # → ./dist
+      - name: Validate and build the Phase-1 app
+        run: npm run ci
 
-      - name: Check for deploy credentials
-        id: creds
-        run: echo "has_sa=${{ secrets.FIREBASE_SERVICE_ACCOUNT_NEXT != '' }}" >> "$GITHUB_OUTPUT"
-
-      - name: Deploy to a preview channel (skipped without secret)
-        if: ${{ steps.creds.outputs.has_sa == 'true' }}
-        uses: FirebaseExtended/action-hosting-deploy@v0
+      - name: Preserve validated dashboard bundle
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          name: firebase-next-dashboard
+          path: dist
+          if-no-files-found: error
+          retention-days: 1
+
+  deploy_preview:
+    needs: build
+    if: ${{ github.ref == 'refs/heads/master' }}
+    runs-on: ubuntu-latest
+    environment:
+      name: firebase-next-preview
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Restore validated dashboard bundle
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: firebase-next-dashboard
+          path: dist
+
+      - name: Require deploy credentials
+        env:
+          FIREBASE_SERVICE_ACCOUNT_NEXT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_NEXT }}
+        run: |
+          if [[ -z "$FIREBASE_SERVICE_ACCOUNT_NEXT" ]]; then
+            echo "FIREBASE_SERVICE_ACCOUNT_NEXT is required for a preview deployment." >&2
+            exit 1
+          fi
+
+      - name: Deploy to a preview channel
+        uses: FirebaseExtended/action-hosting-deploy@500ac625ca2dd40cbd15f7659af953801858032a # v0
+        with:
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_NEXT }}
+          firebaseToolsVersion: "15.24.0"
           projectId: opensprinkler-ui
           target: opensprinkler-nextui
           channelId: ${{ github.event.inputs.channel }}
           expires: 7d
-
-      - name: Note when credentials are absent
-        if: ${{ steps.creds.outputs.has_sa != 'true' }}
-        run: |
-          echo "::notice::Built ./dist but skipped deploy — set the FIREBASE_SERVICE_ACCOUNT_NEXT secret to enable preview-channel deploys."
