@@ -5,10 +5,10 @@ These JSON fixtures were reconstructed from the OpenSprinkler-Firmware **emit co
 **1-board / 8-station / 1-program** controller and pin the *shapes* the typed client
 (`www/src/api/`) depends on.
 
-> ⚠️ **Replace each with a real capture before locking the contract.** Capture from a
-> live device and the DEMO build for every target firmware version (see
-> `docs/PHASE-1-MODERNIZATION-PRD.md` §3), keeping one fixture per `fwv` under
-> `test/fixtures/api/<fwv>/`.
+> Keep this curated, value-coupled corpus intact. Capture the live device and DEMO build for every
+> target firmware version with `npm run capture`; the capture tool writes a redacted set beneath
+> `test/fixtures/api/captured/<fwv>/` for shape comparison without exposing household credentials or
+> overwriting these deterministic tests.
 
 Known shape notes baked into these fixtures (verified against firmware source):
 - `/jc.lrun` is `[station, program, duration, endtime]` — **station first**.
