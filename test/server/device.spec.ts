@@ -6,6 +6,7 @@ afterEach( () => vi.restoreAllMocks() );
 
 const status = {
 	devt: 0, lwc: 0, lswc: 0, lupt: 0, sunrise: 360, sunset: 1080,
+	en: 1, rd: 0, rdst: 0, pq: 0, nq: 0, ocs: 0,
 	wterr: 0, wtrestr: 0, wls: [], wtdata: {}, nbrd: 1, lrun: [ 0, 0, 0, 0 ],
 	ps: Array.from( { length: 8 }, () => [ 0, 0, 0, 0 ] ), sbits: [ 0, 0 ], eip: 0, mac: "aa:bb",
 };
