@@ -377,7 +377,37 @@ function closeServer(server) {
 }
 
 function waitForExit(process) {
+	if (process.exitCode !== null || process.signalCode !== null) {
+		return Promise.resolve(process.exitCode);
+	}
 	return new Promise((resolveExit) => process.once("exit", resolveExit));
+}
+
+function waitForExitWithin(process, timeoutMs) {
+	if (process.exitCode !== null || process.signalCode !== null) {
+		return Promise.resolve(true);
+	}
+
+	return new Promise((resolveWait) => {
+		const timeout = setTimeout(() => {
+			process.removeListener("exit", handleExit);
+			resolveWait(false);
+		}, timeoutMs);
+		function handleExit() {
+			clearTimeout(timeout);
+			resolveWait(true);
+		}
+		process.once("exit", handleExit);
+	});
+}
+
+export async function removeBrowserProfile(profile, removeDirectory = rm) {
+	await removeDirectory(profile, {
+		force: true,
+		maxRetries: 5,
+		recursive: true,
+		retryDelay: 100,
+	});
 }
 
 export async function runBrowserTests({ browser = findBrowser(), timeoutMs = 60_000 } = {}) {
@@ -442,16 +472,13 @@ export async function runBrowserTests({ browser = findBrowser(), timeoutMs = 60_
 		clearTimeout(timeout);
 		if (child.exitCode === null && child.signalCode === null) {
 			child.kill("SIGTERM");
-			await Promise.race([
-				waitForExit(child),
-				new Promise((resolveWait) => setTimeout(resolveWait, 2_000)),
-			]);
-			if (child.exitCode === null && child.signalCode === null) {
+			if (!await waitForExitWithin(child, 2_000)) {
 				child.kill("SIGKILL");
+				await waitForExitWithin(child, 2_000);
 			}
 		}
 		await closeServer(server);
-		await rm(profile, { recursive: true, force: true });
+		await removeBrowserProfile(profile);
 	}
 }
 

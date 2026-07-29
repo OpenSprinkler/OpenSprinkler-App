@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { afterEach, describe, expect, it } from "vitest";
 
 // @ts-expect-error The local .mjs helper has no separate declaration file.
-import { findBrowser, resolveStaticFile } from "../scripts/run-karma.mjs";
+import { findBrowser, removeBrowserProfile, resolveStaticFile } from "../scripts/run-karma.mjs";
 
 const temporaryDirectories: string[] = [];
 
@@ -29,6 +29,28 @@ describe( "legacy browser discovery", () => {
 	it( "rejects an explicitly configured missing browser", () => {
 		expect( () => findBrowser( { CHROME_BIN: "/missing/chrome", PATH: "" } ) )
 			.toThrow( "Configured browser is not executable" );
+	} );
+} );
+
+describe( "legacy browser cleanup", () => {
+	it( "configures retries for transient Chrome profile removal races", async () => {
+		const calls: Array<{ path: string; options: Record<string, unknown> }> = [];
+		await removeBrowserProfile( "/tmp/disposable-browser-profile", async (
+			path: string,
+			options: Record<string, unknown>,
+		) => {
+			calls.push( { path, options } );
+		} );
+
+		expect( calls ).toEqual( [ {
+			path: "/tmp/disposable-browser-profile",
+			options: {
+				force: true,
+				maxRetries: 5,
+				recursive: true,
+				retryDelay: 100,
+			},
+		} ] );
 	} );
 } );
 
