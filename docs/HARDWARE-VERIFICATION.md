@@ -94,7 +94,7 @@ capture the §0 baseline first and **click nothing**.
 | §5 reversible write proof (rain delay) | ⬜ Capture, mutate, restore, and independently verify the original state. |
 | §6 control smoke test (PHYSICAL) | ⬜ Gated — **actuates valves.** Default-SKIP; requires a disconnected zone. |
 | §7 settings write-back (atomic) | ⬜ Use only captured throwaway fields and prove neighboring fields remain unchanged. |
-| §8 rollback drill | ⬜ Deferred to the real §7 rollout. Captured `jsp=''` this session — the device already serves its compiled-default UI (= the rollback target), so a synthetic flip gains nothing and restoring to empty via `/cu?jsp=` is uncertain. Run the drill when `jsp` is actually set to the new UI URL. |
+| §8 rollback drill | ⬜ Deferred to the real rollout. If `/jc.jsp` is blank, first normalize it to the explicit compiled-default URL and verify that nonblank rollback value; never rely on `/cu?jsp=` to recreate an empty setting. |
 | §9 final close-out diff | ⬜ Gated. |
 
 ---
@@ -138,8 +138,8 @@ against it.
   ```
 - [ ] **Capture the baseline values** you will later restore. Read each authenticated endpoint and save
   the fields below (the §9 diff checks **all** of them):
-  - `/jc` → `en`, `rd`, `rdst`, `dname`, `loc`, `wsp`, `wterr`, `wtrestr`, `sbits`, `ps`
-  - `/jo` → `wl`, `uwt`, `sn1t`, `sn1o`, `sn2t`, `mas`, `mas2`, `tz`, `sdt`, `lg`, `hp0`, `hp1`, `jsp`, `ntp*`, `ip*`
+  - `/jc` → `en`, `rd`, `rdst`, `dname`, `loc`, `wsp`, `jsp`, `wterr`, `wtrestr`, `sbits`, `ps`
+  - `/jo` → `wl`, `uwt`, `sn1t`, `sn1o`, `sn2t`, `mas`, `mas2`, `tz`, `sdt`, `lg`, `hp0`, `hp1`, `ntp*`, `ip*`
   - `/jn` → `snames`, `stn_dis`, `ignore_rain`, `stn_grp`
   - `/jp` → `nprogs`, and the full `pd[]` tuples for production programs (so a mistake is recoverable)
   > **`jsp` is the served-UI pointer used in §8 — capture it now.** If you cannot read it, **skip §8**.
@@ -376,16 +376,22 @@ token; `wsp` clobbers the custom weather server. Do not send these against this 
 
 ---
 
-## 8. Rollback drill (capture `jsp` first — else SKIP)
+## 8. Rollback drill (establish a nonblank rollback base first — else SKIP)
 
 > `/cu?jsp=` changes which UI the controller serves to anyone hitting the controller URL. It is a
-> **persistent** change. If you didn't capture `jsp` in §0, **skip this section.**
+> **persistent** change. If you didn't capture `/jc.jsp` in §0, **skip this section.**
 >
-> If the captured value is empty, restoring it may be firmware-specific. Defer this drill until the
-> operator has a tested recovery path and the exact rollback value is known.
-- **Capture** `/jo.jsp` (§0). **Do** point at the legacy UI:
-  `GET /cu?jsp=https://ui.opensprinkler.com/js&pw=<md5>`; confirm the legacy UI loads.
-- **Restore** the **exact captured** `jsp`: `GET /cu?jsp=<captured>&pw=<md5>`; re-read `/jo.jsp`.
+> A blank `jsp` means “use the firmware's compiled default”; it is not a safe value to write back.
+> Normalize it before cutover so rollback is an ordinary, verified nonblank `/cu` write.
+- **Capture** `/jc.jsp` (§0). Define the effective rollback base as the captured nonblank value, or
+  `https://ui.opensprinkler.com/js` when the captured value is blank.
+- **Normalize when blank:** write the explicit effective rollback base with
+  `GET /cu?jsp=https://ui.opensprinkler.com/js&pw=<md5>`, re-read `/jc.jsp`, and confirm the legacy UI
+  loads. Do not point at the beta until both checks pass.
+- **Flip** to the beta base, re-read `/jc.jsp`, and run the LAN/OTC smoke checks.
+- **Rollback** with `GET /cu?jsp=<effective-rollback-base>&pw=<md5>`, then re-read `/jc.jsp` and confirm
+  the legacy UI loads again. The verified nonblank effective rollback base becomes the new baseline;
+  do not attempt to restore an originally blank value.
 
 ---
 
@@ -394,8 +400,9 @@ token; `wsp` clobbers the custom weather server. Do not send these against this 
 Re-read every endpoint and assert **each captured field** matches §0 (not a hand-picked subset). A field
 clobbered by a stray write that isn't on this list goes undetected — so diff the whole baseline:
 
-- `/jc`: captured `en`, `rd`, `rdst`, `dname`, `loc`, **`wsp`**, `wtrestr`, `sbits`, and `ps`.
-- `/jo`: captured `uwt`, sensors, masters, timezone, delays, port, **`jsp`**, `ntp*`, and `ip*`.
+- `/jc`: captured `en`, `rd`, `rdst`, `dname`, `loc`, **`wsp`**, **effective nonblank `jsp`**,
+  `wtrestr`, `sbits`, and `ps`.
+- `/jo`: captured `uwt`, sensors, masters, timezone, delays, port, `ntp*`, and `ip*`.
   **`wl`:** do not assert a literal under an automatic weather method; assert the method/restriction
   controls remain intact.
 - `/jn`: captured `snames`, `stn_dis`, `ignore_rain`, and `stn_grp`.

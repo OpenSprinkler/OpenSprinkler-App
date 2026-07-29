@@ -7,13 +7,13 @@ This document is the app-side counterpart to the firmware-owned API reference in
 
 This axis is **axis D** in `OpenSprinkler-Firmware/docs/ecosystem.md`.
 
-> **Note the inverted direction versus the weather axis.** On Weather↔Firmware the *producer* (weather) is canonical and the firmware adapts. Here the *producer* (firmware) is canonical and the app adapts. The app carries the compatibility burden: it is expected to run against every firmware from 1.8.3 to current.
+> **Note the inverted direction versus the weather axis.** On Weather↔Firmware the *producer* (weather) is canonical and the firmware adapts. Here the *producer* (firmware) is canonical and the app adapts. The frozen legacy app carries compatibility back to 1.8.3; the modern fork dashboard deliberately supports only authenticated `2214 + kars85` builds.
 
 ## Scope
 
-The app is not a general client of a versioned API. It reads firmware JSON responses by direct key access and gates ~100 UI features on the firmware version integer. There is **no CI guard on this axis** (unlike Weather↔Firmware's `test/firmware-contract.spec.ts`) and no negotiated capability handshake — `fwv` *is* the handshake.
+The legacy app is not a general client of a versioned API. It reads firmware JSON responses by direct key access and gates ~100 UI features on the firmware version integer. The modern dashboard instead validates each response at its typed boundary and applies a fork support policy using `fwv`, `fwm`, `fwf`, and field presence. App CI guards the curated response contracts; the retained Firmware DEMO/native black-box guard remains a cross-repository rollout gate.
 
-Deployment makes both directions live simultaneously: the app is served to controllers by pointing the firmware's Javascript URL at `https://ui.opensprinkler.com/js` via `/su` (`README.md:59-68`, firmware ≥2.0.3). A published app update reaches old controllers with no firmware flash, and old app builds keep hitting new controllers. **Neither side may assume the other was updated.**
+Deployment makes both directions live simultaneously: the persistent JavaScript base is changed with authenticated `/cu?jsp=...`; `/su` is the legacy unauthenticated firmware-served view, not the cutover mutation. A published app update reaches old controllers with no firmware flash, and old app builds keep hitting new controllers. **Neither side may assume the other was updated.**
 
 ## Hard Constraints On The Producer
 
@@ -23,14 +23,14 @@ Deployment makes both directions live simultaneously: the app is served to contr
 2. **Authentication failures must never resemble full `/jo` or `/ja` success responses.**
    Some firmware returns **HTTP 200** with only `{"fwv":<n>}` on password failure. The app tolerates that legacy shape but does not use it to authorize a cleartext retry; full-options validation still fails because required fields such as `wl` are absent. A conventional `401`/`403` failure is also safe. `/su` bypasses password checks for the separate firmware-served UI injection flow.
 
-3. **`fwv` must be bumped for any new field or behavior the app is expected to use.**
-   The app has no other way to detect a capability. Shipping a field without a version bump leaves it permanently invisible to the app's gating path. See "Version gating" below.
+3. **Do not bump `fwv` merely to identify this fork or expose an additive fork capability.**
+   `fwv` participates in the persisted-settings compatibility boundary. The modern client can gate additive behavior with the upstream-compatible `fwm`, the `kars85.*` `fwf` identity, and validated field presence. A genuinely new shared protocol revision still needs an agreed version/capability gate on both sides; it must not be smuggled in as fork branding.
 
 4. **`fwv` and `fwm` must remain integers with the documented arithmetic.**
    The app computes 4-digit checks as `fwv * 10 + fwm` (`www/js/modules/firmware.js:164-170`) and formats display as `(fwv/100>>0) + "." + ((fwv/10>>0)%10) + "." + (fwv%10)` (`firmware.js:261`). Both are iopts in `/jo` (`OpenSprinkler.cpp:118` for `fwv`, `:159` for `fwm`). A string `fwv` is interpreted as OSPi (see below), not as a version.
 
 5. **Fork builds must not repurpose `fwv`/`fwm` for fork identity.**
-   The kars85 fork emits its build tag as the separate read-only `fwf` string in `/jo` (`opensprinkler_server.cpp:1122-1125`, `defines.h:47-50`); the app renders it as a display-only suffix and never gates on it (`firmware.js:272-277`). `fwv`/`fwm` continue to track upstream exactly. Any fork that bumps `fwv` to mark itself will mis-trigger every gate below.
+   The kars85 fork emits its build tag as the separate read-only `fwf` string in `/jo` (`opensprinkler_server.cpp:1122-1125`, `defines.h:47-50`). The legacy app renders it as a display-only suffix (`firmware.js:272-277`); the modern dashboard requires the `kars85.` prefix as part of its post-auth support decision. `fwv`/`fwm` continue to track upstream exactly. Any fork that bumps `fwv` to mark itself can reset persisted settings and mis-trigger legacy gates.
 
 ## Version Gating
 
@@ -69,6 +69,23 @@ Live gate tiers, for reference when deciding whether a change needs a bump:
 
 `OSApp.Firmware.sendToOS` selects `POST` over `GET` for classified change commands only when `checkOSVersion( 300 )` — i.e. firmware 3.0.0. Treat this as a reserved protocol boundary: when a numeric firmware reaches 3.0.0, it must accept form-encoded `POST` bodies for every endpoint in the classifier, including sensor mutations. Older numeric firmware and OSPi continue to use `GET`.
 
+### Modern fork dashboard support floor
+
+The modern browser flow is intentionally narrower than the legacy table above:
+
+1. Probe unauthenticated `/jo` when firmware globals are unavailable. A string, non-integer, or
+   numeric value below `221` is **Unsupported** and receives no credential.
+2. For numeric `221+`, authenticate with the MD5 password representation. A version-only
+   `{"fwv":221}` response is an auth bootstrap/failure shape, never authorization for cleartext.
+3. Only a full authenticated response is evaluated for support. It must report `fwv === 221`,
+   `fwm >= 4`, `fwf` beginning with `kars85.`, and every field required by the typed parser.
+4. Apply the same preflight → hash-auth → post-auth order to `/ja`; its version-only failure shape
+   does not bypass the full-response checks.
+
+This policy declares the tested floor without changing `fwv`. Future additive fork behavior should
+remain presence-checked and, when a revision boundary is needed, use an agreed upstream-compatible
+minor/capability gate rather than a fork-only storage-epoch bump.
+
 ### Capability detection that does not use `fwv`
 
 `www/js/modules/supported.js` is the app's preferred detection layer and is the pattern to extend. It splits into two kinds:
@@ -80,7 +97,7 @@ Live gate tiers, for reference when deciding whether a change needs a bump:
 
 ## Auth Bootstrap
 
-The add-site probe is where the app and firmware negotiate password format, and it is subtle enough to state exactly (`www/js/modules/sites.js:814-815`, `:671-696`).
+The legacy add-site probe is where the frozen app negotiates password format (`www/js/modules/sites.js:814-815`, `:671-696`). Its cleartext fallback exists only for legacy compatibility. The modern dashboard never uses that fallback: it performs the support-floor preflight above before prompting, then sends only the MD5 representation.
 
 Unless the operator explicitly enables legacy authentication, the probe **always** sends `/jo?pw=md5(<password>)`. The app does not treat an unauthenticated firmware-version hint as authority to transmit a replayable cleartext password.
 
@@ -88,14 +105,14 @@ Unless the operator explicitly enables legacy authentication, the probe **always
 |---|---|---|---|
 | `fwv >= 213` (expects md5) | Hash matches and `/jo` returns the full option set | valid `fwv` **and** finite numeric `wl` | stores **md5(pw)** |
 | Legacy numeric firmware or OSPi, no approval | Hash is attempted; a partial version-only response is rejected | full-options validation fails | asks the operator to verify the password/settings; never retries cleartext automatically |
-| Legacy numeric firmware or OSPi, explicit approval | The selected legacy protocol sends the supplied password | full-options response must match the selected protocol | stores cleartext with `legacyAuth: true` |
+| Legacy numeric firmware or OSPi, explicit approval | A frozen legacy client or explicitly pinned companion protocol sends the supplied password | full-options response must match the selected protocol | stores cleartext only in that legacy-only configuration |
 
 `wl` (water level, an iopt in `/jo`) remains part of the full-options auth-success sentinel. A success-shaped `200` carrying only `fwv` is not sufficient to persist or switch authentication modes.
 
 **Consequences for the producer:**
 - Removing `wl` from a successful `/jo` causes the response to fail full-options validation.
 - An auth-failure response must not include a success-shaped full option set.
-- Cleartext compatibility is an explicit, persisted operator choice; code paths must not infer it from `fwv`, password length, or a failed hash probe.
+- Cleartext compatibility is legacy-only and requires explicit, independently verified configuration; the modern browser path never infers or retries it from `fwv`, password length, or a failed hash probe.
 
 Firmware 1.8.3 is detected out-of-band by response shape — `data.match( /var (en|sd)\s*=/ )` or `fwv === 203` (`sites.js:675-677`) — and gets a `cache: true` workaround for a timestamp bug in its GET handling (`firmware.js:82-88`).
 
@@ -128,7 +145,7 @@ Read endpoints (JSON field names are part of the contract — the app reads keys
 | `/ja` | all-in-one (gated 216) | `sites.js:1028` |
 | `/je` | special stations | `sites.js:1347` |
 | `/jl` | logs | `logs.js:546-555` |
-| `/su` | script URL view (**no auth**) | firmware-served UI injection |
+| `/su` | legacy script-URL view (**no auth**) | firmware-served UI injection |
 
 Change endpoints classified by `sendToOS` for serialized mutation handling are `cl|cm|co|cp|cr|cs|csn|cu|cv|dl|dp|dsn|pq|sa|sb|sc|sn|sp|up|uwa`:
 
@@ -146,9 +163,9 @@ Sensor endpoints (`/se`, `/sl`, `/sh`, `/sf`, `/sa`, `/sc`, `/sb`, `/sn`, `/so`)
 **The firmware is canonical on this axis.** Before changing anything above:
 
 1. **Never renumber or reorder `_url_keys[]`.** Endpoint keys and JSON field names are append-only in practice — old app builds and old controllers coexist in the field in both directions.
-2. **Bump `fwv` (or `fwm`) when adding app-visible behavior**, and add the gate on the app side in `www/js/modules/supported.js` — preferring a data-presence check over a version check where the shape allows it, so OSPi is covered.
+2. **Do not use a fork-only `fwv` bump for app-visible behavior.** Keep additions backward-compatible, validate field presence, and use an agreed upstream-compatible `fwm`/capability boundary only when presence alone is insufficient. Preserve the legacy gate in `www/js/modules/supported.js` while legacy remains.
 3. **Before removing or renaming a field or endpoint, grep the app's call sites.** There is no CI guard to catch it; the failure mode is a silent `undefined` in a UI module, not a test failure.
-4. **Keep `/jo` and `/ja` success shapes aligned with full-response validation.** Version-only auth-failure responses may remain for compatibility, but the app deliberately does not use them to authorize cleartext. Treat `/su`-without-auth as a separate legacy compatibility contract.
+4. **Keep `/jo` and `/ja` success shapes aligned with full-response validation.** Version-only auth-failure responses may remain for compatibility, but the modern app uses them only for unsupported/auth state selection and never to authorize cleartext. Treat `/su`-without-auth as a separate legacy compatibility contract; persistent UI selection is `/cu`.
 5. Update this doc and the firmware-side API reference together, and keep `OpenSprinkler-Firmware/docs/ecosystem.md` axis D in sync.
 
 ---
