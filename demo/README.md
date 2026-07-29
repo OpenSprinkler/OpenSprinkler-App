@@ -7,9 +7,11 @@ render identically.
 
 ```bash
 npm install      # if you haven't (pulls vite/vitest devDeps)
+npm run deps:rebuild
 npm run demo     # vite dev server — opens the page; renders the status screen
 # or: npm run demo:build  (production bundle to demo/dist/, for a static preview)
 ```
 
 Mocked data lives in `test/fixtures/api/`. Replace those with live device captures to
-preview real controllers. This harness is isolated from the Grunt/Cordova build.
+preview real controllers. This harness is isolated from the repository-owned firmware asset build
+and Cordova mobile packaging tasks.

@@ -20,9 +20,8 @@ Deployment makes both directions live simultaneously: the app is served to contr
 1. **`_url_keys[]` and `urls[]` are positional and must stay index-aligned.**
    The firmware dispatches by finding the 2-char key's index in `_url_keys[]` (`opensprinkler_server.cpp:2209-2236`) and calling `urls[i]` (`:2239-2266`). There is no compile-time link between the tables. Inserting or removing an entry in one without the other silently shifts every handler after that point — the app receives a well-formed 200 response from the *wrong* handler.
 
-2. **`/jo` and `/ja` must keep emitting `fwv` when the password check fails.**
-   `opensprinkler_server.cpp:2449-2455` special-cases these two endpoints: on `check_password()==false` the firmware returns **HTTP 200** with `{"fwv":<n>}` (`iopt_json_names+0` is `fwv`, `OpenSprinkler.cpp:118-119`) instead of an auth error. This is not an information leak to be cleaned up — it is the app's **auth bootstrap**, and removing it breaks adding any site. See "Auth bootstrap" below for the exact dependency.
-   `/su` bypasses password checks entirely (`:2445-2448`); that is what makes UI injection work.
+2. **Authentication failures must never resemble full `/jo` or `/ja` success responses.**
+   Some firmware returns **HTTP 200** with only `{"fwv":<n>}` on password failure. The app tolerates that legacy shape but does not use it to authorize a cleartext retry; full-options validation still fails because required fields such as `wl` are absent. A conventional `401`/`403` failure is also safe. `/su` bypasses password checks for the separate firmware-served UI injection flow.
 
 3. **`fwv` must be bumped for any new field or behavior the app is expected to use.**
    The app has no other way to detect a capability. Shipping a field without a version bump leaves it permanently invisible to the app's gating path. See "Version gating" below.
@@ -64,11 +63,11 @@ Live gate tiers, for reference when deciding whether a change needs a bump:
 | 2213 | weather restrictions, `imin`/`imax` (`supported.js:99`, `options.js:875-883`) |
 | 2214 | queue order, `tpdv`, weather option (`programs.js:2832`, `options.js:863`, `weather.js:707`) |
 | 221 | large `sopt` support (`options.js:1748`) |
-| 300 | **`POST` for change commands — no such firmware exists; see below** |
+| 300 | **Reserved `POST` transport for change commands; see below** |
 
 ### The dormant POST path
 
-`OSApp.Firmware.sendToOS` selects `POST` over `GET` for change commands only when `checkOSVersion( 300 )` (`firmware.js:53-58`) — i.e. firmware 3.0.0. **No such firmware exists**, so every change command ships as a `GET` with the password in the query string today. The comment there says "requires firmware 2.1.8 or newer," which the `300` gate contradicts. Treat this as reserved, not live: **if firmware ever reaches 3.0.0, this path silently activates** and `POST` bodies must be accepted for `cv|cs|cr|cp|uwa|dp|co|cl|cu|up|cm`. Do not reach 3.0.0 without checking this line.
+`OSApp.Firmware.sendToOS` selects `POST` over `GET` for classified change commands only when `checkOSVersion( 300 )` — i.e. firmware 3.0.0. Treat this as a reserved protocol boundary: when a numeric firmware reaches 3.0.0, it must accept form-encoded `POST` bodies for every endpoint in the classifier, including sensor mutations. Older numeric firmware and OSPi continue to use `GET`.
 
 ### Capability detection that does not use `fwv`
 
@@ -83,19 +82,20 @@ Live gate tiers, for reference when deciding whether a change needs a bump:
 
 The add-site probe is where the app and firmware negotiate password format, and it is subtle enough to state exactly (`www/js/modules/sites.js:814-815`, `:671-696`).
 
-The probe **always** sends `/jo?pw=md5(<password>)` — the app does not yet know the firmware version, so it cannot know whether to hash. Two outcomes:
+Unless the operator explicitly enables legacy authentication, the probe **always** sends `/jo?pw=md5(<password>)`. The app does not treat an unauthenticated firmware-version hint as authority to transmit a replayable cleartext password.
 
 | Firmware | What happens | App reads | Result |
 |---|---|---|---|
-| `fwv >= 213` (expects md5) | Hash matches, `/jo` returns the full option set | `data.fwv >= 213` **and** `data.wl` is a number | stores **md5(pw)** (`sites.js:692-696`) |
-| `fwv < 213` (expects cleartext) | Hash is the *wrong* password → the `:2449-2455` escape hatch returns **HTTP 200** `{"fwv":N}` | `data.fwv` present, **`data.wl` undefined** | stores **cleartext pw** |
+| `fwv >= 213` (expects md5) | Hash matches and `/jo` returns the full option set | valid `fwv` **and** finite numeric `wl` | stores **md5(pw)** |
+| Legacy numeric firmware or OSPi, no approval | Hash is attempted; a partial version-only response is rejected | full-options validation fails | asks the operator to verify the password/settings; never retries cleartext automatically |
+| Legacy numeric firmware or OSPi, explicit approval | The selected legacy protocol sends the supplied password | full-options response must match the selected protocol | stores cleartext with `legacyAuth: true` |
 
-So `wl` (water level, an iopt in `/jo` — `OpenSprinkler.cpp:142`) doubles as the **auth-success sentinel**: its presence means the full option set came back, which means the md5 was accepted. The `fwv < 213` branch depends on the failure response being a *success-shaped* 200 that carries `fwv` and omits everything else.
+`wl` (water level, an iopt in `/jo`) remains part of the full-options auth-success sentinel. A success-shaped `200` carrying only `fwv` is not sufficient to persist or switch authentication modes.
 
 **Consequences for the producer:**
-- Returning `401`/`403` instead of the 200+`fwv` shape on `/jo` auth failure breaks add-site for all pre-2.1.3 firmware.
-- Adding `wl` to the auth-failure response breaks the cleartext branch (the app would store md5 for a controller expecting cleartext).
-- Removing `wl` from a successful `/jo` breaks the md5 branch the same way, in reverse.
+- Removing `wl` from a successful `/jo` causes the response to fail full-options validation.
+- An auth-failure response must not include a success-shaped full option set.
+- Cleartext compatibility is an explicit, persisted operator choice; code paths must not infer it from `fwv`, password length, or a failed hash probe.
 
 Firmware 1.8.3 is detected out-of-band by response shape — `data.match( /var (en|sd)\s*=/ )` or `fwv === 203` (`sites.js:675-677`) — and gets a `cache: true` workaround for a timestamp bug in its GET handling (`firmware.js:82-88`).
 
@@ -112,7 +112,7 @@ Beyond the probe, every request injects the password by string replacement on `p
 | `32` | rejected as **HTTP 404** |
 | `48` | "The selected station is already running or is scheduled to run." |
 
-Responses are parsed as JSON with a string fallback (`firmware.js:93-100`), and a missing/non-numeric `result` is passed through untouched — that path exists for OSPi and pre-2.1.0 firmware.
+Responses are parsed as JSON with a string fallback. Numeric firmware 2.1.0 and newer must return an integer `result` for classified mutations; malformed mutation replies are rejected. OSPi and pre-2.1.0 compatibility responses retain the older pass-through behavior.
 
 ## Endpoints Consumed
 
@@ -130,9 +130,9 @@ Read endpoints (JSON field names are part of the contract — the app reads keys
 | `/jl` | logs | `logs.js:546-555` |
 | `/su` | script URL view (**no auth**) | firmware-served UI injection |
 
-Change endpoints (`cv|cs|cr|cp|uwa|dp|co|cl|cu|up|cm` are the set `sendToOS` routes to the "change" AJAX queue and error-reports on — `firmware.js:52`):
+Change endpoints classified by `sendToOS` for serialized mutation handling are `cl|cm|co|cp|cr|cs|csn|cu|cv|dl|dp|dsn|pq|sa|sb|sc|sn|sp|up|uwa`:
 
-`/cv` values · `/co` options · `/cs` stations · `/cm` manual · `/cp` program · `/dp` delete program · `/up` move program up · `/cr` run-once · `/mp` manual program · `/dl` delete log · `/sp` set password · `/cu` change script URL · `/pq` pause queue
+`/cv` values · `/co` options · `/cs` stations · `/cm` manual · `/cp` program · `/dp` delete program · `/up` move program up · `/cr` run-once · `/dl` delete log · `/sp` set password · `/cu` change script URL · `/pq` pause queue · `/sa`, `/sb`, `/sc`, `/sn` sensor mutations · `/csn` create/update sensor · `/dsn` delete sensor
 
 Sensor endpoints (`/se`, `/sl`, `/sh`, `/sf`, `/sa`, `/sc`, `/sb`, `/sn`, `/so`) are called from `www/js/modules/analog.js`.
 
@@ -148,7 +148,7 @@ Sensor endpoints (`/se`, `/sl`, `/sh`, `/sf`, `/sa`, `/sc`, `/sb`, `/sn`, `/so`)
 1. **Never renumber or reorder `_url_keys[]`.** Endpoint keys and JSON field names are append-only in practice — old app builds and old controllers coexist in the field in both directions.
 2. **Bump `fwv` (or `fwm`) when adding app-visible behavior**, and add the gate on the app side in `www/js/modules/supported.js` — preferring a data-presence check over a version check where the shape allows it, so OSPi is covered.
 3. **Before removing or renaming a field or endpoint, grep the app's call sites.** There is no CI guard to catch it; the failure mode is a silent `undefined` in a UI module, not a test failure.
-4. **Treat `/jo`+`/ja` fwv-on-auth-failure and `/su`-without-auth as load-bearing**, not as security defects to be tidied.
+4. **Keep `/jo` and `/ja` success shapes aligned with full-response validation.** Version-only auth-failure responses may remain for compatibility, but the app deliberately does not use them to authorize cleartext. Treat `/su`-without-auth as a separate legacy compatibility contract.
 5. Update this doc and the firmware-side API reference together, and keep `OpenSprinkler-Firmware/docs/ecosystem.md` axis D in sync.
 
 ---

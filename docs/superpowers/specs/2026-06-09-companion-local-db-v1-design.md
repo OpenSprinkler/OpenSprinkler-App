@@ -1,5 +1,10 @@
 # OpenSprinkler Companion — local database feature (v1 design)
 
+> **Historical design record, not an operations guide.** Deployment details and code sketches capture
+> the pre-implementation design and may differ from the hardened compiled runtime. Current install,
+> security, container, and Proxmox instructions live in `README.md`, `SECURITY.md`, `docs/DEPLOY.md`,
+> `server/Dockerfile`, and `docker-compose.yml`.
+
 **Date:** 2026-06-09
 **Status:** Approved design, scoped to **v1**
 **Branch context:** Phase-1 typed scaffold (`feat/phase1-typed-api-scaffold`) — `www/src/` typed API client, `app/` SPA build, controller-direct architecture.
@@ -12,15 +17,16 @@ Docker container** (replacing the dependency on Firebase Hosting for self-hoster
 generalized feature: zero-config for a single household, pluggable storage behind an interface,
 and **fully optional** — the SPA keeps working controller-direct when the companion is absent.
 
-This document covers **v1 only**. Snapshots/restore, multi-controller "sites" UI, the Postgres
-adapter, and API-token auth are explicit follow-ons (§12), each with its own spec.
+This document covers **v1 only**. Snapshots/restore, multi-controller "sites" UI, and the Postgres
+adapter remain explicit follow-ons (§12). The implementation now includes optional bearer auth as a
+deployment hardening measure.
 
 ## 2. Non-goals (v1)
 
 - **No Postgres adapter yet** — v1 ships SQLite only, but behind a `StorageProvider` interface so
   Postgres is an additive change (the dual-dialect contract test arrives with that adapter).
-- **No auth** — single-household LAN; the companion binds to the LAN and trusts it. (Optional API
-  token is a follow-on.)
+- **No user/account system** — loopback is the default. Operators who expose the API to a LAN use the
+  optional bearer token and an explicit CORS origin allowlist.
 - **No config snapshots/restore, no multi-controller UI** — v1 polls **one** configured controller.
 - **No realtime push** — periodic poll + client refresh is sufficient at household scale.
 - **No change to the controller-direct live/control path** — that stays exactly as built; the DB is
@@ -94,7 +100,7 @@ export interface TelemetrySample {
   activeStations: number;  // derived from /jc.sbits
   rssi: number | null;     // /jc.RSSI (esp only)
   currentDraw: number | null; // /jc.curr (arduino only)
-  raw: unknown;            // { jc, jo } snapshot for forward-compat
+  raw: unknown;            // allowlisted non-secret firmware metadata for forward-compat
 }
 
 export interface RunLogRow {
@@ -133,21 +139,26 @@ plain indexed rows are sufficient — no time-series extension needed.
 ## 7. Poller / collection
 
 - `poller.ts`: a guarded interval (default **300 s**, env `POLL_INTERVAL_SEC`). No overlap — skip a
-  tick if the previous cycle is still running. Errors are logged and do not crash the loop.
+  tick if the previous cycle is still running. Errors are logged and do not crash the loop. Shutdown
+  rejects queued cycles, propagates an `AbortSignal` through controller reads, and bounds the drain.
 - `collect.ts` (one cycle, testable in isolation against a mocked seam):
   1. `getControllerStatus()` (/jc) + `getOptions()` (/jo) via the typed client.
   2. Map → one `TelemetrySample` (`activeStations` via `countActiveStations(jc.sbits)`).
-  3. `getLogs({ days: 1 })` (/jl, the range-correct call) → map rows → `upsertRunLog` (dedup).
-  4. `appendTelemetry(sample)`.
+  3. `appendTelemetry(sample)` independently of run-log success.
+  4. Fetch the overlap/backfill `/jl` range → map rows → `upsertRunLog` (dedup).
 - The companion authenticates to the controller server-side: `CONTROLLER_BASE` + `CONTROLLER_PW`
-  (md5-hashed for fwv≥213 using the existing `www/src/auth/md5`), via `BrowserDeviceSeam`.
+  (md5-hashed for fwv≥213 using the existing `www/src/auth/md5`), via `BrowserDeviceSeam`. It never
+  retries a modern controller with cleartext credentials. Fetch and body parsing share a finite
+  `CONTROLLER_TIMEOUT_MS` deadline.
 
 ## 8. REST API (Hono, v1)
 
 - `GET /api/health` → `{ ok, companion: "v1", storage: "sqlite", lastTs, telemetryRows, runLogRows }`.
   Used by the SPA to feature-detect.
-- `GET /api/history?from=<unix>&to=<unix>` → `{ telemetry: TelemetrySample[] }` (bounded; default last 7 days, capped range).
-- `GET /api/runlog?from=<unix>&to=<unix>` → `{ rows: RunLogRow[] }`.
+- `GET /api/history?from=<unix>&to=<unix>&limit=&cursor=` → `{ telemetry: TelemetrySample[], nextCursor }`.
+- `GET /api/runlog?from=<unix>&to=<unix>&limit=&cursor=` → `{ rows: RunLogRow[], nextCursor }`.
+- Both history endpoints use opaque fixed-snapshot keyset cursors (ordered by timestamp + row id),
+  cap pages at 5,000 rows, and reject the obsolete shifting `offset` form.
 - Static: everything else serves `app/dist` (SPA fallback to `index.html`).
 - CORS: permissive on `/api/*` for LAN (the SPA may be served from a different origin during dev);
   documented as LAN-only.
@@ -172,12 +183,17 @@ plain indexed rows are sufficient — no time-series extension needed.
 |---|---|---|
 | `STORAGE` | `sqlite` | storage backend (v1: only `sqlite`) |
 | `DATABASE_PATH` | `/data/data.db` | SQLite file (on the mounted volume) |
-| `CONTROLLER_BASE` | — (required) | controller URL, e.g. `http://10.10.100.246/` |
+| `CONTROLLER_BASE` | — (required) | controller URL, e.g. `http://192.0.2.10/` |
 | `CONTROLLER_PW` | — | device password (md5-hashed server-side; omit if `ipas`) |
-| `CONTROLLER_FWV` | probed | firmware version (auto-probed from `/jo` if unset) |
+| `CONTROLLER_FWV` | probed | explicit opt-in to verified pre-2.1.3 cleartext auth; must exactly match `/jo` |
 | `POLL_INTERVAL_SEC` | `300` | collection interval |
+| `LOG_BACKFILL_DAYS` | `2` | cold-start run-log lookback |
+| `CONTROLLER_TIMEOUT_MS` | `10000` | deadline for each controller fetch plus body read |
 | `PORT` | `8080` | companion HTTP port |
+| `LISTEN_HOST` | `127.0.0.1` | direct-run listen address; loopback/wildcard IP literals only |
 | `HISTORY_MAX_DAYS` | `90` | retention cap (older telemetry pruned on a daily sweep) |
+| `API_ALLOWED_ORIGINS` | controller origin | comma-separated browser origins allowed to read `/api/*` |
+| `API_TOKEN` | unset | optional bearer token (minimum 16 characters) for non-loopback exposure |
 
 ## 11. Docker
 
@@ -211,7 +227,8 @@ plain indexed rows are sufficient — no time-series extension needed.
 2. **Multi-controller "sites" UI** — `controllers` table is already keyed; add CRUD + a switcher.
 3. **Postgres adapter** — `storage/postgres.ts` (Drizzle pg) + run the storage contract suite against
    a Postgres-in-Docker; `STORAGE=postgres` + `DATABASE_URL`.
-4. **Optional API token auth** — `COMPANION_TOKEN` gate on `/api/*` for non-trusted networks.
+4. **User/account auth** — optional bearer auth exists for private deployments; multi-user identity,
+   roles, and token rotation UI remain out of scope.
 
 ## 14. Why these choices
 

@@ -91,40 +91,51 @@ We welcome contributions to the OpenSprinkler app! If you'd like to contribute, 
 * **Make your changes:** Implement your changes with clear commit messages.
 * **Submit a pull request:** Open a pull request to the main repository. Please be sure to include either a short demo video or screenshots to show your change.
 
-Please ensure your code adheres to the existing coding style and includes tests for any new functionality. Please note that during the `git commit` step, husky will automatically run grunt to check for syntax and styling errors before the commit will be accepted.
+Please ensure your code adheres to the existing coding style and includes tests for any new functionality. During `git commit`, Husky runs the JavaScript and CSS lint tasks before accepting the commit.
 
 ## Local Development
 
-Fork this repository then:
+The toolchain requires Node.js 22.13 or newer and npm 10.9 or newer. Fork this repository then:
 
 ```bash
 npm install
+npm run deps:rebuild
+npm run prepare
 npm start
 ```
 
+Install scripts are disabled by default. `deps:rebuild` runs only the reviewed native/build hooks
+for `better-sqlite3`, `esbuild`, and the optional macOS `fsevents` package; `prepare` installs the
+repository's Husky hooks for local development.
+
 From here you can open your browser to `http://localhost:8080` and begin your development.
 
-### Grunt Tasks
-
-This project uses Grunt to automate various development tasks. Here are some of the key Grunt tasks available:
+### Development tasks
 
 #### Code Quality and Testing
 
-* **`grunt eslint`**: Checks JavaScript code for potential errors and style issues.
-* **`grunt csslint`**: Analyzes CSS code for potential errors and style issues.
+* **`npm run lint`**: Checks JavaScript code for potential errors and style issues.
+* **`npm run lint:css`**: Analyzes CSS code for potential errors and style issues.
 
 #### Building and Deployment
 
-* **`grunt compress:makeFW`**: Creates a ZIP archive of the application files for firmware updates.
+* **`npm run build:firmware`**: Creates the firmware asset tree and reproducible `UI.zip` archive.
 
 #### Localization
 
-* **`grunt shell:pushEng`**: Extracts English strings for translation, pushes them to Transifex, and updates the English PO file.
-* **`grunt shell:updateLang`**: Pulls translations from Transifex and updates the language files.
+* **`npm run localization:push-english`**: Extracts English strings, pushes them to Transifex, and updates the English PO file.
+* **`npm run localization:update`**: Pulls translations from Transifex and updates the language files.
 
 #### Unit Tests
 
-This project uses `Karma` as the test runner utilizing a headless Chrome browser (be sure that Chrome is installed on
-your workstation).
+The legacy suite uses a minimal local harness with headless Chrome. The launcher detects `google-chrome`, `chromium`, and
+`chromium-browser`, including a Chromium-only Debian/Proxmox installation. Set `CHROME_BIN` explicitly when the
+browser is installed elsewhere.
 
-* **`npm test`**: Executes entire test suite located under `/test`/
+* **`npm test`**: Executes the legacy browser suite located under `/test/tests`.
+* **`npm run ci`**: Runs audits, secret scanning, linting, typechecks, all Node suites, production builds, and the legacy browser suite.
+* **`npm run test:browser:container`**: Runs the legacy browser suite in a digest-pinned, non-root Chromium container, so a host browser is not required.
+* **`npm run ci:proxmox`**: Runs all CI checks with containerized Chromium, then builds and smoke-tests the production companion container. It requires Docker and Compose, but no host browser.
+
+See [SECURITY.md](SECURITY.md) for the full dependency-audit policy and credential-rotation
+requirements.

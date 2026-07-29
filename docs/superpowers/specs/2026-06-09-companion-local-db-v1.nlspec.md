@@ -53,7 +53,9 @@ The companion is strictly additive: when it is absent, the dashboard behaves exa
   (`/jo.wl`), rain-delay flag (`/jc.rd`), weather error code (`/jc.wterr`), weather-restricted flag
   (`/jc.wtrestr`), last-weather-update (`/jc.lswc`), active-station count (derived from `/jc.sbits`
   via `countActiveStations`), RSSI (`/jc.RSSI`, nullable), current draw (`/jc.curr`, nullable), and a
-  raw `{jc, jo}` blob.
+  small allowlisted compatibility blob containing only controller time/board count and firmware
+  version/timezone metadata. Raw `/jc` and `/jo` responses SHALL NOT be persisted because optional
+  integration fields can contain credentials.
 - **FR-6 (log backfill, gap-tolerant)** Each cycle SHALL fetch the run log over a window from
   `max(stored end_ts for this controller) − overlap` (cold start / empty DB: last `LOG_BACKFILL_DAYS`,
   default 2) up to now, via the **range-correct** `getLogs({start,end})`. Rows SHALL be mapped using
@@ -65,13 +67,15 @@ The companion is strictly additive: when it is absent, the dashboard behaves exa
   fails (and vice-versa). A failure in one part SHALL NOT prevent the other; both are logged. No
   partial telemetry row SHALL be written (a sample is written only when `/jc`+`/jo` both parsed).
 - **FR-8** The poller SHALL NOT overlap cycles: if a cycle is still running when the next tick fires,
-  that tick SHALL be skipped.
+  that tick SHALL be skipped. Shutdown SHALL reject queued/new cycles, abort the active cycle, and
+  bound the drain wait.
 - **FR-9** A poll-cycle failure (network, auth, parse, or DB write — e.g. disk full / locked) SHALL be
   logged and SHALL NOT crash the poller or the HTTP server; the next scheduled cycle proceeds normally,
   and `/api/health` reflects the degraded state (`lastError`, stale `lastTs`).
 - **FR-10** The companion SHALL authenticate to the controller **server-side** by reusing the seam's
-  version-gated `authenticate()` (md5 for combined-fwv ≥ 213 via `www/src/auth/md5`, cleartext
-  fallback for older firmware). `CONTROLLER_FWV` is auto-probed from the pre-auth `/jo` (`{fwv}` is
+  version-gated `authenticate()` (md5 for fwv ≥ 213 via `www/src/auth/md5`, legacy cleartext only for
+  older firmware). A modern controller SHALL NOT be retried with the cleartext password after hash
+  authentication fails. Firmware is auto-probed from the pre-auth `/jo` (`{fwv}` is
   readable without a password). For `ipas` controllers the password MAY be omitted; if the controller
   requires a password and none/an invalid one is supplied, the poller SHALL fail closed (no telemetry
   written) and report the auth failure via health. The password SHALL NEVER be exposed to the browser.
@@ -101,12 +105,15 @@ The companion is strictly additive: when it is absent, the dashboard behaves exa
   migrations are applied (false on DB/migration failure). `pollerStale` is true when `lastTs` is null
   or older than 2× `POLL_INTERVAL_SEC`. It SHALL succeed on an empty store (`lastTs` null, counts 0).
   The payload SHALL contain no secrets.
-- **FR-17 (history)** `GET /api/history?from=<unix>&to=<unix>` SHALL return `{ telemetry: [...] }` with
-  **inclusive** bounds, sorted **ascending by `ts`**. An omitted range defaults to the last 7 days.
-  `from > to`, or non-integer/negative params, SHALL yield HTTP 400 JSON. The effective span SHALL be
-  **clamped to `HISTORY_MAX_DAYS`** and the row count bounded.
-- **FR-18 (runlog)** `GET /api/runlog?from=&to=` SHALL return `{ rows: [...] }` with the same
-  range, validation, and sort semantics as FR-17.
+- **FR-17 (history)** `GET /api/history?from=<unix>&to=<unix>&limit=<n>&cursor=<opaque>` SHALL return
+  `{ telemetry: [...], nextCursor: string|null }` with **inclusive** bounds, sorted **ascending by
+  `(ts,id)`**. An omitted range defaults to the last 7 days. Pages SHALL use a fixed-snapshot keyset
+  cursor so concurrent inserts/backfill cannot shift a walk. `from > to`, non-integer/negative params,
+  an invalid/replayed-for-another-range cursor, or the obsolete `offset` parameter SHALL yield HTTP
+  400 JSON. The effective span SHALL be **clamped to `HISTORY_MAX_DAYS`** and each page to 5,000 rows.
+- **FR-18 (runlog)** `GET /api/runlog?from=&to=&limit=&cursor=` SHALL return
+  `{ rows: [...], nextCursor: string|null }` with the same range, validation, snapshot, and sort
+  semantics as FR-17 (using `(endTs,id)` as its keyset).
 - **FR-19** API responses SHALL be JSON; **only GET** is allowed on `/api/*`; invalid params → HTTP 400
   JSON; unexpected errors → HTTP 500 JSON with **no stack/secret leakage**. Routing: `/api/*` takes
   precedence over static; unknown non-`/api` paths fall back to `index.html`; path traversal SHALL be
@@ -127,12 +134,16 @@ The companion is strictly additive: when it is absent, the dashboard behaves exa
 ### 4.6 Configuration & lifecycle
 - **FR-24** Configuration SHALL be environment-driven and validated at startup: `STORAGE`
   (default `sqlite`), `DATABASE_PATH`, `CONTROLLER_BASE` (required), `CONTROLLER_PW` (optional for
-  `ipas` devices), `CONTROLLER_ID` (optional; see FR-13), `CONTROLLER_FWV` (auto-probed if unset),
-  `POLL_INTERVAL_SEC` (300), `LOG_BACKFILL_DAYS` (2), `PORT` (8080), `HISTORY_MAX_DAYS` (90).
+  `ipas` devices), `CONTROLLER_ID` (optional; see FR-13), `CONTROLLER_FWV` (an explicit opt-in to
+  verified pre-2.1.3 cleartext authentication; it must exactly match the version reported by `/jo`),
+	  `POLL_INTERVAL_SEC` (300), `LOG_BACKFILL_DAYS` (2), `CONTROLLER_TIMEOUT_MS` (10000), `PORT` (8080),
+	  `LISTEN_HOST` (`127.0.0.1`), `HISTORY_MAX_DAYS` (90), `API_ALLOWED_ORIGINS` (controller origin),
+	  and optional `API_TOKEN` (minimum 16 characters). `LISTEN_HOST` SHALL accept only the
+  loopback/wildcard IPv4/IPv6 literals documented in `.env.example`.
 - **FR-25** Missing required configuration (e.g. `CONTROLLER_BASE`) SHALL fail fast at startup with a
   clear error. Secrets (`CONTROLLER_PW`) SHALL be redacted from all logs.
-- **FR-26** The service SHALL shut down cleanly on SIGINT/SIGTERM (stop the poll loop + sweep timer,
-  close the DB).
+- **FR-26** The service SHALL shut down cleanly on SIGINT/SIGTERM: stop the poll loop and sweep timer,
+  abort bounded controller I/O, drain the poller/HTTP server with finite deadlines, then close the DB.
 
 ## 5. Non-functional requirements
 
@@ -142,9 +153,9 @@ The companion is strictly additive: when it is absent, the dashboard behaves exa
 - **NFR-2 Footprint** — The runtime image SHALL be slim (`node:*-alpine`, no native query-engine binary
   beyond the SQLite binding), suitable for low-power single-board hosts. Target (non-binding,
   monitored): runtime image < ~250 MB, idle RSS modest (single small Node process).
-- **NFR-3 Security posture** — Controller credentials live only server-side; the API binds to the LAN
-  and is documented as LAN-trusted in v1 (no auth). CORS on `/api/*` allows GET only. No secrets in
-  logs (passwords/credentials redacted).
+- **NFR-3 Security posture** — Controller credentials live only server-side; direct runs and Compose
+  host publishing default to loopback. Non-loopback deployments use the optional bearer token and an
+  explicit CORS origin allowlist. CORS on `/api/*` allows GET only. No secrets are written to logs.
 - **NFR-4 Reliability** — A controller outage degrades to "no new samples"; a DB write error is logged
   and survived; the companion stays up and resumes when the dependency returns.
 - **NFR-5 Portability** — Storage logic depends only on `StorageProvider`; adding Postgres SHALL
@@ -239,7 +250,7 @@ As in §4.4. Stable response shapes; additive evolution only.
 
 ## 10. Out of scope (v1 non-goals / follow-ons)
 
-Postgres adapter; config snapshots + restore; multi-controller "sites" UI; API-token auth; realtime
+Postgres adapter; config snapshots + restore; multi-controller "sites" UI; user/account auth; realtime
 push; charting libraries; changes to the controller-direct live/control path.
 
 ## 11. Open questions

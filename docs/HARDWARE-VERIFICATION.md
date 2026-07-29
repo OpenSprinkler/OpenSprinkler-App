@@ -1,9 +1,9 @@
 # Phase-1 dashboard — on-device verification runbook
 
-> **THIS IS A LIVE PRODUCTION CONTROLLER.** The target is the operator's own OpenSprinkler running
-> their own fork build (`fwf=kars85.3`), with **2 real enabled programs**, a real GPS location, and a
-> **self-hosted weather server**. It is **not** a throwaway test rig. Read the SAFETY PREAMBLE before
-> doing anything. Every mutating step is structured **Capture → Do → Expect → Restore**, and the
+> **THIS PROCEDURE MAY TARGET A LIVE PRODUCTION CONTROLLER.** Keep its address, password, GPS
+> location, station names, program names, cloud token, and baseline captures outside the repository.
+> The values below are reserved examples only. Read the SAFETY PREAMBLE before doing anything.
+> Every mutating step is structured **Capture → Do → Expect → Restore**, and the
 > writes are issued as **atomic single-key device commands — never via the bundled UI Save forms**
 > (see "Why the UI forms are forbidden").
 
@@ -24,33 +24,25 @@ capture, §4/§8.2 LAN+OTC seam proof, §7 rollout) **without endangering the op
 > This device's resting state is **not** the firmware default in several places. Never assume a default —
 > read it, capture it, restore the captured value verbatim, re-read to confirm.
 
-### KNOWN LIVE STATE of THIS device (ground truth, probed read-only this session)
+### Private baseline template (fill this outside version control)
 
 | What | Value | Rule |
 |---|---|---|
-| Base URL | `http://10.10.100.246/` (plain HTTP, LAN) | Reachable from the dev box. |
-| Password | `opendoor` | fwv 221 ≥ 213 ⇒ firmware md5-hashes it. Auth **required** (no `ipas` bypass). |
-| Firmware | `fwv=221 fwm=4 hwv=32` ⇒ HW 3.2, FW 2.2.1(4); `fwvCombined=2214` | fwv < 300 ⇒ **all change commands are GET**. |
-| Build | `fwf="kars85.3"` | Operator's **own fork** — treat as production, do not assume stock firmware behavior. |
-| **Controller enable** | **`en=0` — DISABLED right now** | Read `/jc.en`, capture, **restore to `0`**. NEVER leave it enabled if it started disabled. |
-| Water level | `wl=45%` (ETo-auto) | Scales every run time. The General form's hard default is `100`. ETo moves this value on its own — do **not** pin it to a literal at close-out. |
-| Rain delay | `rd=0` | The sanctioned reversible write-proof toggles this; restore to `0`. |
-| Weather method | `uwt=3` (ETo) | Drives `wl`. Do not perturb. |
-| Sensor 1 | `sn1t=1` (Rain); `secondSensor=true` | The General form's hard default is `0` (None) — a stray save disables the rain sensor. |
-| Location | `loc=41.70737,-93.62914` | Real GPS, drives ETo. |
-| **Custom weather server** | `wsp=http://10.10.100.3:3000` | Self-hosted, plain-HTTP, **LAN-only** (not reachable through the OTC HTTPS tunnel). Lives in `/jc.wsp`. Do **not** clobber. |
-| Stations | **24 total**, all potentially live | See below. |
-| Station 8 (1-based) | `"Disabled - Unknown Conductor"` | **Hazardous unknown wiring. NEVER energize.** Its disabled bit is load-bearing. |
-| Stations 12–24 | default names `S12`..`S24` | Likely unconfigured but **TREAT AS POTENTIALLY LIVE**. |
-| **2 real enabled programs** | `"Front Use Water Wisely"`, `"Backyard Use Water Wisely"` (weekly) | **DO NOT TOUCH.** Never run, toggle, edit, or delete. Throwaway artifacts only. |
-| OTC remote | `otfCloud=true` | OTC provisioned. §3 needs the device's OTC token (a **secret**). |
+| Base URL | `http://192.0.2.10/` | RFC 5737 example only; record the real address privately. |
+| Password | supplied out of band | Never write it in a tracked file or shell command. |
+| Firmware/build | capture `fwv`, `fwm`, `hwv`, `fwf` | The version controls auth and request semantics. |
+| Controller enable | capture `/jc.en` | Restore the captured value exactly. |
+| Water/weather/sensors | capture `wl`, `uwt`, `sn1t`, `sn2t` | Never assume firmware defaults. |
+| Location/weather server | capture `/jc.loc` and `/jc.wsp` privately | These identify the installation; never commit them. |
+| Stations/programs | capture counts, disabled bits, names, and tuples privately | Treat every output as live; identify protected zones/programs privately. |
+| OTC remote | capture availability only | The token is a secret and must never enter this repository. |
 
 ### Hard prohibitions (do any of these and you have failed the runbook)
 
-- ❌ Leave `en=1` if it started at `en=0`. Always restore `/jc.en` to its captured value.
-- ❌ Run / toggle / edit / delete the two real programs.
-- ❌ Energize station 8, or any unverified zone (incl. `S12`–`S24`). Do **not** trust "firmware refuses
-  disabled stations" — this is a **custom fork**; the only safe actuation target is a zone you have
+- ❌ Leave `/jc.en` different from its captured value.
+- ❌ Run / toggle / edit / delete any captured production program.
+- ❌ Energize any protected or unverified zone. Do **not** trust "firmware refuses disabled stations";
+  the only safe actuation target is a zone you have
   **physically disconnected**.
 - ❌ Issue `runOnce` / `runProgramNow` / `/cr` against anything real — `/cr` **opens valves even when `en=0`**.
 - ❌ Submit **any** bundled UI Save form (Weather / General / Stations / Network) on this device — see below.
@@ -69,10 +61,10 @@ regardless of what you "changed". Verified against source:
   key field **silently wipes the stored API key**.
 - **General form** (`settings/general.ts buildGeneralOptions`) always emits `wl` (**hard default `100`**),
   `sn1t` (**hard default `0`**), and a `tz` **re-derived by rounding** a float GMT-offset — so a save can
-  land on a different `tz` and clobber `wl=45` / disable the rain sensor.
+  land on a different `tz` and clobber the captured water level / sensor mode.
 - **Stations form** (`settings/stations-edit.ts buildStationConfig`) always rebuilds **disabled** and
-  **ignore-rain** bits for **all 24 stations** from the rendered checkboxes. If the read seam didn't fully
-  populate `stn_dis`, a save **enables station 8** and `S12`–`S24`.
+  **ignore-rain** bits for **all stations** from the rendered checkboxes. If the read seam did not fully
+  populate `stn_dis`, a save can enable protected zones.
 
 So: **every settings/program test in this runbook is an atomic single-key GET command** (`/co?key=…`,
 `/cs?s<sid>=…`, `/cp?pid=…`, `/dp?pid=…`) that touches only the named field. The UI forms are validated
@@ -93,15 +85,15 @@ capture the §0 baseline first and **click nothing**.
 
 | Section | Status |
 |---|---|
-| §1 read-only proof — `npm run verify:live` | ✅ **PASSED this session.** fwv221/fwm4/hwv32, `fwf=kars85.3`, 24 stations, 2 programs, caps derived. Reads + capabilities green. |
-| §1b read-only capture — `npm run capture` | ✅ **Ran this session.** 5/6 endpoints captured (`/jl` needs a range), `wto.key` scrubbed, parse-verified; curated corpus restored (not re-pinned — see §1b). |
-| §2a UI render vs mocks (`npm run demo`) | ✅ **Ran this session.** Demo harness boots + serves the full dashboard (all tabs) from mock fixtures; tab visual click-through is the operator's. |
+| §1 read-only proof — `npm run verify:live` | ⬜ Run against the private target and record results outside version control. |
+| §1b read-only capture — `npm run capture` | ⬜ Capture into the redacted, version-scoped directory and inspect before committing. |
+| §2a UI render vs mocks (`npm run demo`) | ⬜ Run the fixture-backed dashboard and inspect every tab. |
 | §2b live LAN render | ⬜ Gated (armed controls — capture baseline, click nothing). |
 | §3 OTC remote / mixed-content (PRD §4 #1) | ⬜ Gated (needs OTC token + HTTPS build + browser). |
-| §4 auth | ✅ **API-level PASSED this session.** correct pw → full `/jo` (67 keys); wrong pw → `fwv` stub (1 key); no pw → stub. Wrong password rejected, correct authorizes. (UI login-prompt contrast still operator-visual in §2b.) |
-| §5 reversible write proof (rain delay) | ✅ **PASSED this session.** `rd 0→1 (rdst set)→0`; independent post-read `rd=0 rdst=0 en=0`; write flag cleared. Authenticated GET command path proven on hardware. |
+| §4 auth | ⬜ Verify wrong-password rejection and correct-password authorization privately. |
+| §5 reversible write proof (rain delay) | ⬜ Capture, mutate, restore, and independently verify the original state. |
 | §6 control smoke test (PHYSICAL) | ⬜ Gated — **actuates valves.** Default-SKIP; requires a disconnected zone. |
-| §7 settings write-back (atomic) | ✅ **§7a/§7c/§7d PASSED this session** (atomic writes, all restored): dname round-trip; loc round-trip (`wto`/`wsp` untouched); station rename of `S24` (`stn_dis` untouched, station 8 disable intact). Empirically confirms the atomic-only design — neighbor fields never perturbed. §7b skip (ETo-auto `wl`); §7e/§7f pending/never-ad-hoc. |
+| §7 settings write-back (atomic) | ⬜ Use only captured throwaway fields and prove neighboring fields remain unchanged. |
 | §8 rollback drill | ⬜ Deferred to the real §7 rollout. Captured `jsp=''` this session — the device already serves its compiled-default UI (= the rollback target), so a synthetic flip gains nothing and restoring to empty via `/cu?jsp=` is uncertain. Run the drill when `jsp` is actually set to the new UI URL. |
 | §9 final close-out diff | ⬜ Gated. |
 
@@ -110,16 +102,19 @@ capture the §0 baseline first and **click nothing**.
 ## Conventions
 
 - **Reads are always safe**: `/jc`, `/jo`, `/jn`, `/jp`, `/jl`, `/js`, `/sp`. They never change state.
-- **Auth** on this device: `pw = md5("opendoor")`. Compute once and reuse:
+- **Auth:** obtain the password out of band. Let the harness hash it, or compute a temporary hash
+  without putting the password in shell history:
 
   ```powershell
   # PowerShell (Windows operator)
+  $password = Read-Host 'Controller password'
   $md5 = [BitConverter]::ToString([Security.Cryptography.MD5]::Create().ComputeHash(
-    [Text.Encoding]::UTF8.GetBytes('opendoor'))).Replace('-','').ToLower()
+    [Text.Encoding]::UTF8.GetBytes($password))).Replace('-','').ToLower()
+  $password = $null
   $md5   # use as <md5> in ?pw=<md5>
   ```
   ```bash
-  printf '%s' 'opendoor' | md5sum   # first field = <md5>
+  read -rsp 'Controller password: ' password; printf '%s' "$password" | md5sum; unset password
   ```
   > A `?pw=<md5>` in a browser/curl URL leaks the auth hash into shell/browser history. Prefer the
   > harness/scripts (they hash for you) for anything beyond a quick manual read.
@@ -139,16 +134,16 @@ against it.
 
 - [ ] **Reachability** (unauth `/jo` returns a `{fwv}`-only stub — select only `fwv` here):
   ```powershell
-  Invoke-RestMethod 'http://10.10.100.246/jo' | Select-Object fwv     # -> 221
+  Invoke-RestMethod 'http://192.0.2.10/jo' | Select-Object fwv
   ```
 - [ ] **Capture the baseline values** you will later restore. Read each authenticated endpoint and save
   the fields below (the §9 diff checks **all** of them):
   - `/jc` → `en`, `rd`, `rdst`, `dname`, `loc`, `wsp`, `wterr`, `wtrestr`, `sbits`, `ps`
   - `/jo` → `wl`, `uwt`, `sn1t`, `sn1o`, `sn2t`, `mas`, `mas2`, `tz`, `sdt`, `lg`, `hp0`, `hp1`, `jsp`, `ntp*`, `ip*`
   - `/jn` → `snames`, `stn_dis`, `ignore_rain`, `stn_grp`
-  - `/jp` → `nprogs`, and the full `pd[]` tuples for the 2 real programs (so a mistake is recoverable)
+  - `/jp` → `nprogs`, and the full `pd[]` tuples for production programs (so a mistake is recoverable)
   > **`jsp` is the served-UI pointer used in §8 — capture it now.** If you cannot read it, **skip §8**.
-- [ ] **Device password** (or `ipas`): `opendoor` (md5 as above).
+- [ ] **Device password** (or `ipas`): obtain it from the operator's secret store; never record it here.
 - [ ] **For §3 remote:** the device's OTC token (Settings → OpenThings Cloud; token shape `^OT[0-9a-f]{30}$`).
   Treat it as a **secret** — never commit it.
 
@@ -159,12 +154,11 @@ against it.
 ### 1a. Live read pipeline — `npm run verify:live`  ✅ already passed this session
 
 ```powershell
-$env:OS_LIVE_BASE='http://10.10.100.246/'; $env:OS_LIVE_PW='opendoor'; npm run verify:live
+$env:OS_LIVE_BASE='http://192.0.2.10/'; $env:OS_LIVE_PW=Read-Host 'Controller password'; npm run verify:live
 ```
 Runs the REAL seam → typed client → decoders against the device (Node fetch is **not** subject to the
 browser mixed-content policy, so it can read the HTTP LAN device directly). Proves §1–§4 reads +
-capability derivation. Confirmed: `fwv=221 fwm=4 hwv=32 fwf="kars85.3"`, 24 stations, 2 programs,
-`caps={fwvCombined:2214, weatherRestricted, secondSensor, otfCloud, flowSensor:false}`.
+capability derivation. Record the observed firmware/build, counts, and capability output privately.
 
 - [ ] **Add capability assertions** so derivation is *proven*, not assumed: confirm the printed `caps`
   shows `secondSensor=true` (from `/jo.sn2t`), `secondMaster` (from `/jo.mas2`), `flowSensor=false`
@@ -172,31 +166,24 @@ capability derivation. Confirmed: `fwv=221 fwm=4 hwv=32 fwf="kars85.3"`, 24 stat
 - [ ] Note: the harness prints `weather=Online` only when `/jc.wterr===0` at read time. A transient
   `Offline`/`Error` from the custom weather server is **not** a read-pipeline failure.
 
-### 1b. Live fixture capture — `npm run capture`  (read-only; parse-verification + scrubbed reference)
+### 1b. Live fixture capture — `npm run capture`  (read-only; redacted reference)
 
-> **Do NOT re-pin the shared corpus with this.** `npm run capture` overwrites the curated fixtures in
-> `test/fixtures/api/*.fixture.json` in place, but the full `npm run test:contract` suite is
-> **value-coupled** to those curated fixtures — it hardcodes the station count, program count, weather
-> host, device name, and station names. A live capture from this device (24 stations, 2 programs, custom
-> PWS host) therefore **fails those value assertions even with zero contract drift.** The real
-> on-hardware parse/decoder guard is **§1a `verify:live`** (already green). Use the capture for
-> inspection + a secret-scrubbed snapshot, then restore the curated fixtures.
+`npm run capture` preserves the curated, value-coupled corpus. It writes a version-scoped snapshot
+under `test/fixtures/api/captured/<fwv>/` and automatically redacts credentials, identity, LAN
+endpoints, names, network octets, and activity timestamps. The real on-hardware parse/decoder guard
+remains **§1a `verify:live`**; the capture is for inspecting wire shape differences.
 
-`scripts/capture-fixtures.mjs` reads `OS_BASE`/`OS_PW`/`OS_PWHASH` (**not** `OS_LIVE_*`); the `--base`/
-`--pw` flags below supply everything:
+`scripts/capture-fixtures.mjs` reads `OS_BASE`/`OS_PW`/`OS_PWHASH` (**not** `OS_LIVE_*`). Pass only
+the non-secret base on the command line; credentials stay in the environment:
 
 ```powershell
-npm run capture -- --base http://10.10.100.246/ --pw 'opendoor'   # writes 5/6 endpoints; /jl skipped (needs a start/end range)
-# ...scrub secrets (below), inspect, then restore the curated corpus:
-git checkout -- test/fixtures/api/
+$env:OS_PW=Read-Host 'Controller password'; npm run capture -- --base http://192.0.2.10/
+# writes all six endpoints, including a seven-day /jl range, beneath captured/<fwv>/
 ```
 
-- [ ] ⚠️ **Secret scrub (before anything touches git):** the capture writes `/jc` **verbatim**. On this
-  device the only real secret is **`jc.wto.key`** (32-char weather API key) — redact it. `jc.otc` was an
-  empty object (no token); `jc.mqtt`/`jc.email` had no credentials. Note `jc.wsp`
-  (`http://10.10.100.3:3000`) and `jc.mqtt.host` are internal LAN addresses (not secrets, but
-  device-revealing). If you ever *do* keep a capture in git, redact `wto.key` (and any future `jc.otc`
-  token) first, or `.gitignore` the capture path.
+- [ ] Inspect the generated files and confirm redaction placeholders are present before committing a
+  capture. The capture helper has regression tests, but review remains appropriate for future firmware
+  fields that do not yet exist in the redaction policy.
 - [ ] **Parsing is the pass criterion, not green tests.** Success = the typed client/decoders read every
   live endpoint without throwing (proven by §1a). Expect `test:contract` value assertions to fail on a
   live capture — that is corpus coupling, **not** firmware drift. A *genuine* contract problem looks like
@@ -221,7 +208,7 @@ npm run demo     # serves the full pipeline against committed fixtures
 ```powershell
 npm run build:app ; npx http-server ./dist     # serve over HTTP (LAN path needs an HTTP origin)
 ```
-- [ ] Open `http://localhost:8080/?base=http://10.10.100.246/`.
+- [ ] Open `http://localhost:8080/?base=http://192.0.2.10/`.
 - [ ] Confirm every tab renders with **live** data identical to the device.
 - [ ] Sanity-check the #287 time fix: Status (rain-delay end, sunrise/sunset) and Diagnostics
   (Last request / Last update) show **device-local** time vs the device clock.
@@ -245,10 +232,10 @@ npm run build:app ; npx http-server ./dist     # serve over HTTP (LAN path needs
 - [ ] Open the **HTTPS**-hosted build (preview channel) and load with
   `?base=https://cloud.openthings.io/forward/v1/<token>/`.
 - [ ] Confirm it renders identically to LAN, with **no mixed-content console errors**.
-- [ ] Note the custom weather server `wsp=http://10.10.100.3:3000` is **LAN-only HTTP** and will not be
+- [ ] If a custom weather server is LAN-only HTTP, note that it will not be
   reachable through the HTTPS tunnel — its weather-status surface may differ over OTC. That is expected.
 - [ ] **PRD §4/§8.2 acceptance requires ≥2 firmware versions.** This runbook targets one device
-  (fwv221). Either repeat §1–§3 against the **DEMO build** and/or a second `fwv`, or record the
+  Either repeat §1–§3 against the **DEMO build** and/or a second `fwv`, or record the
   ≥2-version + DEMO dimension as **explicitly deferred** with rationale in the sign-off.
 
 ---
@@ -257,8 +244,8 @@ npm run build:app ; npx http-server ./dist     # serve over HTTP (LAN path needs
 
 - [ ] Password device: the login prompt authenticates; a **wrong** password is rejected and re-prompts.
 - [ ] Pre-auth contrast: unauthenticated `/jo` returns the `{fwv}`-only stub (no full options).
-- [ ] `?pwhash=<md5>` bypasses the prompt (the typed seam sends `pw=md5(pw)` for fwv≥213; falls back to
-  cleartext only if the hashed check fails).
+- [ ] URL-supplied `pwhash` is scrubbed and the prompt remains required. The typed seam sends
+  `pw=md5(pw)` for fwv≥213 and does not retry a modern controller with a cleartext password.
 
 ---
 
@@ -267,15 +254,15 @@ npm run build:app ; npx http-server ./dist     # serve over HTTP (LAN path needs
 The sanctioned first write: set a rain delay, read it back, cancel. It **does not actuate any valve**.
 
 ```powershell
-$env:OS_LIVE_BASE='http://10.10.100.246/'; $env:OS_LIVE_PW='opendoor'; $env:OS_LIVE_WRITE='1'
+$env:OS_LIVE_BASE='http://192.0.2.10/'; $env:OS_LIVE_PW=Read-Host 'Controller password'; $env:OS_LIVE_WRITE='1'
 npm run verify:live      # adds the rain-delay set -> verify -> cancel block
 ```
-- **Capture:** the harness reads `rd` before; on this device `rd=0`.
+- **Capture:** the harness reads and records `rd` before changing it.
 - **Do:** `setRainDelayHours(1)` → `GET /cv?rd=1&pw=<md5>`.
 - **Expect:** `/jc.rd==1`, `/jc.rdst≈now+3600`. Then `cancelRainDelay()` → `/cv?rd=0`.
 - **Restore (MANDATORY independent read — do not trust the harness exit):**
   ```powershell
-  Invoke-RestMethod "http://10.10.100.246/jc?pw=$md5" | Select-Object rd,rdst   # expect rd=0, rdst=0
+  Invoke-RestMethod "http://192.0.2.10/jc?pw=$md5" | Select-Object rd,rdst   # expect captured values
   ```
   If the cancel call itself threw (network drop / Ctrl-C between set and cancel), `rd` may be left `1` —
   re-issue `GET /cv?rd=0&pw=<md5>` manually. If `rd` was non-zero at capture, restore with
@@ -290,11 +277,12 @@ npm run verify:live      # adds the rain-delay set -> verify -> cancel block
 ## 6. Control smoke test — PHYSICAL (default SKIP; hard-gated)
 
 > ⚠️ These commands **open real valves and run water.** `/cr` and `/cm?en=1` actuate **even when the
-> controller is disabled (`en=0`)**. Do not run casually.
+> controller is disabled. Do not run casually.
 
 **Zone selection (load-bearing):** the only acceptable actuation target is a station the operator has
 **physically disconnected/verified**. Do **not** rely on "firmware refuses disabled stations" — this is
-a custom fork and the client does not check the disabled bit. **Station 8 and `S12`–`S24` are off-limits.**
+a custom fork and the client does not check the disabled bit. **Every zone not privately confirmed as
+disconnected is off-limits.**
 
 Stage a safety net before any start: have `Stop all` (`GET /cv?rsn=1&pw=<md5>`) ready in a second shell.
 
@@ -309,15 +297,14 @@ Stage a safety net before any start: have `Stop all` (`GET /cv?rsn=1&pw=<md5>`) 
 - **Expect:** `/jc.sbits` all clear, `ps[]` empty, `nq==0`, `/js.sn[]` all 0.
 
 ### 6c. Controller enable — **OPTIONAL, DEFAULT SKIP**
-> Enabling re-arms scheduling for the 2 real weekly programs — a real watering window. Only run if you
+> Enabling re-arms production scheduling — a real watering window. Only run if you
 > have a documented multi-hour clear window **and** load is disconnected.
-- **Capture:** `/jc.en` (==0 here). Read `/jp` and compute each enabled program's **next start vs
+- **Capture:** `/jc.en`. Read `/jp` and compute each enabled program's **next start vs
   `/jc.devt`** — require a multi-hour clear window. Confirm `/jc.sbits` clear.
 - **Do:** `setControllerEnabled(true)` → `GET /cv?en=1&pw=<md5>`.
 - **Expect:** `/jc.en==1` **and `/jc.sbits` stays clear** (watch it; if any bit sets, immediately
   `GET /cv?rsn=1` then disable).
-- **Restore:** `setControllerEnabled(false)` → `GET /cv?en=0&pw=<md5>`; **confirm `/jc.en==0`** (its
-  captured value). Never leave it enabled.
+- **Restore:** set `/jc.en` back to the exact captured value and independently verify it.
 
 ### 6d. Throwaway program — create → toggle → delete (atomic, never the UI form)
 > The UI Programs list toggle/run/delete are wired to the **real** pids (toggle has **no confirm**).
@@ -335,7 +322,7 @@ Stage a safety net before any start: have `Stop all` (`GET /cv?rsn=1&pw=<md5>`) 
   never run it against a pid not freshly confirmed as the throwaway. (Safe here only because durations
   are 0.)
 - **Delete:** re-read `/jp`, re-confirm highest pid is still the throwaway, then `deleteProgram(newpid)`
-  → `GET /dp?pid=<newpid>&pw=<md5>`. **Expect** `nprogs` decrements and the 2 real programs remain.
+  → `GET /dp?pid=<newpid>&pw=<md5>`. **Expect** `nprogs` decrements and all captured programs remain.
 - **(fwv≥220) optional:** confirm the throwaway's date-range tuple (`endr/from/to`) round-trips in
   `/jp.pd[newpid]`.
 
@@ -360,18 +347,18 @@ value. **Do not submit the Weather/General/Stations/Network forms** (see "Why th
   **Expect** `/jc.dname=="ZZ_test"`. **Restore** `GET /co?dname=opensprinkler&pw=<md5>`; re-read.
 
 ### 7b. Water level — **do not test**
-ETo (`uwt=3`) auto-drives `wl`; a test write + the form's `100` default both risk re-scaling the 2 live
-programs, and the value legitimately moves on its own (so no stable assertion exists). Skip it; verify
-`uwt`/`weatherRestricted` are intact instead (§9).
+Automatic weather methods can drive `wl`; a test write + the form's `100` default both risk re-scaling
+live programs, and the value can legitimately move on its own. Skip it; verify the captured method and
+restriction state are intact instead (§9).
 
 ### 7c. Weather method/location (atomic `/co?uwt=` / `/co?loc=` — never the form)
-- **Capture** `/jo.uwt` (`3`), `/jc.loc`. **Do** a reversible round-trip with a single key, e.g.
-  `GET /co?loc=41.70737,-93.62914&pw=<md5>` (write the **same** value to prove the path without change),
+- **Capture** `/jo.uwt`, `/jc.loc`. **Do** a reversible round-trip by writing the **same captured
+  location value** with a single key to prove the path without changing it,
   or toggle `uwt` to another method and back. **These keys do NOT touch `wto`.**
 - **Restore** the captured `uwt`/`loc`. **Confirm `/jc.wsp` and `/jc.wto` are byte-identical** to §0.
 
 ### 7d. Station rename (atomic `/cs?s<sid>=` — one disconnected station)
-- **Pre-assert:** `/jn.stn_dis` shows **station 8 disabled**. **Capture** `/jn.snames[sid]` for a chosen
+- **Pre-assert:** `/jn.stn_dis` matches the private baseline. **Capture** `/jn.snames[sid]` for a chosen
   disconnected `sid`. **Do** `GET /cs?s<sid>=ZZ_test&pw=<md5>` (sends **only** that name key).
 - **Expect** `/jn.snames[sid]=="ZZ_test"` and `/jn.stn_dis` **byte-identical** to capture. **Restore**
   the original name. **(fwv≥220) optional:** confirm `/jn.stn_grp[sid]` round-trips.
@@ -391,13 +378,11 @@ token; `wsp` clobbers the custom weather server. Do not send these against this 
 
 ## 8. Rollback drill (capture `jsp` first — else SKIP)
 
-> `/cu?jsp=` changes which UI the controller serves to anyone hitting `http://10.10.100.246/`. It is a
+> `/cu?jsp=` changes which UI the controller serves to anyone hitting the controller URL. It is a
 > **persistent** change. If you didn't capture `jsp` in §0, **skip this section.**
 >
-> **This session's finding:** `jsp=''` — the device already serves its **compiled-default UI**
-> (`ui.opensprinkler.com`), which is the rollback target. A synthetic flip now gains nothing and
-> restoring to empty via `/cu?jsp=` is uncertain. **Run this drill during the real §7 rollout**, when
-> `jsp` is set to the new UI URL and rollback is a clean re-point to the default.
+> If the captured value is empty, restoring it may be firmware-specific. Defer this drill until the
+> operator has a tested recovery path and the exact rollback value is known.
 - **Capture** `/jo.jsp` (§0). **Do** point at the legacy UI:
   `GET /cu?jsp=https://ui.opensprinkler.com/js&pw=<md5>`; confirm the legacy UI loads.
 - **Restore** the **exact captured** `jsp`: `GET /cu?jsp=<captured>&pw=<md5>`; re-read `/jo.jsp`.
@@ -409,12 +394,12 @@ token; `wsp` clobbers the custom weather server. Do not send these against this 
 Re-read every endpoint and assert **each captured field** matches §0 (not a hand-picked subset). A field
 clobbered by a stray write that isn't on this list goes undetected — so diff the whole baseline:
 
-- `/jc`: `en==0`, `rd==0`, `rdst==0`, `dname`, `loc`, **`wsp`**, `wtrestr`, `sbits` clear, `ps` empty.
-- `/jo`: `uwt==3`, `sn1t==1`, `sn1o`, `sn2t`, `mas`, `mas2`, `tz`, `sdt`, `lg`, `hp0`, `hp1`, **`jsp`**,
-  `ntp*`, `ip*`. **`wl`:** do **not** assert a literal — assert `uwt==3` + `weatherRestricted` intact
-  (the auto-driver is unperturbed; the value itself moves with ETo).
-- `/jn`: `snames`, `stn_dis` (station 8 still disabled), `ignore_rain`, `stn_grp`.
-- `/jp`: `nprogs` back to the original count; the 2 real programs' tuples byte-identical; no `ZZ_*` left.
+- `/jc`: captured `en`, `rd`, `rdst`, `dname`, `loc`, **`wsp`**, `wtrestr`, `sbits`, and `ps`.
+- `/jo`: captured `uwt`, sensors, masters, timezone, delays, port, **`jsp`**, `ntp*`, and `ip*`.
+  **`wl`:** do not assert a literal under an automatic weather method; assert the method/restriction
+  controls remain intact.
+- `/jn`: captured `snames`, `stn_dis`, `ignore_rain`, and `stn_grp`.
+- `/jp`: `nprogs` back to the original count; captured program tuples byte-identical; no `ZZ_*` left.
 - `/jc.wto`: API key intact. Confirm no `OS_LIVE_WRITE` lingering in any shell.
 
 ---

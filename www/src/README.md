@@ -33,8 +33,9 @@ control/action paths and full Settings — all unit-proven, pending on-device va
 - `views/` render Status · Stations · Programs · Weather · Log · Diagnostics · Settings; `dispatch.ts`
   + `host.ts` wire control actions and settings saves. `demo/` runs the whole pipeline against mocked
   fixtures (`npm run demo`); `app/` is the real-device build.
-- **157 tests** (`npm run test:contract`) cover the contract, seam (GET/POST), decoders, **encoders**,
-  views, logs, commands, settings mappers, the action dispatcher, time/diagnostics, a11y and XSS.
+- The Vitest contract suite (`npm run test:contract`) covers the contract, seam (GET/POST),
+  decoders, **encoders**, views, logs, commands, settings mappers, the action dispatcher,
+  time/diagnostics, a11y and XSS.
 - `server/` (optional companion) serves the SPA + persists telemetry/run history to SQLite and adds a
   feature-detected History tab. `www/src/api/companion.ts` is the typed client. See docs/DEPLOY.md.
 
@@ -42,6 +43,7 @@ control/action paths and full Settings — all unit-proven, pending on-device va
 1. Live **LAN+OTC proof on real hardware** (mixed-content risk, PRD §4 #1) + replace derived fixtures
    with live captures (`npm run capture`).
 2. On-device validation of the write/control + settings paths (the smoke test in HARDWARE-VERIFICATION).
-3. Wire into the real `home.js` bootstrap + the parallel-Firebase / `SOPT_JAVASCRIPTURL` rollout (§7).
 
-This scaffold is isolated: it does not touch the existing Grunt/Cordova build or `www/js`.
+This source is wired into the production `app/` build and its `app/public/home.js` firmware bootstrap.
+The legacy UI under `www/js` and Cordova packaging remain separately supported; repository-owned
+scripts build the firmware asset tree and run its legacy browser regressions.

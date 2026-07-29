@@ -1,6 +1,11 @@
 # OpenSprinkler Companion (local DB, v1) — Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **Historical implementation artifact.** The companion has been implemented and this task plan is
+> retained only for design provenance. Its unchecked commands and Docker snippets are not operational
+> runbook instructions and intentionally reflect an earlier TypeScript-runtime prototype. Use the
+> root `README.md`, `SECURITY.md`, `docs/DEPLOY.md`, and the current `server/Dockerfile` instead.
+
+> The original execution checklist below is intentionally left unchanged for provenance.
 
 **Goal:** Add an optional, self-hostable Node/TS "companion" container that serves the dashboard, polls one controller into a local SQLite database (telemetry + run history), and exposes a small read API the SPA feature-detects to show a History tab.
 
@@ -573,10 +578,10 @@ function mockFetch( fwv = 221 ): string[] {
 describe( "createDeviceClient", () => {
 	it( "probes fwv and md5-hashes the password for fwv>=213", async () => {
 		const urls = mockFetch( 221 );
-		const { client, fwv } = await createDeviceClient( { controllerBase: "http://d/", controllerPw: "opendoor" } );
+		const { client, fwv } = await createDeviceClient( { controllerBase: "http://d/", controllerPw: "example-password" } );
 		expect( fwv ).toBe( 221 );
 		await client.getControllerStatus();
-		expect( urls.some( ( u ) => u.includes( `pw=${ md5( "opendoor" ) }` ) ) ).toBe( true );
+		expect( urls.some( ( u ) => u.includes( `pw=${ md5( "example-password" ) }` ) ) ).toBe( true );
 	} );
 } );
 ```
@@ -1545,8 +1550,8 @@ volumes:
 - [ ] **Step 3: Create `.env.example`**
 
 ```bash
-CONTROLLER_BASE=http://10.10.100.246/
-CONTROLLER_PW=opendoor
+CONTROLLER_BASE=http://192.0.2.10/
+CONTROLLER_PW=example-password
 # CONTROLLER_ID=my-house        # optional; defaults to device MAC
 POLL_INTERVAL_SEC=300
 HISTORY_MAX_DAYS=90
