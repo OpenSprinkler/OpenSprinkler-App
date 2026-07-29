@@ -30,7 +30,7 @@ export function renderStationsEditor( jc: JcResponse, jn: JnResponse, fwv: numbe
 			? selectField( `grp_${ sid }`, "Group", GROUP_OPTIONS, jn.stn_grp?.[ sid ] ?? 0 )
 			: "";
 		return `<fieldset class="station-edit"><legend>#${ sid + 1 }</legend>` +
-			textField( `name_${ sid }`, "Name", name, { maxLength: jn.maxlen } ) +
+			textField( `name_${ sid }`, "Name", name, { maxLength: jn.maxlen, required: true } ) +
 			checkboxField( `dis_${ sid }`, "Disabled", bit( jn.stn_dis, sid ) ) +
 			checkboxField( `rain_${ sid }`, "Ignore rain", bit( jn.ignore_rain, sid ) ) +
 			grp + `</fieldset>`;
@@ -54,6 +54,7 @@ export function buildStationConfig( v: FormValues, count: number, fwv: number, m
 	for ( let sid = 0; sid < count; sid++ ) {
 		const nm = v[ `name_${ sid }` ];
 		if ( typeof nm !== "string" ) throw new Error( `Station ${ sid + 1 } needs a name.` );
+		if ( nm.trim() === "" ) throw new Error( `Station ${ sid + 1 } needs a name.` );
 		if ( new TextEncoder().encode( nm ).length > maxNameBytes ) {
 			throw new Error( `Station ${ sid + 1 } name must be at most ${ maxNameBytes } UTF-8 bytes.` );
 		}

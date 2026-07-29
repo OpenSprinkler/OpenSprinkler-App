@@ -209,6 +209,7 @@ describe( "station config", () => {
 	} );
 	it( "requires every station name and enforces its UTF-8 byte limit", () => {
 		expect( () => buildStationConfig( {}, 1, 221, 8 ) ).toThrow( /needs a name/i );
+		expect( () => buildStationConfig( { name_0: "   ", grp_0: "0" }, 1, 221, 8 ) ).toThrow( /needs a name/i );
 		expect( buildStationConfig( { name_0: "💧💧", grp_0: "0" }, 1, 221, 8 ).names ).toEqual( { 0: "💧💧" } );
 		expect( () => buildStationConfig( { name_0: "💧💧💧", grp_0: "0" }, 1, 221, 8 ) ).toThrow( /8 UTF-8 bytes/i );
 	} );
