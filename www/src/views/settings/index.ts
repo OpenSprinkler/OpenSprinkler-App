@@ -9,8 +9,9 @@ import { renderWeatherConfig } from "./weather";
 import { renderNetwork } from "./network";
 import { renderStationsEditor } from "./stations-edit";
 import { renderProgramEditor } from "./program-edit";
+import { renderSystemSettings } from "./system";
 
-export const SETTINGS_SECTIONS = [ "General", "Weather", "Network", "Stations", "Programs" ] as const;
+export const SETTINGS_SECTIONS = [ "General", "Weather", "Network", "Stations", "Programs", "System" ] as const;
 export type SettingsSection = ( typeof SETTINGS_SECTIONS )[ number ];
 export interface ProgramEditorTarget { pid: number; program: OSProgram; }
 
@@ -32,6 +33,7 @@ export function renderSettings(
 		case "Programs": content = renderProgramEditor(
 			jn, jo.fwv * 10 + ( jo.fwm || 0 ), jp.pnsize, programEditor?.program, programEditor?.pid ?? -1,
 		); break;
+		case "System": content = renderSystemSettings( jc, jo ); break;
 		default: content = renderGeneralSettings( jo, jc.dname || "", jc.loc );
 	}
 	return `<nav class="subtabs" role="tablist" aria-label="Settings sections">${ nav }</nav>` +

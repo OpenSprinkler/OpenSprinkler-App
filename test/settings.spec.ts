@@ -12,6 +12,21 @@ import { buildStationConfig } from "../www/src/views/settings/stations-edit";
 import { buildProgramInput, parseClock, parseDate, parseStartTime, renderProgramEditor } from "../www/src/views/settings/program-edit";
 import { encodeProgram, encodeDate } from "../www/src/api/encode";
 import { decodeProgram } from "../www/src/api/decode";
+import { renderSystemSettings } from "../www/src/views/settings/system";
+
+describe( "system settings", () => {
+	it( "offers only the secret-safe read-only export path", () => {
+		const html = renderSystemSettings(
+			{ otcs: 3 } as never,
+			{ fwv: 221, fwm: 4, fwf: "kars85.3", hwv: 30 } as never,
+		);
+		expect( html ).toContain( "221/4 · kars85.3" );
+		expect( html ).toContain( "Connected" );
+		expect( html ).toContain( 'data-action="config-export"' );
+		expect( html ).toContain( "Passwords, tokens, provider keys" );
+		expect( html ).not.toMatch( /data-action="[^\"]*import/i );
+	} );
+} );
 
 describe( "general options", () => {
 	it( "maps form values to named /co params (tz from GMT offset; dname on fw>=2191)", () => {
