@@ -235,7 +235,7 @@ describe( "checkbox form validation", () => {
 			name_0: "A", dis_0: "false", rain_0: false, grp_0: "0",
 		}, 1, 221 ) ).toThrow( /checkbox value/i );
 		expect( () => buildProgramInput( {
-			enabled: "false", schedType: "weekly", wd_0: true,
+			name: "Checkbox test", enabled: "false", schedType: "weekly", wd_0: true,
 			startType: "fixed", t_0: "6:00 AM", dur_0: "5",
 		}, 1 ) ).toThrow( /checkbox value/i );
 	} );
@@ -247,7 +247,7 @@ describe( "program editor mapper", () => {
 			expect( () => buildProgramInput( {}, count ) ).toThrow( /invalid station count/i );
 		}
 		const max = buildProgramInput( {
-			schedType: "weekly", wd_0: true, startType: "fixed", t_0: "6:00 AM", dur_0: "5",
+			name: "Max stations", schedType: "weekly", wd_0: true, startType: "fixed", t_0: "6:00 AM", dur_0: "5",
 		}, 200 );
 		expect( max.durations ).toHaveLength( 200 );
 	} );
@@ -276,13 +276,13 @@ describe( "program editor mapper", () => {
 	} );
 	it( "rejects an invalid active single-run date or start time", () => {
 		expect( () => buildProgramInput( {
-			schedType: "singlerun", singleDate: "02/30/2026", startType: "fixed", t_0: "6:00 AM", dur_0: "5",
+			name: "Invalid date", schedType: "singlerun", singleDate: "02/30/2026", startType: "fixed", t_0: "6:00 AM", dur_0: "5",
 		}, 1 ) ).toThrow( /single-run date/i );
 		expect( () => buildProgramInput( {
-			schedType: "singlerun", singleDate: "12/31/2149", startType: "fixed", t_0: "6:00 AM", dur_0: "5",
+			name: "Late date", schedType: "singlerun", singleDate: "12/31/2149", startType: "fixed", t_0: "6:00 AM", dur_0: "5",
 		}, 1 ) ).toThrow( /06\/06\/2149/i );
 		expect( () => buildProgramInput( {
-			schedType: "weekly", wd_0: true, startType: "fixed", t_0: "99:99 PM", dur_0: "5",
+			name: "Invalid time", schedType: "weekly", wd_0: true, startType: "fixed", t_0: "99:99 PM", dur_0: "5",
 		}, 1 ) ).toThrow( /start time/i );
 	} );
 	it( "builds a ProgramInput that survives encode→decode", () => {
@@ -314,7 +314,7 @@ describe( "program editor mapper", () => {
 	} );
 	it( "accepts exact-second and named solar durations", () => {
 		const input = buildProgramInput( {
-			schedType: "weekly", wd_0: true, startType: "fixed", t_0: "Sunrise -15m",
+			name: "Exact durations", schedType: "weekly", wd_0: true, startType: "fixed", t_0: "Sunrise -15m",
 			durMode_0: "seconds", dur_0: "61",
 			durMode_1: "sunrise-sunset", dur_1: "0",
 			durMode_2: "sunset-sunrise", dur_2: "0",
@@ -326,7 +326,7 @@ describe( "program editor mapper", () => {
 	} );
 	it( "enforces firmware interval invariants and requires a station run time", () => {
 		const base = {
-			schedType: "interval", intervalDays: "2", startingInDays: "0",
+			name: "Interval", schedType: "interval", intervalDays: "2", startingInDays: "0",
 			startType: "fixed", t_0: "6:00 AM", dur_0: "5",
 		};
 		expect( () => buildProgramInput( { ...base, startingInDays: "2" }, 1, 2200 ) ).toThrow( /less than the interval/i );
@@ -340,6 +340,7 @@ describe( "program editor mapper", () => {
 		const jn = { snames: [ "Front" ] } as never;
 		const html = renderProgramEditor( jn, 221, 8 );
 		expect( html ).toContain( 'maxlength="8"' );
+		expect( html ).toMatch( /name="name"[^>]* required/ );
 		expect( html ).toContain( 'placeholder="MM/DD/YYYY"' );
 		expect( html ).toContain( 'value="6:00 AM"' );
 		expect( html ).not.toContain( 'type="date"' );
@@ -349,6 +350,7 @@ describe( "program editor mapper", () => {
 		};
 		expect( () => buildProgramInput( { ...base, name: "123456789" }, 1, 2210, 8 ) ).toThrow( /at most 8/i );
 		expect( () => buildProgramInput( { ...base, name: "💧💧💧" }, 1, 2210, 8 ) ).toThrow( /at most 8/i );
+		expect( () => buildProgramInput( { ...base, name: "   " }, 1, 2210, 8 ) ).toThrow( /program name/i );
 	} );
 	it( "prefills an existing raw tuple, including solar starts, durations, and annual range", () => {
 		const jn = { snames: [ "Front", "Back", "Lights" ] } as never;

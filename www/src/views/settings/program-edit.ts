@@ -176,7 +176,9 @@ export function renderProgramEditor(
 			"Define a watering schedule. Saved to the device via /cp." ) +
 		`<form class="settings" data-settings="program" data-count="${ jn.snames.length }" data-pid="${ editing ? pid : -1 }">` +
 		rawStarts + rawRepeat + compatibilityFields +
-		textField( "name", "Program name", program?.[ 5 ] ?? "", { placeholder: "e.g. Morning", maxLength: programNameSize } ) +
+		textField( "name", "Program name", program?.[ 5 ] ?? "", {
+			placeholder: "e.g. Morning", maxLength: programNameSize, required: true,
+		} ) +
 		checkboxField( "enabled", "Enabled", ( flags & 1 ) === 1,
 			editing ? "Keep or change this program's current state." : "New programs stay disabled until you review and enable them." ) +
 		checkboxField( "useWeather", "Use weather adjustment", ( ( flags >> 1 ) & 1 ) === 1 ) +
@@ -332,6 +334,7 @@ export function buildProgramInput( v: FormValues, count: number, fwvCombined = 0
 	if ( !REST_OPTS.some( ( option ) => option.value === rest ) ) throw new Error( "Select a valid day restriction." );
 	const name = typeof v.name === "string" ? v.name : "";
 	if ( !Number.isSafeInteger( programNameSize ) || programNameSize < 1 || programNameSize > 255 ) throw new Error( "Invalid program-name limit." );
+	if ( name.trim() === "" ) throw new Error( "Enter a program name." );
 	if ( new TextEncoder().encode( name ).length > programNameSize ) {
 		throw new Error( `Program name must be at most ${ programNameSize } UTF-8 bytes.` );
 	}
