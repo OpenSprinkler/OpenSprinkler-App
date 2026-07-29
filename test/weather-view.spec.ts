@@ -6,7 +6,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, it, expect } from "vitest";
 import { parseJc, parseJo } from "../www/src/api/client";
-import { renderWeather } from "../www/src/views/weather-view";
+import { deriveWeatherDecision, renderWeather } from "../www/src/views/weather-view";
 
 function fx( name: string ): unknown {
 	return JSON.parse( readFileSync( fileURLToPath( new URL( `./fixtures/api/${ name }.fixture.json`, import.meta.url ) ), "utf8" ) );
@@ -23,6 +23,51 @@ describe( "renderWeather — adjustment summary", () => {
 		expect( html ).toContain( "100%" );          // wl 100
 		expect( html ).toContain( "Multi-day interval adjustment" );
 		expect( html ).toContain( ">Disabled<" );
+	} );
+} );
+
+describe( "renderWeather — independent mode, effect, and service health", () => {
+	it( "keeps Manual mode and the held controller effect visible after a failed update", () => {
+		const failed = { ...jc, wterr: -3, wtdata: { reason: "Last+goodAMPERSANDsafe+decision" } };
+		const decision = deriveWeatherDecision( failed, { ...jo, uwt: 0, wl: 65 } );
+		expect( decision ).toMatchObject( {
+			mode: "Manual", effect: "Adjusted to 65%", effectPercent: 65, health: "Last update failed",
+			lastSuccessfulReason: "Last good&safe decision",
+		} );
+		expect( decision.currentReason ).toBeUndefined();
+
+		const html = renderWeather( failed, { ...jo, uwt: 0, wl: 65 } );
+		expect( html ).toContain( "Weather update failed" );
+		expect( html ).toContain( "Current controller effect: 65%" );
+		expect( html ).toContain( "Last successful decision" );
+		expect( html ).toContain( "Last Successful Weather Data" );
+		expect( html ).not.toContain( "<h3>Current Weather Data</h3>" );
+	} );
+
+	it( "derives startup, pending, failed, stale, and current health in the required order", () => {
+		expect( deriveWeatherDecision( { ...jc, lwc: 0, lswc: 0, wterr: -1 }, jo ).health ).toBe( "Not yet updated" );
+		expect( deriveWeatherDecision( { ...jc, lwc: 0, lswc: jc.lswc, wterr: -1 }, jo ).health ).toBe( "Update pending" );
+		expect( deriveWeatherDecision( { ...jc, wterr: 12 }, jo ).health ).toBe( "Last update failed" );
+		expect( deriveWeatherDecision( { ...jc, lswc: jc.devt - 86401, wterr: 0 }, jo ).health ).toBe( "Stale" );
+		expect( deriveWeatherDecision( jc, jo ).health ).toBe( "Current" );
+	} );
+
+	it( "makes restriction authoritative and labels an unverifiable controller clock", () => {
+		const restricted = deriveWeatherDecision( { ...jc, wtrestr: 1 }, { ...jo, uwt: 3, wl: 72 } );
+		expect( restricted.mode ).toBe( "ETo (Automatic)" );
+		expect( restricted.effect ).toBe( "Restricted — 0%" );
+		expect( restricted.currentReason ).toContain( "restriction" );
+
+		const clock = deriveWeatherDecision( { ...jc, lswc: jc.devt + 1 }, jo );
+		expect( clock.clockNeedsReview ).toBe( true );
+		expect( renderWeather( { ...jc, lswc: jc.devt + 1 }, jo ) ).toContain( "Controller clock needs review" );
+	} );
+
+	it( "uses generic flag explanations when optional human strings were trimmed", () => {
+		expect( deriveWeatherDecision( { ...jc, wtdata: { skip: 1 } }, { ...jo, wl: 0 } ).currentReason )
+			.toContain( "decided to skip" );
+		expect( deriveWeatherDecision( { ...jc, wtdata: { pwsBypassed: 1 } }, jo ).currentReason )
+			.toContain( "backup weather provider" );
 	} );
 } );
 

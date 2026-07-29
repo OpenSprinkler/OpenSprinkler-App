@@ -7,7 +7,8 @@
  * views; interpretation logic lives in api/diagnostics.ts.
  */
 import type { JcResponse, JoResponse } from "../api/types";
-import { adjustmentMethodName, weatherProviderTag, weatherSourceName } from "../api/diagnostics";
+import { adjustmentMethodName, weatherErrorText, weatherProviderTag, weatherSourceName } from "../api/diagnostics";
+import { elapsedSeconds, formatControllerDateTime, relativeTime } from "../api/time";
 import { esc, helpTip, emptyState, infoNote } from "../ui/help";
 
 /** Friendly labels for the weather-data fields the firmware may report in /jc.wtdata. */
@@ -21,6 +22,95 @@ interface MultiDayAdjustmentState {
 	active: boolean;
 	methodSupportsIt: boolean;
 	status: string;
+}
+
+export type WeatherHealth = "Current" | "Last update failed" | "Stale" | "Not yet updated" | "Update pending";
+
+export interface WeatherDecision {
+	mode: string;
+	effect: string;
+	effectPercent: number;
+	health: WeatherHealth;
+	clockNeedsReview: boolean;
+	lastSuccessIsStale: boolean;
+	currentReason?: string;
+	lastSuccessfulReason?: string;
+}
+
+/** Decode only Weather-owned presentation strings from the service's legacy flat-wire escaping. */
+function decodeWeatherText( value: unknown ): string | undefined {
+	if ( typeof value !== "string" ) return undefined;
+	const decoded = value.replace( /\+/g, " " ).replace( /AMPERSAND/g, "&" ).trim();
+	return decoded || undefined;
+}
+
+function decisionReason( jc: JcResponse, effectPercent: number ): string {
+	const explicit = decodeWeatherText( jc.wtdata.skipReason ) ?? decodeWeatherText( jc.wtdata.reason );
+	if ( explicit ) return explicit;
+	if ( jc.wtrestr ) return "Skipped because a weather restriction is active.";
+	if ( jc.wtdata.skip ) return "The weather service decided to skip watering.";
+	if ( jc.wtdata.pwsBypassed ) return "Using a backup weather provider because the personal weather station was unavailable.";
+	if ( effectPercent === 100 ) return "Weather-enabled schedules keep their programmed run time.";
+	if ( effectPercent === 0 ) return "Weather-enabled schedules are currently skipped.";
+	return `Weather-enabled schedules use ${ effectPercent }% of their programmed run time.`;
+}
+
+/** Derive mode, controller effect, and service health independently (UX-SPEC §8.1). */
+export function deriveWeatherDecision( jc: JcResponse, jo: JoResponse ): WeatherDecision {
+	const methodId = jo.uwt & ~( 1 << 7 );
+	const modeName = adjustmentMethodName( jo.uwt );
+	const mode = methodId === 3 ? "ETo (Automatic)" : methodId === 1 ? "Zimmerman (Legacy)" : modeName;
+	const effectPercent = jc.wtrestr ? 0 : jo.wl;
+	const effect = jc.wtrestr
+		? "Restricted — 0%"
+		: effectPercent === 100 ? "100% — programmed run time" : `Adjusted to ${ effectPercent }%`;
+	const clockNeedsReview = ( jc.lwc > 0 && jc.lwc > jc.devt ) || ( jc.lswc > 0 && jc.lswc > jc.devt );
+	const lastSuccessIsStale = jc.lswc === 0 || ( !clockNeedsReview && jc.devt - jc.lswc > 86400 );
+
+	let health: WeatherHealth;
+	if ( jc.lwc === 0 && jc.lswc === 0 ) health = "Not yet updated";
+	else if ( jc.lwc === 0 && jc.lswc > 0 ) health = "Update pending";
+	else if ( jc.wterr !== 0 ) health = "Last update failed";
+	else if ( lastSuccessIsStale ) health = "Stale";
+	else health = "Current";
+
+	const reason = decisionReason( jc, effectPercent );
+	return {
+		mode, effect, effectPercent, health, clockNeedsReview, lastSuccessIsStale,
+		...( health === "Current" ? { currentReason: reason } : {} ),
+		...( health !== "Current" && jc.lswc > 0 ? { lastSuccessfulReason: reason } : {} ),
+	};
+}
+
+function weatherWhen( epoch: number, jc: JcResponse ): string {
+	if ( epoch <= 0 ) return "Never";
+	const age = epoch > jc.devt ? "Controller clock needs review" : relativeTime( elapsedSeconds( epoch, jc.devt ) );
+	return `${ formatControllerDateTime( epoch ) } (${ age })`;
+}
+
+function renderDecisionCard( jc: JcResponse, decision: WeatherDecision ): string {
+	const healthClass = decision.health === "Current" ? "ok" : decision.health === "Update pending" ? "warn" : "error";
+	const failure = decision.health === "Last update failed"
+		? `<p><b>Weather update failed.</b> ${ esc( weatherErrorText( jc.wterr ) ) }. ` +
+			`Current controller effect: ${ esc( String( decision.effectPercent ) ) }%.</p>`
+		: "";
+	const currentReason = decision.currentReason ? `<p>${ esc( decision.currentReason ) }</p>` : "";
+	const historical = decision.lastSuccessfulReason
+		? `<h3>${ decision.lastSuccessIsStale ? "Stale last successful decision" : "Last successful decision" }</h3>` +
+			`<p>${ esc( decision.lastSuccessfulReason ) }</p>`
+		: "";
+	const clock = decision.clockNeedsReview
+		? infoNote( "Controller clock needs review, so Weather update ages cannot be verified." )
+		: "";
+	return `<section class="weather-decision" aria-label="Weather decision">` +
+		`<h3>Current decision</h3>` +
+		`<table class="status"><tbody>` +
+		`<tr><th scope="row">Mode</th><td>${ esc( decision.mode ) }</td></tr>` +
+		`<tr><th scope="row">Effect</th><td>${ esc( decision.effect ) }</td></tr>` +
+		`<tr><th scope="row">Service health</th><td><span class="status status-${ healthClass }">${ esc( decision.health ) }</span></td></tr>` +
+		`<tr><th scope="row">Last checked</th><td>${ esc( weatherWhen( jc.lwc, jc ) ) }</td></tr>` +
+		`<tr><th scope="row">Last successful update</th><td>${ esc( weatherWhen( jc.lswc, jc ) ) }</td></tr>` +
+		`</tbody></table>${ failure }${ currentReason }${ historical }${ clock }</section>`;
 }
 
 function multiDayAdjustmentState( jc: JcResponse, jo: JoResponse ): MultiDayAdjustmentState {
@@ -77,10 +167,11 @@ function renderMultiDayLevels( jc: JcResponse, state: MultiDayAdjustmentState ):
 	return `<h3>Multi-Day Levels ${ help }</h3>${ explanation }${ freshnessHtml }<ol class="wls">${ items }</ol>`;
 }
 
-function renderWeatherData( wtdata: Record<string, unknown> ): string {
+function renderWeatherData( wtdata: Record<string, unknown>, current: boolean ): string {
+	const title = current ? "Current Weather Data" : "Last Successful Weather Data";
 	const keys = Object.keys( wtdata ).filter( ( k ) => k in WTDATA_LABELS && typeof wtdata[ k ] === "number" );
 	if ( keys.length === 0 ) {
-		return `<h3>Current Weather Data</h3>` +
+		return `<h3>${ title }</h3>` +
 			emptyState( "No weather data yet", "The controller hasn't received observations from its weather service." );
 	}
 	const rows = keys.map( ( k ) => {
@@ -88,7 +179,7 @@ function renderWeatherData( wtdata: Record<string, unknown> ): string {
 		return `<tr><th scope="row">${ esc( WTDATA_LABELS[ k ]! ) }</th>` +
 			`<td>${ esc( String( wtdata[ k ] ) ) }${ unit }</td></tr>`;
 	} ).join( "" );
-	return `<h3>Current Weather Data</h3>` +
+	return `<h3>${ title }</h3>` +
 		infoNote( "Values as reported by your weather service (units follow your controller)." ) +
 		`<table class="status"><tbody>${ rows }</tbody></table>`;
 }
@@ -132,6 +223,7 @@ function methodGlyph( uwt: number ): string {
 
 export function renderWeather( jc: JcResponse, jo: JoResponse ): string {
 	const multiDayState = multiDayAdjustmentState( jc, jo );
+	const decision = deriveWeatherDecision( jc, jo );
 	const summaryRows = [
 		typeof jo.uwt === "number"
 			? `<tr><th scope="row">Adjustment method ${ helpTip( "How weather changes the watering amount." ) }</th>` +
@@ -145,9 +237,10 @@ export function renderWeather( jc: JcResponse, jo: JoResponse ): string {
 
 	return `<section aria-label="Weather">` +
 		`<h2>Weather</h2>` +
+		renderDecisionCard( jc, decision ) +
 		`<table class="status"><tbody>${ summaryRows }</tbody></table>` +
 		renderMultiDayLevels( jc, multiDayState ) +
-		renderWeatherData( jc.wtdata ) +
+		renderWeatherData( jc.wtdata, decision.health === "Current" ) +
 		renderSourceFooter( jc, jo ) +
 		`</section>`;
 }
