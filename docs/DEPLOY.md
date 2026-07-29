@@ -69,10 +69,11 @@ http://<device-ip>/cu?jsp=https://<nextui-domain>&pw=<md5(password)>
   authenticates via the version-gated `/sp` check (md5 for `fwv>=213`). md5 is verified against
   RFC 1321 vectors. URL-supplied `pwhash` is deliberately discarded; standalone use always prompts
   so credentials cannot persist in browser history, logs, or referrers.
-- The dashboard now has **write/control + full settings** (manual run, run-once, rain delay,
-  enable/stop-all, program run/enable/delete, and General/Weather/Network/Stations/Programs editors).
-  The command/encoder layer is unit-proven (request construction + encode↔decode round-trips); it is
-  **not yet validated on real hardware**.
+- The dashboard renders the modern controls and settings editors, but the production host
+  intentionally omits `mutationProof` and therefore starts **fail-closed/read-only**. Emergency
+  stop/station-stop/rain-cancel and the secret-safe configuration export remain available. Other
+  deterministic transactions can be granted by family only after hardware verification; network,
+  reboot, station-start, program run/run-once, and attributes without typed readback remain locked.
 - ⚠️ **Before pointing production devices here**, run the on-device checklist in
   [`docs/HARDWARE-VERIFICATION.md`](HARDWARE-VERIFICATION.md) (LAN + OTC render, auth, and a safe
   control smoke test), and capture live fixtures with `npm run capture` (see below).
@@ -113,9 +114,9 @@ must be exactly 32 hexadecimal MD5 characters; it is never treated as a legacy p
 
 ## Status / caveats
 
-- The dashboard is now **read + write**: control actions and full settings editors are wired through
-  the typed command layer (`www/src/api/client.ts` + `encode.ts`), unit-proven but **pending
-  on-device validation** — see [`docs/HARDWARE-VERIFICATION.md`](HARDWARE-VERIFICATION.md).
+- The dashboard is **read-only by default**. Its typed command layer and verified transactions are
+  test-proven, but the production entrypoint does not enable them because the required on-device
+  proof is still outstanding. See [`docs/HARDWARE-VERIFICATION.md`](HARDWARE-VERIFICATION.md).
 - The firmware-loaded **`home.js` bootstrap entry is produced** (`dist/home.js` → loads
   `assets/app.js`); the standalone `index.html` SPA also works for direct access (`?base=`).
 - Auth: `ipas` devices skip login; others get the md5 password prompt (`www/src/auth/`).

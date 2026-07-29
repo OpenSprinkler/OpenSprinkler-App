@@ -1,7 +1,8 @@
 /**
  * Phase-1 production app entry (DRAFT). Boots the dashboard against a REAL device (no mock) — now
- * with write/control + settings via the shared host controller (views/host.ts). Still gated behind
- * the md5 login for password-protected devices; the home.js-wiring + rollout remain (PRD §7).
+ * with settings and status via the shared host controller (views/host.ts). Controller writes remain
+ * fail-closed until this host is given an explicit hardware-verification proof. Authentication is
+ * still gated behind the md5 login for password-protected devices.
  *
  * Standalone deployments accept `#base=<controller URL>` (query form is consumed and scrubbed by
  * index.html for compatibility). Firmware-served pages use their full page directory, preserving
@@ -168,6 +169,7 @@ async function boot(): Promise<void> {
 		mount, api, load, toast,
 		companionBase,
 		companionToken,
+		// Intentionally omit mutationProof: production stays read-only until the hardware rollout gate passes.
 		ctx: { prompt: ( m, d ) => window.prompt( m, d ), confirm: ( m ) => window.confirm( m ) },
 	} );
 	window.addEventListener( "pagehide", ( event ) => {

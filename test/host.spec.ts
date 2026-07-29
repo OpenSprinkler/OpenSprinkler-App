@@ -6,7 +6,7 @@ import { parseJc, parseJe, parseJl, parseJn, parseJo, parseJp, type OsApiClient 
 import { encodeProgram, type ProgramInput } from "../www/src/api/encode";
 import type { OSProgram } from "../www/src/api/types";
 import type { DashboardData } from "../www/src/views/dashboard";
-import { mountDashboard } from "../www/src/views/host";
+import { mountDashboard, VERIFIED_MUTATION_PERMISSIONS } from "../www/src/views/host";
 
 function fixture( name: string ): unknown {
 	return JSON.parse( readFileSync( resolve( process.cwd(), `test/fixtures/api/${ name }.fixture.json` ), "utf8" ) );
@@ -31,10 +31,13 @@ async function settlePromises(): Promise<void> {
 	for ( let i = 0; i < 8; i++ ) await Promise.resolve();
 }
 
-function deps( mount: HTMLElement, api: object, load: () => Promise<DashboardData> ) {
+function deps( mount: HTMLElement, api: object, load: () => Promise<DashboardData>, verified = true ) {
 	return {
 		mount, api: api as OsApiClient, load, companionBase: null,
 		ctx: { prompt: () => null, confirm: () => true }, toast: vi.fn(),
+		...( verified ? { mutationProof: {
+			hardwareVerified: true as const, permissions: VERIFIED_MUTATION_PERMISSIONS,
+		} } : {} ),
 	};
 }
 
@@ -52,6 +55,310 @@ function tupleFromInput( input: ProgramInput, source: OSProgram ): OSProgram {
 afterEach( () => {
 	vi.useRealTimers();
 	vi.restoreAllMocks();
+} );
+
+describe( "dashboard host mutation authorization", () => {
+	it( "defaults to read-only, leaves local drafting available, and rejects crafted writes", async () => {
+		const mount = document.createElement( "div" );
+		document.body.appendChild( mount );
+		const api = {
+			submitOptions: vi.fn(), deleteProgram: vi.fn(), setControllerEnabled: vi.fn(),
+			setRainDelayHours: vi.fn(), reboot: vi.fn(), startStation: vi.fn(), runProgramNow: vi.fn(),
+		};
+		const d = deps( mount, api, async () => baseline, false );
+		const controller = mountDashboard( d );
+		await flush();
+
+		expect( mount.textContent ).toContain( "Controller writes are locked pending hardware verification" );
+		expect( mount.querySelector<HTMLButtonElement>( '[data-action="toggle-enable"]' )?.disabled ).toBe( true );
+		expect( mount.querySelector<HTMLButtonElement>( '[data-action="rain-delay"]' )?.disabled ).toBe( true );
+		expect( mount.querySelector<HTMLButtonElement>( '[data-action="reboot"]' )?.disabled ).toBe( true );
+		expect( mount.querySelector<HTMLButtonElement>( '[data-action="stop-all"]' )?.disabled ).toBe( false );
+
+		mount.querySelector<HTMLButtonElement>( '[data-tab="Settings"]' )!.click();
+		const general = mount.querySelector<HTMLFormElement>( 'form[data-settings="general"]' )!;
+		expect( general.querySelector<HTMLInputElement>( '[name="wl"]' )?.disabled ).toBe( false );
+		expect( general.querySelector<HTMLButtonElement>( 'button[type="submit"]' )?.disabled ).toBe( true );
+		general.querySelector<HTMLInputElement>( '[name="wl"]' )!.value = "111";
+		general.dispatchEvent( new Event( "submit", { bubbles: true, cancelable: true } ) );
+		await flush();
+		expect( api.submitOptions ).not.toHaveBeenCalled();
+
+		mount.querySelector<HTMLButtonElement>( '[data-tab="Programs"]' )!.click();
+		expect( mount.querySelector<HTMLButtonElement>( '[data-action="program-new"]' )?.disabled ).toBe( false );
+		expect( mount.querySelector<HTMLButtonElement>( '[data-action="program-edit"]' )?.disabled ).toBe( false );
+		expect( mount.querySelector<HTMLButtonElement>( '[data-action="program-toggle"]' )?.disabled ).toBe( true );
+		expect( mount.querySelector<HTMLButtonElement>( '[data-action="program-delete"]' )?.disabled ).toBe( true );
+		expect( mount.querySelector<HTMLButtonElement>( '[data-action="program-run"]' )?.disabled ).toBe( true );
+
+		const crafted = document.createElement( "button" );
+		crafted.type = "button";
+		crafted.dataset.action = "program-delete";
+		crafted.dataset.pid = "0";
+		mount.appendChild( crafted );
+		crafted.click();
+		await flush();
+		expect( api.deleteProgram ).not.toHaveBeenCalled();
+		expect( d.toast ).toHaveBeenCalledWith( expect.stringMatching( /locked pending hardware verification/i ), true );
+
+		mount.querySelector<HTMLButtonElement>( '[data-action="program-edit"]' )!.click();
+		expect( mount.querySelector( 'form[data-settings="program"]' ) ).not.toBeNull();
+		expect( mount.querySelector<HTMLButtonElement>( '[data-action="program-cancel"]' )?.disabled ).toBe( false );
+		controller.destroy();
+		mount.remove();
+	} );
+
+	it( "keeps emergency stop and cancel transactions available without mutation proof", async () => {
+		const mount = document.createElement( "div" );
+		document.body.appendChild( mount );
+		let current: DashboardData = {
+			...baseline, jc: { ...baseline.jc, rd: 1, rdst: baseline.jc.devt + 3600 },
+		};
+		let status = { sn: [ 0, 1, 0, 0, 0, 0, 0, 0 ], nstations: 8 };
+		const stopAllStations = vi.fn( async () => {
+			current = { ...current, jc: {
+				...current.jc, nq: 0, sbits: [ 0, 0 ],
+				ps: current.jc.ps.map( ( station ) => [ 0, 0, 0, station[ 3 ] ] ),
+			} };
+			status = { ...status, sn: status.sn.map( () => 0 ) };
+			return { result: 1 };
+		} );
+		const cancelRainDelay = vi.fn( async () => {
+			current = { ...current, jc: { ...current.jc, rd: 0, rdst: 0 } };
+			return { result: 1 };
+		} );
+		const api = {
+			getControllerStatus: vi.fn( async () => current.jc ), getStatus: vi.fn( async () => status ),
+			stopAllStations, cancelRainDelay,
+		};
+		const d = deps( mount, api, async () => current, false );
+		const controller = mountDashboard( d );
+		await flush();
+
+		expect( mount.querySelector<HTMLButtonElement>( '[data-action="stop-all"]' )?.disabled ).toBe( false );
+		expect( mount.querySelector<HTMLButtonElement>( '[data-action="cancel-rain"]' )?.disabled ).toBe( false );
+		mount.querySelector<HTMLButtonElement>( '[data-action="stop-all"]' )!.click();
+		await flush();
+		expect( stopAllStations ).toHaveBeenCalledTimes( 1 );
+		expect( d.toast ).toHaveBeenCalledWith( "All stations stopped." );
+
+		mount.querySelector<HTMLButtonElement>( '[data-action="cancel-rain"]' )!.click();
+		await flush();
+		expect( cancelRainDelay ).toHaveBeenCalledTimes( 1 );
+		expect( d.toast ).toHaveBeenCalledWith( "Rain delay cancelled." );
+		controller.destroy();
+		mount.remove();
+	} );
+
+	it( "enables only explicitly granted mutation families and verifies the result", async () => {
+		const mount = document.createElement( "div" );
+		document.body.appendChild( mount );
+		let current = baseline;
+		const api = {
+			getControllerStatus: vi.fn( async () => current.jc ),
+			setControllerEnabled: vi.fn( async ( enabled: boolean ) => {
+				current = { ...current, jc: { ...current.jc, en: enabled ? 1 : 0 } };
+				return { result: 1 };
+			} ),
+			deleteProgram: vi.fn(),
+		};
+		const d = deps( mount, api, async () => current, false );
+		const controller = mountDashboard( { ...d, mutationProof: {
+			hardwareVerified: true, permissions: [ "controller-enable" ],
+		} } );
+		await flush();
+		expect( mount.querySelector<HTMLButtonElement>( '[data-action="toggle-enable"]' )?.disabled ).toBe( false );
+		expect( mount.querySelector<HTMLButtonElement>( '[data-action="rain-delay"]' )?.disabled ).toBe( true );
+		mount.querySelector<HTMLButtonElement>( '[data-action="toggle-enable"]' )!.click();
+		await flush();
+		expect( api.setControllerEnabled ).toHaveBeenCalledWith( false, expect.any( AbortSignal ) );
+		expect( d.toast ).toHaveBeenCalledWith( "Controller disabled." );
+		const crafted = document.createElement( "button" );
+		crafted.type = "button";
+		crafted.dataset.action = "toggle-enable";
+		crafted.dataset.enabled = "1";
+		mount.appendChild( crafted );
+		crafted.click();
+		await flush();
+		expect( api.setControllerEnabled ).toHaveBeenCalledTimes( 1 );
+		expect( d.toast ).toHaveBeenCalledWith( expect.stringMatching( /state changed/i ), true );
+
+		mount.querySelector<HTMLButtonElement>( '[data-tab="Programs"]' )!.click();
+		expect( mount.querySelector<HTMLButtonElement>( '[data-action="program-delete"]' )?.disabled ).toBe( true );
+		controller.destroy();
+		mount.remove();
+	} );
+
+	it( "verifies an explicitly permitted rain-delay window against controller time", async () => {
+		const mount = document.createElement( "div" );
+		document.body.appendChild( mount );
+		let current = baseline;
+		const setRainDelayHours = vi.fn( async ( hours: number ) => {
+			current = { ...current, jc: { ...current.jc, rd: 1, rdst: current.jc.devt + hours * 3600 } };
+			return { result: 1 };
+		} );
+		const api = { getControllerStatus: vi.fn( async () => current.jc ), setRainDelayHours };
+		const d = deps( mount, api, async () => current, false );
+		const controller = mountDashboard( { ...d, ctx: { ...d.ctx, prompt: () => "6" }, mutationProof: {
+			hardwareVerified: true, permissions: [ "rain-delay" ],
+		} } );
+		await flush();
+		expect( mount.querySelector<HTMLButtonElement>( '[data-action="rain-delay"]' )?.disabled ).toBe( false );
+		expect( mount.querySelector<HTMLButtonElement>( '[data-action="toggle-enable"]' )?.disabled ).toBe( true );
+		mount.querySelector<HTMLButtonElement>( '[data-action="rain-delay"]' )!.click();
+		await flush();
+		expect( setRainDelayHours ).toHaveBeenCalledWith( 6, expect.any( AbortSignal ) );
+		expect( d.toast ).toHaveBeenCalledWith( "Rain delay set to 6h." );
+		controller.destroy();
+		mount.remove();
+	} );
+
+	it( "delivers a safe configuration export in read-only mode and reports only after completion", async () => {
+		const mount = document.createElement( "div" );
+		document.body.appendChild( mount );
+		const pending = deferred<void>();
+		const share = vi.fn( () => pending.promise );
+		const ownCanShare = Object.getOwnPropertyDescriptor( navigator, "canShare" );
+		const ownShare = Object.getOwnPropertyDescriptor( navigator, "share" );
+		Object.defineProperty( navigator, "canShare", { configurable: true, value: () => true } );
+		Object.defineProperty( navigator, "share", { configurable: true, value: share } );
+		let controller: ReturnType<typeof mountDashboard> | undefined;
+		try {
+			const d = deps( mount, {}, async () => baseline, false );
+			controller = mountDashboard( d );
+			await flush();
+			mount.querySelector<HTMLButtonElement>( '[data-tab="Settings"]' )!.click();
+			mount.querySelector<HTMLButtonElement>( '[data-settings-section="System"]' )!.click();
+			const button = mount.querySelector<HTMLButtonElement>( '[data-action="config-export"]' )!;
+			expect( button.disabled ).toBe( false );
+			button.click();
+			await settlePromises();
+			expect( share ).toHaveBeenCalledTimes( 1 );
+			expect( d.toast ).not.toHaveBeenCalledWith( "Configuration shared." );
+			pending.resolve( undefined );
+			await flush();
+			expect( d.toast ).toHaveBeenCalledWith( "Configuration shared." );
+		} finally {
+			controller?.destroy();
+			mount.remove();
+			if ( ownCanShare ) Object.defineProperty( navigator, "canShare", ownCanShare );
+			else Reflect.deleteProperty( navigator, "canShare" );
+			if ( ownShare ) Object.defineProperty( navigator, "share", ownShare );
+			else Reflect.deleteProperty( navigator, "share" );
+		}
+	} );
+
+	it( "requires a fresh target match and preserves unrelated option changes with a minimal payload", async () => {
+		const mount = document.createElement( "div" );
+		document.body.appendChild( mount );
+		let current: DashboardData = baseline;
+		const submitOptions = vi.fn( async ( options: Record<string, string | number> ) => {
+			current = { ...current, jo: { ...current.jo, wl: Number( options.wl ) } };
+			return { result: 1 };
+		} );
+		const api = {
+			getOptions: vi.fn( async () => current.jo ),
+			getControllerStatus: vi.fn( async () => current.jc ), submitOptions,
+		};
+		const d = deps( mount, api, async () => current );
+		const controller = mountDashboard( d );
+		await flush();
+		mount.querySelector<HTMLButtonElement>( '[data-tab="Settings"]' )!.click();
+		current = { ...current, jo: { ...current.jo, sdt: current.jo.sdt + 7 } };
+		mount.querySelector<HTMLInputElement>( '[name="wl"]' )!.value = "110";
+		mount.querySelector<HTMLFormElement>( 'form[data-settings="general"]' )!
+			.dispatchEvent( new Event( "submit", { bubbles: true, cancelable: true } ) );
+		await flush();
+		expect( submitOptions ).toHaveBeenCalledTimes( 1 );
+		expect( submitOptions.mock.calls[ 0 ]?.[ 0 ] ).toEqual( { wl: 110 } );
+		expect( current.jo.sdt ).toBe( baseline.jo.sdt + 7 );
+		expect( d.toast ).toHaveBeenCalledWith( "Settings saved." );
+		controller.destroy();
+		mount.remove();
+	} );
+
+	it( "aborts an option write when the freshly read target changed", async () => {
+		const mount = document.createElement( "div" );
+		document.body.appendChild( mount );
+		const concurrent = { ...baseline.jo, wl: baseline.jo.wl + 1 };
+		const api = {
+			getOptions: vi.fn( async () => concurrent ),
+			getControllerStatus: vi.fn( async () => baseline.jc ), submitOptions: vi.fn(),
+		};
+		const d = deps( mount, api, async () => baseline );
+		const controller = mountDashboard( d );
+		await flush();
+		mount.querySelector<HTMLButtonElement>( '[data-tab="Settings"]' )!.click();
+		mount.querySelector<HTMLInputElement>( '[name="wl"]' )!.value = "110";
+		mount.querySelector<HTMLFormElement>( 'form[data-settings="general"]' )!
+			.dispatchEvent( new Event( "submit", { bubbles: true, cancelable: true } ) );
+		await flush();
+		expect( api.submitOptions ).not.toHaveBeenCalled();
+		expect( d.toast ).toHaveBeenCalledWith( expect.stringMatching( /changed on the controller/i ), true );
+		controller.destroy();
+		mount.remove();
+	} );
+
+	it( "fails an option mutation whose exact post-read does not match", async () => {
+		const mount = document.createElement( "div" );
+		document.body.appendChild( mount );
+		const api = {
+			getOptions: vi.fn( async () => baseline.jo ),
+			getControllerStatus: vi.fn( async () => baseline.jc ),
+			submitOptions: vi.fn( async () => ( { result: 1 } ) ),
+		};
+		const d = deps( mount, api, async () => baseline );
+		const controller = mountDashboard( d );
+		await flush();
+		mount.querySelector<HTMLButtonElement>( '[data-tab="Settings"]' )!.click();
+		mount.querySelector<HTMLInputElement>( '[name="wl"]' )!.value = "110";
+		mount.querySelector<HTMLFormElement>( 'form[data-settings="general"]' )!
+			.dispatchEvent( new Event( "submit", { bubbles: true, cancelable: true } ) );
+		await flush();
+		expect( api.submitOptions ).toHaveBeenCalledTimes( 1 );
+		expect( d.toast ).not.toHaveBeenCalledWith( "Settings saved." );
+		expect( d.toast ).toHaveBeenCalledWith( expect.stringMatching( /did not return the exact saved settings/i ), true );
+		controller.destroy();
+		mount.remove();
+	} );
+
+	it( "saves only dirty station targets and rebases an unrelated bit changed concurrently", async () => {
+		const mount = document.createElement( "div" );
+		document.body.appendChild( mount );
+		let current: DashboardData = baseline;
+		const submitStations = vi.fn( async ( config: { names?: Record<number, string>; disabled?: number[] } ) => {
+			const snames = current.jn.snames.slice();
+			for ( const [ sid, name ] of Object.entries( config.names ?? {} ) ) snames[ Number( sid ) ] = name;
+			const stnDis = current.jn.stn_dis.slice();
+			config.disabled?.forEach( ( value, bid ) => { stnDis[ bid ] = value; } );
+			current = { ...current, jn: { ...current.jn, snames, stn_dis: stnDis } };
+			return { result: 1 };
+		} );
+		const api = { getStations: vi.fn( async () => current.jn ), submitStations };
+		const d = deps( mount, api, async () => current );
+		const controller = mountDashboard( d );
+		await flush();
+		mount.querySelector<HTMLButtonElement>( '[data-tab="Settings"]' )!.click();
+		mount.querySelector<HTMLButtonElement>( '[data-settings-section="Stations"]' )!.click();
+		current = { ...current, jn: {
+			...current.jn, stn_dis: [ 2 ],
+			stn_grp: current.jn.stn_grp.map( ( group, sid ) => sid === 1 ? 1 : group ),
+		} };
+		mount.querySelector<HTMLInputElement>( '[name="name_0"]' )!.value = "New Front";
+		mount.querySelector<HTMLInputElement>( '[name="dis_0"]' )!.checked = true;
+		mount.querySelector<HTMLFormElement>( 'form[data-settings="stations"]' )!
+			.dispatchEvent( new Event( "submit", { bubbles: true, cancelable: true } ) );
+		await flush();
+		expect( submitStations ).toHaveBeenCalledTimes( 1 );
+		expect( submitStations.mock.calls[ 0 ]?.[ 0 ] ).toEqual( {
+			fwv: baseline.jo.fwv, names: { 0: "New_Front" }, disabled: [ 3 ],
+		} );
+		expect( current.jn.stn_dis[ 0 ] ).toBe( 3 );
+		expect( current.jn.stn_grp[ 1 ] ).toBe( 1 );
+		expect( d.toast ).toHaveBeenCalledWith( "Station settings saved." );
+		controller.destroy();
+		mount.remove();
+	} );
 } );
 
 describe( "dashboard host concurrency", () => {
@@ -208,8 +515,16 @@ describe( "dashboard host concurrency", () => {
 	it( "does not clobber an auto-managed timezone when saving another General setting", async () => {
 		const mount = document.createElement( "div" );
 		document.body.appendChild( mount );
-		const api = { submitOptions: vi.fn( async ( _options: Record<string, string | number> ) => ( { result: 1 } ) ) };
-		const controller = mountDashboard( deps( mount, api, async () => baseline ) );
+		let current = baseline;
+		const api = {
+			getOptions: vi.fn( async () => current.jo ),
+			getControllerStatus: vi.fn( async () => current.jc ),
+			submitOptions: vi.fn( async ( options: Record<string, string | number> ) => {
+				current = { ...current, jo: { ...current.jo, wl: Number( options.wl ) } };
+				return { result: 1 };
+			} ),
+		};
+		const controller = mountDashboard( deps( mount, api, async () => current ) );
 		await flush();
 		mount.querySelector<HTMLButtonElement>( '[data-tab="Settings"]' )!.click();
 		const timezone = mount.querySelector<HTMLInputElement>( '[name="tzOffset"]' )!;
@@ -229,10 +544,14 @@ describe( "dashboard host concurrency", () => {
 		const mount = document.createElement( "div" );
 		document.body.appendChild( mount );
 		let current = baseline;
-		const api = { submitOptions: vi.fn( async ( options: Record<string, string | number> ) => {
-			current = { ...baseline, jc: { ...baseline.jc, loc: String( options.loc ) } };
-			return { result: 1 };
-		} ) };
+		const api = {
+			getOptions: vi.fn( async () => current.jo ),
+			getControllerStatus: vi.fn( async () => current.jc ),
+			submitOptions: vi.fn( async ( options: Record<string, string | number> ) => {
+				current = { ...current, jc: { ...current.jc, loc: String( options.loc ) } };
+				return { result: 1 };
+			} ),
+		};
 		const controller = mountDashboard( deps( mount, api, async () => current ) );
 		await flush();
 		mount.querySelector<HTMLButtonElement>( '[data-tab="Settings"]' )!.click();
@@ -257,8 +576,19 @@ describe( "dashboard host concurrency", () => {
 	it( "shows and saves multi-day adjustment only for Zimmerman or ETo", async () => {
 		const mount = document.createElement( "div" );
 		document.body.appendChild( mount );
-		const api = { submitOptions: vi.fn( async ( _options: Record<string, string | number> ) => ( { result: 1 } ) ) };
-		const controller = mountDashboard( deps( mount, api, async () => baseline ) );
+		let current = baseline;
+		const api = {
+			getOptions: vi.fn( async () => current.jo ),
+			getControllerStatus: vi.fn( async () => current.jc ),
+			submitOptions: vi.fn( async ( options: Record<string, string | number> ) => {
+				const wto = typeof options.wto === "string" ? JSON.parse( `{${ options.wto }}` ) as Record<string, unknown> : current.jc.wto;
+				current = {
+					...current, jo: { ...current.jo, uwt: Number( options.uwt ) }, jc: { ...current.jc, wto },
+				};
+				return { result: 1 };
+			} ),
+		};
+		const controller = mountDashboard( deps( mount, api, async () => current ) );
 		await flush();
 		mount.querySelector<HTMLButtonElement>( '[data-tab="Settings"]' )!.click();
 		mount.querySelector<HTMLButtonElement>( '[data-settings-section="Weather"]' )!.click();
@@ -293,6 +623,7 @@ describe( "dashboard host concurrency", () => {
 		await flush();
 		mount.querySelector<HTMLButtonElement>( '[data-tab="Settings"]' )!.click();
 		mount.querySelector<HTMLButtonElement>( '[data-settings-section="Programs"]' )!.click();
+		mount.querySelector<HTMLInputElement>( '[name="name"]' )!.value = "Validity test";
 
 		const singleDate = mount.querySelector<HTMLInputElement>( '[name="singleDate"]' )!;
 		const repeatFirst = mount.querySelector<HTMLInputElement>( '[name="repeatFirst"]' )!;
@@ -364,14 +695,26 @@ describe( "dashboard host concurrency", () => {
 		const mount = document.createElement( "div" );
 		document.body.appendChild( mount );
 		const pending = deferred<Record<string, unknown>>();
-		const api = { deleteProgram: vi.fn( () => pending.promise ) };
-		const controller = mountDashboard( deps( mount, api, async () => baseline ) );
+		let current = baseline;
+		const api = {
+			getControllerStatus: vi.fn( async () => current.jc ),
+			getPrograms: vi.fn( async () => current.jp ),
+			deleteProgram: vi.fn( ( pid: number ) => pending.promise.then( ( result ) => {
+				current = { ...current, jp: {
+					...current.jp, nprogs: current.jp.nprogs - 1,
+					pd: current.jp.pd.filter( ( _program, index ) => index !== pid ),
+				} };
+				return result;
+			} ) ),
+		};
+		const controller = mountDashboard( deps( mount, api, async () => current ) );
 		await flush();
 		mount.querySelector<HTMLButtonElement>( '[data-tab="Programs"]' )!.click();
 		mount.querySelector<HTMLButtonElement>( '[data-action="program-delete"]' )!.click();
 		const replacement = mount.querySelector<HTMLButtonElement>( '[data-action="program-delete"]' )!;
 		expect( replacement.disabled ).toBe( true );
 		replacement.dispatchEvent( new MouseEvent( "click", { bubbles: true } ) );
+		await settlePromises();
 		expect( api.deleteProgram ).toHaveBeenCalledTimes( 1 );
 		pending.resolve( { result: 1 } );
 		await flush();
@@ -402,17 +745,31 @@ describe( "dashboard host concurrency", () => {
 		const mount = document.createElement( "div" );
 		document.body.appendChild( mount );
 		const pending = deferred<Record<string, unknown>>();
-		const api = { submitProgram: vi.fn( () => pending.promise ) };
-		const controller = mountDashboard( deps( mount, api, async () => baseline ) );
+		let current = baseline;
+		const emptySource: OSProgram = [ 0, 0, 0, [], [], "", [ 0, 33, 415 ] ];
+		const api = {
+			getControllerStatus: vi.fn( async () => current.jc ),
+			getPrograms: vi.fn( async () => current.jp ),
+			submitProgram: vi.fn( ( _pid: number, input: ProgramInput ) => pending.promise.then( ( result ) => {
+				current = { ...current, jp: {
+					...current.jp, nprogs: current.jp.nprogs + 1,
+					pd: [ ...current.jp.pd, tupleFromInput( input, emptySource ) ],
+				} };
+				return result;
+			} ) ),
+		};
+		const controller = mountDashboard( deps( mount, api, async () => current ) );
 		await flush();
 		mount.querySelector<HTMLButtonElement>( '[data-tab="Settings"]' )!.click();
 		mount.querySelector<HTMLButtonElement>( '[data-settings-section="Programs"]' )!.click();
+		mount.querySelector<HTMLInputElement>( '[name="name"]' )!.value = "Serialized create";
 		mount.querySelector<HTMLInputElement>( '[name="dur_0"]' )!.value = "5";
 		const form = mount.querySelector<HTMLFormElement>( 'form[data-settings="program"]' )!;
 		form.dispatchEvent( new Event( "submit", { bubbles: true, cancelable: true } ) );
 		const replacement = mount.querySelector<HTMLFormElement>( 'form[data-settings="program"]' )!;
 		expect( replacement.querySelector<HTMLButtonElement>( "button[type=submit]" )!.disabled ).toBe( true );
 		replacement.dispatchEvent( new Event( "submit", { bubbles: true, cancelable: true } ) );
+		await settlePromises();
 		expect( api.submitProgram ).toHaveBeenCalledTimes( 1 );
 		pending.resolve( { result: 1 } );
 		await flush();
@@ -426,17 +783,22 @@ describe( "dashboard host concurrency", () => {
 		const mount = document.createElement( "div" );
 		document.body.appendChild( mount );
 		let mutationSignal: AbortSignal | undefined;
-		const api = { deleteProgram: vi.fn( ( _pid: number, signal?: AbortSignal ) => {
-			mutationSignal = signal;
-			return new Promise<Record<string, unknown>>( ( _resolve, reject ) => {
-				signal?.addEventListener( "abort", () => reject( new DOMException( "Aborted", "AbortError" ) ), { once: true } );
-			} );
-		} ) };
+		const api = {
+			getControllerStatus: vi.fn( async () => baseline.jc ),
+			getPrograms: vi.fn( async () => baseline.jp ),
+			deleteProgram: vi.fn( ( _pid: number, signal?: AbortSignal ) => {
+				mutationSignal = signal;
+				return new Promise<Record<string, unknown>>( ( _resolve, reject ) => {
+					signal?.addEventListener( "abort", () => reject( new DOMException( "Aborted", "AbortError" ) ), { once: true } );
+				} );
+			} ),
+		};
 		const d = deps( mount, api, async () => baseline );
 		const controller = mountDashboard( d );
 		await flush();
 		mount.querySelector<HTMLButtonElement>( '[data-tab="Programs"]' )!.click();
 		mount.querySelector<HTMLButtonElement>( '[data-action="program-delete"]' )!.click();
+		await settlePromises();
 		expect( mutationSignal?.aborted ).toBe( false );
 		controller.destroy();
 		expect( mutationSignal?.aborted ).toBe( true );
@@ -898,6 +1260,7 @@ describe( "dashboard host concurrency", () => {
 		const day = Math.floor( baseline.jc.devt / 86400 );
 		const api = {
 			getControllerStatus: vi.fn( async () => ( { ...baseline.jc, devt: day * 86400 + 86300 } ) ),
+			getPrograms: vi.fn( async () => baseline.jp ),
 			submitProgram: vi.fn(),
 		};
 		const d = deps( mount, api, async () => baseline );
@@ -905,6 +1268,7 @@ describe( "dashboard host concurrency", () => {
 		await flush();
 		mount.querySelector<HTMLButtonElement>( '[data-tab="Settings"]' )!.click();
 		mount.querySelector<HTMLButtonElement>( '[data-settings-section="Programs"]' )!.click();
+		mount.querySelector<HTMLInputElement>( '[name="name"]' )!.value = "Midnight interval";
 		const schedule = mount.querySelector<HTMLSelectElement>( '[name="schedType"]' )!;
 		schedule.value = "interval";
 		schedule.dispatchEvent( new Event( "change", { bubbles: true } ) );

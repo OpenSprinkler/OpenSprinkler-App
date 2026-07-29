@@ -1,22 +1,22 @@
 /**
  * Dashboard host controller — the single place that turns the pure render + the data/command layers
  * into an interactive app. Used by both the demo (mocked transport) and app/ (real device). It owns
- * the active tab / settings-section state, delegates clicks to dispatchAction(), and maps settings
- * form submits to the tested build*() mappers + typed commands. Re-fetches after a successful write.
+ * the active tab / settings-section state, maps clicks and settings forms to verified transactions,
+ * and re-fetches the full dashboard after a successfully checked write.
  */
 import type { OsApiClient } from "../api/client";
-import type { OSProgram } from "../api/types";
-import { encodeProgram, type ProgramInput } from "../api/encode";
+import type { JcResponse, JnResponse, JoResponse, OSProgram } from "../api/types";
+import { encodeProgram, escapeJsonForFirmware, type ProgramInput, type StationConfigInput } from "../api/encode";
 import { renderDashboard, type DashboardData, type DashboardTab } from "./dashboard";
 import type { SettingsSection } from "./settings/index";
-import { dispatchAction, type ActionContext } from "./dispatch";
+import type { ActionContext } from "./dispatch";
 import { readForm } from "../ui/form";
 import { buildGeneralOptions, isTimezoneAutoManaged } from "./settings/general";
 import { buildWeatherOptions } from "./settings/weather";
-import { buildNetworkOptions } from "./settings/network";
 import { buildStationConfig } from "./settings/stations-edit";
 import { buildProgramInput } from "./settings/program-edit";
 import { detectCompanion, fetchHistory, fetchRunLog } from "../api/companion";
+import { deliverConfigurationExport } from "../config-export";
 import { renderHistory } from "./history-view";
 import { errorCard, esc } from "../ui/help";
 
@@ -65,7 +65,23 @@ export interface HostDeps {
 	companionBase?: string | null;
 	/** Optional bearer token, supplied from a scrubbed URL fragment and retained for this tab session. */
 	companionToken?: string;
+	/**
+	 * Explicit hardware-verification proof and the exact mutation families approved for this host.
+	 * Absence is intentionally read-only except for emergency stop/cancel controls.
+	 */
+	mutationProof?: Readonly<{
+		hardwareVerified: true;
+		permissions: readonly MutationPermission[];
+	}>;
 }
+
+/** Mutations whose current controller read APIs support a deterministic post-write check. */
+export const VERIFIED_MUTATION_PERMISSIONS = [
+	"controller-enable", "rain-delay", "clear-overcurrent",
+	"general-options", "weather-options", "stations",
+	"program-create", "program-edit", "program-toggle", "program-delete",
+] as const;
+export type MutationPermission = ( typeof VERIFIED_MUTATION_PERMISSIONS )[ number ];
 
 export interface DashboardController {
 	refresh(): Promise<void>;
@@ -88,6 +104,50 @@ interface FullRefreshOptions {
 
 function sameSnapshot( a: unknown, b: unknown ): boolean {
 	return JSON.stringify( a ) === JSON.stringify( b );
+}
+
+function sameValue( a: unknown, b: unknown ): boolean {
+	if ( Object.is( a, b ) ) return true;
+	if ( Array.isArray( a ) || Array.isArray( b ) ) {
+		return Array.isArray( a ) && Array.isArray( b ) && a.length === b.length &&
+			a.every( ( value, index ) => sameValue( value, b[ index ] ) );
+	}
+	if ( typeof a !== "object" || a === null || typeof b !== "object" || b === null ) return false;
+	const aRecord = a as Record<string, unknown>, bRecord = b as Record<string, unknown>;
+	const aKeys = Object.keys( aRecord ).sort(), bKeys = Object.keys( bRecord ).sort();
+	return aKeys.length === bKeys.length && aKeys.every( ( key, index ) =>
+		key === bKeys[ index ] && sameValue( aRecord[ key ], bRecord[ key ] ) );
+}
+
+const LOCAL_ACTIONS = new Set( [ "retry", "config-export", "program-new", "program-edit", "program-cancel" ] );
+const EMERGENCY_ACTIONS = new Set( [ "stop-all", "station-stop", "cancel-rain" ] );
+const ACTION_PERMISSIONS: Readonly<Record<string, MutationPermission>> = {
+	"toggle-enable": "controller-enable",
+	"rain-delay": "rain-delay",
+	"clear-ocs": "clear-overcurrent",
+	"program-toggle": "program-toggle",
+	"program-delete": "program-delete",
+};
+const GENERAL_OPTION_FIELDS: Readonly<Record<string, string>> = {
+	dname: "dname", tzOffset: "tz", wl: "wl", sdt: "sdt", lg: "lg", sn1t: "sn1t", sn1o: "sn1o",
+};
+const WEATHER_WTO_FIELDS = new Set( [ "provider", "key", "rainAmt", "rainDays", "minTemp", "cali", "mda" ] );
+
+function actionPermission( action: string | undefined ): MutationPermission | null {
+	return action === undefined ? null : ACTION_PERMISSIONS[ action ] ?? null;
+}
+
+function settingsPermission( kind: string | undefined, editingProgram: boolean ): MutationPermission | null {
+	switch ( kind ) {
+		case "general": return "general-options";
+		case "weather": return "weather-options";
+		// Network writes can sever the route needed for readback; keep them locked until a
+		// recovery-aware reconnect transaction is available.
+		case "network": return null;
+		case "stations": return "stations";
+		case "program": return editingProgram ? "program-edit" : "program-create";
+		default: return null;
+	}
 }
 
 interface ProgramEditState { pid: number; source: OSProgram; sourceControllerDay: number; }
@@ -141,6 +201,14 @@ function sameProgramTupleAtControllerDays(
 		equalNumbers( a[ 6 ], b[ 6 ] );
 }
 
+function sameProgramCollectionAtControllerDays(
+	a: DashboardData[ "jp" ], aDay: number, b: DashboardData[ "jp" ], bDay: number,
+): boolean {
+	return a.nprogs === b.nprogs && a.nboards === b.nboards && a.mnp === b.mnp &&
+		a.mnst === b.mnst && a.pnsize === b.pnsize && a.pd.length === b.pd.length &&
+		a.pd.every( ( program, pid ) => sameProgramTupleAtControllerDays( program, aDay, b.pd[ pid ], bDay ) );
+}
+
 function expectedProgramTuple( input: ProgramInput, source: OSProgram ): OSProgram {
 	const encoded = encodeProgram( input );
 	const dateRange: [ number, number, number ] = encoded.dateRange
@@ -158,10 +226,62 @@ function expectedProgramTuple( input: ProgramInput, source: OSProgram ): OSProgr
 	];
 }
 
+function withProgramEnabled( program: OSProgram, enabled: boolean ): OSProgram {
+	const expected = cloneProgram( program );
+	expected[ 0 ] = enabled ? expected[ 0 ] | 1 : expected[ 0 ] & ~1;
+	return expected;
+}
+
 function selectedProgramIndex( value: string | undefined ): number | null {
 	if ( value === undefined || !/^\d+$/.test( value ) ) return null;
 	const pid = Number( value );
 	return Number.isSafeInteger( pid ) && pid >= 0 && pid <= 255 ? pid : null;
+}
+
+function optionValue( jo: JoResponse, jc: JcResponse, key: string ): unknown {
+	if ( key === "dname" ) return jc.dname;
+	if ( key === "loc" ) return jc.loc;
+	if ( key === "wto" ) return jc.wto;
+	return jo[ key ];
+}
+
+function expectedOptionValue( key: string, wireValue: string | number ): unknown {
+	if ( key === "dname" || key === "loc" ) {
+		return typeof wireValue === "string" ? canonicalFirmwareString( wireValue ) : wireValue;
+	}
+	if ( key !== "wto" ) return wireValue;
+	try { return JSON.parse( `{${ wireValue }}` ) as unknown; }
+	catch { throw new Error( "Weather options could not be encoded for exact verification." ); }
+}
+
+function canonicalFirmwareString( value: string ): string {
+	return value.replace( /"/g, "'" ).replace( /\\/g, "/" );
+}
+
+function requireActionIndex( value: string | undefined, label: string ): number {
+	const index = selectedProgramIndex( value );
+	if ( index === null ) throw new Error( `Invalid ${ label }.` );
+	return index;
+}
+
+function stationOutputIsClear( jc: JcResponse, sid: number ): boolean {
+	const board = jc.sbits[ sid >> 3 ];
+	return typeof board === "number" && ( board & ( 1 << ( sid & 7 ) ) ) === 0;
+}
+
+function snapshotFormValues( form: HTMLFormElement ): Record<string, string | boolean> {
+	const values: Record<string, string | boolean> = {};
+	form.querySelectorAll<HTMLInputElement | HTMLSelectElement>( "[name]" ).forEach( ( control ) => {
+		values[ control.name ] = control instanceof HTMLInputElement && control.type === "checkbox"
+			? control.checked : control.value;
+	} );
+	return values;
+}
+
+function changedFormFields(
+	current: Record<string, string | boolean>, original: Record<string, string | boolean> | null,
+): Set<string> {
+	return new Set( Object.keys( current ).filter( ( key ) => !sameValue( current[ key ], original?.[ key ] ) ) );
 }
 
 export function mountDashboard( deps: HostDeps ): DashboardController {
@@ -169,6 +289,8 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 	let lastError: string | null = null;
 	let activeTab: DashboardTab | "History" = "Status";
 	let settingsSection: SettingsSection = "General";
+	let renderedSettingsSource: DashboardData | null = null;
+	let renderedSettingsValues: Record<string, string | boolean> | null = null;
 	let programEditor: ProgramEditState | null = null;
 	let programDraftDirty = false;
 	let focusAfterPaint: string | null = null;
@@ -187,6 +309,24 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 	let companionDiscoveryAttempted = false;
 	let disposed = false;
 	const hostDocument = deps.mount.ownerDocument;
+	const mutationPermissions = new Set<MutationPermission>( deps.mutationProof?.hardwareVerified === true
+		? deps.mutationProof.permissions : [] );
+	const hardwareVerified = deps.mutationProof?.hardwareVerified === true;
+
+	function permissionGranted( permission: MutationPermission | null ): boolean {
+		return permission !== null && hardwareVerified && mutationPermissions.has( permission );
+	}
+
+	function actionAllowed( action: string | undefined ): boolean {
+		if ( action === undefined ) return false;
+		return LOCAL_ACTIONS.has( action ) || EMERGENCY_ACTIONS.has( action ) || permissionGranted( actionPermission( action ) );
+	}
+
+	function mutationLockedMessage(): string {
+		return hardwareVerified
+			? "This controller write is not enabled by the hardware-verification permissions."
+			: "Controller writes are locked pending hardware verification.";
+	}
 
 	function controllerIsStale(): boolean {
 		return data !== null && lastControllerSuccessAt !== null &&
@@ -278,6 +418,11 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 		return lastError ? errorCard( lastError ) : "";
 	}
 
+	function mutationStateHtml(): string {
+		return hardwareVerified ? "" : `<p class="info-note muted" role="status" data-mutation-lock>` +
+			`Controller writes are locked pending hardware verification. Stop and cancel controls remain available.</p>`;
+	}
+
 	function updateConnectionState(): void {
 		if ( disposed ) return;
 		const container = deps.mount.querySelector<HTMLElement>( "[data-connection-state]" );
@@ -310,7 +455,8 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 		const refocusTab = ( document.activeElement as HTMLElement | null )?.getAttribute?.( "role" ) === "tab";
 		try {
 			const connection = connectionStateHtml();
-			deps.mount.innerHTML = `<div data-connection-state${ connection ? "" : " hidden" }>${ connection }</div>` + ( data
+			deps.mount.innerHTML = `<div data-connection-state${ connection ? "" : " hidden" }>${ connection }</div>` +
+				mutationStateHtml() + ( data
 				? renderDashboard( data, activeTab, {
 					actions: true, settingsSection, historyHtml,
 					...( programEditor ? { programEditor: { pid: programEditor.pid, program: programEditor.source } } : {} ),
@@ -324,6 +470,11 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 		}
 		applyConditionalVisibility();
 		applyInteractionState();
+		if ( data && activeTab === "Settings" ) {
+			renderedSettingsSource = data;
+			const form = deps.mount.querySelector<HTMLFormElement>( "form[data-settings]" );
+			renderedSettingsValues = form ? snapshotFormValues( form ) : null;
+		}
 		if ( focusAfterPaint ) {
 			deps.mount.querySelector<HTMLElement>( focusAfterPaint )?.focus();
 			focusAfterPaint = null;
@@ -336,18 +487,29 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 		const dateRangeEnabled = deps.mount.querySelector<HTMLInputElement>( 'input[name="useDateRange"]' )?.checked ?? false;
 		deps.mount.setAttribute( "aria-busy", mutationInFlight ? "true" : "false" );
 		deps.mount.querySelectorAll<HTMLButtonElement>( "button[data-action]" ).forEach( ( button ) => {
-			button.disabled = mutationInFlight || ( stale && button.dataset.action !== "retry" );
+			const action = button.dataset.action;
+			const permissionLocked = !actionAllowed( action );
+			const staleBlocked = stale && action !== "retry" && !LOCAL_ACTIONS.has( action ?? "" ) &&
+				!EMERGENCY_ACTIONS.has( action ?? "" );
+			button.disabled = mutationInFlight || staleBlocked || permissionLocked;
+			if ( permissionLocked ) button.title = mutationLockedMessage();
+			else if ( button.title === mutationLockedMessage() ) button.removeAttribute( "title" );
 		} );
 		deps.mount.querySelectorAll<HTMLButtonElement>( "button[data-tab], button[data-settings-section]" ).forEach( ( button ) => {
 			button.disabled = mutationInFlight;
 		} );
 		deps.mount.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLButtonElement>( "form[data-settings] input, form[data-settings] select, form[data-settings] button" )
 			.forEach( ( control ) => {
+				const form = control.closest<HTMLFormElement>( "form[data-settings]" );
 				const conditional = control.closest<HTMLElement>( "[data-when], [data-weather-methods]" );
 				const inactiveScheduleField = conditional?.hidden ?? false;
 				const inactiveDateRangeField = ( control.name === "drFrom" || control.name === "drTo" ) && !dateRangeEnabled;
 				const permanentlyDisabled = control.dataset.formDisabled === "true";
-				control.disabled = Boolean( permanentlyDisabled || mutationInFlight || stale || inactiveScheduleField || inactiveDateRangeField );
+				const submitLocked = control instanceof HTMLButtonElement && control.type === "submit" &&
+					!permissionGranted( settingsPermission( form?.dataset.settings, form?.dataset.pid !== "-1" ) );
+				control.disabled = Boolean( permanentlyDisabled || mutationInFlight || stale || submitLocked ||
+					inactiveScheduleField || inactiveDateRangeField );
+				if ( submitLocked ) control.title = mutationLockedMessage();
 			} );
 	}
 
@@ -490,8 +652,186 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 		if ( !disposed ) scheduleAutomaticPoll( RUNTIME_REFRESH_MS );
 	}
 
-	async function withMutation( work: ( signal: AbortSignal ) => Promise<string | null> ): Promise<void> {
-		if ( disposed || mutationInFlight || !data || interactionsAreBlocked() ) return;
+	async function verifyOptionsMutation(
+		desired: Record<string, string | number>, dirtyFields: Set<string>, source: DashboardData,
+		kind: "general" | "weather", signal: AbortSignal,
+	): Promise<boolean> {
+		const directKeys = new Set<string>();
+		if ( kind === "general" ) {
+			for ( const field of dirtyFields ) {
+				const key = GENERAL_OPTION_FIELDS[ field ];
+				if ( key && Object.prototype.hasOwnProperty.call( desired, key ) ) directKeys.add( key );
+			}
+		} else {
+			if ( dirtyFields.has( "method" ) ) directKeys.add( "uwt" );
+			if ( ( dirtyFields.has( "loc" ) || dirtyFields.has( "clearLoc" ) ) &&
+				Object.prototype.hasOwnProperty.call( desired, "loc" ) ) directKeys.add( "loc" );
+		}
+
+		const directChanges = [ ...directKeys ].filter( ( key ) =>
+			!sameValue( optionValue( source.jo, source.jc, key ), expectedOptionValue( key, desired[ key ]! ) ) );
+		const dirtyWtoFields = kind === "weather"
+			? [ ...dirtyFields ].filter( ( field ) => WEATHER_WTO_FIELDS.has( field ) ) : [];
+		if ( directChanges.length === 0 && dirtyWtoFields.length === 0 ) return false;
+
+		const [ freshJo, freshJc ] = await Promise.all( [
+			deps.api.getOptions( signal ), deps.api.getControllerStatus( signal ),
+		] );
+		for ( const key of directChanges ) {
+			if ( !sameValue( optionValue( freshJo, freshJc, key ), optionValue( source.jo, source.jc, key ) ) ) {
+				throw new Error( "These settings changed on the controller. Review the latest values before saving." );
+			}
+		}
+
+		const payload: Record<string, string | number> = {};
+		const expected = new Map<string, unknown>();
+		for ( const key of directChanges ) {
+			payload[ key ] = desired[ key ]!;
+			expected.set( key, expectedOptionValue( key, desired[ key ]! ) );
+		}
+
+		if ( dirtyWtoFields.length > 0 ) {
+			const sourceWto = source.jc.wto;
+			const freshWto = freshJc.wto;
+			const candidate = expectedOptionValue( "wto", desired.wto! );
+			if ( typeof candidate !== "object" || candidate === null || Array.isArray( candidate ) ) {
+				throw new Error( "Weather options could not be prepared for exact verification." );
+			}
+			const candidateWto = candidate as Record<string, unknown>;
+			const mergedWto: Record<string, unknown> = { ...freshWto };
+			for ( const field of dirtyWtoFields ) {
+				if ( !Object.prototype.hasOwnProperty.call( candidateWto, field ) ||
+					sameValue( candidateWto[ field ], sourceWto[ field ] ) ) continue;
+				if ( !sameValue( freshWto[ field ], sourceWto[ field ] ) ) {
+					throw new Error( "Weather settings changed on the controller. Review the latest values before saving." );
+				}
+				mergedWto[ field ] = candidateWto[ field ];
+			}
+			if ( !sameValue( mergedWto, freshWto ) ) {
+				payload.wto = escapeJsonForFirmware( mergedWto );
+				expected.set( "wto", mergedWto );
+			}
+		}
+
+		if ( Object.keys( payload ).length === 0 ) return false;
+		await deps.api.submitOptions( payload, signal );
+		const [ verifiedJo, verifiedJc ] = await Promise.all( [
+			deps.api.getOptions( signal ), deps.api.getControllerStatus( signal ),
+		] );
+		const verificationKeys = new Set( [ ...Object.keys( desired ), ...expected.keys() ] );
+		for ( const key of verificationKeys ) {
+			const wanted = expected.has( key ) ? expected.get( key ) : optionValue( freshJo, freshJc, key );
+			if ( !sameValue( optionValue( verifiedJo, verifiedJc, key ), wanted ) ) {
+				throw new Error( "The controller did not return the exact saved settings. Review them before retrying." );
+			}
+		}
+		if ( data ) data = { ...data, jo: verifiedJo, jc: verifiedJc };
+		return true;
+	}
+
+	async function verifyStationsMutation(
+		desired: StationConfigInput, dirtyFields: Set<string>, source: DashboardData, signal: AbortSignal,
+	): Promise<boolean> {
+		const changedNames: Record<number, string> = {};
+		for ( const [ rawSid, name ] of Object.entries( desired.names ?? {} ) ) {
+			const sid = Number( rawSid );
+			if ( !dirtyFields.has( `name_${ sid }` ) ) continue;
+			const expectedName = canonicalFirmwareString( desired.fwv >= 208 ? name.replace( /\s/g, "_" ) : name );
+			if ( source.jn.snames[ sid ] !== expectedName ) changedNames[ sid ] = expectedName;
+		}
+		type BoardTargets = Map<number, number[]>;
+		const boardBit = ( values: number[], sid: number ): number => ( ( values[ sid >> 3 ] ?? 0 ) >> ( sid & 7 ) ) & 1;
+		const changedBoardTargets = (
+			desiredValues: number[] | undefined, sourceValues: number[], fieldPrefix: string,
+		): BoardTargets => {
+			const targets: BoardTargets = new Map();
+			if ( !desiredValues ) return targets;
+			for ( let sid = 0; sid < source.jn.snames.length; sid++ ) {
+				if ( !dirtyFields.has( `${ fieldPrefix }_${ sid }` ) ||
+					boardBit( desiredValues, sid ) === boardBit( sourceValues, sid ) ) continue;
+				const bid = sid >> 3;
+				targets.set( bid, [ ...( targets.get( bid ) ?? [] ), sid ] );
+			}
+			return targets;
+		};
+		const disabledTargets = changedBoardTargets( desired.disabled, source.jn.stn_dis, "dis" );
+		const ignoreRainTargets = changedBoardTargets( desired.ignoreRain, source.jn.ignore_rain, "rain" );
+		const changedGroups: Record<number, number> = {};
+		for ( const [ rawSid, group ] of Object.entries( desired.groups ?? {} ) ) {
+			const sid = Number( rawSid );
+			if ( !dirtyFields.has( `grp_${ sid }` ) ) continue;
+			if ( source.jn.stn_grp[ sid ] !== group ) changedGroups[ sid ] = group;
+		}
+		if ( Object.keys( changedNames ).length === 0 && disabledTargets.size === 0 && ignoreRainTargets.size === 0 &&
+			Object.keys( changedGroups ).length === 0 ) return false;
+
+		const fresh = await deps.api.getStations( signal );
+		if ( fresh.snames.length !== source.jn.snames.length || fresh.maxlen !== source.jn.maxlen ) {
+			throw new Error( "Station configuration changed on the controller. Reload it before saving." );
+		}
+		for ( const sid of Object.keys( changedNames ).map( Number ) ) {
+			if ( fresh.snames[ sid ] !== source.jn.snames[ sid ] ) {
+				throw new Error( "A station name changed on the controller. Reload it before saving." );
+			}
+		}
+		const rebaseBoards = (
+			targets: BoardTargets, desiredValues: number[] | undefined, freshValues: number[], sourceValues: number[],
+		): number[] | undefined => {
+			if ( targets.size === 0 || !desiredValues ) return undefined;
+			const rebased: number[] = [];
+			for ( const [ bid, sids ] of targets ) {
+				let board = freshValues[ bid ] ?? 0;
+				for ( const sid of sids ) {
+					if ( boardBit( freshValues, sid ) !== boardBit( sourceValues, sid ) ) {
+					throw new Error( "Station attributes changed on the controller. Reload them before saving." );
+				}
+					const mask = 1 << ( sid & 7 );
+					board = boardBit( desiredValues, sid ) === 1 ? board | mask : board & ~mask;
+				}
+				rebased[ bid ] = board;
+			}
+			return rebased;
+		};
+		const changedDisabled = rebaseBoards( disabledTargets, desired.disabled, fresh.stn_dis, source.jn.stn_dis );
+		const changedIgnoreRain = rebaseBoards( ignoreRainTargets, desired.ignoreRain, fresh.ignore_rain, source.jn.ignore_rain );
+		for ( const sid of Object.keys( changedGroups ).map( Number ) ) {
+			if ( fresh.stn_grp[ sid ] !== source.jn.stn_grp[ sid ] ) {
+				throw new Error( "Station groups changed on the controller. Reload them before saving." );
+			}
+		}
+
+		const payload: StationConfigInput = { fwv: desired.fwv };
+		if ( Object.keys( changedNames ).length > 0 ) payload.names = changedNames;
+		if ( changedDisabled ) payload.disabled = changedDisabled;
+		if ( changedIgnoreRain ) payload.ignoreRain = changedIgnoreRain;
+		if ( Object.keys( changedGroups ).length > 0 ) payload.groups = changedGroups;
+		await deps.api.submitStations( payload, signal );
+
+		const expected: JnResponse = {
+			...fresh, snames: fresh.snames.slice(), stn_dis: fresh.stn_dis.slice(),
+			ignore_rain: fresh.ignore_rain.slice(), stn_grp: fresh.stn_grp.slice(),
+		};
+		for ( const [ sid, name ] of Object.entries( changedNames ) ) expected.snames[ Number( sid ) ] = name;
+		changedDisabled?.forEach( ( value, bid ) => { expected.stn_dis[ bid ] = value; } );
+		changedIgnoreRain?.forEach( ( value, bid ) => { expected.ignore_rain[ bid ] = value; } );
+		for ( const [ sid, group ] of Object.entries( changedGroups ) ) expected.stn_grp[ Number( sid ) ] = group;
+		const verified = await deps.api.getStations( signal );
+		if ( !sameValue( verified, expected ) ) {
+			throw new Error( "The controller did not return the exact saved station configuration. Review it before retrying." );
+		}
+		if ( data ) data = { ...data, jn: verified };
+		return true;
+	}
+
+	async function withMutation(
+		authorization: MutationPermission | "emergency",
+		work: ( signal: AbortSignal ) => Promise<string | null>,
+	): Promise<void> {
+		if ( authorization !== "emergency" && !permissionGranted( authorization ) ) {
+			deps.toast( mutationLockedMessage(), true );
+			return;
+		}
+		if ( disposed || mutationInFlight || !data || ( authorization !== "emergency" && interactionsAreBlocked() ) ) return;
 		clearPollTimer();
 		mutationInFlight = true;
 		const abort = new AbortController();
@@ -504,7 +844,7 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 			const refreshed = await performRefresh( { automatic: false, discoverHistory: false, surfaceError: true } );
 			if ( disposed || abort.signal.aborted ) return;
 			if ( refreshed === "success" ) deps.toast( msg );
-			else deps.toast( "The command may have been sent, but the controller state could not be verified.", true );
+			else deps.toast( `${ msg } The changed state was verified, but the dashboard could not refresh.`, true );
 		} catch ( e ) {
 			if ( !disposed && !abort.signal.aborted ) deps.toast( String( e ), true );
 		} finally {
@@ -518,9 +858,187 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 	}
 
 	async function runAction( ds: Record<string, string | undefined > ): Promise<void> {
-		await withMutation( async ( signal ) => data ? dispatchAction( deps.api, {
-			jp: data.jp, stationCount: data.jn.snames.length,
-		}, ds, deps.ctx, signal ) : null );
+		const action = ds.action;
+		const authorization = action !== undefined && EMERGENCY_ACTIONS.has( action )
+			? "emergency" : actionPermission( action );
+		if ( authorization === null ) {
+			deps.toast( mutationLockedMessage(), true );
+			return;
+		}
+		await withMutation( authorization, async ( signal ) => {
+			if ( !data ) return null;
+			const source = data;
+			switch ( action ) {
+				case "stop-all": {
+					// The pre-read proves the controller is reachable immediately before this unconditional
+					// safety command. A generic refresh is not accepted as evidence of the stop.
+					await Promise.all( [ deps.api.getControllerStatus( signal ), deps.api.getStatus( signal ) ] );
+					await deps.api.stopAllStations( signal );
+					const [ verifiedJc, verifiedStatus ] = await Promise.all( [
+						deps.api.getControllerStatus( signal ), deps.api.getStatus( signal ),
+					] );
+					const queueClear = verifiedJc.nq === 0 && verifiedJc.ps.every( ( station ) =>
+						station[ 0 ] === 0 && station[ 1 ] === 0 && station[ 2 ] === 0 );
+					const outputsClear = verifiedJc.sbits.slice( 0, verifiedJc.nbrd ).every( ( bits ) => bits === 0 ) &&
+						verifiedStatus.sn.every( ( on ) => on === 0 );
+					if ( !queueClear || !outputsClear ) {
+						throw new Error( "The controller did not confirm that every station and queue entry stopped." );
+					}
+					data = { ...data, jc: verifiedJc };
+					return "All stations stopped.";
+				}
+				case "station-stop": {
+					const sid = requireActionIndex( ds.sid, "station" );
+					const [ freshJc, freshStatus ] = await Promise.all( [
+						deps.api.getControllerStatus( signal ), deps.api.getStatus( signal ),
+					] );
+					if ( sid >= source.jn.snames.length || sid >= freshStatus.nstations || !freshJc.ps[ sid ] ) {
+						throw new Error( "Invalid station." );
+					}
+					await deps.api.stopStation( sid, signal );
+					const [ verifiedJc, verifiedStatus ] = await Promise.all( [
+						deps.api.getControllerStatus( signal ), deps.api.getStatus( signal ),
+					] );
+					const station = verifiedJc.ps[ sid ];
+					if ( !station || station[ 0 ] !== 0 || station[ 1 ] !== 0 || station[ 2 ] !== 0 ||
+						verifiedStatus.sn[ sid ] !== 0 || !stationOutputIsClear( verifiedJc, sid ) ) {
+						throw new Error( `The controller did not confirm that station ${ sid + 1 } stopped.` );
+					}
+					data = { ...data, jc: verifiedJc };
+					return `Station ${ sid + 1 } stopped.`;
+				}
+				case "rain-delay": {
+					const response = deps.ctx.prompt( "Rain delay in hours (0 to cancel):", "6" );
+					if ( response === null ) return null;
+					const rawHours = response.trim();
+					if ( rawHours === "" ) throw new Error( "Enter a positive whole number of hours, or 0 to cancel." );
+					const hours = Number( rawHours );
+					if ( !Number.isSafeInteger( hours ) || hours < 0 || hours > 8760 ) {
+						throw new Error( "Enter a whole number of hours from 1 to 8760, or 0 to cancel." );
+					}
+					const fresh = await deps.api.getControllerStatus( signal );
+					if ( fresh.rd !== source.jc.rd || fresh.rdst !== source.jc.rdst ) {
+						throw new Error( "Rain-delay state changed on the controller. Refresh before retrying." );
+					}
+					if ( hours === 0 ) await deps.api.cancelRainDelay( signal );
+					else await deps.api.setRainDelayHours( hours, signal );
+					const verified = await deps.api.getControllerStatus( signal );
+					if ( hours === 0 ) {
+						if ( verified.rd !== 0 || verified.rdst !== 0 ) {
+							throw new Error( "The controller did not confirm that the rain delay was cancelled." );
+						}
+					} else {
+						const minimumStop = fresh.devt + hours * 3600;
+						const maximumStop = verified.devt + hours * 3600;
+						if ( verified.rd !== 1 || verified.rdst < minimumStop || verified.rdst > maximumStop ) {
+							throw new Error( "The controller did not return the requested rain-delay window." );
+						}
+					}
+					data = { ...data, jc: verified };
+					return hours === 0 ? "Rain delay cancelled." : `Rain delay set to ${ hours }h.`;
+				}
+				case "cancel-rain": {
+					await deps.api.getControllerStatus( signal );
+					await deps.api.cancelRainDelay( signal );
+					const verified = await deps.api.getControllerStatus( signal );
+					if ( verified.rd !== 0 || verified.rdst !== 0 ) {
+						throw new Error( "The controller did not confirm that the rain delay was cancelled." );
+					}
+					data = { ...data, jc: verified };
+					return "Rain delay cancelled.";
+				}
+				case "toggle-enable": {
+					if ( ds.enabled !== "0" && ds.enabled !== "1" ) throw new Error( "Invalid controller state." );
+					const renderedEnabled = source.jc.en;
+					if ( Number( ds.enabled ) !== renderedEnabled ) throw new Error( "Controller state changed. Refresh before retrying." );
+					const enabled = renderedEnabled !== 1;
+					if ( !deps.ctx.confirm( enabled
+						? "Enable the controller? Scheduled watering may start automatically."
+						: "Disable the controller? Automatic watering will stop until it is enabled again." ) ) return null;
+					const fresh = await deps.api.getControllerStatus( signal );
+					if ( fresh.en !== renderedEnabled ) throw new Error( "Controller state changed. Refresh before retrying." );
+					await deps.api.setControllerEnabled( enabled, signal );
+					const verified = await deps.api.getControllerStatus( signal );
+					if ( verified.en !== ( enabled ? 1 : 0 ) ) {
+						throw new Error( "The controller did not return the requested enabled state." );
+					}
+					data = { ...data, jc: verified };
+					return enabled ? "Controller enabled." : "Controller disabled.";
+				}
+				case "clear-ocs": {
+					if ( source.jc.ocs === 0 ) throw new Error( "There is no overcurrent alert to clear." );
+					const fresh = await deps.api.getControllerStatus( signal );
+					if ( fresh.ocs !== source.jc.ocs ) throw new Error( "The overcurrent state changed. Refresh before retrying." );
+					await deps.api.clearOvercurrent( signal );
+					const verified = await deps.api.getControllerStatus( signal );
+					if ( verified.ocs !== 0 ) throw new Error( "The controller did not confirm that the overcurrent alert cleared." );
+					data = { ...data, jc: verified };
+					return "Overcurrent alert cleared.";
+				}
+				case "program-toggle": {
+					const pid = requireActionIndex( ds.pid, "program" );
+					const renderedProgram = source.jp.pd[ pid ];
+					if ( !renderedProgram || ( ds.enabled !== "0" && ds.enabled !== "1" ) ||
+						Number( ds.enabled ) !== ( renderedProgram[ 0 ] & 1 ) ) throw new Error( "Invalid program state." );
+					const enabled = ( renderedProgram[ 0 ] & 1 ) === 0;
+					const programName = renderedProgram[ 5 ] || `Program ${ pid + 1 }`;
+					if ( !deps.ctx.confirm( enabled
+						? `Enable “${ programName }”? It may run at its next scheduled time.`
+						: `Disable “${ programName }”? It will not run on schedule until re-enabled.` ) ) return null;
+					const fresh = await readProgramsWithClock( signal, true );
+					if ( !sameProgramCollectionAtControllerDays(
+						fresh.jp, fresh.day, source.jp, controllerDay( source.jc.devt ),
+					) ) throw new Error( "Programs changed on the controller. Refresh before retrying." );
+					await deps.api.setProgramEnabled( pid, fresh.jp.pd[ pid ]!, enabled, signal );
+					const expected = { ...fresh.jp, pd: fresh.jp.pd.map( ( program, index ) =>
+						index === pid ? withProgramEnabled( program, enabled ) : cloneProgram( program ) ) };
+					const verified = await readProgramsWithClock( signal, true );
+					if ( !sameProgramCollectionAtControllerDays( verified.jp, verified.day, expected, fresh.day ) ) {
+						throw new Error( "The controller did not return the exact requested program state." );
+					}
+					data = { ...data, jc: verified.jc, jp: verified.jp };
+					return enabled ? "Program enabled." : "Program disabled.";
+				}
+				case "program-delete": {
+					const pid = requireActionIndex( ds.pid, "program" );
+					if ( !source.jp.pd[ pid ] ) throw new Error( "Invalid program." );
+					if ( !deps.ctx.confirm( "Delete this program?" ) ) return null;
+					const fresh = await readProgramsWithClock( signal, true );
+					if ( !sameProgramCollectionAtControllerDays(
+						fresh.jp, fresh.day, source.jp, controllerDay( source.jc.devt ),
+					) ) throw new Error( "Programs changed on the controller. Refresh before retrying." );
+					await deps.api.deleteProgram( pid, signal );
+					const expected = {
+						...fresh.jp, nprogs: fresh.jp.nprogs - 1,
+						pd: fresh.jp.pd.filter( ( _program, index ) => index !== pid ).map( cloneProgram ),
+					};
+					const verified = await readProgramsWithClock( signal, true );
+					if ( !sameProgramCollectionAtControllerDays( verified.jp, verified.day, expected, fresh.day ) ) {
+						throw new Error( "The controller did not return the exact program list after deletion." );
+					}
+					data = { ...data, jc: verified.jc, jp: verified.jp };
+					return "Program deleted.";
+				}
+				default:
+					throw new Error( mutationLockedMessage() );
+			}
+		} );
+	}
+
+	async function exportConfiguration(): Promise<void> {
+		if ( disposed || mutationInFlight || !data ) return;
+		mutationInFlight = true;
+		applyInteractionState();
+		try {
+			const delivery = await deliverConfigurationExport( data );
+			if ( !disposed ) deps.toast( delivery === "shared"
+				? "Configuration shared." : "Configuration export downloaded." );
+		} catch ( error ) {
+			if ( !disposed ) deps.toast( `Configuration export failed: ${ String( error ) }`, true );
+		} finally {
+			mutationInFlight = false;
+			if ( !disposed ) applyInteractionState();
+		}
 	}
 
 	function showProgramEditor( pid: number, program: OSProgram, sourceDay: number ): void {
@@ -570,71 +1088,120 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 		if ( !data ) return;
 		const kind = form.dataset.settings;
 		const v = readForm( form );
+		const dirtyFields = changedFormFields( snapshotFormValues( form ), renderedSettingsValues );
 		const count = parseInt( form.dataset.count ?? "0", 10 );
-		await withMutation( async ( signal ) => {
+		const permission = settingsPermission( kind, form.dataset.pid !== "-1" );
+		if ( permission === null ) {
+			deps.toast( mutationLockedMessage(), true );
+			return;
+		}
+		// Automatic polling intentionally leaves a settings form in place. Always transact against
+		// the snapshot that produced this DOM, not a newer background `data` object.
+		const source = renderedSettingsSource ?? data;
+		await withMutation( permission, async ( signal ) => {
 			if ( !data ) return null;
-			const fwvCombined = data.jo.fwv * 10 + ( data.jo.fwm || 0 );
+			const fwvCombined = source.jo.fwv * 10 + ( source.jo.fwm || 0 );
 			let msg = "Settings saved.";
 			switch ( kind ) {
-				case "general": await deps.api.submitOptions( buildGeneralOptions(
-					v, fwvCombined, !isTimezoneAutoManaged( data.jc.loc ),
-				), signal ); break;
-				case "weather": await deps.api.submitOptions( buildWeatherOptions( v, ( data.jc.wto ?? {} ) as Record<string, unknown>, fwvCombined ), signal ); break;
-				case "network": await deps.api.submitOptions( buildNetworkOptions( v ), signal ); break;
-				case "stations": await deps.api.submitStations( buildStationConfig( v, count, data.jo.fwv, data.jn.maxlen ), signal ); break;
+				case "general": {
+					const changed = await verifyOptionsMutation( buildGeneralOptions(
+						v, fwvCombined, !isTimezoneAutoManaged( source.jc.loc ),
+					), dirtyFields, source, "general", signal );
+					msg = changed ? "Settings saved." : "No settings changed.";
+					break;
+				}
+				case "weather": {
+					const changed = await verifyOptionsMutation( buildWeatherOptions(
+						v, ( source.jc.wto ?? {} ) as Record<string, unknown>, fwvCombined,
+					), dirtyFields, source, "weather", signal );
+					msg = changed ? "Settings saved." : "No settings changed.";
+					break;
+				}
+				case "network":
+					throw new Error( "Network writes remain locked until the app can reconnect and verify the controller at its new address." );
+				case "stations": {
+					const changed = await verifyStationsMutation( buildStationConfig(
+						v, count, source.jo.fwv, source.jn.maxlen,
+					), dirtyFields, source, signal );
+					msg = changed ? "Station settings saved." : "No station settings changed.";
+					break;
+				}
 				case "program": {
 					if ( count !== data.jn.snames.length ) {
 						throw new Error( "Station configuration changed while this program was open. Keep the draft, or Cancel and reopen it." );
 					}
-					const input = buildProgramInput( v, count, fwvCombined, data.jp.pnsize );
+					const input = buildProgramInput( v, count, fwvCombined, source.jp.pnsize );
 					if ( programEditor ) {
 						const formPid = selectedProgramIndex( form.dataset.pid );
 						if ( formPid !== programEditor.pid ) throw new Error( "Invalid program selected for editing." );
-						const source = programEditor.source;
+						const sourceProgram = programEditor.source;
 						// `/cp` initializes omitted date bounds to the firmware defaults, even while the range is
 						// disabled. Send the stored bounds explicitly so a name-only edit remains bit-for-bit safe.
 						if ( !input.dateRange ) input.dateRange = {
-							enable: false, from: source[ 6 ][ 1 ], to: source[ 6 ][ 2 ],
+							enable: false, from: sourceProgram[ 6 ][ 1 ], to: sourceProgram[ 6 ][ 2 ],
 						};
-						const intervalClock = ( ( source[ 0 ] >> 4 ) & 0x03 ) === 3 || input.schedule.type === "interval";
+						const intervalClock = ( ( sourceProgram[ 0 ] >> 4 ) & 0x03 ) === 3 || input.schedule.type === "interval";
 						const fresh = await readProgramsWithClock( signal, intervalClock );
 						const freshProgram = fresh.jp.pd[ formPid ];
+						if ( !sameProgramCollectionAtControllerDays(
+							fresh.jp, fresh.day, source.jp, controllerDay( source.jc.devt ),
+						) ) {
+							data = { ...data, jc: fresh.jc, jp: fresh.jp };
+							throw new Error( "Programs changed on the controller. Keep this draft, or Cancel to review the latest list." );
+						}
 						if ( !sameProgramTupleAtControllerDays(
-							freshProgram, fresh.day, source, programEditor.sourceControllerDay,
+							freshProgram, fresh.day, sourceProgram, programEditor.sourceControllerDay,
 						) ) {
 							data = { ...data, jc: fresh.jc, jp: fresh.jp };
 							throw new Error( "This schedule changed on the controller. Keep this draft, or Cancel to review the latest version." );
 						}
 						// If an unchanged interval editor crossed midnight, submit the controller's current
 						// relative remainder instead of shifting the schedule by resending yesterday's value.
-						if ( ( ( source[ 0 ] >> 4 ) & 0x03 ) === 3 && input.schedule.type === "interval" &&
-							input.schedule.intervalDays === source[ 2 ] && input.schedule.startingInDays === source[ 1 ] ) {
+						if ( ( ( sourceProgram[ 0 ] >> 4 ) & 0x03 ) === 3 && input.schedule.type === "interval" &&
+							input.schedule.intervalDays === sourceProgram[ 2 ] && input.schedule.startingInDays === sourceProgram[ 1 ] ) {
 							input.schedule.startingInDays = freshProgram![ 1 ];
 						}
 						if ( input.schedule.type === "interval" && controllerSecondsOfDay( fresh.jc.devt ) >= 86400 - 120 ) {
 							throw new Error( "The controller day is about to change. Keep this draft and retry in a couple of minutes." );
 						}
 						await deps.api.submitProgram( formPid, input, signal );
+						const expected = {
+							...fresh.jp, pd: fresh.jp.pd.map( ( program, pid ) => pid === formPid
+								? expectedProgramTuple( input, sourceProgram ) : cloneProgram( program ) ),
+						};
 						const verified = await readProgramsWithClock( signal, intervalClock );
-						const saved = verified.jp.pd[ formPid ];
-						if ( !sameProgramTupleAtControllerDays(
-							saved, verified.day, expectedProgramTuple( input, source ), fresh.day,
-						) ) {
+						if ( !sameProgramCollectionAtControllerDays( verified.jp, verified.day, expected, fresh.day ) ) {
 							data = { ...data, jc: verified.jc, jp: verified.jp };
 							throw new Error( "The program was sent, but the controller did not return the saved changes. Review it before retrying." );
 						}
+						const saved = verified.jp.pd[ formPid ];
 						programEditor = { pid: formPid, source: cloneProgram( saved! ), sourceControllerDay: verified.day };
 						programDraftDirty = false;
+						data = { ...data, jc: verified.jc, jp: verified.jp };
 						msg = "Program updated.";
 					} else {
 						if ( form.dataset.pid !== "-1" ) throw new Error( "Invalid new-program form." );
-						if ( input.schedule.type === "interval" ) {
-							const current = await deps.api.getControllerStatus( signal );
-							if ( controllerSecondsOfDay( current.devt ) >= 86400 - 120 ) {
-								throw new Error( "The controller day is about to change. Keep this draft and retry in a couple of minutes." );
-							}
+						if ( !input.dateRange ) input.dateRange = { enable: false, from: 33, to: 415 };
+						const fresh = await readProgramsWithClock( signal, true );
+						if ( !sameProgramCollectionAtControllerDays(
+							fresh.jp, fresh.day, source.jp, controllerDay( source.jc.devt ),
+						) ) throw new Error( "Programs changed on the controller. Keep this draft and refresh before creating it." );
+						if ( fresh.jp.nprogs >= fresh.jp.mnp ) throw new Error( "The controller program limit has been reached." );
+						if ( input.schedule.type === "interval" && controllerSecondsOfDay( fresh.jc.devt ) >= 86400 - 120 ) {
+							throw new Error( "The controller day is about to change. Keep this draft and retry in a couple of minutes." );
 						}
 						await deps.api.submitProgram( -1, input, signal );
+						const emptySource: OSProgram = [ 0, 0, 0, [], [], "", [ 0, 33, 415 ] ];
+						const expected = {
+							...fresh.jp, nprogs: fresh.jp.nprogs + 1,
+							pd: [ ...fresh.jp.pd.map( cloneProgram ), expectedProgramTuple( input, emptySource ) ],
+						};
+						const verified = await readProgramsWithClock( signal, true );
+						if ( !sameProgramCollectionAtControllerDays( verified.jp, verified.day, expected, fresh.day ) ) {
+							data = { ...data, jc: verified.jc, jp: verified.jp };
+							throw new Error( "The program was sent, but the controller did not return the exact created program. Review it before retrying." );
+						}
+						data = { ...data, jc: verified.jc, jp: verified.jp };
 						programDraftDirty = false;
 						msg = "Program created.";
 					}
@@ -669,12 +1236,14 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 		const action = target.closest<HTMLButtonElement>( "[data-action]" );
 		if ( action?.dataset.action ) {
 			if ( action.dataset.action === "retry" ) { void refresh(); return; }
-			if ( mutationInFlight || interactionsAreBlocked() ) return;
+			if ( action.dataset.action === "config-export" ) { void exportConfiguration(); return; }
 			if ( action.dataset.action === "program-new" ) {
+				if ( mutationInFlight ) return;
 				programEditor = null; programDraftDirty = false;
 				focusAfterPaint = '[name="name"]'; activeTab = "Settings"; settingsSection = "Programs"; paint(); return;
 			}
 			if ( action.dataset.action === "program-edit" ) {
+				if ( mutationInFlight ) return;
 				const pid = selectedProgramIndex( action.dataset.pid );
 				const program = pid === null ? undefined : data?.jp.pd[ pid ];
 				if ( pid === null || !program ) { deps.toast( "Invalid program.", true ); return; }
@@ -684,12 +1253,19 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 				void beginProgramEdit( pid, program ); return;
 			}
 			if ( action.dataset.action === "program-cancel" ) {
+				if ( mutationInFlight ) return;
 				if ( !discardProgramDraft() ) return;
 				const pid = programEditor?.pid;
 				programEditor = null; programDraftDirty = false;
 				focusAfterPaint = pid === undefined ? '[data-action="program-new"]' :
 					`[data-action="program-edit"][data-pid="${ pid }"]`;
 				activeTab = "Programs"; paint(); return;
+			}
+			if ( mutationInFlight || ( interactionsAreBlocked() &&
+				!EMERGENCY_ACTIONS.has( action.dataset.action ) ) ) return;
+			if ( !actionAllowed( action.dataset.action ) ) {
+				deps.toast( mutationLockedMessage(), true );
+				return;
 			}
 			// "save-*" submit buttons are handled by the form submit listener.
 			if ( action.type !== "submit" ) void runAction( { ...action.dataset } );
@@ -701,6 +1277,11 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 		if ( !form ) return;
 		ev.preventDefault();
 		if ( mutationInFlight || interactionsAreBlocked() ) return;
+		const permission = settingsPermission( form.dataset.settings, form.dataset.pid !== "-1" );
+		if ( !permissionGranted( permission ) ) {
+			deps.toast( mutationLockedMessage(), true );
+			return;
+		}
 		void saveSettings( form );
 	}
 
