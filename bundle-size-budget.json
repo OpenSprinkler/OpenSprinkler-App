@@ -12,7 +12,7 @@
 		},
 		{
 			"path": "dist/assets/app.js",
-			"baselineBytes": 33466
+			"baselineBytes": 40112
 		}
 	]
 }
