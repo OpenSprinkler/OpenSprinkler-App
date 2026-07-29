@@ -12,7 +12,8 @@
  */
 import type {
 	JcResponse, JoResponse, JnResponse, JpResponse, JlResponse, JlRow,
-	JlStationRow, JsResponse, Capabilities, OSProgram,
+	JlStationRow, JsResponse, JeResponse, SpecialStationType, JaResponse,
+	JaBootstrapResponse, Capabilities, OSProgram,
 } from "./types";
 import type { DeviceSeam } from "../seam/device";
 import {
@@ -89,6 +90,8 @@ const MAX_BOARD_COUNT = 25;
 const MAX_CONFIGURED_STATION_COUNT = MAX_BOARD_COUNT * 8;
 const MAX_WIRE_STATION_COUNT = 255;
 const MAX_MULTI_DAY_LEVELS = 14;
+// `sped` is a 276-byte C buffer in the grounded 2.2.1(4) producer; reserve one byte for NUL.
+const MAX_SPECIAL_STATION_DEFINITION_BYTES = 275;
 
 function requireUnixTimestamp( value: unknown, endpoint: string, label: string ): number {
 	if ( typeof value !== "number" || !Number.isSafeInteger( value ) || value < 0 || value > MAX_UNIX_SECONDS ) {
@@ -209,7 +212,8 @@ export function parseJo( raw: unknown ): JoResponse {
 
 /** /jo can arrive as a pre-auth fallback `{fwv}` when the password check fails. */
 export function isPreAuthFallback( jo: Partial<JoResponse> ): boolean {
-	return typeof jo.fwv === "number" && Object.keys( jo ).length <= 2;
+	return typeof jo.fwv === "number" && Number.isSafeInteger( jo.fwv ) && jo.fwv > 0 &&
+		Object.keys( jo ).length === 1 && Object.prototype.hasOwnProperty.call( jo, "fwv" );
 }
 
 export function parseJn( raw: unknown ): JnResponse {
@@ -237,6 +241,50 @@ export function parseJn( raw: unknown ): JnResponse {
 		throw new ApiError( "malformed station groups", "/jn", groups );
 	}
 	return o as unknown as JnResponse;
+}
+
+/**
+ * Parse `/je` while keeping every `sd` definition opaque. Unknown entry properties are ignored,
+ * and errors identify only the station/field — they never echo a definition that may contain an
+ * address, command, or OTC token.
+ */
+export function parseJe( raw: unknown ): JeResponse {
+	if ( typeof raw !== "object" || raw === null || Array.isArray( raw ) ) {
+		throw new ApiError( "expected a station-definition object", "/je" );
+	}
+	const prototype = Object.getPrototypeOf( raw );
+	if ( prototype !== Object.prototype && prototype !== null ) {
+		throw new ApiError( "expected a plain station-definition object", "/je" );
+	}
+
+	const parsed: JeResponse = {};
+	for ( const [ stationKey, value ] of Object.entries( raw as Record<string, unknown> ) ) {
+		if ( !/^(0|[1-9]\d*)$/.test( stationKey ) ) {
+			throw new ApiError( "malformed special-station id", "/je" );
+		}
+		const stationId = Number( stationKey );
+		if ( !Number.isSafeInteger( stationId ) || stationId >= MAX_CONFIGURED_STATION_COUNT ) {
+			throw new ApiError( "special-station id is outside the supported station range", "/je" );
+		}
+		if ( typeof value !== "object" || value === null || Array.isArray( value ) ) {
+			throw new ApiError( `malformed special-station entry '${ stationKey }'`, "/je" );
+		}
+		const entryPrototype = Object.getPrototypeOf( value );
+		if ( entryPrototype !== Object.prototype && entryPrototype !== null ) {
+			throw new ApiError( `malformed special-station entry '${ stationKey }'`, "/je" );
+		}
+		const entry = value as Record<string, unknown>;
+		const stationType = requireIntegerInRange( entry.st, 0, 6, "/je", `special-station type for '${ stationKey }'` );
+		if ( typeof entry.sd !== "string" ) {
+			throw new ApiError( `malformed special-station definition for '${ stationKey }'`, "/je" );
+		}
+		if ( new TextEncoder().encode( entry.sd ).length > MAX_SPECIAL_STATION_DEFINITION_BYTES ) {
+			throw new ApiError( `special-station definition for '${ stationKey }' exceeds the firmware limit`, "/je" );
+		}
+		// Normalize away unknown producer fields so only the two grounded wire fields leave this layer.
+		parsed[ stationKey ] = { st: stationType as SpecialStationType, sd: entry.sd };
+	}
+	return parsed;
 }
 
 export function parseJp( raw: unknown ): JpResponse {
@@ -330,6 +378,63 @@ export function parseJs( raw: unknown ): JsResponse {
 	return o as unknown as JsResponse;
 }
 
+function versionOnlyResponse( raw: unknown ): { fwv: number } | undefined {
+	if ( typeof raw !== "object" || raw === null || Array.isArray( raw ) ) return undefined;
+	const o = raw as Record<string, unknown>;
+	const keys = Object.keys( o );
+	return keys.length === 1 && keys[ 0 ] === "fwv" && typeof o.fwv === "number" &&
+		Number.isSafeInteger( o.fwv ) && o.fwv > 0 ? { fwv: o.fwv } : undefined;
+}
+
+/** Parse an authenticated `/ja` aggregate; a version-only auth fallback is never accepted. */
+export function parseJa( raw: unknown ): JaResponse {
+	if ( versionOnlyResponse( raw ) ) throw new ApiError( "authentication required or failed", "/ja" );
+	if ( typeof raw !== "object" || raw === null || Array.isArray( raw ) ) {
+		throw new ApiError( "expected an aggregate object", "/ja" );
+	}
+	const prototype = Object.getPrototypeOf( raw );
+	if ( prototype !== Object.prototype && prototype !== null ) {
+		throw new ApiError( "expected a plain aggregate object", "/ja" );
+	}
+	const o = raw as Record<string, unknown>;
+	let settings: JcResponse;
+	let programs: JpResponse;
+	let options: JoResponse;
+	let status: JsResponse;
+	let stations: JnResponse;
+	try {
+		settings = parseJc( o.settings );
+		programs = parseJp( o.programs );
+		options = parseJo( o.options );
+		status = parseJs( o.status );
+		stations = parseJn( o.stations );
+	} catch ( error ) {
+		if ( error instanceof ApiError ) throw new ApiError( `malformed aggregate section: ${ error.message }`, "/ja" );
+		throw error;
+	}
+
+	// `/ja` success must contain full options. In particular, `wl` is absent from the firmware's
+	// HTTP-200 authentication-failure fallback, while `fwm` is required for the modern support gate.
+	if ( typeof options.fwm !== "number" || !Number.isSafeInteger( options.fwm ) ||
+		typeof options.wl !== "number" || !Number.isSafeInteger( options.wl ) ) {
+		throw new ApiError( "aggregate options are not an authenticated full response", "/ja" );
+	}
+	const stationCount = stations.snames.length;
+	if ( settings.nbrd * 8 !== stationCount || programs.nboards * 8 !== stationCount ||
+		status.nstations !== stationCount ) {
+		throw new ApiError( "aggregate station counts do not agree", "/ja" );
+	}
+	return { settings, programs, options, status, stations };
+}
+
+/** Parse `/ja` without conflating its HTTP-200 `{fwv}` auth fallback with aggregate success. */
+export function parseJaBootstrap( raw: unknown ): JaBootstrapResponse {
+	const fallback = versionOnlyResponse( raw );
+	return fallback
+		? { kind: "version-only", fwv: fallback.fwv }
+		: { kind: "authenticated", data: parseJa( raw ) };
+}
+
 /**
  * Fork build-tag suffix for the version string (e.g. " +kars85.3"). The kars85 firmware fork
  * emits `fwf` as a string in /jo; official firmware omits it, so the suffix is guarded to "".
@@ -368,7 +473,10 @@ export class OsApiClient {
 	getControllerStatus( signal?: AbortSignal ): Promise<JcResponse> { return this.get( "jc", parseJc, signal ); }
 	getOptions( signal?: AbortSignal ): Promise<JoResponse> { return this.get( "jo", parseJo, signal ); }
 	getStations( signal?: AbortSignal ): Promise<JnResponse> { return this.get( "jn", parseJn, signal ); }
+	getSpecialStations( signal?: AbortSignal ): Promise<JeResponse> { return this.get( "je", parseJe, signal ); }
 	getPrograms( signal?: AbortSignal ): Promise<JpResponse> { return this.get( "jp", parseJp, signal ); }
+	getAll( signal?: AbortSignal ): Promise<JaResponse> { return this.get( "ja", parseJa, signal ); }
+	getAllBootstrap( signal?: AbortSignal ): Promise<JaBootstrapResponse> { return this.get( "ja", parseJaBootstrap, signal ); }
 	/**
 	 * Fetch the log history. The firmware /jl REQUIRES a start/end epoch range — without it it returns
 	 * `{result:16}` (data missing), NOT an array (verified on real hardware). `end` must be an explicit

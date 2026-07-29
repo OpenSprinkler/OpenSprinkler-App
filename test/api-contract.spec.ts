@@ -13,9 +13,10 @@ import { fileURLToPath } from "node:url";
 import { describe, it, expect } from "vitest";
 
 import {
-	parseJc, parseJo, parseJn, parseJp, parseJl, parseJs,
+	parseJc, parseJo, parseJn, parseJe, parseJp, parseJl, parseJs, parseJa, parseJaBootstrap,
 	deriveCapabilities, isStationLogRow, isPreAuthFallback, ApiError,
 } from "../www/src/api/client";
+import { modernPreflightPolicy } from "../www/src/auth/support";
 
 function fixture( name: string ): unknown {
 	const url = new URL( `./fixtures/api/${ name }.fixture.json`, import.meta.url );
@@ -154,6 +155,40 @@ describe( "/jn stations", () => {
 		longName.maxlen = 4;
 		longName.snames[ 0 ] = "💧💧";
 		expect( () => parseJn( longName ) ).toThrow( /maxlen/i );
+	} );
+} );
+
+describe( "/je special stations", () => {
+	it( "normalizes the station-id map and preserves only the grounded type/opaque definition fields", () => {
+		const raw = fixture( "je" ) as Record<string, Record<string, unknown>>;
+		raw[ "0" ]!.future = "ignored";
+		const special = parseJe( raw );
+		expect( Object.keys( special ) ).toEqual( [ "0", "1", "2", "3" ] );
+		expect( special[ "0" ] ).toEqual( { st: 2, sd: "c0a80093005002" } );
+		expect( special[ "0" ] ).not.toHaveProperty( "future" );
+		expect( parseJe( {} ) ).toEqual( {} );
+	} );
+
+	it( "rejects arrays, malformed station ids, entry types, and overlong definitions", () => {
+		for ( const raw of [
+			[],
+			{ "01": { st: 1, sd: "code" } },
+			{ "200": { st: 1, sd: "code" } },
+			{ "0": [] },
+			{ "0": { st: 1.5, sd: "code" } },
+			{ "0": { st: 7, sd: "code" } },
+			{ "0": { st: 1, sd: [ "code" ] } },
+			{ "0": { st: 4, sd: "x".repeat( 276 ) } },
+		] ) expect( () => parseJe( raw ) ).toThrow( ApiError );
+	} );
+
+	it( "never copies an opaque definition into parser errors", () => {
+		const definition = "OT-super-secret-controller-token";
+		let error: unknown;
+		try { parseJe( { "0": { st: 99, sd: definition } } ); }
+		catch ( caught ) { error = caught; }
+		expect( error ).toBeInstanceOf( ApiError );
+		expect( String( error ) ).not.toContain( definition );
 	} );
 } );
 
@@ -307,6 +342,55 @@ describe( "/js status", () => {
 			{ sn: [ 0, 2 ], nstations: 2 },
 			{ sn: [ 0 ], nstations: 1.5 },
 		] ) expect( () => parseJs( raw ) ).toThrow( ApiError );
+	} );
+} );
+
+describe( "/ja aggregate and auth bootstrap", () => {
+	function aggregate(): Record<string, unknown> {
+		return {
+			settings: fixture( "jc" ), programs: fixture( "jp" ), options: fixture( "jo" ),
+			status: fixture( "js" ), stations: fixture( "jn" ),
+		};
+	}
+
+	it( "validates and returns the five firmware-defined aggregate sections", () => {
+		const all = parseJa( aggregate() );
+		expect( all.options.fwv ).toBe( 221 );
+		expect( all.settings.nbrd ).toBe( all.programs.nboards );
+		expect( all.status.nstations ).toBe( all.stations.snames.length );
+	} );
+
+	it( "keeps the exact HTTP-200 version-only auth fallback distinct from success", () => {
+		expect( parseJaBootstrap( { fwv: 221 } ) ).toEqual( { kind: "version-only", fwv: 221 } );
+		expect( parseJaBootstrap( aggregate() ).kind ).toBe( "authenticated" );
+		expect( () => parseJa( { fwv: 221 } ) ).toThrow( /authentication required or failed/i );
+	} );
+
+	it( "routes /ja string/below-floor versions to Unsupported before auth and plausible versions to hash auth", () => {
+		expect( modernPreflightPolicy( "1.9.0-OSPi" ) ).toBe( "unsupported" );
+		for ( const fwv of [ 220, 221 ] ) {
+			const result = parseJaBootstrap( { fwv } );
+			expect( result.kind ).toBe( "version-only" );
+			if ( result.kind === "version-only" ) {
+				expect( modernPreflightPolicy( result.fwv ) ).toBe( fwv < 221 ? "unsupported" : "hash-authentication" );
+			}
+		}
+	} );
+
+	it( "rejects partial aggregates and cross-section station-count drift", () => {
+		const partial = aggregate();
+		delete partial.status;
+		expect( () => parseJa( partial ) ).toThrow( /aggregate section/i );
+
+		const drift = aggregate() as { status: { sn: number[]; nstations: number } };
+		drift.status = { sn: Array( 16 ).fill( 0 ), nstations: 16 };
+		expect( () => parseJa( drift ) ).toThrow( /station counts do not agree/i );
+	} );
+
+	it( "does not accept a nested version-only /jo fallback as aggregate success", () => {
+		const raw = aggregate();
+		raw.options = { fwv: 221 };
+		expect( () => parseJa( raw ) ).toThrow( /not an authenticated full response/i );
 	} );
 } );
 

@@ -94,6 +94,25 @@ describe( "pre-auth bootstrap probe", () => {
 	} );
 } );
 
+describe( "special-station and aggregate reads", () => {
+	it( "routes /je through its parser and /ja through the version-only bootstrap discriminator", async () => {
+		let path = "";
+		const seam = {
+			config: { baseUrl: "http://d/" },
+			async requestJson( requested: string ) {
+				path = requested;
+				return requested === "je" ? { "0": { st: 1, sd: "0000000000000000" } } : { fwv: 221 };
+			},
+			async runCommand() { return { result: 1 }; },
+		} as DeviceSeam;
+		const api = new OsApiClient( seam );
+		await expect( api.getSpecialStations() ).resolves.toEqual( { "0": { st: 1, sd: "0000000000000000" } } );
+		expect( path ).toBe( "je" );
+		await expect( api.getAllBootstrap() ).resolves.toEqual( { kind: "version-only", fwv: 221 } );
+		expect( path ).toBe( "ja" );
+	} );
+} );
+
 describe( "command result handling", () => {
 	it( "throws CommandError with the firmware code on non-success", async () => {
 		const seam = new MockSeam();

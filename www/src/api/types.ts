@@ -83,6 +83,22 @@ export interface JnResponse {
 	maxlen: number;
 }
 
+/** Firmware-defined `/je.st` values (OpenSprinkler 2.2.1(4) API, station types 0–6). */
+export type SpecialStationType = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+
+/**
+ * One `/je` special-station entry. `sd` is an opaque controller definition used for
+ * configuration round trips. It can contain controller addresses, commands, or an OTC token;
+ * consumer UI must derive homeowner-facing copy from `st` and must never render `sd`.
+ */
+export interface SpecialStationDefinition {
+	st: SpecialStationType;
+	sd: string;
+}
+
+/** `/je` — special station definitions keyed by the decimal, zero-based station id. */
+export type JeResponse = Record<string, SpecialStationDefinition>;
+
 /** /jp program tuple: [flags, days0, days1, starttimes[4], durations[nstations], name, daterange[3]]. */
 export type OSProgram = [
 	flags: number,
@@ -108,6 +124,23 @@ export type JlResponse = JlRow[];
 
 /** /js — per-station on/off status. */
 export interface JsResponse { sn: number[]; nstations: number; }
+
+/** `/ja` — authenticated aggregate of the five read contracts emitted by the firmware. */
+export interface JaResponse {
+	settings: JcResponse;
+	programs: JpResponse;
+	options: JoResponse;
+	status: JsResponse;
+	stations: JnResponse;
+}
+
+/**
+ * Safe result of parsing `/ja` at an authentication boundary. Firmware deliberately returns
+ * only `{fwv}` when authentication fails, so that shape is kept distinct from aggregate data.
+ */
+export type JaBootstrapResponse =
+	| { kind: "version-only"; fwv: number }
+	| { kind: "authenticated"; data: JaResponse };
 
 /** Derived capability flags (fwv matrix, PRD §5). */
 export interface Capabilities {
