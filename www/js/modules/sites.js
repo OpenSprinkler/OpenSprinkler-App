@@ -1134,12 +1134,12 @@ OSApp.Sites.updateController = function( callback, fail ) {
 			fail( error );
 		}
 	};
-	var allowOptionalSensorFailure = function( request, clearUnavailableData ) {
+	var allowMissingSensorEndpoint = function( request, clearUnavailableData ) {
 		var optionalRequest = $.Deferred();
 		request.then( function( data ) {
 			optionalRequest.resolve( data );
 		}, function( error ) {
-			if ( OSApp.Sites.isStaleControllerRefresh( error ) ) {
+			if ( !error || error.status !== 404 ) {
 				optionalRequest.reject( error );
 				return;
 			}
@@ -1180,7 +1180,7 @@ OSApp.Sites.updateController = function( callback, fail ) {
 			// the larger sensor-description schema on /jsd. Prime that schema on
 			// first load so unit labels and sensor controls are immediately ready.
 			if ( Array.isArray( controller.sensors?.sn ) && typeof controller.sensor_desc === "undefined" ) {
-				allowOptionalSensorFailure(
+				allowMissingSensorEndpoint(
 					OSApp.Sites.updateControllerSensorDescription( undefined, context ),
 					function() { controller.sensor_desc = null; }
 				).then( finish, failCurrent );
@@ -1201,11 +1201,11 @@ OSApp.Sites.updateController = function( callback, fail ) {
 			}
 			if ( OSApp.Supported.legacySensorEndpoints( controller ) ) {
 				$.when(
-					allowOptionalSensorFailure(
+					allowMissingSensorEndpoint(
 						OSApp.Sites.updateControllerSensors( undefined, context ),
 						function() { delete controller.sensors; }
 					),
-					allowOptionalSensorFailure(
+					allowMissingSensorEndpoint(
 						OSApp.Sites.updateControllerSensorDescription( undefined, context ),
 						function() { controller.sensor_desc = null; }
 					),

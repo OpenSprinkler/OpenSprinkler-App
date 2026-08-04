@@ -312,6 +312,46 @@ describe("Site Refresh Checks", function () {
 		});
 	});
 
+	[
+		{ name: "authentication", error: { status: 401 } },
+		{ name: "server", error: { status: 500 } },
+		{ name: "timeout", error: { status: 0, statusText: "timeout" } }
+	].forEach(function (testCase) {
+		it("should propagate " + testCase.name + " failures from the sensor description request", function () {
+			var controller = {};
+			originalSession.controller = controller;
+			sandbox.stub(originalSession, "isControllerConnected").returns(true);
+			sandbox.stub(OSApp.Firmware, "checkOSVersion").callsFake(function (version) { return version === 216; });
+			sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (path) {
+				if (path === "/ja?pw=") {
+					return resolved({
+						sensors: { sn: [ { uuid: 7, unit: 1 } ] },
+						status: { sn: [ 0 ] }
+					});
+				}
+				if (path === "/jsd?pw=") {
+					return rejected(testCase.error);
+				}
+				return rejected(new Error("Unexpected request: " + path));
+			});
+
+			return new Promise(function (resolve, reject) {
+				OSApp.Sites.updateController(function () {
+					reject(new Error("Sensor-description failure was reported as success"));
+				}, function (error) {
+					try {
+						assert.strictEqual(error, testCase.error);
+						assert.deepEqual(controller.sensors, { sn: [ { uuid: 7, unit: 1 } ] });
+						assert.isUndefined(controller.sensor_desc);
+						resolve();
+					} catch (assertionError) {
+						reject(assertionError);
+					}
+				});
+			});
+		});
+	});
+
 	it("should finish legacy loading when optional sensor endpoints are unavailable", function () {
 		var controller = {
 			sensors: { sn: [ { uuid: 7 } ] },
@@ -338,6 +378,34 @@ describe("Site Refresh Checks", function () {
 			}, function (error) {
 				fail(error);
 				reject(new Error("Optional legacy sensor endpoints failed controller loading"));
+			});
+		});
+	});
+
+	it("should propagate server failures from legacy sensor endpoints without clearing cached data", function () {
+		var sensors = { sn: [ { uuid: 7 } ] };
+		var sensorDescription = { marker: "cached-description" };
+		var controller = { sensors: sensors, sensor_desc: sensorDescription };
+		var error = { status: 500 };
+		originalSession.controller = controller;
+		sandbox.stub(originalSession, "isControllerConnected").returns(false);
+		sandbox.stub(OSApp.Firmware, "checkOSVersion").returns(true);
+		stubInitialControllerRequests();
+		sandbox.stub(OSApp.Sites, "updateControllerSensors").returns(rejected(error));
+		sandbox.stub(OSApp.Sites, "updateControllerSensorDescription").returns(rejected(error));
+
+		return new Promise(function (resolve, reject) {
+			OSApp.Sites.updateController(function () {
+				reject(new Error("Sensor endpoint failure was reported as success"));
+			}, function (failure) {
+				try {
+					assert.strictEqual(failure, error);
+					assert.strictEqual(controller.sensors, sensors);
+					assert.strictEqual(controller.sensor_desc, sensorDescription);
+					resolve();
+				} catch (assertionError) {
+					reject(assertionError);
+				}
 			});
 		});
 	});
