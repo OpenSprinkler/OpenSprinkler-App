@@ -780,6 +780,18 @@ input[type=number] {
     white-space:normal
 }
 
+.asb-compatibility-warning {
+    color: #8b1e2d;
+    font-style: italic;
+}
+
+.asb-compatibility-popup {
+    box-sizing: border-box;
+    max-width: 90vw;
+    padding: 1em;
+    width: 420px;
+}
+
 /* Home page rules */
 #footer-running {
     font-weight:400;

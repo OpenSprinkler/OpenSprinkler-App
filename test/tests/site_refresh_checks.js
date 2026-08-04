@@ -19,6 +19,10 @@ describe("Site Refresh Checks", function () {
 		return $.Deferred().resolve(value).promise();
 	}
 
+	function rejected(error) {
+		return $.Deferred().reject(error).promise();
+	}
+
 	function stubInitialControllerRequests() {
 		[
 			"updateControllerPrograms",
@@ -146,6 +150,55 @@ describe("Site Refresh Checks", function () {
 		});
 	});
 
+	it("should skip official sensor endpoints during initial loading on ASB firmware", function () {
+		originalSession.controller = { options: { feature: "ASB", fwv: 240 } };
+		sandbox.stub(originalSession, "isControllerConnected").returns(false);
+		sandbox.stub(OSApp.Firmware, "checkOSVersion").returns(true);
+		stubInitialControllerRequests();
+		var updateSensors = sandbox.spy(OSApp.Sites, "updateControllerSensors");
+		var updateDescription = sandbox.spy(OSApp.Sites, "updateControllerSensorDescription");
+
+		return new Promise(function (resolve, reject) {
+			OSApp.Sites.updateController(function () {
+				try {
+					assert.isFalse(updateSensors.called);
+					assert.isFalse(updateDescription.called);
+					assert.isFalse(OSApp.Supported.sensors());
+					resolve();
+				} catch (error) {
+					reject(error);
+				}
+			}, reject);
+		});
+	});
+
+	it("should resolve ASB sensor helpers consistently without sending requests", function () {
+		var controller = {
+			options: { feature: "ASB", fwv: 240 },
+			sensors: { sn: [ { uuid: 7 } ] },
+			sensor_desc: { marker: "stale-description" }
+		};
+		originalSession.controller = controller;
+		var sendToOS = sandbox.spy(OSApp.Firmware, "sendToOS");
+
+		return new Promise(function (resolve, reject) {
+			OSApp.Sites.updateControllerSensors().then(function (sensors) {
+				assert.isNull(sensors);
+				return OSApp.Sites.updateControllerSensorDescription();
+			}).then(function (description) {
+				try {
+					assert.isNull(description);
+					assert.isUndefined(controller.sensors);
+					assert.isNull(controller.sensor_desc);
+					assert.isFalse(sendToOS.called);
+					resolve();
+				} catch (error) {
+					reject(error);
+				}
+			}, reject);
+		});
+	});
+
 	it("should merge connected controller data without replacing cached sensor fields", function () {
 		var request = $.Deferred();
 		var sensorDescription = { units: [ { value: 1, short: "V" } ] };
@@ -209,6 +262,112 @@ describe("Site Refresh Checks", function () {
 					assert.isTrue(sendToOS.calledWith("/ja?pw=", "json"));
 					assert.isTrue(sendToOS.calledWith("/jsd?pw=", "json"));
 					assert.isTrue(normalizeJsd.calledOnceWithExactly(rawDescription));
+					resolve();
+				} catch (error) {
+					reject(error);
+				}
+			}, reject);
+		});
+	});
+
+	it("should finish connected loading without repeatedly requesting an unavailable sensor description", function () {
+		var controller = {};
+		var fail = sandbox.spy();
+		originalSession.controller = controller;
+		sandbox.stub(originalSession, "isControllerConnected").returns(true);
+		sandbox.stub(OSApp.Firmware, "checkOSVersion").callsFake(function (version) { return version === 216; });
+		var sendToOS = sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (path) {
+			if (path === "/ja?pw=") {
+				return resolved({
+					sensors: { sn: [ { uuid: 7, unit: 1 } ] },
+					status: { sn: [ 0 ] }
+				});
+			}
+			if (path === "/jsd?pw=") {
+				return rejected({ status: 404 });
+			}
+			return rejected(new Error("Unexpected request: " + path));
+		});
+
+		return new Promise(function (resolve, reject) {
+			OSApp.Sites.updateController(function () {
+				OSApp.Sites.updateController(function () {
+					try {
+						assert.deepEqual(controller.sensors, { sn: [ { uuid: 7, unit: 1 } ] });
+						assert.isNull(controller.sensor_desc);
+						assert.equal(sendToOS.withArgs("/jsd?pw=", "json").callCount, 1);
+						assert.isFalse(fail.called);
+						resolve();
+					} catch (error) {
+						reject(error);
+					}
+				}, function (error) {
+					fail(error);
+					reject(new Error("Optional sensor description was retried during controller loading"));
+				});
+			}, function (error) {
+				fail(error);
+				reject(new Error("Optional sensor description failed controller loading"));
+			});
+		});
+	});
+
+	it("should finish legacy loading when optional sensor endpoints are unavailable", function () {
+		var controller = {
+			sensors: { sn: [ { uuid: 7 } ] },
+			sensor_desc: { marker: "stale-description" }
+		};
+		var fail = sandbox.spy();
+		originalSession.controller = controller;
+		sandbox.stub(originalSession, "isControllerConnected").returns(false);
+		sandbox.stub(OSApp.Firmware, "checkOSVersion").returns(true);
+		stubInitialControllerRequests();
+		sandbox.stub(OSApp.Sites, "updateControllerSensors").returns(rejected({ status: 404 }));
+		sandbox.stub(OSApp.Sites, "updateControllerSensorDescription").returns(rejected({ status: 404 }));
+
+		return new Promise(function (resolve, reject) {
+			OSApp.Sites.updateController(function () {
+				try {
+					assert.isUndefined(controller.sensors);
+					assert.isNull(controller.sensor_desc);
+					assert.isFalse(fail.called);
+					resolve();
+				} catch (error) {
+					reject(error);
+				}
+			}, function (error) {
+				fail(error);
+				reject(new Error("Optional legacy sensor endpoints failed controller loading"));
+			});
+		});
+	});
+
+	it("should ignore official sensor data from a connected ASB /ja response", function () {
+		var controller = {
+			options: { feature: "ASB", fwv: 240 },
+			sensor_desc: { marker: "stale-description" }
+		};
+		originalSession.controller = controller;
+		sandbox.stub(originalSession, "isControllerConnected").returns(true);
+		sandbox.stub(OSApp.Firmware, "checkOSVersion").returns(true);
+		var sendToOS = sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (path) {
+			if (path === "/ja?pw=") {
+				return resolved({
+					options: { feature: "ASB", fwv: 240 },
+					sensors: { sn: [ { uuid: 7 } ] },
+					status: { sn: [ 0 ] }
+				});
+			}
+			return $.Deferred().reject(new Error("Unexpected request: " + path)).promise();
+		});
+
+		return new Promise(function (resolve, reject) {
+			OSApp.Sites.updateController(function () {
+				try {
+					assert.isUndefined(controller.sensors);
+					assert.isUndefined(controller.sensor_desc);
+					assert.isFalse(OSApp.Supported.sensors());
+					assert.isTrue(sendToOS.calledOnceWithExactly("/ja?pw=", "json"));
 					resolve();
 				} catch (error) {
 					reject(error);
