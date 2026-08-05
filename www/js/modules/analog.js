@@ -20,8 +20,9 @@ OSApp.Analog = {
 	}
 };
 
-OSApp.Analog.checkAnalogSensorAvail = function() {
-	return OSApp.currentSession.controller.options && OSApp.currentSession.controller.options.feature === "ASB";
+OSApp.Analog.checkAnalogSensorAvail = function( controller ) {
+	controller = controller || OSApp.currentSession.controller;
+	return controller?.options?.feature === "ASB";
 };
 
 OSApp.Analog.refresh = function() {

@@ -258,20 +258,9 @@ OSApp.Status.checkStatus = function() {
 		OSApp.UIDom.changePage( "#os-options", { expandItem: "sensors" } );
 	};
 
-	// Map a sensor type code to a short display name for the footer alert.
-	var sensorTypeShort = function( t ) {
-		switch ( t ) {
-			case 1: return OSApp.Language._( "Rain" );
-			case 2: return OSApp.Language._( "Flow" );
-			case 3: return OSApp.Language._( "Soil" );
-			case 240: return OSApp.Language._( "Program Switch" );
-			default: return OSApp.Language._( "Rain" );
-		}
-	};
-
 	// Build a sensor-active footer message: "{Type} (SN{N}) Activated".
 	var sensorActivatedMsg = function( num, typeCode ) {
-		return "<p class='running-text center pointer'>" + sensorTypeShort( typeCode ) + " (SN" + num + ") " + OSApp.Language._( "Activated" ) + "</p>";
+		return "<p class='running-text center pointer'>" + OSApp.Sensors.getBuiltInSensorTypeName( typeCode, true ) + " (SN" + num + ") " + OSApp.Language._( "Activated" ) + "</p>";
 	};
 
 	// Handle rain sensor triggered (legacy urs/rs scheme — sensor 1 only).

@@ -2637,3 +2637,26 @@ msgstr ""
 
 msgid "System Diagnostics"
 msgstr ""
+
+msgid "Sensor 3 Update"
+msgstr ""
+
+msgid "Sensor 4 Update"
+msgstr ""
+
+msgid "This UI has limited support for ASB firmware."
+msgstr ""
+
+msgid "ASB firmware detected"
+msgstr ""
+
+msgid "This UI has limited support for it. Switch to OpenSprinklerASB app/UI."
+msgstr ""
+
+msgid "OpenSprinklerASB Firmware Detected"
+msgstr ""
+
+msgid ""
+"Your device runs the OpenSprinklerASB firmware. This UI has limited support "
+"for it. Please switch to the OpenSprinklerASB mobile app/UI for full support."
+msgstr ""

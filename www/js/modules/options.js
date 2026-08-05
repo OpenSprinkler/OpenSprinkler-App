@@ -17,6 +17,44 @@
 var OSApp = OSApp || {};
 OSApp.Options = OSApp.Options || {};
 
+OSApp.Options.getNotificationEvents = function( options ) {
+	options = options || {};
+	var events = [
+		{ id: "program", bit: 0, label: OSApp.Language._( "Program Start" ) },
+		{ id: "sensor1", bit: 1, label: OSApp.Language._( "Sensor 1 Update" ) },
+		{ id: "flow", bit: 2, label: OSApp.Language._( "Flow Sensor Update" ) },
+		{ id: "weather", bit: 3, label: OSApp.Language._( "Weather Adjustment Update" ) },
+		{ id: "reboot", bit: 4, label: OSApp.Language._( "Controller Reboot" ) },
+		{ id: "run", bit: 5, label: OSApp.Language._( "Station Finish" ) },
+		{ id: "sensor2", bit: 6, label: OSApp.Language._( "Sensor 2 Update" ) },
+		{ id: "rain", bit: 7, label: OSApp.Language._( "Rain Delay Update" ) },
+		{ id: "station", bit: 8, label: OSApp.Language._( "Station Start" ) },
+		{ id: "flow_alert", bit: 9, label: OSApp.Language._( "Flow Alert" ) },
+		{ id: "curr_alert", bit: 10, label: OSApp.Language._( "Under/Overcurrent Fault" ) },
+		{ id: "sensor3", bit: 11, label: OSApp.Language._( "Sensor 3 Update" ), option: "sn3t" },
+		{ id: "sensor4", bit: 12, label: OSApp.Language._( "Sensor 4 Update" ), option: "sn4t" }
+	];
+
+	return events.filter( function( event ) {
+		return !event.option || typeof options[ event.option ] !== "undefined";
+	} );
+};
+
+OSApp.Options.updateNotificationEventValue = function( value, events, getSelection ) {
+	events.forEach( function( event ) {
+		var selected = getSelection( event );
+		if ( typeof selected !== "boolean" ) {
+			return;
+		}
+		if ( selected ) {
+			value |= 1 << event.bit;
+		} else {
+			value &= ~( 1 << event.bit );
+		}
+	} );
+	return value;
+};
+
 OSApp.Options.resetStationAttributes = function( attributes ) {
 	var operation = $.Deferred();
 
@@ -1597,26 +1635,16 @@ OSApp.Options.showOptions = function( expandItem ) {
 	} );
 
 	page.find( "#o49" ).on( "click", function() {
-		var events = {
-			program: OSApp.Language._( "Program Start" ),
-			sensor1: OSApp.Language._( "Sensor 1 Update" ),
-			flow: OSApp.Language._( "Flow Sensor Update" ),
-			weather: OSApp.Language._( "Weather Adjustment Update" ),
-			reboot: OSApp.Language._( "Controller Reboot" ),
-			run: OSApp.Language._( "Station Finish" ),
-			sensor2: OSApp.Language._( "Sensor 2 Update" ),
-			rain: OSApp.Language._( "Rain Delay Update" ),
-			station: OSApp.Language._( "Station Start" ),
-			flow_alert: OSApp.Language._( "Flow Alert" ),
-			curr_alert: OSApp.Language._( "Under/Overcurrent Fault" ),
-		}, button = this, curr = parseInt( button.value ), inputs = "", a = 0, ife = 0;
+		var events = OSApp.Options.getNotificationEvents( OSApp.currentSession.controller.options ),
+			button = this,
+			curr = parseInt( button.value ),
+			inputs = "";
 
 		let no_ife2 = typeof OSApp.currentSession.controller.options.ife2 === "undefined";
-		$.each( events, function( i, val ) {
-			inputs += "<label for='notif-" + i + "'><input class='needsclick' data-iconpos='right' id='notif-" + i + "' type='checkbox' " +
-				( OSApp.Utils.getBitFromByte( curr, a ) ? "checked='checked'" : "" ) + ( no_ife2 && a >= 8 ? " disabled" : "" ) + ">" + val +
+		events.forEach( function( event ) {
+			inputs += "<label for='notif-" + event.id + "'><input class='needsclick' data-iconpos='right' id='notif-" + event.id + "' type='checkbox' " +
+				( OSApp.Utils.getBitFromByte( curr, event.bit ) ? "checked='checked'" : "" ) + ( no_ife2 && event.bit >= 8 ? " disabled" : "" ) + ">" + event.label +
 			"</label>";
-			a++;
 		} );
 
 		var popup = $(
@@ -1629,10 +1657,12 @@ OSApp.Options.showOptions = function( expandItem ) {
 			"</div>" );
 
 		popup.find( ".submit" ).on( "click", function() {
-			a = 0;
-			$.each( events, function( i ) {
-				ife |= popup.find( "#notif-" + i ).is( ":checked" ) << a;
-				a++;
+			var ife = OSApp.Options.updateNotificationEventValue( curr, events, function( event ) {
+				var input = popup.find( "#notif-" + event.id );
+				if ( input.is( ":disabled" ) ) {
+					return undefined;
+				}
+				return input.is( ":checked" );
 			} );
 			popup.popup( "close" );
 

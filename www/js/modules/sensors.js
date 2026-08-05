@@ -92,6 +92,38 @@ OSApp.Sensors = {};
 // Status bitfield reported by /jsn for each sensor.
 OSApp.Sensors.STATUS = { VALID: 1, ERROR: 2, STALE: 4, CLAMPED_HIGH: 8, CLAMPED_LOW: 16 };
 
+OSApp.Sensors.getBuiltInSensorTypeName = function( type, shortName ) {
+	var names = {
+		1: [ OSApp.Language._( "Rain" ), OSApp.Language._( "Rain Sensor" ) ],
+		2: [ OSApp.Language._( "Flow" ), OSApp.Language._( "Flow Sensor" ) ],
+		3: [ OSApp.Language._( "Soil" ), OSApp.Language._( "Soil Sensor" ) ],
+		240: [ OSApp.Language._( "Program Switch" ), OSApp.Language._( "Program Switch" ) ]
+	};
+	var name = names[ type ] || [ OSApp.Language._( "Sensor" ), OSApp.Language._( "Sensor" ) ];
+	return name[ shortName ? 0 : 1 ];
+};
+
+OSApp.Sensors.getBuiltInSensors = function( options ) {
+	return Object.keys( options || {} ).map( function( key ) {
+		var match = /^sn(\d+)t$/.exec( key );
+		if ( !match ) {
+			return null;
+		}
+
+		var number = parseInt( match[ 1 ] );
+		return {
+			number: number,
+			code: "s" + number,
+			type: options[ key ],
+			label: OSApp.Sensors.getBuiltInSensorTypeName( options[ key ] ) + " (SN" + number + ")"
+		};
+	} ).filter( function( sensor ) {
+		return sensor !== null;
+	} ).sort( function( a, b ) {
+		return a.number - b.number;
+	} );
+};
+
 // Format a sensor reading for display. Returns text + a CSS class name driven
 // by the sensor status bitfield. Used by both the Edit Sensors page and the
 // homepage show-on-home cards.

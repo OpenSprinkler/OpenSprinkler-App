@@ -14,6 +14,91 @@
  */
 
 describe( "Site Rendering Checks", function() {
+	it( "adds a persistent ASB compatibility notification", function() {
+		var sandbox = sinon.createSandbox(),
+			originalController = OSApp.currentSession.controller;
+
+		try {
+			OSApp.currentSession.controller = { options: { feature: "ASB" } };
+			var addNotification = sandbox.stub( OSApp.Notifications, "addNotification" );
+			var changePage = sandbox.stub( OSApp.UIDom, "changePage" );
+
+			OSApp.Sites.addASBCompatibilityNotification();
+			assert.isTrue( addNotification.calledOnce );
+			assert.equal( addNotification.firstCall.args[ 0 ].title, "ASB firmware detected" );
+			assert.equal( addNotification.firstCall.args[ 0 ].desc, "This UI has limited support for it. Switch to OpenSprinklerASB app/UI." );
+
+			assert.isFalse( addNotification.firstCall.args[ 0 ].on() );
+			assert.isTrue( changePage.calledOnceWithExactly( "#about" ) );
+		} finally {
+			OSApp.currentSession.controller = originalController;
+			sandbox.restore();
+		}
+	} );
+
+	it( "shows the ASB compatibility notice once per site", function() {
+		var sandbox = sinon.createSandbox(),
+			originalController = OSApp.currentSession.controller,
+			dismissed = false,
+			popup;
+
+		try {
+			OSApp.currentSession.controller = { options: { feature: "ASB" } };
+			sandbox.stub( OSApp.Storage, "get" ).callsFake( function( key, callback ) {
+				var data = {};
+				data[ key ] = dismissed ? "1" : null;
+				callback( data );
+			} );
+			sandbox.stub( OSApp.Storage, "set" ).callsFake( function( data ) {
+				dismissed = Object.values( data )[ 0 ] === "1";
+			} );
+			sandbox.stub( OSApp.UIDom, "openPopup" ).callsFake( function( renderedPopup ) {
+				popup = renderedPopup;
+			} );
+			sandbox.stub( $.fn, "popup" ).returnsThis();
+
+			OSApp.Sites.showASBCompatibilityNotice( "ASB Test Site" );
+			assert.equal( popup.find( "h3" ).text(), "OpenSprinklerASB Firmware Detected" );
+			assert.equal(
+				popup.find( "p" ).text(),
+				"Your device runs the OpenSprinklerASB firmware. This UI has limited support for it. Please switch to the OpenSprinklerASB mobile app/UI for full support."
+			);
+			assert.equal( popup.find( ".ui-btn" ).text(), "Continue" );
+
+			popup.find( ".ui-btn" ).trigger( "click" );
+			assert.isTrue( dismissed );
+
+			OSApp.Sites.showASBCompatibilityNotice( "ASB Test Site" );
+			assert.isTrue( OSApp.UIDom.openPopup.calledOnce );
+		} finally {
+			OSApp.currentSession.controller = originalController;
+			sandbox.restore();
+		}
+	} );
+
+	it( "shows limited ASB compatibility on the About page", function() {
+		var sandbox = sinon.createSandbox(),
+			originalController = OSApp.currentSession.controller;
+
+		try {
+			OSApp.currentSession.controller = {
+				options: { feature: "ASB", fwv: 240, fwm: 0, hwv: "ASB" }
+			};
+			sandbox.stub( OSApp.UIDom, "changeHeader" );
+
+			OSApp.About.displayPage();
+			assert.isFalse( $( "#about .asbCompatibility" ).hasClass( "hidden" ) );
+			assert.equal(
+				$( "#about .asb-compatibility-warning" ).text(),
+				"This UI has limited support for ASB firmware."
+			);
+		} finally {
+			$( "#about" ).remove();
+			OSApp.currentSession.controller = originalController;
+			sandbox.restore();
+		}
+	} );
+
 	it( "renders an auto-discovered address as an input value", function() {
 		var sandbox = sinon.createSandbox(),
 			autoIP = "192.168.1.2' onfocus='window.siteAddressInjected=true";
