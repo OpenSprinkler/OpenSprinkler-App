@@ -32,7 +32,8 @@ OSApp.Options.getNotificationEvents = function( options ) {
 		{ id: "flow_alert", bit: 9, label: OSApp.Language._( "Flow Alert" ) },
 		{ id: "curr_alert", bit: 10, label: OSApp.Language._( "Under/Overcurrent Fault" ) },
 		{ id: "sensor3", bit: 11, label: OSApp.Language._( "Sensor 3 Update" ), option: "sn3t" },
-		{ id: "sensor4", bit: 12, label: OSApp.Language._( "Sensor 4 Update" ), option: "sn4t" }
+		{ id: "sensor4", bit: 12, label: OSApp.Language._( "Sensor 4 Update" ), option: "sn4t" },
+		{ id: "pressure", bit: 13, label: OSApp.Language._( "Pressure Sensor Update" ) }
 	];
 
 	return events.filter( function( event ) {
@@ -727,6 +728,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 			case 1: return OSApp.Language._( "Rain" );
 			case 2: return OSApp.Language._( "Flow" );
 			case 3: return OSApp.Language._( "Soil" );
+			case 4: return OSApp.Language._( "Pressure" );
 			case 240: return OSApp.Language._( "Program Switch" );
 			default: return "";
 		}
@@ -1733,6 +1735,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 		if ( OSApp.Firmware.checkOSVersion( 219 ) ) {
 			html += "<option value='3'" + ( current === 3 ? " selected" : "" ) + ">" + OSApp.Language._( "Soil" ) + "</option>";
 		}
+		html += "<option value='4'" + ( current === 4 ? " selected" : "" ) + ">" + OSApp.Language._( "Pressure" ) + "</option>";
 		if ( OSApp.Firmware.checkOSVersion( 217 ) ) {
 			html += "<option value='240'" + ( current === 240 ? " selected" : "" ) + ">" + OSApp.Language._( "Program Switch" ) + "</option>";
 		}
@@ -1810,10 +1813,10 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 		var refreshFields = function() {
 			var t = parseInt( popup.find( "#sn-type" ).val() ) || 0;
-			// Normally Open: rain (1) / soil (3) / program switch (240)
-			popup.find( ".sn-no" ).toggle( t === 1 || t === 3 || t === 240 );
-			// On/Off delays: rain (1) / soil (3)
-			popup.find( ".sn-on-off" ).toggle( t === 1 || t === 3 );
+			// Normally Open: rain (1) / soil (3) / pressure (4) / program switch (240)
+			popup.find( ".sn-no" ).toggle( t === 1 || t === 3 || t === 4 || t === 240 );
+			// On/Off delays: rain (1) / soil (3) / pressure (4)
+			popup.find( ".sn-on-off" ).toggle( t === 1 || t === 3 || t === 4 );
 			// Flow pulse rate: flow (2), sensor 1 only
 			popup.find( ".sn-fpr" ).toggle( t === 2 );
 			// Program switch hint: program switch (240)
@@ -1825,7 +1828,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 			var onInput = popup.find( "#sn-on" ),
 				offInput = popup.find( "#sn-off" ),
 				type = parseInt( popup.find( "#sn-type" ).val() ) || 0,
-				usesDelays = type === 1 || type === 3,
+				usesDelays = type === 1 || type === 3 || type === 4,
 				fprValue = parseFloat( popup.find( "#sn-fpr" ).val() ),
 				fprUnit = popup.find( "#sn-fpr-unit" ).val(),
 				fprLiters = fprUnit === "gallon" ? fprValue * 3.78541 : fprValue;
