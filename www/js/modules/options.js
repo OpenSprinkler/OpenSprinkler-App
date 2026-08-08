@@ -1735,7 +1735,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 		if ( OSApp.Firmware.checkOSVersion( 219 ) ) {
 			html += "<option value='3'" + ( current === 3 ? " selected" : "" ) + ">" + OSApp.Language._( "Soil" ) + "</option>";
 		}
-		html += "<option value='4'" + ( current === 4 ? " selected" : "" ) + ">" + OSApp.Language._( "Pressure" ) + "</option>";
+        if ( OSApp.Firmware.checkOSVersion( 2215 ) ) {
+            html += "<option value='4'" + ( current === 4 ? " selected" : "" ) + ">" + OSApp.Language._( "Pressure" ) + "</option>";
+        }
 		if ( OSApp.Firmware.checkOSVersion( 217 ) ) {
 			html += "<option value='240'" + ( current === 240 ? " selected" : "" ) + ">" + OSApp.Language._( "Program Switch" ) + "</option>";
 		}
