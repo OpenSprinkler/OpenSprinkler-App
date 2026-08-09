@@ -184,6 +184,22 @@ fieldset.station-edit { display: grid; gap: var(--space-2); }
 fieldset.duration-list { display: grid; gap: var(--space-3); }
 fieldset.duration-field { display: grid; gap: var(--space-2); }
 
+/* Program editor scanability: group the flat field run into a visual grid. The DOM stays a
+ * single form; CSS alone carries the structure (UX feedback: "hard to visually determine
+ * settings" in a ~3000px single column). */
+@media (min-width: 700px) {
+	form[data-settings="program"] { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3) var(--space-5); align-items: start; }
+	form[data-settings="program"] > fieldset,
+	form[data-settings="program"] > button,
+	form[data-settings="program"] > .form-actions { grid-column: 1 / -1; }
+	/* One row per zone: name legend above, format + duration side by side. */
+	fieldset.duration-field { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: end; }
+}
+/* Weekday checkboxes read as one horizontal week, not seven stacked rows. */
+form[data-settings="program"] fieldset[data-when="weekly"] { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); }
+form[data-settings="program"] fieldset[data-when="weekly"] .field-check { flex: 0 0 auto; min-height: var(--tap); }
+form[data-settings="program"] fieldset[data-when="weekly"] legend { flex-basis: 100%; }
+
 /* touch targets — comfortable for mouse; 44px on touch (WCAG 2.5.5). Base 36px already meets 2.5.8 AA. */
 @media (pointer: coarse) {
 	.tab, .subtab, .action, form.login button, form.login input,
