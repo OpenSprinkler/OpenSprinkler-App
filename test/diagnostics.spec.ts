@@ -119,4 +119,36 @@ describe( "renderDiagnostics", () => {
 		const restricted = renderDiagnostics( { ...jc, wtrestr: 1 }, jo );
 		expect( restricted ).toContain( "Active" );
 	} );
+	it( "names the weather source with the PWS station and the service host", () => {
+		const wu = renderDiagnostics( { ...jc, wtdata: { wp: "WU" }, wto: { provider: "WU", pws: "KCASANFR123" } }, jo );
+		expect( wu ).toContain( "Weather source" );
+		expect( wu ).toContain( "Weather Underground · PWS KCASANFR123" );
+		expect( wu ).toContain( "Service host" );
+		expect( wu ).toContain( "weather.opensprinkler.com" );
+		expect( wu ).not.toContain( "wto.key" );
+		// falls back to configured wto.provider before any observation arrives:
+		const configuredOnly = renderDiagnostics( { ...jc, wtdata: {}, wto: { provider: "OWM" } }, jo );
+		expect( configuredOnly ).toContain( "OpenWeather" );
+		// fixture has neither a provider tag nor wto.provider → row omitted:
+		expect( html ).not.toContain( "Weather source" );
+	} );
+	it( "reports direct forecast-fetch health without leaking credentials", () => {
+		const ok = renderDiagnostics( jc, jo, {
+			status: "ok", fetchedAt: Date.now() - 120000,
+			data: {
+				location: [ 37.5, -122.3 ], temp: 70, precip: 0, description: "Clear", icon: "01d",
+				ttl: 600000,
+				forecast: [ { temp_min: 55, temp_max: 78, precip: 0, date: 1717934400, icon: "01d", description: "Clear" } ],
+			},
+		} );
+		expect( ok ).toContain( "Forecast fetch" );
+		expect( ok ).toContain( "OK" );
+		expect( ok ).toContain( "2 mins ago" );
+		expect( ok ).toContain( "Forecast cache" );
+		expect( ok ).toContain( "10 min" );
+		const failed = renderDiagnostics( jc, jo, { status: "error", error: "HTTP 502" } );
+		expect( failed ).toContain( "Failed" );
+		expect( failed ).toContain( "HTTP 502" );
+		expect( html ).not.toContain( "Forecast fetch" ); // omitted without a forecast client
+	} );
 } );

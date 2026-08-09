@@ -11,9 +11,11 @@ import type { JcResponse, JoResponse } from "../api/types";
 import { formatControllerDateTime, formatDeviceTime, relativeTime, elapsedSeconds } from "../api/time";
 import {
 	weatherStatus, weatherErrorText, wifiRating, rebootReason, otcStatus, adjustmentMethodName,
+	weatherProviderTag, weatherSourceName,
 	type StatusText,
 } from "../api/diagnostics";
 import { esc, helpTip, infoNote } from "../ui/help";
+import type { ForecastState } from "../api/weather";
 
 /** Dotted-quad from /jc.eip (uint32, big-endian) or pass through an IPv6 string. */
 function formatIp( eip: number | string ): string {
@@ -60,7 +62,38 @@ function healthSummary( jc: JcResponse ): string {
 	return parts.length ? esc( parts.join( " · " ) ) : "No status fields reported.";
 }
 
-export function renderDiagnostics( jc: JcResponse, jo: JoResponse ): string {
+/** "Weather Underground · PWS KXXX" style provenance from the provider tag + configured wto. */
+function weatherSourceCell( jc: JcResponse ): string {
+	const provider = weatherProviderTag( jc.wtdata ) ??
+		( typeof jc.wto?.provider === "string" && jc.wto.provider ? String( jc.wto.provider ) : null );
+	if ( !provider ) return "";
+	const pws = typeof jc.wto?.pws === "string" && jc.wto.pws ? String( jc.wto.pws ) : "";
+	const wantsPws = provider === "WU" || provider === "WUnderground";
+	return esc( weatherSourceName( provider ) ) + ( wantsPws && pws ? ` · PWS ${ esc( pws ) }` : "" );
+}
+
+/** Direct-forecast fetch rows (client-side fetch health; distinct from the controller's pipeline). */
+function forecastRows( forecast: ForecastState | undefined ): string {
+	if ( forecast === undefined ) return "";
+	let fetchCell: string;
+	if ( forecast.status === "ok" && typeof forecast.fetchedAt === "number" ) {
+		const age = Math.max( 0, Math.round( ( Date.now() - forecast.fetchedAt ) / 1000 ) );
+		fetchCell = `<span class="status status-ok">OK</span> <span class="muted">(${ esc( relativeTime( age ) ) })</span>`;
+	} else if ( forecast.status === "error" ) {
+		fetchCell = `<span class="status status-error">Failed</span> <span class="muted">${ esc( forecast.error ?? "" ) }</span>`;
+	} else {
+		fetchCell = `<span class="status status-neutral">Unavailable</span> <span class="muted">${ esc( forecast.reason ?? "" ) }</span>`;
+	}
+	const ttl = forecast.data?.ttl;
+	return row( "Forecast fetch", fetchCell,
+		"The app fetches the display forecast directly from the weather service; the controller's own weather requests are separate." ) +
+		( typeof ttl === "number" && ttl >= 0
+			? row( "Forecast cache", `Service refresh in ~${ esc( String( Math.max( 1, Math.round( ttl / 60000 ) ) ) ) } min`,
+				"The weather service caches forecasts; refreshing sooner returns the same data." )
+			: "" );
+}
+
+export function renderDiagnostics( jc: JcResponse, jo: JoResponse, forecast?: ForecastState ): string {
 	// --- Connectivity ---
 	const connRows = [
 		row( "External IP", esc( formatIp( jc.eip ) ), "The address your controller appears as on the internet." ),
@@ -74,9 +107,14 @@ export function renderDiagnostics( jc: JcResponse, jo: JoResponse ): string {
 	].join( "" );
 
 	// --- Weather service ---
+	const sourceCell = weatherSourceCell( jc );
 	const weatherRows = [
 		typeof jc.wterr === "number" ? row( "Service status", statusSpan( weatherStatus( jc.wterr ) ),
 			"Whether the controller can reach its weather service." ) : "",
+		sourceCell ? row( "Weather source", sourceCell,
+			"The provider (and personal weather station, if configured) behind adjustments and the forecast." ) : "",
+		typeof jc.wsp === "string" && jc.wsp ? row( "Service host", esc( jc.wsp ),
+			"The weather service endpoint the controller and app both use." ) : "",
 		row( "Last request", whenCell( jc.lwc, jc ),
 			"When the controller last asked the weather service for data." ),
 		row( "Last successful update", whenCell( jc.lswc, jc ),
@@ -88,6 +126,7 @@ export function renderDiagnostics( jc: JcResponse, jo: JoResponse ): string {
 		typeof jc.wtrestr === "number" ? row( "Weather restriction",
 			jc.wtrestr > 0 ? statusSpan( { text: "Active", level: "warn" } ) : statusSpan( { text: "Inactive", level: "ok" } ),
 			"Watering is paused by a weather rule (e.g. a rain restriction)." ) : "",
+		forecastRows( forecast ),
 	].join( "" );
 
 	// --- Scheduling ---

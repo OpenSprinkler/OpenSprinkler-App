@@ -231,6 +231,31 @@ fieldset.duration-field { display: grid; gap: var(--space-2); }
 .toast:not(:empty), .toast.show { opacity: 1; }
 .toast.err { background: #b91c1c; color: #fff; }   /* fixed dark red — 6.47:1 with #fff in both schemes */
 
+/* forecast (weather tab): current conditions, SVG chart, day cards */
+.forecast-now { display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap; margin-bottom: var(--space-3); }
+.forecast-now .i-weather { width: 44px; height: 44px; flex: none; color: var(--muted); }
+.forecast-now .now-temp { font-size: var(--fs-22); font-weight: var(--fw-semibold); font-variant-numeric: tabular-nums; }
+.forecast-now .now-detail { font-size: var(--fs-14); }
+.forecast-chart { display: block; width: 100%; max-width: 480px; height: auto; margin: var(--space-3) 0; }
+/* Chart palette — CVD-validated pairs per scheme (amber temp / blue rain); labels stay in ink tokens. */
+.forecast-chart .fc-temp { fill: #b45309; }
+.forecast-chart .fc-precip { fill: #2563eb; }
+.forecast-chart .fc-val { fill: var(--fg); font-size: 12px; font-variant-numeric: tabular-nums; }
+.forecast-chart .fc-val.fc-lo { fill: var(--muted); }
+.forecast-chart .fc-day, .forecast-chart .fc-title { fill: var(--muted); font-size: 12px; }
+.forecast-chart .fc-axis { stroke: var(--border); stroke-width: 1; }
+@media (prefers-color-scheme: dark) {
+	.forecast-chart .fc-temp { fill: #d97706; }
+	.forecast-chart .fc-precip { fill: #3b82f6; }
+}
+ul.forecast-days { list-style: none; margin: var(--space-3) 0 0; padding: 0; display: grid; gap: var(--space-2); }
+ul.forecast-days li { display: flex; align-items: center; gap: var(--space-3); border-bottom: 1px solid var(--border); padding-bottom: var(--space-2); }
+ul.forecast-days li:last-child { border-bottom: none; }
+ul.forecast-days .i-weather { width: 26px; height: 26px; flex: none; color: var(--muted); }
+ul.forecast-days .fd-day { min-width: 3.2em; font-weight: var(--fw-semibold); }
+ul.forecast-days .fd-desc { flex: 1; min-width: 8em; }
+ul.forecast-days .fd-nums { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
 /* WCAG 2.3.3 — neutralize ALL motion. Global guard; keep this the LAST block in the file. */
 @media (prefers-reduced-motion: reduce) {
 	*, *::before, *::after {

@@ -8,11 +8,11 @@
 	"assets": [
 		{
 			"path": "dist/assets/app.css",
-			"baselineBytes": 3319
+			"baselineBytes": 3628
 		},
 		{
 			"path": "dist/assets/app.js",
-			"baselineBytes": 40112
+			"baselineBytes": 44190
 		}
 	]
 }

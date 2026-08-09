@@ -10,12 +10,26 @@ import type { JcResponse, JoResponse } from "../api/types";
 import { adjustmentMethodName, weatherErrorText, weatherProviderTag, weatherSourceName } from "../api/diagnostics";
 import { elapsedSeconds, formatControllerDateTime, relativeTime } from "../api/time";
 import { esc, helpTip, emptyState, infoNote } from "../ui/help";
+import type { ForecastState } from "../api/weather";
+import { forecastDayLabel } from "../api/weather";
+import { renderForecastChart, weatherIconSvg } from "../ui/forecast-chart";
 
-/** Friendly labels for the weather-data fields the firmware may report in /jc.wtdata. */
+/**
+ * Friendly labels for the weather-data fields the firmware may report in /jc.wtdata.
+ * Wind/radiation wording matches the service's WU aggregation (peak of hourly averages;
+ * summed daily radiation) — these are NOT means (see OpenSprinkler-Weather WUnderground.ts).
+ */
 const WTDATA_LABELS: Record<string, string> = {
 	t: "Mean temp", minT: "Min temp", maxT: "Max temp",
 	h: "Mean humidity", minH: "Min humidity", maxH: "Max humidity",
-	p: "Total rain", eto: "ETo", wind: "Mean wind", radiation: "Mean radiation",
+	p: "Total rain", eto: "ETo (latest complete day)", wind: "Peak wind", radiation: "Total solar radiation",
+};
+
+/** Display units for /jc.wtdata fields — the weather service reports imperial values. */
+const WTDATA_UNITS: Record<string, string> = {
+	t: " °F", minT: " °F", maxT: " °F",
+	h: "%", minH: "%", maxH: "%",
+	p: " in", eto: " in", wind: " mph", radiation: "",
 };
 
 interface MultiDayAdjustmentState {
@@ -175,13 +189,79 @@ function renderWeatherData( wtdata: Record<string, unknown>, current: boolean ):
 			emptyState( "No weather data yet", "The controller hasn't received observations from its weather service." );
 	}
 	const rows = keys.map( ( k ) => {
-		const unit = k === "h" || k === "minH" || k === "maxH" ? "%" : "";
 		return `<tr><th scope="row">${ esc( WTDATA_LABELS[ k ]! ) }</th>` +
-			`<td>${ esc( String( wtdata[ k ] ) ) }${ unit }</td></tr>`;
+			`<td>${ esc( String( wtdata[ k ] ) ) }${ esc( WTDATA_UNITS[ k ] ?? "" ) }</td></tr>`;
 	} ).join( "" );
 	return `<h3>${ title }</h3>` +
-		infoNote( "Values as reported by your weather service (units follow your controller)." ) +
+		infoNote( "Historical observations your weather service used for the last adjustment — not a forecast. " +
+			"Values are imperial (°F, mph, inches)." ) +
 		`<table class="status"><tbody>${ rows }</tbody></table>`;
+}
+
+/** Freshness line for the direct forecast fetch (client receipt time, browser clock). */
+function forecastFreshness( fetchedAt: number | undefined ): string {
+	if ( typeof fetchedAt !== "number" ) return "";
+	const ageSeconds = Math.max( 0, Math.round( ( Date.now() - fetchedAt ) / 1000 ) );
+	return `<p class="muted">Forecast fetched ${ esc( relativeTime( ageSeconds ) ) }.</p>`;
+}
+
+/** WU hybrid provenance: PWS observations + coordinate forecast are different data products. */
+function forecastProvenance( jc: JcResponse, provider: string | undefined ): string {
+	const wto = jc.wto ?? {};
+	const pws = typeof wto.pws === "string" && wto.pws ? wto.pws : "";
+	if ( ( provider === "WU" || provider === "WUnderground" ) && pws ) {
+		return infoNote( `Current conditions come from your personal weather station ${ pws }; ` +
+			"the daily forecast is for your coordinates (Weather Underground)." );
+	}
+	return "";
+}
+
+/** The verbose daily forecast (chart + day cards) from the direct /weatherData fetch. */
+function renderForecastSection( jc: JcResponse, jo: JoResponse, forecast: ForecastState | undefined ): string {
+	if ( forecast === undefined ) return "";
+	const heading = `<h3>Forecast</h3>`;
+	if ( forecast.status === "unavailable" ) {
+		return heading + emptyState( "No forecast", forecast.reason ?? "The forecast is unavailable." );
+	}
+	const data = forecast.data;
+	if ( !data ) {
+		return heading + emptyState( "Forecast unavailable",
+			forecast.error ?? "The weather service could not be reached." );
+	}
+	const staleNote = forecast.status === "error"
+		? infoNote( `Showing an older forecast — the latest fetch failed. ${ forecast.error ?? "" }`.trim() )
+		: "";
+	const provider = data.wp ?? data.weatherProvider;
+
+	const details = [
+		typeof data.humidity === "number" ? `Humidity ${ Math.round( data.humidity ) }%` : "",
+		typeof data.wind === "number" ? `Wind ${ Math.round( data.wind * 10 ) / 10 } mph` : "",
+		data.raining === true ? "Raining now" : "",
+		typeof data.region === "string" && data.region ? data.region : "",
+	].filter( Boolean ).join( " · " );
+	const now = `<div class="forecast-now">${ weatherIconSvg( data.icon ) }` +
+		`<span class="now-temp">${ esc( String( Math.round( data.temp * 10 ) / 10 ) ) } °F</span>` +
+		`<span class="now-detail">${ esc( data.description ) }` +
+		( details ? `<br><span class="muted">${ esc( details ) }</span>` : "" ) + `</span></div>`;
+
+	const alert = data.alert && ( data.alert.message || data.alert.name )
+		? infoNote( `Weather alert: ${ [ data.alert.name, data.alert.message ].filter( Boolean ).join( " — " ) }` )
+		: "";
+
+	const days = data.forecast.map( ( day ) => ( {
+		...day, label: forecastDayLabel( day.date, jc.devt, jo.tz ),
+	} ) );
+	const chart = renderForecastChart( days );
+	const cards = days.map( ( day ) => {
+		return `<li>${ weatherIconSvg( day.icon ) }<span class="fd-day">${ esc( day.label ) }</span>` +
+			`<span class="fd-desc">${ esc( day.description ) }</span>` +
+			`<span class="fd-nums">${ esc( String( Math.round( day.temp_max ) ) ) }° / ` +
+			`${ esc( String( Math.round( day.temp_min ) ) ) }°F · ` +
+			`${ esc( String( Math.round( day.precip * 100 ) / 100 ) ) } in</span></li>`;
+	} ).join( "" );
+
+	return heading + staleNote + alert + now + forecastProvenance( jc, provider ) + chart +
+		`<ul class="forecast-days">${ cards }</ul>` + forecastFreshness( forecast.fetchedAt );
 }
 
 /**
@@ -205,9 +285,13 @@ function renderSourceFooter( jc: JcResponse, jo: JoResponse ): string {
 	}
 
 	const hostLine = host ? `<br><span class="muted">Service host: ${ esc( host ) }</span>` : "";
-	const pwsLine = ( provider === "local" )
-		? `<br><span class="muted">A ${ pwsAbbr } is your own weather station feeding readings to the controller.</span>`
-		: "";
+	const configuredPws = typeof jc.wto?.pws === "string" && jc.wto.pws ? String( jc.wto.pws ) : "";
+	let pwsLine = "";
+	if ( provider === "local" ) {
+		pwsLine = `<br><span class="muted">A ${ pwsAbbr } is your own weather station feeding readings to the controller.</span>`;
+	} else if ( ( provider === "WU" || provider === "WUnderground" ) && configuredPws ) {
+		pwsLine = `<br><span class="muted">Observations come from your ${ pwsAbbr } ${ esc( configuredPws ) }.</span>`;
+	}
 	return `<footer class="weather-source">${ source }${ hostLine }${ pwsLine }</footer>`;
 }
 
@@ -221,7 +305,7 @@ function methodGlyph( uwt: number ): string {
 		`stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${ path }</svg>`;
 }
 
-export function renderWeather( jc: JcResponse, jo: JoResponse ): string {
+export function renderWeather( jc: JcResponse, jo: JoResponse, forecast?: ForecastState ): string {
 	const multiDayState = multiDayAdjustmentState( jc, jo );
 	const decision = deriveWeatherDecision( jc, jo );
 	const summaryRows = [
@@ -239,6 +323,7 @@ export function renderWeather( jc: JcResponse, jo: JoResponse ): string {
 		`<h2>Weather</h2>` +
 		renderDecisionCard( jc, decision ) +
 		`<table class="status"><tbody>${ summaryRows }</tbody></table>` +
+		renderForecastSection( jc, jo, forecast ) +
 		renderMultiDayLevels( jc, multiDayState ) +
 		renderWeatherData( jc.wtdata, decision.health === "Current" ) +
 		renderSourceFooter( jc, jo ) +

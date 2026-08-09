@@ -12,6 +12,8 @@ import { getForkTag } from "../api/client";
 import { formatMinutesOfDay, formatControllerDateTime } from "../api/time";
 import { esc, helpTip } from "../ui/help";
 import { actionBar, actionButton } from "../ui/controls";
+import type { ForecastState } from "../api/weather";
+import { forecastDayLabel, nextRainDay } from "../api/weather";
 
 function fmtVersion( fwv: number ): string {
 	const major = Math.floor( fwv / 100 ), minor = Math.floor( ( fwv % 100 ) / 10 ), patch = fwv % 10;
@@ -25,7 +27,25 @@ export function countActiveStations( sbits: number[] ): number {
 	return n;
 }
 
-export interface ViewOptions { actions?: boolean; }
+export interface ViewOptions { actions?: boolean; forecast?: ForecastState; }
+
+/**
+ * One compact forecast line for the status table, or null when no fresh forecast exists.
+ * Deliberately a single row — Status stays operational; the Weather tab carries the detail.
+ */
+export function forecastSummary( forecast: ForecastState | undefined, jc: JcResponse, jo: JoResponse ): string | null {
+	if ( forecast?.status !== "ok" || !forecast.data ) return null;
+	const today = forecast.data.forecast[ 0 ];
+	if ( !today ) return null;
+	const temps = `High ${ Math.round( today.temp_max ) }°F / Low ${ Math.round( today.temp_min ) }°F`;
+	const rain = nextRainDay( forecast.data.forecast );
+	let rainText = `no rain expected in the next ${ forecast.data.forecast.length } days`;
+	if ( rain ) {
+		const day = forecastDayLabel( rain.date, jc.devt, jo.tz );
+		rainText = `rain ${ Math.round( rain.precip * 100 ) / 100 } in ${ day === "Today" ? "today" : day }`;
+	}
+	return `${ temps } · ${ rainText }`;
+}
 
 /** A filled dot for an OK/on state. Decorative — the adjacent text label carries the meaning (WCAG 1.4.1). */
 function dotOk(): string {
@@ -50,6 +70,7 @@ function waterGauge( wl: number ): string {
 export function renderControllerStatus( jc: JcResponse, jo: JoResponse, caps: Capabilities, opts: ViewOptions = {} ): string {
 	const active = countActiveStations( jc.sbits );
 	const firmware = fmtVersion( jo.fwv ) + ( jo.fwm ? ` (${ jo.fwm })` : "" ) + getForkTag( jo );
+	const forecastLine = forecastSummary( opts.forecast, jc, jo );
 	const rows: Array<[ label: string, value: string, help?: string ]> = [
 		[ "Device", esc( jc.dname || "OpenSprinkler" ) ],
 		[ "Firmware", esc( firmware ), jo.fwf ? "Includes a fork build tag (+) from a custom firmware build." : undefined ],
@@ -62,6 +83,8 @@ export function renderControllerStatus( jc: JcResponse, jo: JoResponse, caps: Ca
 		[ "Weather restriction", caps.weatherRestricted && jc.wtrestr ? "Restricted" : "None",
 			"Watering is paused by a weather rule (e.g. a rain restriction)." ],
 		[ "Sunrise / Sunset", `${ esc( formatMinutesOfDay( jc.sunrise ) ) } / ${ esc( formatMinutesOfDay( jc.sunset ) ) }` ],
+		...( forecastLine === null ? [] : [ [ "Today's forecast", esc( forecastLine ),
+			"From your weather service; see the Weather tab for the full forecast." ] as [ string, string, string ] ] ),
 		[ "Cloud (OTC)", caps.otfCloud ? `status ${ esc( String( jc.otcs ?? "?" ) ) }` : "n/a",
 			"OpenThings Cloud — OpenSprinkler's remote-access relay." ],
 	];

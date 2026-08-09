@@ -63,6 +63,10 @@ export function renderWeatherConfig( jo: JoResponse, jc: JcResponse ): string {
 		clearLocation +
 		selectField( "provider", "Weather provider", PROVIDERS, provider ) +
 		textField( "key", "Weather API key", "", { placeholder: typeof wto.key === "string" && wto.key ? "Configured — leave blank to keep" : "Provider key, if required" } ) +
+		textField( "pws", "PWS station ID", "", {
+			placeholder: typeof wto.pws === "string" && wto.pws ? `Configured (${ wto.pws }) — leave blank to keep` : "e.g. KCASANFR123",
+			help: "Weather Underground personal weather station. Observations come from this station; the forecast stays coordinate-based.",
+		} ) +
 		`<button type="submit" class="action primary" data-save="weather">Save</button>` +
 		`</form></section>`;
 }
@@ -84,6 +88,20 @@ export function buildWeatherOptions(
 	const wto: Record<string, unknown> = { ...currentWto };
 	if ( typeof v.provider === "string" && v.provider !== "" ) wto.provider = v.provider;
 	if ( typeof v.key === "string" && v.key.trim() !== "" ) wto.key = v.key.trim();
+	if ( typeof v.pws === "string" && v.pws.trim() !== "" ) {
+		const pws = v.pws.trim();
+		// The weather service accepts alphanumeric station IDs only (routes/weather.ts).
+		if ( !/^[A-Za-z0-9]{1,32}$/.test( pws ) ) throw new Error( "PWS station ID must be letters and numbers only." );
+		wto.pws = pws;
+	}
+	const effectiveProvider = typeof wto.provider === "string" ? wto.provider : "";
+	if ( effectiveProvider === "WU" ) {
+		// Weather Underground requires a 32-character hex API key; the service rejects anything else.
+		if ( typeof wto.key === "string" && wto.key && !/^[0-9a-fA-F]{32}$/.test( wto.key ) ) {
+			throw new Error( "Weather Underground API keys are 32 hexadecimal characters." );
+		}
+		if ( typeof wto.key === "string" ) wto.key = wto.key.toLowerCase();
+	}
 	if ( fwvCombined >= 2213 ) {
 		const numberFieldValue = ( key: string, label: string, min: number, max: number, integer = false ): number => {
 			const raw = String( v[ key ] ?? "" ).trim();

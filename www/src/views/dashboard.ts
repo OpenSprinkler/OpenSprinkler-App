@@ -14,6 +14,7 @@ import { renderLogs } from "./logs-view";
 import { renderWeather } from "./weather-view";
 import { renderDiagnostics } from "./diagnostics-view";
 import { renderSettings, type ProgramEditorTarget, type SettingsSection } from "./settings/index";
+import type { ForecastState } from "../api/weather";
 
 export interface DashboardData {
 	jc: JcResponse; jo: JoResponse; jn: JnResponse; je: JeResponse; jp: JpResponse; jl: JlResponse;
@@ -31,6 +32,8 @@ export interface DashboardOptions {
 	programEditor?: ProgramEditorTarget;
 	/** When the companion is present, the host passes the rendered History HTML to add a History tab. */
 	historyHtml?: string;
+	/** Direct weather-service forecast state (Weather/Status/Diagnostics). Omitted = no forecast client. */
+	forecast?: ForecastState;
 }
 
 /** Decorative single-stroke tab glyphs (currentColor, aria-hidden — the label is the accessible name). */
@@ -65,12 +68,13 @@ export function renderDashboard( d: DashboardData, active: DashboardTab | "Histo
 	switch ( active ) {
 		case "Stations": content = renderStations( d.jc, d.jn, { actions: a, je: d.je, jl: d.jl, jo: d.jo } ); break;
 		case "Programs": content = renderPrograms( d.jp, d.jn, { actions: a } ); break;
-		case "Weather": content = renderWeather( d.jc, d.jo ); break;
+		case "Weather": content = renderWeather( d.jc, d.jo, opts.forecast ); break;
 		case "Log": content = renderLogs( d.jl, d.jn, d.jo ); break;
-		case "Diagnostics": content = renderDiagnostics( d.jc, d.jo ); break;
+		case "Diagnostics": content = renderDiagnostics( d.jc, d.jo, opts.forecast ); break;
 		case "Settings": content = renderSettings( d.jc, d.jo, d.jn, d.jp, opts.settingsSection, opts.programEditor ); break;
 		case "History": content = opts.historyHtml ?? ""; break;
-		default: content = renderControllerStatus( d.jc, d.jo, deriveCapabilities( d.jc, d.jo ), { actions: a } );
+		default: content = renderControllerStatus( d.jc, d.jo, deriveCapabilities( d.jc, d.jo ),
+			{ actions: a, ...( opts.forecast ? { forecast: opts.forecast } : {} ) } );
 	}
 	return `<nav class="tabs" role="tablist" aria-label="Dashboard sections">${ nav }</nav>` +
 		`<div class="tab-content" role="tabpanel" id="dashboard-panel" aria-labelledby="dashboard-tab-${ active }" tabindex="0">${ content }</div>`;
