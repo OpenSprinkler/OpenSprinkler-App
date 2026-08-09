@@ -76,6 +76,10 @@ export interface ForecastData {
 	observedAt?: number;
 	/** True UTC epoch seconds when the service generated this response. */
 	generatedAt?: number;
+	/** Self-reported local station ID (service-sanitized), e.g. "KIAANKEN194". */
+	pwsId?: string;
+	/** Self-reported station hardware/firmware identity, e.g. "GW2000B_V3.3.2". */
+	pwsModel?: string;
 }
 
 /** Forecast fetch state threaded (optionally) through the dashboard views. */
@@ -217,7 +221,7 @@ export function normalizeForecastData( data: unknown ): ForecastData | null {
 		const value = toFiniteNumber( raw[ field ] );
 		if ( value !== undefined ) normalized[ field ] = value;
 	}
-	for ( const field of [ "weatherProvider", "wp", "region", "city" ] as const ) {
+	for ( const field of [ "weatherProvider", "wp", "region", "city", "pwsId", "pwsModel" ] as const ) {
 		const value = raw[ field ];
 		if ( typeof value === "string" && value.length <= 2048 ) normalized[ field ] = value;
 	}
