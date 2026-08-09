@@ -152,20 +152,23 @@ function multiDayFreshnessNote( jc: JcResponse ): string {
 
 function renderMultiDayLevels( jc: JcResponse, state: MultiDayAdjustmentState ): string {
 	const wls = jc.wls;
-	const help = helpTip( "Rolling weather adjustments for interval programs; these are not separate calendar days or forecasts." );
-	const usage = state.active
-		? "Multi-day adjustment is enabled. An interval program with Use Weather enabled uses the N-day average for an N-day interval." +
-			( state.methodSupportsIt ? "" : " The toggle remains enabled; it is normally shown while Zimmerman or ETo is selected." )
-		: "Multi-day adjustment is disabled. These values are reference only; interval programs with Use Weather use the current overall " +
-			"Watering Level. " + ( state.methodSupportsIt
-				? "Enable multi-day adjustment under Settings > Weather to use these averages."
-				: "Select Zimmerman or ETo under Settings > Weather to expose the multi-day toggle." );
-	const explanation = infoNote(
-		"Each value combines the most recent N weather days; it is not a forecast or a reading for one calendar date. " + usage + " " +
-		"When enabled, an interval longer than this list uses the longest average available. " +
-		"100% keeps programmed run times, 80% makes them 20% shorter, " +
-		"150% makes them 50% longer, and 0% skips watering. An active weather restriction always skips watering.",
+	// Mechanics live in the help tip (the product's progressive-disclosure pattern); the visible
+	// note is one status sentence. The old five-sentence explainer dominated the tab.
+	const help = helpTip(
+		"Each value combines the most recent N weather days; it is not a forecast or a reading for one calendar date. " +
+		"When multi-day adjustment is enabled, an interval program with Use Weather enabled uses the N-day average for an " +
+		"N-day interval, and an interval longer than this list uses the longest average available. " +
+		"100% keeps programmed run times, 80% makes them 20% shorter, 150% makes them 50% longer, and 0% skips watering. " +
+		"An active weather restriction always skips watering.",
 	);
+	const usage = state.active
+		? "Multi-day adjustment is enabled" +
+			( state.methodSupportsIt ? "." : "; its toggle remains enabled, though it is normally shown while Zimmerman or ETo is selected." )
+		: "Multi-day adjustment is disabled — these values are reference only, and interval programs with Use Weather use the " +
+			"current overall Watering Level. " + ( state.methodSupportsIt
+				? "Enable it under Settings > Weather to use these averages."
+				: "Select Zimmerman or ETo under Settings > Weather to expose the multi-day toggle." );
+	const explanation = infoNote( usage );
 	if ( !Array.isArray( wls ) || wls.length === 0 ) {
 		return `<h3>Multi-Day Levels ${ help }</h3>` +
 			explanation +

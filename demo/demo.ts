@@ -172,8 +172,38 @@ function toast( message: string, isError = false ): void {
 }
 
 const api = new OsApiClient( new BrowserDeviceSeam( { baseUrl, ipas: 1, ver: 221 } ) );
+
+/** Static, realistic forecast so the demo shows every Weather/Status/Diagnostics surface. */
+function demoForecast(): import( "../www/src/api/weather" ).ForecastState {
+	const day = Math.floor( Date.now() / 1000 / 86400 ) * 86400 + 43200;
+	const days = [
+		{ temp_min: 72, temp_max: 90, precip: 0.02, pop: 46, humidity: 82, wind: 10, uv: 7, eto: 0.2, icon: "02d", description: "Showers and thunderstorms late" },
+		{ temp_min: 68, temp_max: 84, precip: 0.35, pop: 70, humidity: 88, wind: 14, uv: 5, eto: 0.15, icon: "10d", description: "Thunderstorms, some strong" },
+		{ temp_min: 63, temp_max: 79, precip: 0, pop: 10, humidity: 55, wind: 8, uv: 8, eto: 0.22, icon: "01d", description: "Sunny and pleasant" },
+		{ temp_min: 61, temp_max: 82, precip: 0, pop: 5, humidity: 48, wind: 6, uv: 9, eto: 0.24, icon: "01d", description: "Mostly sunny" },
+		{ temp_min: 66, temp_max: 88, precip: 0.08, pop: 30, humidity: 60, wind: 12, uv: 8, eto: 0.21, icon: "02d", description: "Partly cloudy, stray storm" },
+	].map( ( d, i ) => ( { ...d, date: day + i * 86400 } ) );
+	return {
+		status: "ok", fetchedAt: Date.now() - 4 * 60000,
+		data: {
+			location: [ 41.7, -93.6 ], temp: 87.4, precip: 0.02, description: "Partly cloudy", icon: "02d",
+			humidity: 71, wind: 2.7, region: "US", raining: false, ttl: 14 * 60000,
+			observedAt: Math.floor( Date.now() / 1000 ) - 8 * 60, generatedAt: Math.floor( Date.now() / 1000 ) - 3 * 60,
+			pwsId: "KIAANKEN194", pwsModel: "GW2000B_V3.3.2",
+			forecast: days,
+			hourly: Array.from( { length: 24 }, ( _, i ) => ( {
+				time: Math.floor( Date.now() / 1000 / 3600 ) * 3600 + i * 3600,
+				temp: 74 + Math.round( 14 * Math.sin( ( i - 3 ) / 24 * 2 * Math.PI ) ),
+				precip: i >= 19 && i <= 21 ? 0.05 : 0, pop: i >= 18 && i <= 22 ? 55 : 8,
+				icon: i >= 19 && i <= 21 ? "10d" : i >= 7 && i <= 19 ? "02d" : "01n",
+			} ) ),
+		},
+	};
+}
+
 const controller = mountDashboard( {
 	mount, api, load, toast,
+	loadForecast: async () => demoForecast(),
 	ctx: { prompt: ( m, d ) => window.prompt( m, d ), confirm: ( m ) => window.confirm( m ) },
 } );
 
