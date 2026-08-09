@@ -151,6 +151,31 @@ describe( "weather options", () => {
 		const oldFirmware = buildWeatherOptions( { method: "1", mda: false }, { mda: 100 }, 2210 );
 		expect( oldFirmware.wto ).toContain( '"mda":100' );
 	} );
+	it( "writes a validated PWS station and keeps the stored one on a blank submit", () => {
+		const saved = buildWeatherOptions( { method: "3", provider: "WU", pws: "KCASANFR123" }, {}, 2210 );
+		expect( saved.wto ).toContain( '"pws":"KCASANFR123"' );
+		const kept = buildWeatherOptions( { method: "3", pws: "" }, { provider: "WU", pws: "KOLD1" }, 2210 );
+		expect( kept.wto ).toContain( '"pws":"KOLD1"' );
+		expect( () => buildWeatherOptions( { method: "3", pws: "bad station!" }, {}, 2210 ) )
+			.toThrow( /letters and numbers/i );
+	} );
+	it( "enforces the WU 32-hex key format and lowercases it for the service", () => {
+		const hex = "ABCDEF0123456789ABCDEF0123456789";
+		const out = buildWeatherOptions( { method: "3", provider: "WU", key: hex }, {}, 2210 );
+		expect( out.wto ).toContain( `"key":"${ hex.toLowerCase() }"` );
+		expect( () => buildWeatherOptions( { method: "3", provider: "WU", key: "short" }, {}, 2210 ) )
+			.toThrow( /32 hexadecimal/i );
+		// non-WU providers keep free-form keys:
+		expect( buildWeatherOptions( { method: "1", provider: "OWM", key: "abc" }, {}, 2210 ).wto )
+			.toContain( '"key":"abc"' );
+	} );
+	it( "renders the PWS field with the configured station in the placeholder, never the key", () => {
+		const jo = { uwt: 3, fwv: 221, fwm: 3 } as never;
+		const html = renderWeatherConfig( jo, { loc: "37.5,-122.3", wto: { provider: "WU", pws: "KCASANFR123", key: "a".repeat( 32 ) } } as never );
+		expect( html ).toContain( 'name="pws"' );
+		expect( html ).toContain( "KCASANFR123" );
+		expect( html ).not.toContain( "a".repeat( 32 ) );
+	} );
 } );
 
 describe( "network options", () => {

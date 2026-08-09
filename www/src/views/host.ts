@@ -16,6 +16,7 @@ import { buildWeatherOptions } from "./settings/weather";
 import { buildStationConfig } from "./settings/stations-edit";
 import { buildProgramInput } from "./settings/program-edit";
 import { detectCompanion, fetchHistory, fetchRunLog } from "../api/companion";
+import type { ForecastState } from "../api/weather";
 import { deliverConfigurationExport } from "../config-export";
 import { renderHistory } from "./history-view";
 import { errorCard, esc } from "../ui/help";
@@ -66,6 +67,11 @@ export interface HostDeps {
 	/** Optional bearer token, supplied from a scrubbed URL fragment and retained for this tab session. */
 	companionToken?: string;
 	/**
+	 * Optional read-only forecast fetch (api/weather.ts fetchForecast). Absent = no forecast client
+	 * (e.g. the mocked demo); the views then omit forecast content entirely.
+	 */
+	loadForecast?( jc: JcResponse, signal: AbortSignal ): Promise<ForecastState>;
+	/**
 	 * Explicit hardware-verification proof and the exact mutation families approved for this host.
 	 * Absence is intentionally read-only except for emergency stop/cancel controls.
 	 */
@@ -93,6 +99,9 @@ const RUNTIME_REFRESH_MS = 4000;
 const CONFIG_REFRESH_MS = 20000;
 const CONTROLLER_STALE_MS = 12000;
 const FAILURE_BACKOFF_MS = [ 4000, 8000, 16000, 30000 ] as const;
+// The service caches forecasts to a six-hour boundary; a slow refresh + a shorter error retry.
+const FORECAST_REFRESH_MS = 30 * 60 * 1000;
+const FORECAST_RETRY_MS = 5 * 60 * 1000;
 
 type RefreshResult = "success" | "failure" | "aborted";
 
@@ -131,7 +140,7 @@ const ACTION_PERMISSIONS: Readonly<Record<string, MutationPermission>> = {
 const GENERAL_OPTION_FIELDS: Readonly<Record<string, string>> = {
 	dname: "dname", tzOffset: "tz", wl: "wl", sdt: "sdt", lg: "lg", sn1t: "sn1t", sn1o: "sn1o",
 };
-const WEATHER_WTO_FIELDS = new Set( [ "provider", "key", "rainAmt", "rainDays", "minTemp", "cali", "mda" ] );
+const WEATHER_WTO_FIELDS = new Set( [ "provider", "key", "pws", "rainAmt", "rainDays", "minTemp", "cali", "mda" ] );
 
 function actionPermission( action: string | undefined ): MutationPermission | null {
 	return action === undefined ? null : ACTION_PERMISSIONS[ action ] ?? null;
@@ -295,6 +304,10 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 	let programDraftDirty = false;
 	let focusAfterPaint: string | null = null;
 	let historyHtml: string | undefined;
+	let forecastState: ForecastState | undefined;
+	let forecastAbort: AbortController | null = null;
+	let forecastConfigKey: string | null = null;
+	let lastForecastAttemptAt = 0;
 	let refreshGeneration = 0;
 	let mutationInFlight = false;
 	let refreshAbort: AbortController | null = null;
@@ -459,6 +472,7 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 				mutationStateHtml() + ( data
 				? renderDashboard( data, activeTab, {
 					actions: true, settingsSection, historyHtml,
+					...( forecastState ? { forecast: forecastState } : {} ),
 					...( programEditor ? { programEditor: { pid: programEditor.pid, program: programEditor.source } } : {} ),
 				} )
 				: lastError
@@ -513,6 +527,42 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 			} );
 	}
 
+	/** The forecast-relevant slice of controller config; a change forces an immediate refetch. */
+	function forecastConfig( jc: JcResponse ): string {
+		const wto = jc.wto ?? {};
+		return JSON.stringify( [ jc.wsp, jc.loc, wto.provider, wto.key, wto.pws ] );
+	}
+
+	/**
+	 * Fetch the display forecast on its own slow cadence (fire-and-forget). Failures retain the
+	 * previous good data so the views can label it stale instead of going blank.
+	 */
+	function maybeRefreshForecast( jc: JcResponse ): void {
+		const loadForecast = deps.loadForecast;
+		if ( !loadForecast || disposed ) return;
+		const configKey = forecastConfig( jc );
+		const interval = forecastState?.status === "ok" ? FORECAST_REFRESH_MS : FORECAST_RETRY_MS;
+		if ( configKey === forecastConfigKey && Date.now() - lastForecastAttemptAt < interval ) return;
+		forecastConfigKey = configKey;
+		lastForecastAttemptAt = Date.now();
+		forecastAbort?.abort();
+		const abort = new AbortController();
+		forecastAbort = abort;
+		void loadForecast( jc, abort.signal ).then( ( next ) => {
+			if ( disposed || abort.signal.aborted ) return;
+			const previous = forecastState;
+			forecastState = next.status === "error" && previous?.data
+				? { ...next, data: previous.data, fetchedAt: previous.fetchedAt } // retain stale data
+				: next;
+			if ( sameSnapshot( previous, forecastState ) ) return;
+			if ( hasVisibleDirtyProgramDraft() ||
+				( activeTab === "Settings" && deps.mount.querySelector( "form[data-settings]" ) !== null ) ) {
+				updateConnectionState();
+			} else paint();
+		} ).catch( () => { /* loadForecast resolves error states; a throw means an abort. */ } )
+			.finally( () => { if ( forecastAbort === abort ) forecastAbort = null; } );
+	}
+
 	async function performRefresh( options: FullRefreshOptions ): Promise<RefreshResult> {
 		if ( disposed ) return "aborted";
 		const generation = ++refreshGeneration;
@@ -557,6 +607,7 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 			}
 			data = loaded;
 			noteControllerSuccess( true );
+			maybeRefreshForecast( loaded.jc );
 			// Automatic polling leaves live settings forms intact. Unchanged snapshots also need no repaint.
 			if ( preserveDraft || ( preserveAutomaticSettings && !editorClosed ) ||
 				( options.automatic && !editorClosed && sameSnapshot( previous, loaded ) ) ) {
@@ -605,6 +656,7 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 			const changed = !sameSnapshot( data.jc, jc );
 			data = changed ? { ...data, jc } : data;
 			noteControllerSuccess();
+			maybeRefreshForecast( jc );
 			if ( !changed || activeTab === "Settings" || hasVisibleDirtyProgramDraft() ) updateConnectionState();
 			else paint();
 			return "success";
@@ -1350,9 +1402,11 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 			refreshAbort?.abort();
 			automaticRefreshAbort?.abort();
 			mutationAbort?.abort();
+			forecastAbort?.abort();
 			refreshAbort = null;
 			automaticRefreshAbort = null;
 			mutationAbort = null;
+			forecastAbort = null;
 			deps.mount.removeEventListener( "click", onClick );
 			deps.mount.removeEventListener( "submit", onSubmit );
 			deps.mount.removeEventListener( "input", noteProgramDraft );

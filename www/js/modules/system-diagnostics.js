@@ -142,12 +142,12 @@ OSApp.SystemDiagnostics.showDiagnostics = function() {
 			( typeof weatherData.t !== "undefined" ? "<tr><td>" + OSApp.Language._( "Mean Temp" ) + "</td><td>" + OSApp.Weather.formatTemp( weatherData.t ) + "</td></tr>" : "" ) +
 			( typeof weatherData.p !== "undefined" ? "<tr><td>" + OSApp.Language._( "Total Rain" ) + "</td><td>" + OSApp.Weather.formatPrecip( weatherData.p ) + "</td></tr>" : "" ) +
 			( typeof weatherData.eto !== "undefined" ? "<tr><td>" + OSApp.Language._( "ETo" ) + "</td><td>" + OSApp.Weather.formatPrecip( weatherData.eto ) + "</td></tr>" : "" ) +
-			( typeof radiation !== "undefined" ? "<tr><td>" + OSApp.Language._( "Mean Radiation" ) + "</td><td>" + OSApp.Utils.htmlEscape( radiation ) + " kWh/m2</td></tr>" : "" ) +
+			( typeof radiation !== "undefined" ? "<tr><td>" + OSApp.Language._( "Total Radiation" ) + "</td><td>" + OSApp.Utils.htmlEscape( radiation ) + " kWh/m2</td></tr>" : "" ) +
 			( typeof weatherData.minT !== "undefined" ? "<tr><td>" + OSApp.Language._( "Min Temp" ) + "</td><td>" + OSApp.Weather.formatTemp( weatherData.minT ) + "</td></tr>" : "" ) +
 			( typeof weatherData.maxT !== "undefined" ? "<tr><td>" + OSApp.Language._( "Max Temp" ) + "</td><td>" + OSApp.Weather.formatTemp( weatherData.maxT ) + "</td></tr>" : "" ) +
 			( typeof weatherData.minH !== "undefined" ? "<tr><td>" + OSApp.Language._( "Min Humidity" ) + "</td><td>" + OSApp.Weather.formatHumidity( weatherData.minH ) + "</td></tr>" : "" ) +
 			( typeof weatherData.maxH !== "undefined" ? "<tr><td>" + OSApp.Language._( "Max Humidity" ) + "</td><td>" + OSApp.Weather.formatHumidity( weatherData.maxH ) + "</td></tr>" : "" ) +
-			( typeof weatherData.wind !== "undefined" ? "<tr><td>" + OSApp.Language._( "Mean Wind" ) + "</td><td>" + OSApp.Weather.formatSpeed( weatherData.wind ) + "</td></tr>" : "" );
+			( typeof weatherData.wind !== "undefined" ? "<tr><td>" + OSApp.Language._( "Peak Wind" ) + "</td><td>" + OSApp.Weather.formatSpeed( weatherData.wind ) + "</td></tr>" : "" );
 	}
 
 	popup += ( typeof OSApp.currentSession.controller.settings.lwc === "number" ? "<tr><td>" + OSApp.Language._( "Last Request" ) + "</td><td>" +

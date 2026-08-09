@@ -14,6 +14,7 @@ import {
 	BrowserDeviceSeam, normalizeHttpBase, readFirmwareGlobals, selectBootstrapDeviceBase,
 } from "../www/src/seam/device";
 import { OsApiClient } from "../www/src/api/client";
+import { fetchForecast } from "../www/src/api/weather";
 import type { JoResponse } from "../www/src/api/types";
 import type { DashboardData } from "../www/src/views/dashboard";
 import { mountDashboard } from "../www/src/views/host";
@@ -169,6 +170,9 @@ async function boot(): Promise<void> {
 		mount, api, load, toast,
 		companionBase,
 		companionToken,
+		// Read-only display forecast, fetched directly from the weather service (see
+		// docs/PLATFORM-ROADMAP.md — approved exception to the controller-only data rule).
+		loadForecast: ( jc, signal ) => fetchForecast( jc, { signal } ),
 		// Intentionally omit mutationProof: production stays read-only until the hardware rollout gate passes.
 		ctx: { prompt: ( m, d ) => window.prompt( m, d ), confirm: ( m ) => window.confirm( m ) },
 	} );

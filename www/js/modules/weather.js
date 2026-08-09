@@ -129,14 +129,24 @@ OSApp.Weather.normalizeWeatherData = function( data ) {
 			return null;
 		}
 
-		forecast.push( {
+		var forecastDay = {
 			temp_min: minimum,
 			temp_max: maximum,
 			precip: forecastPrecipitation,
 			date: date,
 			icon: entry.icon,
 			description: entry.description
+		};
+		[
+			[ "pop", 0, 100 ], [ "humidity", 0, 100 ], [ "wind", 0, 500 ],
+			[ "uv", 0, 30 ], [ "eto", 0, 1 ]
+		].forEach( function( optional ) {
+			var value = OSApp.Weather.toFiniteWeatherNumber( entry[ optional[ 0 ] ] );
+			if ( value !== undefined && value >= optional[ 1 ] && value <= optional[ 2 ] ) {
+				forecastDay[ optional[ 0 ] ] = value;
+			}
 		} );
+		forecast.push( forecastDay );
 	}
 
 	var normalized = {
@@ -147,6 +157,51 @@ OSApp.Weather.normalizeWeatherData = function( data ) {
 		icon: data.icon,
 		forecast: forecast
 	};
+
+	[ "observedAt", "generatedAt" ].forEach( function( field ) {
+		var value = OSApp.Weather.toFiniteWeatherNumber( data[ field ] );
+		if ( value !== undefined && Number.isSafeInteger( value ) && value > 0 && value <= 0xffffffff ) {
+			normalized[ field ] = value;
+		}
+	} );
+
+	if ( Array.isArray( data.hourly ) ) {
+		var hourly = [], hourlyIsValid = true;
+		for ( var hourlyIndex = 0; hourlyIndex < data.hourly.length; hourlyIndex++ ) {
+			var hourlyEntry = data.hourly[ hourlyIndex ];
+			if ( !hourlyEntry || typeof hourlyEntry !== "object" || Array.isArray( hourlyEntry ) ) {
+				hourlyIsValid = false;
+				break;
+			}
+			var hourlyTime = OSApp.Weather.toFiniteWeatherNumber( hourlyEntry.time ),
+				hourlyTemp = OSApp.Weather.toFiniteWeatherNumber( hourlyEntry.temp ),
+				hourlyPrecip = OSApp.Weather.toFiniteWeatherNumber( hourlyEntry.precip ),
+				hourlyPop = OSApp.Weather.toFiniteWeatherNumber( hourlyEntry.pop );
+			if ( hourlyTime === undefined || !Number.isSafeInteger( hourlyTime ) || hourlyTime <= 0 || hourlyTime > 0xffffffff ||
+				hourlyTemp === undefined || hourlyTemp < -500 || hourlyTemp > 500 ||
+				hourlyPrecip === undefined || hourlyPrecip < 0 || hourlyPrecip > 10000 ||
+				( hourlyEntry.pop !== undefined && ( hourlyPop === undefined || hourlyPop < 0 || hourlyPop > 100 ) ) ||
+				typeof hourlyEntry.icon !== "string" || hourlyEntry.icon.length > 64 ) {
+				hourlyIsValid = false;
+				break;
+			}
+			if ( hourly.length < 48 ) {
+				var normalizedHour = {
+					time: hourlyTime,
+					temp: hourlyTemp,
+					precip: hourlyPrecip,
+					icon: hourlyEntry.icon
+				};
+				if ( hourlyPop !== undefined ) {
+					normalizedHour.pop = hourlyPop;
+				}
+				hourly.push( normalizedHour );
+			}
+		}
+		if ( hourlyIsValid ) {
+			normalized.hourly = hourly;
+		}
+	}
 
 	[ "humidity", "wind", "minTemp", "maxTemp", "timezone", "sunrise", "sunset", "ttl", "lastUpdated" ].forEach( function( field ) {
 		var value = OSApp.Weather.toFiniteWeatherNumber( data[ field ] );
@@ -1145,6 +1200,22 @@ OSApp.Weather.makeForecast = function() {
 		}
 		description = OSApp.Utils.htmlEscape( entry.description || "" );
 		icon = OSApp.Weather.safeIcon( entry.icon );
+		var extras = [];
+		if ( typeof entry.pop === "number" ) {
+			extras.push( Math.round( entry.pop ) + "% " + OSApp.Language._( "chance of rain" ) );
+		}
+		if ( typeof entry.wind === "number" ) {
+			extras.push( OSApp.Language._( "wind" ) + " " + OSApp.Weather.formatSpeed( entry.wind ) );
+		}
+		if ( typeof entry.humidity === "number" ) {
+			extras.push( OSApp.Language._( "humidity" ) + " " + OSApp.Weather.formatHumidity( entry.humidity ).replace( /\s+%$/, "%" ) );
+		}
+		if ( typeof entry.uv === "number" ) {
+			extras.push( OSApp.Language._( "UV" ) + " " + Math.round( entry.uv ) );
+		}
+		if ( typeof entry.eto === "number" ) {
+			extras.push( OSApp.Language._( "ETo" ) + " " + OSApp.Weather.formatPrecip( entry.eto ) );
+		}
 
 		sunrise = times[ 0 ];
 		sunset = times[ 1 ];
@@ -1157,9 +1228,12 @@ OSApp.Weather.makeForecast = function() {
 				"<span>" + OSApp.Language._( "High" ) + "</span><span>: " + OSApp.Weather.formatTemp( entry.temp_max ) + "</span><br>" +
 				"<span>" + OSApp.Language._( "Sunrise" ) + "</span><span>: " + OSApp.Dates.minutesToTime( sunrise ) + "</span> " +
 				"<span>" + OSApp.Language._( "Sunset" ) + "</span><span>: " + OSApp.Dates.minutesToTime( sunset ) + "</span><br>";
-				if ( typeof entry.precip !== "undefined") {
-					list += "<span>" + OSApp.Language._( "Forecasted Rain" ) + "</span><span>: " + OSApp.Weather.formatPrecip( entry.precip ) + "</span>";
-				}
+		if ( typeof entry.precip !== "undefined" ) {
+			list += "<span>" + OSApp.Language._( "Forecasted Rain" ) + "</span><span>: " + OSApp.Weather.formatPrecip( entry.precip ) + "</span>";
+		}
+		if ( extras.length ) {
+			list += "<br><span>" + extras.join( " &middot; " ) + "</span>";
+		}
 		list += "</li>";
 	}
 

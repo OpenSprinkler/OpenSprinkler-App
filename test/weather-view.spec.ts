@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import { describe, it, expect } from "vitest";
 import { parseJc, parseJo } from "../www/src/api/client";
 import { deriveWeatherDecision, renderWeather } from "../www/src/views/weather-view";
+import type { ForecastState } from "../www/src/api/weather";
 
 function fx( name: string ): unknown {
 	return JSON.parse( readFileSync( fileURLToPath( new URL( `./fixtures/api/${ name }.fixture.json`, import.meta.url ) ), "utf8" ) );
@@ -173,5 +174,129 @@ describe( "renderWeather — weather-source footer (#291)", () => {
 	} );
 	it( "shows the configured service host", () => {
 		expect( renderWeather( jc, jo ) ).toContain( "weather.opensprinkler.com" ); // jc.wsp
+	} );
+	it( "names the WU PWS station when observations come from a personal weather station", () => {
+		const html = renderWeather( { ...jc, wtdata: { wp: "WU" }, wto: { ...jc.wto, provider: "WU", pws: "KCASANFR123" } }, jo );
+		expect( html ).toContain( "Weather Underground" );
+		expect( html ).toContain( "KCASANFR123" );
+	} );
+} );
+
+describe( "renderWeather — direct forecast section", () => {
+	const okForecast: ForecastState = {
+		status: "ok",
+		fetchedAt: Date.now() - 60000,
+		data: {
+			location: [ 37.5, -122.3 ], temp: 72.4, precip: 0.02, description: "Partly cloudy", icon: "02d",
+			humidity: 41, wind: 6.3, region: "CA", wp: "WU",
+			forecast: [
+				{ temp_min: 55, temp_max: 78, precip: 0, date: 1717934400, icon: "01d", description: "Clear" },
+				{ temp_min: 57, temp_max: 81, precip: 0.35, date: 1718020800, icon: "10d", description: "Showers" },
+			],
+		},
+	};
+
+	it( "omits the section entirely when no forecast client exists", () => {
+		expect( renderWeather( jc, jo ) ).not.toContain( "<h3>Forecast</h3>" );
+	} );
+	it( "renders current conditions, chart, verbose day cards, and freshness", () => {
+		const html = renderWeather( jc, jo, okForecast );
+		expect( html ).toContain( "<h3>Forecast</h3>" );
+		expect( html ).toContain( "72.4 °F" );
+		expect( html ).toContain( "Partly cloudy" );
+		expect( html ).toContain( "Humidity 41%" );
+		expect( html ).toContain( "Wind 6.3 mph" );
+		expect( html ).toContain( "forecast-chart" );
+		expect( html ).toContain( "Today" );      // devt fixture day
+		expect( html ).toContain( "Mon" );
+		expect( html ).toContain( "Showers" );
+		expect( html ).toContain( "0.35 in" );
+		expect( html ).toContain( "Forecast fetched" );
+	} );
+	it( "explains the WU hybrid (PWS observations, coordinate forecast)", () => {
+		const html = renderWeather( { ...jc, wto: { ...jc.wto, provider: "WU", pws: "KCASANFR123" } }, jo, okForecast );
+		expect( html ).toContain( "personal weather station KCASANFR123" );
+		expect( html ).toContain( "coordinates" );
+	} );
+	it( "labels a retained forecast as older when the latest fetch failed", () => {
+		const html = renderWeather( jc, jo, { ...okForecast, status: "error", error: "HTTP 502" } );
+		expect( html ).toContain( "older forecast" );
+		expect( html ).toContain( "HTTP 502" );
+		expect( html ).toContain( "forecast-chart" ); // stale data still shown
+	} );
+	it( "renders unavailable and hard-error states without a chart", () => {
+		const unavailable = renderWeather( jc, jo, { status: "unavailable", reason: "No location." } );
+		expect( unavailable ).toContain( "No forecast" );
+		expect( unavailable ).toContain( "No location." );
+		const failed = renderWeather( jc, jo, { status: "error", error: "Timed out." } );
+		expect( failed ).toContain( "Forecast unavailable" );
+		expect( failed ).not.toContain( "forecast-chart" );
+	} );
+	it( "renders verbose per-day details when the service provides them", () => {
+		const verbose: ForecastState = {
+			...okForecast,
+			data: { ...okForecast.data!, forecast: [
+				{ ...okForecast.data!.forecast[ 1 ]!, pop: 60, wind: 12.4, humidity: 45, uv: 7, eto: 0.18 } ] },
+		};
+		const html = renderWeather( jc, jo, verbose );
+		expect( html ).toContain( "60% chance of rain" );
+		expect( html ).toContain( "wind 12 mph" );
+		expect( html ).toContain( "humidity 45%" );
+		expect( html ).toContain( "UV 7" );
+		expect( html ).toContain( "ETo 0.18 in" );
+		// absent optionals render nothing, not zeros:
+		expect( renderWeather( jc, jo, okForecast ) ).not.toContain( "chance of rain" );
+	} );
+	it( "renders one hourly strip with controller-local hours and omits it when absent", () => {
+		const hourly: ForecastState = {
+			...okForecast,
+			data: { ...okForecast.data!, hourly: [
+				{ time: 1717934400, temp: 65, precip: 0, pop: 60, icon: "02d" },
+				{ time: 1717938000, temp: 66, precip: 0.02, icon: "10d" },
+			] },
+		};
+		const html = renderWeather( jc, jo, hourly );
+		expect( html ).toContain( "forecast-hourly" );
+		expect( html ).toContain( "12 PM" );
+		expect( html ).toContain( "65°F" );
+		expect( html ).toContain( "60% rain" );
+		expect( html ).toContain( "0.02 in" );
+		expect( renderWeather( jc, jo, okForecast ) ).not.toContain( "forecast-hourly" );
+	} );
+	it( "prefers true-UTC observation and generation freshness over fetch receipt time", () => {
+		const now = Math.floor( Date.now() / 1000 );
+		const timed: ForecastState = {
+			...okForecast,
+			data: { ...okForecast.data!, observedAt: now - 720, generatedAt: now - 180 },
+		};
+		const html = renderWeather( jc, jo, timed );
+		expect( html ).toContain( "Observed 12 mins ago · forecast generated 3 mins ago" );
+		expect( html ).not.toContain( "Forecast fetched" );
+	} );
+	it( "escapes hostile service strings and surfaces alerts", () => {
+		const hostile: ForecastState = {
+			...okForecast,
+			data: {
+				...okForecast.data!,
+				description: `<script>alert(1)</script>`,
+				alert: { name: "Flood watch", message: "<b>High water</b>" },
+			},
+		};
+		const html = renderWeather( jc, jo, hostile );
+		expect( html ).not.toContain( "<script>" );
+		expect( html ).toContain( "Flood watch" );
+		expect( html ).not.toContain( "<b>High water</b>" );
+	} );
+} );
+
+describe( "renderWeather — wtdata labels match WU aggregation semantics", () => {
+	it( "labels wind as a peak, radiation as a total, and units as imperial", () => {
+		const html = renderWeather( { ...jc, wtdata: { wind: 12, radiation: 6.5, eto: 0.21, p: 0.4 } }, jo );
+		expect( html ).toContain( "Peak wind" );
+		expect( html ).toContain( "12 mph" );
+		expect( html ).toContain( "Total solar radiation" );
+		expect( html ).toContain( "ETo (latest complete day)" );
+		expect( html ).toContain( "0.21 in" );
+		expect( html ).toContain( "not a forecast" );
 	} );
 } );

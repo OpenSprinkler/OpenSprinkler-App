@@ -61,6 +61,30 @@ describe( "Legacy weather option security", function() {
 		assert.lengthOf( normalized.forecast, 2 );
 	} );
 
+	it( "normalizes optional daily, hourly, and service timestamp fields", function() {
+		var hourly = [];
+		for ( var index = 0; index < 49; index++ ) {
+			hourly.push( { time: 1784970000 + index * 3600, temp: 70, precip: 0.02, pop: 60, icon: "02d" } );
+		}
+		var weather = validWeather( { observedAt: 1784969900, generatedAt: 1784969800, hourly: hourly } );
+		weather.forecast[ 0 ] = Object.assign( {}, weather.forecast[ 0 ], {
+			pop: 60, humidity: 45, wind: 12, uv: 7, eto: 0.18
+		} );
+		var normalized = OSApp.Weather.normalizeWeatherData( weather );
+		assert.deepInclude( normalized.forecast[ 0 ], { pop: 60, humidity: 45, wind: 12, uv: 7, eto: 0.18 } );
+		assert.equal( normalized.observedAt, 1784969900 );
+		assert.equal( normalized.generatedAt, 1784969800 );
+		assert.lengthOf( normalized.hourly, 48 );
+
+		weather.hourly[ 1 ].pop = 101;
+		normalized = OSApp.Weather.normalizeWeatherData( weather );
+		assert.notProperty( normalized, "hourly" );
+		weather.forecast[ 0 ].eto = 2;
+		weather.observedAt = 0;
+		assert.notProperty( OSApp.Weather.normalizeWeatherData( weather ).forecast[ 0 ], "eto" );
+		assert.notProperty( OSApp.Weather.normalizeWeatherData( weather ), "observedAt" );
+	} );
+
 	it( "rejects malformed rain delays before issuing a controller command", function() {
 		var sandbox = sinon.createSandbox();
 
