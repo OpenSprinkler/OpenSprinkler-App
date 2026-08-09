@@ -9,8 +9,9 @@
  */
 import { esc } from "./help";
 
-/** Chart geometry (viewBox units). */
-const COL_W = 64, PAD_X = 10, TEMP_TOP = 26, TEMP_H = 110, PANEL_GAP = 40, PRECIP_H = 56;
+/** Chart geometry (viewBox units). TEMP_TOP clears the panel title plus a max-height bar's value
+ * label (label baseline = TEMP_TOP - 6, 12px glyphs): keep it ≥ title baseline + 22. */
+const COL_W = 64, PAD_X = 10, TEMP_TOP = 40, TEMP_H = 110, PANEL_GAP = 40, PRECIP_H = 56;
 const PRECIP_TOP = TEMP_TOP + TEMP_H + PANEL_GAP;
 const DAY_LABEL_Y = PRECIP_TOP + PRECIP_H + 18;
 const HEIGHT = DAY_LABEL_Y + 10;
