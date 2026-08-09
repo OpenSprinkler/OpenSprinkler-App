@@ -132,6 +132,25 @@ describe( "renderDiagnostics", () => {
 		// fixture has neither a provider tag nor wto.provider → row omitted:
 		expect( html ).not.toContain( "Weather source" );
 	} );
+	it( "names the actual local sensor when the service reports its identity", () => {
+		const forecast = {
+			status: "ok" as const, fetchedAt: Date.now(),
+			data: {
+				location: [ 41.7, -93.6 ] as [ number, number ], temp: 88, precip: 0, description: "", icon: "01d",
+				pwsId: "KIAANKEN194", pwsModel: "GW2000B_V3.3.2",
+				forecast: [ { temp_min: 70, temp_max: 90, precip: 0, date: 1717934400, icon: "01d", description: "x" } ],
+			},
+		};
+		const html = renderDiagnostics( { ...jc, wtdata: { wp: "local" } }, jo, forecast );
+		expect( html ).toContain( "GW2000B_V3.3.2 · KIAANKEN194" );
+		expect( html ).toContain( "local station" );
+		expect( html ).not.toContain( "your local Personal Weather Station" );
+		// without identity fields the generic label remains:
+		const generic = renderDiagnostics( { ...jc, wtdata: { wp: "local" } }, jo, {
+			...forecast, data: { ...forecast.data, pwsId: undefined, pwsModel: undefined },
+		} );
+		expect( generic ).toContain( "your local Personal Weather Station" );
+	} );
 	it( "reports direct forecast-fetch health without leaking credentials", () => {
 		const now = Math.floor( Date.now() / 1000 );
 		const ok = renderDiagnostics( jc, jo, {

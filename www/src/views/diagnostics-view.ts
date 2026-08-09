@@ -63,10 +63,18 @@ function healthSummary( jc: JcResponse ): string {
 }
 
 /** "Weather Underground · PWS KXXX" style provenance from the provider tag + configured wto. */
-function weatherSourceCell( jc: JcResponse ): string {
+function weatherSourceCell( jc: JcResponse, forecast?: ForecastState ): string {
 	const provider = weatherProviderTag( jc.wtdata ) ??
 		( typeof jc.wto?.provider === "string" && jc.wto.provider ? String( jc.wto.provider ) : null );
 	if ( !provider ) return "";
+	if ( provider === "local" ) {
+		// Prefer the sensor's self-reported identity (service pwsId/pwsModel) over the generic label.
+		const model = forecast?.data?.pwsModel, id = forecast?.data?.pwsId;
+		if ( model || id ) {
+			return esc( [ model, id ].filter( Boolean ).join( " · " ) ) +
+				` <span class="muted">(local station)</span>`;
+		}
+	}
 	const pws = typeof jc.wto?.pws === "string" && jc.wto.pws ? String( jc.wto.pws ) : "";
 	const wantsPws = provider === "WU" || provider === "WUnderground";
 	return esc( weatherSourceName( provider ) ) + ( wantsPws && pws ? ` · PWS ${ esc( pws ) }` : "" );
@@ -113,7 +121,7 @@ export function renderDiagnostics( jc: JcResponse, jo: JoResponse, forecast?: Fo
 	].join( "" );
 
 	// --- Weather service ---
-	const sourceCell = weatherSourceCell( jc );
+	const sourceCell = weatherSourceCell( jc, forecast );
 	const weatherRows = [
 		typeof jc.wterr === "number" ? row( "Service status", statusSpan( weatherStatus( jc.wterr ) ),
 			"Whether the controller can reach its weather service." ) : "",
