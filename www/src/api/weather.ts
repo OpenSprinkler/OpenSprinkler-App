@@ -13,6 +13,7 @@
  * never into any returned state that views render.
  */
 import type { JcResponse } from "./types";
+import { WEATHER_ERRORS } from "./diagnostics";
 import { osTzOffsetSeconds } from "./time";
 
 export const DEFAULT_WEATHER_SERVER_URL = "https://weather.opensprinkler.com";
@@ -34,6 +35,17 @@ export interface ForecastDay {
 	wind?: number;
 	/** Forecast maximum UV index. */
 	uv?: number;
+	/** Forecast reference evapotranspiration (inches/day). */
+	eto?: number;
+}
+
+/** One normalized hourly forecast point. */
+export interface HourlyForecast {
+	time: number;
+	temp: number;
+	precip: number;
+	pop?: number;
+	icon: string;
 }
 
 /** Normalized /weatherData payload. All values are imperial (°F, mph, in) per the service. */
@@ -59,6 +71,11 @@ export interface ForecastData {
 	city?: string;
 	raining?: boolean;
 	alert?: { type?: string; name?: string; message?: string } | null;
+	hourly?: HourlyForecast[];
+	/** True UTC epoch seconds of the current observation. */
+	observedAt?: number;
+	/** True UTC epoch seconds when the service generated this response. */
+	generatedAt?: number;
 }
 
 /** Forecast fetch state threaded (optionally) through the dashboard views. */
@@ -77,6 +94,13 @@ function toFiniteNumber( value: unknown ): number | undefined {
 		( typeof value === "string" && value.trim() === "" ) ) return undefined;
 	const n = Number( value );
 	return Number.isFinite( n ) ? n : undefined;
+}
+
+function toEpochSeconds( value: unknown ): number | undefined {
+	const epoch = toFiniteNumber( value );
+	return epoch !== undefined && Number.isSafeInteger( epoch ) && epoch > 0 && epoch <= 0xffffffff
+		? epoch
+		: undefined;
 }
 
 /**
@@ -139,11 +163,11 @@ export function normalizeForecastData( data: unknown ): ForecastData | null {
 		if ( !entry || typeof entry !== "object" || Array.isArray( entry ) ) return null;
 		const e = entry as Record<string, unknown>;
 		const minimum = toFiniteNumber( e.temp_min ), maximum = toFiniteNumber( e.temp_max );
-		const precip = toFiniteNumber( e.precip ), date = toFiniteNumber( e.date );
+		const precip = toFiniteNumber( e.precip ), date = toEpochSeconds( e.date );
 		if ( minimum === undefined || minimum < -500 || minimum > 500 ||
 			maximum === undefined || maximum < minimum || maximum > 500 ||
 			precip === undefined || precip < 0 || precip > 10000 ||
-			date === undefined || !Number.isSafeInteger( date ) || date <= 0 || date > 0xffffffff ||
+			date === undefined ||
 			typeof e.description !== "string" || e.description.length > 2048 ||
 			typeof e.icon !== "string" || e.icon.length > 64 ) return null;
 		const day: ForecastDay = {
@@ -151,8 +175,8 @@ export function normalizeForecastData( data: unknown ): ForecastData | null {
 			icon: e.icon, description: e.description,
 		};
 		// Optional verbose fields (newer service builds); range-checked, absent when out of range.
-		const optionals: Array<[ field: "pop" | "humidity" | "wind" | "uv", min: number, max: number ]> =
-			[ [ "pop", 0, 100 ], [ "humidity", 0, 100 ], [ "wind", 0, 500 ], [ "uv", 0, 30 ] ];
+		const optionals: Array<[ field: "pop" | "humidity" | "wind" | "uv" | "eto", min: number, max: number ]> =
+			[ [ "pop", 0, 100 ], [ "humidity", 0, 100 ], [ "wind", 0, 500 ], [ "uv", 0, 30 ], [ "eto", 0, 1 ] ];
 		for ( const [ field, min, max ] of optionals ) {
 			const value = toFiniteNumber( e[ field ] );
 			if ( value !== undefined && value >= min && value <= max ) day[ field ] = value;
@@ -165,6 +189,30 @@ export function normalizeForecastData( data: unknown ): ForecastData | null {
 		temp: temperature, precip: precipitation,
 		description: raw.description, icon: raw.icon, forecast,
 	};
+	for ( const field of [ "observedAt", "generatedAt" ] as const ) {
+		const value = toEpochSeconds( raw[ field ] );
+		if ( value !== undefined ) normalized[ field ] = value;
+	}
+	if ( Array.isArray( raw.hourly ) ) {
+		const hourly: HourlyForecast[] = [];
+		let valid = true;
+		for ( const entry of raw.hourly as unknown[] ) {
+			if ( !entry || typeof entry !== "object" || Array.isArray( entry ) ) { valid = false; break; }
+			const e = entry as Record<string, unknown>;
+			const time = toEpochSeconds( e.time ), temp = toFiniteNumber( e.temp );
+			const precip = toFiniteNumber( e.precip ), pop = toFiniteNumber( e.pop );
+			if ( time === undefined || temp === undefined || temp < -500 || temp > 500 ||
+				precip === undefined || precip < 0 || precip > 10000 ||
+				( e.pop !== undefined && ( pop === undefined || pop < 0 || pop > 100 ) ) ||
+				typeof e.icon !== "string" || e.icon.length > 64 ) { valid = false; break; }
+			if ( hourly.length < 48 ) {
+				const hour: HourlyForecast = { time, temp, precip, icon: e.icon };
+				if ( pop !== undefined ) hour.pop = pop;
+				hourly.push( hour );
+			}
+		}
+		if ( valid ) normalized.hourly = hourly;
+	}
 	for ( const field of [ "humidity", "wind", "minTemp", "maxTemp", "timezone", "sunrise", "sunset", "ttl" ] as const ) {
 		const value = toFiniteNumber( raw[ field ] );
 		if ( value !== undefined ) normalized[ field ] = value;
@@ -195,6 +243,21 @@ export interface FetchForecastOptions {
 	now?: () => number;
 }
 
+async function httpErrorMessage( response: Response ): Promise<string> {
+	const fallback = `The weather service responded with HTTP ${ response.status }.`;
+	try {
+		const body: unknown = await response.json();
+		if ( !body || typeof body !== "object" || Array.isArray( body ) ) return fallback;
+		const raw = body as Record<string, unknown>;
+		if ( typeof raw.error !== "number" || !Number.isFinite( raw.error ) || typeof raw.message !== "string" ) return fallback;
+		const mapped = WEATHER_ERRORS[ raw.error ];
+		return `The weather service responded with HTTP ${ response.status }: ${ raw.message.slice( 0, 300 ) } ` +
+			`(error ${ raw.error }${ mapped ? `: ${ mapped }` : "" }).`;
+	} catch {
+		return fallback;
+	}
+}
+
 /** Fetch + normalize the forecast for the controller's configured location/provider. */
 export async function fetchForecast( jc: JcResponse, opts: FetchForecastOptions = {} ): Promise<ForecastState> {
 	const url = buildForecastUrl( jc );
@@ -208,7 +271,7 @@ export async function fetchForecast( jc: JcResponse, opts: FetchForecastOptions 
 	const timer = setTimeout( () => abort.abort(), FETCH_TIMEOUT_MS );
 	try {
 		const response = await fetchImpl( url, { signal: abort.signal } );
-		if ( !response.ok ) return { status: "error", error: `The weather service responded with HTTP ${ response.status }.` };
+		if ( !response.ok ) return { status: "error", error: await httpErrorMessage( response ) };
 		const data = normalizeForecastData( await response.json() );
 		if ( !data ) return { status: "error", error: "The weather service returned an unusable forecast payload." };
 		return { status: "ok", data, fetchedAt: now() };
@@ -234,6 +297,12 @@ export function forecastDayLabel( dateEpoch: number, devt: number, tz: number ):
 	const local = dateEpoch + osTzOffsetSeconds( tz );
 	if ( Math.floor( local / 86400 ) === Math.floor( devt / 86400 ) ) return "Today";
 	return [ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" ][ new Date( local * 1000 ).getUTCDay() ]!;
+}
+
+/** Label a true UTC forecast epoch as an hour in the controller's configured timezone. */
+export function forecastHourLabel( timeEpoch: number, tz: number ): string {
+	const hour = new Date( ( timeEpoch + osTzOffsetSeconds( tz ) ) * 1000 ).getUTCHours();
+	return `${ hour % 12 || 12 } ${ hour >= 12 ? "PM" : "AM" }`;
 }
 
 /** Rain is "meaningful" at or above this daily amount (inches). */

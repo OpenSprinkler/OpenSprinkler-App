@@ -236,15 +236,42 @@ describe( "renderWeather — direct forecast section", () => {
 		const verbose: ForecastState = {
 			...okForecast,
 			data: { ...okForecast.data!, forecast: [
-				{ ...okForecast.data!.forecast[ 1 ]!, pop: 60, wind: 12.4, humidity: 45, uv: 7 } ] },
+				{ ...okForecast.data!.forecast[ 1 ]!, pop: 60, wind: 12.4, humidity: 45, uv: 7, eto: 0.18 } ] },
 		};
 		const html = renderWeather( jc, jo, verbose );
 		expect( html ).toContain( "60% chance of rain" );
 		expect( html ).toContain( "wind 12 mph" );
 		expect( html ).toContain( "humidity 45%" );
 		expect( html ).toContain( "UV 7" );
+		expect( html ).toContain( "ETo 0.18 in" );
 		// absent optionals render nothing, not zeros:
 		expect( renderWeather( jc, jo, okForecast ) ).not.toContain( "chance of rain" );
+	} );
+	it( "renders one hourly strip with controller-local hours and omits it when absent", () => {
+		const hourly: ForecastState = {
+			...okForecast,
+			data: { ...okForecast.data!, hourly: [
+				{ time: 1717934400, temp: 65, precip: 0, pop: 60, icon: "02d" },
+				{ time: 1717938000, temp: 66, precip: 0.02, icon: "10d" },
+			] },
+		};
+		const html = renderWeather( jc, jo, hourly );
+		expect( html ).toContain( "forecast-hourly" );
+		expect( html ).toContain( "12 PM" );
+		expect( html ).toContain( "65°F" );
+		expect( html ).toContain( "60% rain" );
+		expect( html ).toContain( "0.02 in" );
+		expect( renderWeather( jc, jo, okForecast ) ).not.toContain( "forecast-hourly" );
+	} );
+	it( "prefers true-UTC observation and generation freshness over fetch receipt time", () => {
+		const now = Math.floor( Date.now() / 1000 );
+		const timed: ForecastState = {
+			...okForecast,
+			data: { ...okForecast.data!, observedAt: now - 720, generatedAt: now - 180 },
+		};
+		const html = renderWeather( jc, jo, timed );
+		expect( html ).toContain( "Observed 12 mins ago · forecast generated 3 mins ago" );
+		expect( html ).not.toContain( "Forecast fetched" );
 	} );
 	it( "escapes hostile service strings and surfaces alerts", () => {
 		const hostile: ForecastState = {

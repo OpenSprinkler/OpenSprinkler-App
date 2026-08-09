@@ -202,16 +202,19 @@ describe( "Legacy regression checks", function() {
 		var oldController = OSApp.currentSession.controller,
 			oldWeather = OSApp.currentSession.weather,
 			old24Hour = OSApp.uiState.is24Hour,
+			oldMetric = OSApp.currentDevice.isMetric,
 			sunTimes = sinon.stub( OSApp.Weather, "getSunTimes" ).returns( [ 360, 1080 ] );
 
 		try {
 			OSApp.uiState.is24Hour = false;
+			OSApp.currentDevice.isMetric = false;
 			OSApp.currentSession.controller = { options:{ tz:20 }, settings:{ sunrise:360, sunset:1080 } };
 			OSApp.currentSession.weather = {
 				description:"Clear", icon:"01d", temp:70, precip:0,
 				forecast:[ {}, {
 					date:Date.UTC( 2024, 5, 1 ) / 1000, description:"Sunny", icon:"01d",
-					temp_min:60, temp_max:80, precip:0
+					temp_min:60, temp_max:80, precip:0,
+					pop:60, wind:12, humidity:45, uv:7, eto:0.18
 				} ]
 			};
 
@@ -221,11 +224,17 @@ describe( "Legacy regression checks", function() {
 			assert.include( html, "6:00 AM" );
 			assert.include( html, "6:00 PM" );
 			assert.notInclude( html, "18:00" );
+			assert.include( html, "60% chance of rain" );
+			assert.include( html, "wind 12 mph" );
+			assert.include( html, "humidity 45%" );
+			assert.include( html, "UV 7" );
+			assert.include( html, "ETo 0.18 in" );
 		} finally {
 			sunTimes.restore();
 			OSApp.currentSession.controller = oldController;
 			OSApp.currentSession.weather = oldWeather;
 			OSApp.uiState.is24Hour = old24Hour;
+			OSApp.currentDevice.isMetric = oldMetric;
 		}
 	} );
 
@@ -1328,6 +1337,7 @@ describe( "Legacy regression checks", function() {
 			OSApp.currentSession.controller.options.wl = "75";
 			OSApp.currentSession.controller.settings.wls = [ "100", "80" ];
 			OSApp.currentSession.controller.settings.wtdata.radiation = "4.25";
+			OSApp.currentSession.controller.settings.wtdata.wind = "12";
 			OSApp.SystemDiagnostics.showDiagnostics();
 			assert.include( popup.text(), "75 %" );
 			assert.include( popup.text(), "1-day rolling average" );
@@ -1336,6 +1346,9 @@ describe( "Legacy regression checks", function() {
 			assert.include( popup.text(), "longest average available" );
 			assert.notInclude( popup.text(), "[100, 80]" );
 			assert.include( popup.text(), "4.25 kWh/m2" );
+			assert.include( popup.text(), "Total Radiation" );
+			assert.include( popup.text(), "Peak Wind" );
+			assert.notInclude( popup.text(), "Mean Wind" );
 
 			OSApp.currentSession.controller.settings.wls = [];
 			OSApp.SystemDiagnostics.showDiagnostics();

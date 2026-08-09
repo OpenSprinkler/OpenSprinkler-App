@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import { describe, it, expect } from "vitest";
 import { parseJc } from "../www/src/api/client";
 import {
-	buildForecastUrl, fetchForecast, forecastDayLabel, nextRainDay,
+	buildForecastUrl, fetchForecast, forecastDayLabel, forecastHourLabel, nextRainDay,
 	normalizeForecastData, resolveWeatherServiceUrl, DEFAULT_WEATHER_SERVER_URL,
 	type ForecastDay,
 } from "../www/src/api/weather";
@@ -83,12 +83,33 @@ describe( "normalizeForecastData", () => {
 	} );
 	it( "keeps range-checked optional verbose day fields and drops out-of-range ones", () => {
 		const data = normalizeForecastData( payload( { forecast: [
-			day( { pop: 60, humidity: 45, wind: 12, uv: 7 } ),
-			day( { date: 1718020800, pop: 400, wind: -3 } ),
+			day( { pop: 60, humidity: 45, wind: 12, uv: 7, eto: 0.18 } ),
+			day( { date: 1718020800, pop: 400, wind: -3, eto: 2 } ),
 		] } ) );
-		expect( data!.forecast[ 0 ] ).toMatchObject( { pop: 60, humidity: 45, wind: 12, uv: 7 } );
+		expect( data!.forecast[ 0 ] ).toMatchObject( { pop: 60, humidity: 45, wind: 12, uv: 7, eto: 0.18 } );
 		expect( data!.forecast[ 1 ] ).not.toHaveProperty( "pop" );
 		expect( data!.forecast[ 1 ] ).not.toHaveProperty( "wind" );
+		expect( data!.forecast[ 1 ] ).not.toHaveProperty( "eto" );
+	} );
+	it( "keeps valid timestamps and caps a fully valid hourly forecast at 48 entries", () => {
+		const hourly = Array.from( { length: 49 }, ( _, index ) => ( {
+			time: 1717934400 + index * 3600, temp: 65 + index / 10, precip: 0.02, pop: 40, icon: "02d",
+		} ) );
+		const data = normalizeForecastData( payload( {
+			observedAt: 1717934300, generatedAt: 1717934200, hourly,
+		} ) );
+		expect( data ).toMatchObject( { observedAt: 1717934300, generatedAt: 1717934200 } );
+		expect( data!.hourly ).toHaveLength( 48 );
+		expect( data!.hourly![ 0 ] ).toEqual( hourly[ 0 ] );
+	} );
+	it( "drops optional hourly data as a unit when any entry is malformed", () => {
+		const validHour = { time: 1717934400, temp: 65, precip: 0.02, pop: 40, icon: "02d" };
+		const malformed = normalizeForecastData( payload( { hourly: [ validHour, { ...validHour, pop: 101 } ] } ) );
+		expect( malformed ).not.toBeNull();
+		expect( malformed ).not.toHaveProperty( "hourly" );
+		const invalidTimes = normalizeForecastData( payload( { observedAt: 0, generatedAt: 0x100000000 } ) );
+		expect( invalidTimes ).not.toHaveProperty( "observedAt" );
+		expect( invalidTimes ).not.toHaveProperty( "generatedAt" );
 	} );
 	it( "keeps a valid alert and drops non-string alert members", () => {
 		const data = normalizeForecastData( payload( { alert: { type: "flood", name: "Flood watch", message: "High water", junk: 4 } } ) );
@@ -114,6 +135,13 @@ describe( "fetchForecast", () => {
 		const bad = await fetchForecast( jc, { fetchImpl: async () => ( { ok: true, status: 200, json: async () => ( { nope: 1 } ) } as Response ) } );
 		expect( bad ).toMatchObject( { status: "error", error: expect.stringContaining( "unusable" ) } );
 	} );
+	it( "surfaces a structured service error with its mapped weather code", async () => {
+		const state = await fetchForecast( jc, { fetchImpl: async () => ( {
+			ok: false, status: 400, json: async () => ( { error: 21, message: "That place is unavailable <now>." } ),
+		} as Response ) } );
+		expect( state.error ).toContain( "That place is unavailable <now>." );
+		expect( state.error ).toContain( "error 21: Location Not Found" );
+	} );
 	it( "reports a network throw as an error state, not a rejection", async () => {
 		const state = await fetchForecast( jc, { fetchImpl: async () => { throw new TypeError( "offline" ); } } );
 		expect( state.status ).toBe( "error" );
@@ -130,6 +158,7 @@ describe( "forecastDayLabel / nextRainDay", () => {
 	it( "applies the controller tz offset to the forecast epoch", () => {
 		// GMT-8 (tz 16): UTC midnight epoch of Jun 10 lands on Jun 9 locally.
 		expect( forecastDayLabel( 1718000000, jc.devt, 16 ) ).toBe( "Today" );
+		expect( forecastHourLabel( 1717934400, 16 ) ).toBe( "4 AM" );
 	} );
 	it( "finds the first meaningful-rain day and ignores drizzle", () => {
 		const days = [ day( { precip: 0.05 } ), day( { precip: 0.3, date: 1718020800 } ) ];

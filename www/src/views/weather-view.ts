@@ -10,8 +10,8 @@ import type { JcResponse, JoResponse } from "../api/types";
 import { adjustmentMethodName, weatherErrorText, weatherProviderTag, weatherSourceName } from "../api/diagnostics";
 import { elapsedSeconds, formatControllerDateTime, relativeTime } from "../api/time";
 import { esc, helpTip, emptyState, infoNote } from "../ui/help";
-import type { ForecastState } from "../api/weather";
-import { forecastDayLabel } from "../api/weather";
+import type { ForecastData, ForecastState, HourlyForecast } from "../api/weather";
+import { forecastDayLabel, forecastHourLabel } from "../api/weather";
 import { renderForecastChart, weatherIconSvg } from "../ui/forecast-chart";
 
 /**
@@ -198,11 +198,32 @@ function renderWeatherData( wtdata: Record<string, unknown>, current: boolean ):
 		`<table class="status"><tbody>${ rows }</tbody></table>`;
 }
 
-/** Freshness line for the direct forecast fetch (client receipt time, browser clock). */
-function forecastFreshness( fetchedAt: number | undefined ): string {
+/** Freshness line for true-UTC service timestamps, falling back to client receipt time. */
+function forecastFreshness( data: ForecastData, fetchedAt: number | undefined ): string {
+	const serviceTimes = [
+		typeof data.observedAt === "number"
+			? `Observed ${ relativeTime( Math.max( 0, Math.round( Date.now() / 1000 - data.observedAt ) ) ) }` : "",
+		typeof data.generatedAt === "number"
+			? `forecast generated ${ relativeTime( Math.max( 0, Math.round( Date.now() / 1000 - data.generatedAt ) ) ) }` : "",
+	].filter( Boolean );
+	if ( serviceTimes.length ) return `<p class="muted">${ esc( serviceTimes.join( " · " ) ) }.</p>`;
 	if ( typeof fetchedAt !== "number" ) return "";
 	const ageSeconds = Math.max( 0, Math.round( ( Date.now() - fetchedAt ) / 1000 ) );
 	return `<p class="muted">Forecast fetched ${ esc( relativeTime( ageSeconds ) ) }.</p>`;
+}
+
+function renderHourlyForecast( hourly: HourlyForecast[] | undefined, tz: number ): string {
+	if ( !hourly?.length ) return "";
+	const cells = hourly.map( ( hour ) => {
+		const rain = typeof hour.pop === "number"
+			? `${ Math.round( hour.pop ) }% rain`
+			: `${ Math.round( hour.precip * 100 ) / 100 } in`;
+		return `<div class="fh-cell"><span class="fh-hour">${ esc( forecastHourLabel( hour.time, tz ) ) }</span>` +
+			weatherIconSvg( hour.icon ) +
+			`<span class="fh-temp">${ esc( String( Math.round( hour.temp ) ) ) }°F</span>` +
+			`<span class="fh-rain">${ esc( rain ) }</span></div>`;
+	} ).join( "" );
+	return `<div class="forecast-hourly" role="group" aria-label="Hourly forecast">${ cells }</div>`;
 }
 
 /** WU hybrid provenance: PWS observations + coordinate forecast are different data products. */
@@ -252,12 +273,14 @@ function renderForecastSection( jc: JcResponse, jo: JoResponse, forecast: Foreca
 		...day, label: forecastDayLabel( day.date, jc.devt, jo.tz ),
 	} ) );
 	const chart = renderForecastChart( days );
+	const hourly = renderHourlyForecast( data.hourly, jo.tz );
 	const cards = days.map( ( day ) => {
 		const extras = [
 			typeof day.pop === "number" ? `${ Math.round( day.pop ) }% chance of rain` : "",
 			typeof day.wind === "number" ? `wind ${ Math.round( day.wind ) } mph` : "",
 			typeof day.humidity === "number" ? `humidity ${ Math.round( day.humidity ) }%` : "",
 			typeof day.uv === "number" ? `UV ${ Math.round( day.uv ) }` : "",
+			typeof day.eto === "number" ? `ETo ${ Math.round( day.eto * 100 ) / 100 } in` : "",
 		].filter( Boolean ).join( " · " );
 		return `<li>${ weatherIconSvg( day.icon ) }<span class="fd-day">${ esc( day.label ) }</span>` +
 			`<span class="fd-desc">${ esc( day.description ) }` +
@@ -267,8 +290,8 @@ function renderForecastSection( jc: JcResponse, jo: JoResponse, forecast: Foreca
 			`${ esc( String( Math.round( day.precip * 100 ) / 100 ) ) } in</span></li>`;
 	} ).join( "" );
 
-	return heading + staleNote + alert + now + forecastProvenance( jc, provider ) + chart +
-		`<ul class="forecast-days">${ cards }</ul>` + forecastFreshness( forecast.fetchedAt );
+	return heading + staleNote + alert + now + forecastProvenance( jc, provider ) + chart + hourly +
+		`<ul class="forecast-days">${ cards }</ul>` + forecastFreshness( data, forecast.fetchedAt );
 }
 
 /**

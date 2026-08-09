@@ -87,6 +87,12 @@ function forecastRows( forecast: ForecastState | undefined ): string {
 	const ttl = forecast.data?.ttl;
 	return row( "Forecast fetch", fetchCell,
 		"The app fetches the display forecast directly from the weather service; the controller's own weather requests are separate." ) +
+		( typeof forecast.data?.observedAt === "number"
+			? row( "Observation age", esc( relativeTime( Math.max( 0,
+				Math.round( Date.now() / 1000 - forecast.data.observedAt ) ) ) ) ) : "" ) +
+		( typeof forecast.data?.generatedAt === "number"
+			? row( "Forecast generated", esc( relativeTime( Math.max( 0,
+				Math.round( Date.now() / 1000 - forecast.data.generatedAt ) ) ) ) ) : "" ) +
 		( typeof ttl === "number" && ttl >= 0
 			? row( "Forecast cache", `Service refresh in ~${ esc( String( Math.max( 1, Math.round( ttl / 60000 ) ) ) ) } min`,
 				"The weather service caches forecasts; refreshing sooner returns the same data." )

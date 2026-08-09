@@ -133,11 +133,12 @@ describe( "renderDiagnostics", () => {
 		expect( html ).not.toContain( "Weather source" );
 	} );
 	it( "reports direct forecast-fetch health without leaking credentials", () => {
+		const now = Math.floor( Date.now() / 1000 );
 		const ok = renderDiagnostics( jc, jo, {
 			status: "ok", fetchedAt: Date.now() - 120000,
 			data: {
 				location: [ 37.5, -122.3 ], temp: 70, precip: 0, description: "Clear", icon: "01d",
-				ttl: 600000,
+				ttl: 600000, observedAt: now - 720, generatedAt: now - 180,
 				forecast: [ { temp_min: 55, temp_max: 78, precip: 0, date: 1717934400, icon: "01d", description: "Clear" } ],
 			},
 		} );
@@ -146,6 +147,10 @@ describe( "renderDiagnostics", () => {
 		expect( ok ).toContain( "2 mins ago" );
 		expect( ok ).toContain( "Forecast cache" );
 		expect( ok ).toContain( "10 min" );
+		expect( ok ).toContain( "Observation age" );
+		expect( ok ).toContain( "12 mins ago" );
+		expect( ok ).toContain( "Forecast generated" );
+		expect( ok ).toContain( "3 mins ago" );
 		const failed = renderDiagnostics( jc, jo, { status: "error", error: "HTTP 502" } );
 		expect( failed ).toContain( "Failed" );
 		expect( failed ).toContain( "HTTP 502" );

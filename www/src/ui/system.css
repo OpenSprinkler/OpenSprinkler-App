@@ -231,7 +231,7 @@ fieldset.duration-field { display: grid; gap: var(--space-2); }
 .toast:not(:empty), .toast.show { opacity: 1; }
 .toast.err { background: #b91c1c; color: #fff; }   /* fixed dark red — 6.47:1 with #fff in both schemes */
 
-/* forecast (weather tab): current conditions, SVG chart, day cards */
+/* forecast (weather tab): current conditions, SVG chart, hourly strip, day cards */
 .forecast-now { display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap; margin-bottom: var(--space-3); }
 .forecast-now .i-weather { width: 44px; height: 44px; flex: none; color: var(--muted); }
 .forecast-now .now-temp { font-size: var(--fs-22); font-weight: var(--fw-semibold); font-variant-numeric: tabular-nums; }
@@ -248,6 +248,11 @@ fieldset.duration-field { display: grid; gap: var(--space-2); }
 	.forecast-chart .fc-temp { fill: #d97706; }
 	.forecast-chart .fc-precip { fill: #3b82f6; }
 }
+.forecast-hourly { display: flex; gap: var(--space-2); overflow-x: auto; padding: 0 0 var(--space-2); scrollbar-color: var(--border) transparent; }
+.forecast-hourly .fh-cell { display: grid; justify-items: center; gap: 2px; flex: 0 0 64px; padding: var(--space-2); border: 1px solid var(--border); border-radius: var(--radius-3); background: var(--card); font-size: var(--fs-12); font-variant-numeric: tabular-nums; }
+.forecast-hourly .i-weather { width: 24px; height: 24px; color: var(--muted); }
+.forecast-hourly .fh-hour, .forecast-hourly .fh-temp { font-weight: var(--fw-semibold); white-space: nowrap; }
+.forecast-hourly .fh-rain { color: var(--muted); white-space: nowrap; }
 ul.forecast-days { list-style: none; margin: var(--space-3) 0 0; padding: 0; display: grid; gap: var(--space-2); }
 ul.forecast-days li { display: flex; align-items: center; gap: var(--space-3); border-bottom: 1px solid var(--border); padding-bottom: var(--space-2); }
 ul.forecast-days li:last-child { border-bottom: none; }
