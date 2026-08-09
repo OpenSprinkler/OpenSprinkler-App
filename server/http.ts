@@ -75,6 +75,10 @@ export function createHttpApp( api: HonoApp, distDir = "dist", options: HttpOpti
 		c.header( "Content-Security-Policy", "frame-ancestors 'self'; object-src 'none'; base-uri 'none'" );
 		c.header( "Permissions-Policy", "geolocation=(self)" );
 		if ( isApiPath( c.req.path ) ) c.header( "Cache-Control", "no-store" );
+		// Static bundles ship under FIXED names (dist/assets/app.js — the bundle-size gate pins
+		// them), so browsers must revalidate on every load or a redeploy leaves stale UI cached.
+		// no-cache still permits 304s via Last-Modified, which is cheap on a LAN.
+		else c.header( "Cache-Control", "no-cache" );
 	} );
 	app.use( "/*", async ( c, next ) => {
 		const finish = requestDrain.begin();

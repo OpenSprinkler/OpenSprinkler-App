@@ -56,4 +56,13 @@ describe( "createHttpApp", () => {
 		const apiResponse = await app.request( "/api/anything" );
 		expect( apiResponse.headers.get( "cache-control" ) ).toBe( "no-store" );
 	} );
+
+	it( "forces revalidation on static paths so fixed-name bundles never go stale", async () => {
+		// dist/assets/app.js is a fixed (unhashed) name; without no-cache a browser can heuristically
+		// cache it and keep rendering the previous release after a redeploy.
+		for ( const path of [ "/", "/home.js", "/assets/app.js" ] ) {
+			const response = await app.request( path );
+			expect( response.headers.get( "cache-control" ), path ).toBe( "no-cache" );
+		}
+	} );
 } );
