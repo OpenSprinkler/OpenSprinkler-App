@@ -253,8 +253,15 @@ function renderForecastSection( jc: JcResponse, jo: JoResponse, forecast: Foreca
 	} ) );
 	const chart = renderForecastChart( days );
 	const cards = days.map( ( day ) => {
+		const extras = [
+			typeof day.pop === "number" ? `${ Math.round( day.pop ) }% chance of rain` : "",
+			typeof day.wind === "number" ? `wind ${ Math.round( day.wind ) } mph` : "",
+			typeof day.humidity === "number" ? `humidity ${ Math.round( day.humidity ) }%` : "",
+			typeof day.uv === "number" ? `UV ${ Math.round( day.uv ) }` : "",
+		].filter( Boolean ).join( " · " );
 		return `<li>${ weatherIconSvg( day.icon ) }<span class="fd-day">${ esc( day.label ) }</span>` +
-			`<span class="fd-desc">${ esc( day.description ) }</span>` +
+			`<span class="fd-desc">${ esc( day.description ) }` +
+			( extras ? `<br><span class="muted">${ esc( extras ) }</span>` : "" ) + `</span>` +
 			`<span class="fd-nums">${ esc( String( Math.round( day.temp_max ) ) ) }° / ` +
 			`${ esc( String( Math.round( day.temp_min ) ) ) }°F · ` +
 			`${ esc( String( Math.round( day.precip * 100 ) / 100 ) ) } in</span></li>`;

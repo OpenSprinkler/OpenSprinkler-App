@@ -42,7 +42,8 @@ export function forecastSummary( forecast: ForecastState | undefined, jc: JcResp
 	let rainText = `no rain expected in the next ${ forecast.data.forecast.length } days`;
 	if ( rain ) {
 		const day = forecastDayLabel( rain.date, jc.devt, jo.tz );
-		rainText = `rain ${ Math.round( rain.precip * 100 ) / 100 } in ${ day === "Today" ? "today" : day }`;
+		rainText = `rain ${ Math.round( rain.precip * 100 ) / 100 } in ${ day === "Today" ? "today" : day }` +
+			( typeof rain.pop === "number" ? ` (${ Math.round( rain.pop ) }%)` : "" );
 	}
 	return `${ temps } · ${ rainText }`;
 }

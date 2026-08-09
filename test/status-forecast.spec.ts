@@ -33,6 +33,11 @@ describe( "forecastSummary", () => {
 			{ ...forecast.data!.forecast[ 0 ]!, precip: 0.5 }, ...forecast.data!.forecast.slice( 1 ) ] } };
 		expect( forecastSummary( wet, jc, jo ) ).toContain( "rain 0.5 in today" );
 	} );
+	it( "appends the probability when the service provides it", () => {
+		const withPop: ForecastState = { ...forecast, data: { ...forecast.data!, forecast: [
+			forecast.data!.forecast[ 0 ]!, { ...forecast.data!.forecast[ 1 ]!, pop: 60 } ] } };
+		expect( forecastSummary( withPop, jc, jo ) ).toContain( "rain 0.35 in Mon (60%)" );
+	} );
 	it( "reports a dry outlook and suppresses itself without fresh data", () => {
 		const dry: ForecastState = { ...forecast, data: { ...forecast.data!, forecast: forecast.data!.forecast.map(
 			( d ) => ( { ...d, precip: 0 } ) ) } };

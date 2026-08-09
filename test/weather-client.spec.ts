@@ -81,6 +81,15 @@ describe( "normalizeForecastData", () => {
 		expect( normalizeForecastData( payload( { forecast: [] } ) ) ).toBeNull();
 		expect( normalizeForecastData( payload( { forecast: Array.from( { length: 33 }, () => day() ) } ) ) ).toBeNull();
 	} );
+	it( "keeps range-checked optional verbose day fields and drops out-of-range ones", () => {
+		const data = normalizeForecastData( payload( { forecast: [
+			day( { pop: 60, humidity: 45, wind: 12, uv: 7 } ),
+			day( { date: 1718020800, pop: 400, wind: -3 } ),
+		] } ) );
+		expect( data!.forecast[ 0 ] ).toMatchObject( { pop: 60, humidity: 45, wind: 12, uv: 7 } );
+		expect( data!.forecast[ 1 ] ).not.toHaveProperty( "pop" );
+		expect( data!.forecast[ 1 ] ).not.toHaveProperty( "wind" );
+	} );
 	it( "keeps a valid alert and drops non-string alert members", () => {
 		const data = normalizeForecastData( payload( { alert: { type: "flood", name: "Flood watch", message: "High water", junk: 4 } } ) );
 		expect( data!.alert ).toEqual( { type: "flood", name: "Flood watch", message: "High water" } );

@@ -26,6 +26,14 @@ export interface ForecastDay {
 	date: number;
 	icon: string;
 	description: string;
+	/** Precipitation probability (percent), when the service provides it. */
+	pop?: number;
+	/** Forecast relative humidity (percent). */
+	humidity?: number;
+	/** Forecast wind speed (mph). */
+	wind?: number;
+	/** Forecast maximum UV index. */
+	uv?: number;
 }
 
 /** Normalized /weatherData payload. All values are imperial (°F, mph, in) per the service. */
@@ -138,10 +146,18 @@ export function normalizeForecastData( data: unknown ): ForecastData | null {
 			date === undefined || !Number.isSafeInteger( date ) || date <= 0 || date > 0xffffffff ||
 			typeof e.description !== "string" || e.description.length > 2048 ||
 			typeof e.icon !== "string" || e.icon.length > 64 ) return null;
-		forecast.push( {
+		const day: ForecastDay = {
 			temp_min: minimum, temp_max: maximum, precip, date,
 			icon: e.icon, description: e.description,
-		} );
+		};
+		// Optional verbose fields (newer service builds); range-checked, absent when out of range.
+		const optionals: Array<[ field: "pop" | "humidity" | "wind" | "uv", min: number, max: number ]> =
+			[ [ "pop", 0, 100 ], [ "humidity", 0, 100 ], [ "wind", 0, 500 ], [ "uv", 0, 30 ] ];
+		for ( const [ field, min, max ] of optionals ) {
+			const value = toFiniteNumber( e[ field ] );
+			if ( value !== undefined && value >= min && value <= max ) day[ field ] = value;
+		}
+		forecast.push( day );
 	}
 
 	const normalized: ForecastData = {

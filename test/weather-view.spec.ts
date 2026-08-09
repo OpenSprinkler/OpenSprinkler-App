@@ -232,6 +232,20 @@ describe( "renderWeather — direct forecast section", () => {
 		expect( failed ).toContain( "Forecast unavailable" );
 		expect( failed ).not.toContain( "forecast-chart" );
 	} );
+	it( "renders verbose per-day details when the service provides them", () => {
+		const verbose: ForecastState = {
+			...okForecast,
+			data: { ...okForecast.data!, forecast: [
+				{ ...okForecast.data!.forecast[ 1 ]!, pop: 60, wind: 12.4, humidity: 45, uv: 7 } ] },
+		};
+		const html = renderWeather( jc, jo, verbose );
+		expect( html ).toContain( "60% chance of rain" );
+		expect( html ).toContain( "wind 12 mph" );
+		expect( html ).toContain( "humidity 45%" );
+		expect( html ).toContain( "UV 7" );
+		// absent optionals render nothing, not zeros:
+		expect( renderWeather( jc, jo, okForecast ) ).not.toContain( "chance of rain" );
+	} );
 	it( "escapes hostile service strings and surfaces alerts", () => {
 		const hostile: ForecastState = {
 			...okForecast,
