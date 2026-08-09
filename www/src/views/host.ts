@@ -466,6 +466,10 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 		if ( activeTab === "History" && historyHtml === undefined ) activeTab = "Status";
 		// Preserve keyboard focus on the active tab across a re-render driven by tab navigation.
 		const refocusTab = ( document.activeElement as HTMLElement | null )?.getAttribute?.( "role" ) === "tab";
+		// Preserve the reading position: replacing mount.innerHTML momentarily collapses the
+		// document, so the browser clamps scroll to the top on every 4-second poll repaint.
+		const view = hostDocument.defaultView;
+		const scrollX = view?.scrollX ?? 0, scrollY = view?.scrollY ?? 0;
 		try {
 			const connection = connectionStateHtml();
 			deps.mount.innerHTML = `<div data-connection-state${ connection ? "" : " hidden" }>${ connection }</div>` +
@@ -493,6 +497,7 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 			deps.mount.querySelector<HTMLElement>( focusAfterPaint )?.focus();
 			focusAfterPaint = null;
 		} else if ( refocusTab ) deps.mount.querySelector<HTMLElement>( '[role="tab"][aria-selected="true"]' )?.focus();
+		if ( view && ( scrollX !== 0 || scrollY !== 0 ) ) view.scrollTo( scrollX, scrollY );
 	}
 
 	function applyInteractionState(): void {

@@ -58,6 +58,20 @@ afterEach( () => {
 } );
 
 describe( "dashboard host mutation authorization", () => {
+	it( "restores the scroll position across a poll-driven repaint", async () => {
+		const mount = document.createElement( "div" );
+		document.body.appendChild( mount );
+		Object.defineProperty( window, "scrollX", { configurable: true, value: 0 } );
+		Object.defineProperty( window, "scrollY", { configurable: true, value: 640 } );
+		const scrollTo = vi.fn();
+		Object.defineProperty( window, "scrollTo", { configurable: true, value: scrollTo } );
+		const controller = mountDashboard( deps( mount, {}, async () => baseline, false ) );
+		await flush();
+		expect( scrollTo ).toHaveBeenCalledWith( 0, 640 ); // reading position survives the innerHTML swap
+		controller.destroy();
+		mount.remove();
+	} );
+
 	it( "defaults to read-only, leaves local drafting available, and rejects crafted writes", async () => {
 		const mount = document.createElement( "div" );
 		document.body.appendChild( mount );
