@@ -107,6 +107,13 @@ table.grid th { color: var(--muted); font-weight: var(--fw-semibold); font-size:
 table.grid td { font-variant-numeric: tabular-nums; }
 table.grid td.num, table.grid th:first-child { width: 36px; color: var(--muted); }
 tr:last-child td { border-bottom: none; }
+/* Log: level-led ledger. Firmware rows are all Info today; Detail/Debug rows (weather
+ * fetches, calculations, request traces) use these styles once richer sources land. */
+table.log-leveled .lvl-cell { font-size: var(--fs-12); font-weight: var(--fw-semibold); white-space: nowrap; }
+table.log-leveled .lvl-cell.lvl-normal { color: var(--muted); }
+table.log-leveled .lvl-cell.lvl-detail { color: var(--accent); }
+table.log-leveled .lvl-cell.lvl-debug { color: var(--muted); opacity: .7; }
+table.log-leveled .calc-detail { color: var(--muted); padding-left: var(--space-4); }
 /* wide-grid escape hatch — a focusable wrapper around ONLY the table, so section padding + help
    tooltips (which render above their anchors) are never clipped. */
 .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
