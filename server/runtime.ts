@@ -58,7 +58,7 @@ function degradedStore(): StorageProvider {
 		pageTelemetry: async () => ( { rows: [], nextCursor: null } ),
 		pageRunLog: async () => ( { rows: [], nextCursor: null } ),
 		lastRunLogEndTs: async () => null,
-		lastTelemetry: async () => null, appendEvents: async () => {},
+		lastTelemetry: async () => null, appendSample: async () => {}, appendEvents: async () => {},
 		pageEvents: async () => ( { rows: [], nextCursor: null } ), pruneEvents: async () => 0,
 		pruneTelemetry: async () => 0, close: async () => {},
 		health: async () => ( { ok: false, telemetryRows: 0, runLogRows: 0, lastTs: null } ),

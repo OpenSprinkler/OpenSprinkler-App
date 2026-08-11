@@ -52,7 +52,6 @@ export async function collectOnce(
 	let optionsForFlow: JoResponse | undefined;
 	let statusForClock: JcResponse | undefined;
 	let eventBaseline: StoredTelemetry | null = null;
-	let appendedSample: TelemetrySample | undefined;
 	const result = (): CollectResult => ( { telemetry, newRunLog, newEvents, errors } );
 	if ( opts.signal?.aborted ) return result();
 
@@ -73,19 +72,13 @@ export async function collectOnce(
 		// An unreadable baseline degrades to "no events this cycle", never to duplicates.
 		eventBaseline = await store.lastTelemetry( controllerId ).catch( () => null );
 		const sample = mapTelemetry( jcResult.value, joResult.value, opts.now );
-		await store.appendTelemetry( controllerId, sample );
-		appendedSample = sample;
+		// One transaction for the sample and its derived events: a crash between separate writes
+		// would commit the sample as the next baseline and lose the transition forever.
+		const derived = diffTelemetryEvents( eventBaseline, sample );
+		await store.appendSample( controllerId, sample, derived );
 		telemetry = true;
+		newEvents = derived.length;
 	} catch ( e ) { errors.push( `telemetry: ${ String( e ) }` ); }
-	if ( opts.signal?.aborted ) return result();
-
-	try {
-		if ( appendedSample ) {
-			const derived = diffTelemetryEvents( eventBaseline, appendedSample );
-			if ( derived.length ) await store.appendEvents( controllerId, derived );
-			newEvents = derived.length;
-		}
-	} catch ( e ) { errors.push( `events: ${ String( e ) }` ); }
 	if ( opts.signal?.aborted ) return result();
 
 	try {

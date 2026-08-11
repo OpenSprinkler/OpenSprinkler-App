@@ -181,14 +181,35 @@ export class SqliteStorageProvider implements StorageProvider {
 	}
 
 	async lastTelemetry( controller: string ): Promise<StoredTelemetry | null> {
+		// Insertion order (id), NOT greatest timestamp: after a backward host-clock step every new
+		// sample carries a smaller ts, and a max-ts baseline would re-diff the same transitions
+		// against a stale row on every poll until wall time catches up.
 		const r = this.orm().select( {
 			ts: telemetry.ts, waterLevel: telemetry.waterLevel, rainDelay: telemetry.rainDelay,
 			weatherErr: telemetry.weatherErr, weatherRestricted: telemetry.weatherRestricted,
 			lastWeatherUpdate: telemetry.lastWeatherUpdate, activeStations: telemetry.activeStations,
 			rssi: telemetry.rssi, currentDraw: telemetry.currentDraw,
 		} ).from( telemetry ).where( eq( telemetry.controller, controller ) )
-			.orderBy( sql`${ telemetry.ts } desc`, sql`${ telemetry.id } desc` ).limit( 1 ).all();
+			.orderBy( sql`${ telemetry.id } desc` ).limit( 1 ).all();
 		return ( r[ 0 ] as StoredTelemetry | undefined ) ?? null;
+	}
+
+	async appendSample( controller: string, s: TelemetrySample, eventRows: EventRow[] ): Promise<void> {
+		// Raw prepared statements + raw transaction (drizzle inserts are async and cannot join a
+		// better-sqlite3 synchronous transaction — same rationale as upsertRunLog).
+		const raw = this.connection();
+		const insertTelemetry = raw.prepare(
+			"INSERT INTO telemetry (controller, ts, water_level, rain_delay, weather_err, weather_restricted, " +
+			"last_weather_update, active_stations, rssi, current_draw, raw) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		);
+		const insertEvent = raw.prepare(
+			"INSERT INTO events (controller, ts, source, level, label, detail) VALUES (?, ?, ?, ?, ?, ?)",
+		);
+		raw.transaction( () => {
+			insertTelemetry.run( controller, s.ts, s.waterLevel, s.rainDelay, s.weatherErr, s.weatherRestricted,
+				s.lastWeatherUpdate, s.activeStations, s.rssi, s.currentDraw, s.raw );
+			for ( const e of eventRows ) insertEvent.run( controller, e.ts, e.source, e.level, e.label, e.detail );
+		} )();
 	}
 
 	async appendEvents( controller: string, rows: EventRow[] ): Promise<void> {

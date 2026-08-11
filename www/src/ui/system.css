@@ -112,7 +112,7 @@ tr:last-child td { border-bottom: none; }
 table.log-leveled .lvl-cell { font-size: var(--fs-12); font-weight: var(--fw-semibold); white-space: nowrap; }
 table.log-leveled .lvl-cell.lvl-normal { color: var(--muted); }
 table.log-leveled .lvl-cell.lvl-detail { color: var(--accent); }
-table.log-leveled .lvl-cell.lvl-debug { color: var(--muted); opacity: .7; }
+table.log-leveled .lvl-cell.lvl-debug { color: var(--muted); font-style: italic; }
 table.log-leveled .calc-detail { color: var(--muted); padding-left: var(--space-4); }
 .log-toolbar { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; margin-bottom: var(--space-3); }
 .log-toolbar .chip { font: inherit; font-size: var(--fs-13); padding: 4px 12px; min-height: 28px;
@@ -124,7 +124,10 @@ table.log-leveled .calc-detail { color: var(--muted); padding-left: var(--space-
 	display: inline-flex; gap: var(--space-2); align-items: center; font-weight: var(--fw-semibold); }
 .log-toolbar .lvl-label select { font-size: var(--fs-14); padding: 4px 6px; border: 1px solid var(--border);
 	border-radius: var(--radius-1); background: transparent; color: inherit; }
-@media (pointer: coarse) { .log-toolbar .chip, .log-toolbar .lvl-label select { min-height: var(--tap); } }
+@media (pointer: coarse) {
+	.log-toolbar .chip, .log-toolbar .lvl-label select,
+	fieldset.duration-list .dl-row input, fieldset.duration-list .dl-row select { min-height: var(--tap); }
+}
 /* wide-grid escape hatch — a focusable wrapper around ONLY the table, so section padding + help
    tooltips (which render above their anchors) are never clipped. */
 .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -211,7 +214,7 @@ fieldset.duration-list .dl-row {
 }
 fieldset.duration-list .dl-row:last-of-type { border-bottom: none; }
 fieldset.duration-list .dl-name { font-weight: var(--fw-semibold); font-size: var(--fs-14); overflow-wrap: anywhere; }
-fieldset.duration-list .dl-row.is-idle { opacity: .6; }
+fieldset.duration-list .dl-row.is-idle .dl-name { opacity: .6; }
 fieldset.duration-list .dl-hint { color: var(--muted); font-size: var(--fs-13); margin: var(--space-2) 0 0; max-width: var(--measure); }
 fieldset.duration-list .dl-row input,
 fieldset.duration-list .dl-row select { min-width: 0; font-size: var(--fs-14); padding: 6px 8px; }

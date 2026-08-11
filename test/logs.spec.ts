@@ -5,7 +5,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, it, expect } from "vitest";
 import { parseJl, parseJn, parseJo } from "../www/src/api/client";
-import { decodeLogRow, describeLogEntry, lastRunsByStation } from "../www/src/api/decode";
+import { decodeLogRow, describeLogEntry, formatControllerTimestamp, lastRunsByStation } from "../www/src/api/decode";
 import { clearSessionLog, recordSessionEvent } from "../www/src/api/session-log";
 import { renderLogs } from "../www/src/views/logs-view";
 
@@ -86,6 +86,29 @@ describe( "session-observed events in the log", () => {
 		recordSessionEvent( "detail", "Weather", "Weather fetched: 72°F, cloudy" );
 		expect( renderLogs( jl, jn ) ).not.toContain( "Weather fetched" );
 	} );
+	it( "shifts observed epochs into the controller clock by exactly +offset (nonzero tz)", () => {
+		// tz 52 → (52-48)*900 = +3600s. The fixture jo is tz 48 (offset 0), which hides sign or
+		// double-application bugs — so pin the rendered timestamp under a real one-hour offset.
+		const joPlusOne = { ...parseJo( fx( "jo" ) ), tz: 52 };
+		const companionTs = 1717975800;
+		recordSessionEvent( "detail", "Weather", "session marker row" );
+		const sessionEpoch = Math.floor( Date.now() / 1000 ) + 3600;
+		const html = renderLogs( jl, jn, joPlusOne, { companionEvents: [
+			{ ts: companionTs, source: "weather", level: "normal", label: "Weather", detail: "companion marker row" },
+		] } );
+		expect( html ).toContain( formatControllerTimestamp( companionTs + 3600 ) );
+		// Allow one second of test-clock drift on the session row.
+		const sessionTimes = [ sessionEpoch, sessionEpoch + 1 ].map( formatControllerTimestamp );
+		expect( sessionTimes.some( ( t ) => html.includes( t ) ) ).toBe( true );
+	} );
+	it( "shows session events even when the firmware log is empty", () => {
+		const jo = parseJo( fx( "jo" ) );
+		recordSessionEvent( "detail", "Weather", "Weather fetched: 72°F, cloudy" );
+		const html = renderLogs( [], jn, jo );
+		expect( html ).toContain( "Weather fetched: 72°F, cloudy" );
+		expect( html ).toContain( "(1)" );
+		expect( html ).not.toContain( "No log entries yet" );
+	} );
 } );
 
 describe( "companion events and filters in the log", () => {
@@ -118,6 +141,26 @@ describe( "companion events and filters in the log", () => {
 		expect( html ).toContain( "No entries match the current filters." );
 		expect( html ).not.toContain( "No log entries yet" );
 	} );
+	it( "restrictive level and source combine (AND), and Detailed hides Debug rows", () => {
+		clearSessionLog();
+		recordSessionEvent( "debug", "Weather", "debug trace row" );
+		const detailRow = { ts: 1717975860, source: "weather" as const, level: "detail" as const, label: "Weather", detail: "detail weather row" };
+		// Default Detailed ceiling: debug hidden, detail shown.
+		const detailed = renderLogs( jl, jn, jo, { companionEvents: [ detailRow ] } );
+		expect( detailed ).toContain( "detail weather row" );
+		expect( detailed ).not.toContain( "debug trace row" );
+		// Debug ceiling reveals it.
+		expect( renderLogs( jl, jn, jo, { companionEvents: [ detailRow ], filter: { level: "debug", source: "all" } } ) )
+			.toContain( "debug trace row" );
+		// Both predicates restrictive at once: weather source + normal ceiling hides the detail
+		// weather row AND every watering/sensor row.
+		const combined = renderLogs( jl, jn, jo, { companionEvents: companion, filter: { level: "normal", source: "weather" } } );
+		expect( combined ).toContain( "Timed Out" );                       // normal + weather
+		expect( combined ).not.toContain( "water level is 85%" );          // detail level filtered
+		expect( combined ).not.toContain( "Garden Drip ran 10m" );         // watering source filtered
+		expect( combined ).toContain( "Water level set to 75%" );          // firmware waterlevel row is weather-bucketed
+	} );
+
 	it( "toolbar reflects the active filter", () => {
 		const html = renderLogs( jl, jn, jo, { filter: { level: "debug", source: "weather" } } );
 		expect( html ).toContain( 'data-source="weather" aria-pressed="true"' );

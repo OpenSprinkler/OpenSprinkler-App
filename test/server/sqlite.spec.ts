@@ -57,6 +57,34 @@ describe( "SQLite file security", () => {
 		}
 	} );
 
+	it( "migrates a populated v1 database without touching its data, adding events + advancing the version", () => {
+		const db = new Database( ":memory:" );
+		try {
+			// Build a genuine v1 database: run the current migration (which creates everything and
+			// stamps v2), then strip it back to the v1 shape — no events table, user_version 1.
+			migrate( db );
+			db.exec( "DROP TABLE events" );
+			db.pragma( "user_version = 1" );
+			db.prepare( `INSERT INTO telemetry (
+				controller, ts, water_level, rain_delay, weather_err, weather_restricted,
+				last_weather_update, active_stations, rssi, current_draw, raw
+			) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)` )
+				.run( "controller", 1, 100, 0, 0, 0, 0, 0, null, null, '{"schema":1,"kept":"v1-allowlisted-raw"}' );
+			db.prepare( "INSERT INTO run_log (controller, program, station, duration_sec, end_ts, flow_gpm) VALUES (?, ?, ?, ?, ?, ?)" )
+				.run( "controller", 1, 2, 60, 500, null );
+
+			migrate( db );
+
+			// v2 is additive: the pre-v1 credential scrub must NOT touch v1 data.
+			const raw = db.prepare( "SELECT raw FROM telemetry" ).get() as { raw: string };
+			expect( raw.raw ).toBe( '{"schema":1,"kept":"v1-allowlisted-raw"}' );
+			expect( ( db.prepare( "SELECT count(*) AS c FROM run_log" ).get() as { c: number } ).c ).toBe( 1 );
+			const tables = ( db.prepare( "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'events'" ).all() );
+			expect( tables ).toHaveLength( 1 );
+			expect( db.pragma( "user_version", { simple: true } ) ).toBe( 2 );
+		} finally { db.close(); }
+	} );
+
 	it( "secures an existing database even when its migration fails", async () => {
 		const root = await mkdtemp( join( tmpdir(), "opensprinkler-db-failure-" ) );
 		const path = join( root, "data.db" );

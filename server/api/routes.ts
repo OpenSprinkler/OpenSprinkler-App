@@ -52,9 +52,14 @@ function parseQuery( url: URL, now: number, maxDays: number ): ParsedQuery | nul
 	if ( url.searchParams.has( "offset" ) ) return null;
 	if ( limit === null || limit < 1 || limit > MAX_PAGE_SIZE ) return null;
 
+	const cursorToken = url.searchParams.get( "cursor" );
+	// A defaulted `to` re-resolves from the clock on every request, while cursors bind the exact
+	// range they were minted for — so page 2 of a default-range walk would 400 as soon as the clock
+	// advanced. Fail deterministically on the first continuation instead.
+	if ( cursorToken !== null && rawTo === null ) return null;
 	return {
 		fromTs: Math.max( from, to - maxDays * 86400 ), toTs: to, limit,
-		cursorToken: url.searchParams.get( "cursor" ),
+		cursorToken,
 	};
 }
 

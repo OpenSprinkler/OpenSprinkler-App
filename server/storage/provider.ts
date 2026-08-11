@@ -61,8 +61,12 @@ export interface StorageProvider {
 	pageTelemetry( controller: string, q: HistoryPageQuery ): Promise<HistoryPage<StoredTelemetry>>;
 	pageRunLog( controller: string, q: HistoryPageQuery ): Promise<HistoryPage<RunLogRow>>;
 	lastRunLogEndTs( controller: string ): Promise<number | null>;
-	/** Newest stored sample — the diff baseline for event derivation. */
+	/** Most recently INSERTED sample — the diff baseline for event derivation. Insertion order,
+	 *  not greatest timestamp: a backward host-clock step must not resurrect an old baseline. */
 	lastTelemetry( controller: string ): Promise<StoredTelemetry | null>;
+	/** Atomically persist a sample together with its derived events (single transaction), so a
+	 *  crash between the two can never lose a transition or re-derive duplicates. */
+	appendSample( controller: string, s: TelemetrySample, events: EventRow[] ): Promise<void>;
 	appendEvents( controller: string, rows: EventRow[] ): Promise<void>;
 	pageEvents( controller: string, q: EventsPageQuery ): Promise<HistoryPage<EventRow>>;
 	pruneEvents( olderThanTs: number ): Promise<number>;    // # deleted

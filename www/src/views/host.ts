@@ -610,7 +610,19 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 				if ( disposed ) return;
 				const changed = JSON.stringify( fetched ) !== JSON.stringify( companionLogEvents );
 				companionLogEvents = fetched;
-				if ( changed && activeTab === "Log" && !hasVisibleDirtyProgramDraft() ) paint();
+				if ( changed && activeTab === "Log" && !hasVisibleDirtyProgramDraft() ) {
+					// This paint is not user-initiated: preserve keyboard focus on the log toolbar
+					// so a background refresh never drops the user to the document body.
+					const active = hostDocument.activeElement as HTMLElement | null;
+					if ( active?.closest?.( ".log-toolbar" ) ) {
+						focusAfterPaint = active.getAttribute( "name" ) === "logLevel"
+							? '[name="logLevel"]'
+							: active.dataset.source
+								? `[data-action="log-source"][data-source="${ active.dataset.source }"]`
+								: focusAfterPaint;
+					}
+					paint();
+				}
 			} )
 			.catch( () => { /* companion unreachable: retain the previous events */ } )
 			.finally( () => { companionLogInFlight = false; } );
@@ -1423,6 +1435,18 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 				paint();
 			}
 			return;
+		}
+		// Keep the run-times idle dimming live while editing: is-idle is baked at render time, and
+		// repaints are suppressed for dirty drafts, so patch the row class in place instead.
+		if ( name && /^dur(?:Mode)?_\d+$/.test( name ) ) {
+			const row = ( ev.target as HTMLElement ).closest<HTMLElement>( ".dl-row" );
+			const dur = row?.querySelector<HTMLInputElement>( 'input[type="number"]' );
+			const mode = row?.querySelector<HTMLSelectElement>( "select" );
+			if ( row && dur && mode ) {
+				row.classList.toggle( "is-idle",
+					( dur.value === "" || Number( dur.value ) === 0 ) &&
+					( mode.value === "minutes" || mode.value === "seconds" ) );
+			}
 		}
 		if ( name === "schedType" || name === "startType" || name === "useDateRange" || name === "method" ) {
 			applyConditionalVisibility();

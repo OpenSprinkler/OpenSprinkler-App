@@ -45,13 +45,25 @@ export function runStorageContract( name: string, make: () => StorageProvider ):
 			expect( ( await store.queryRunLog( "c1", { fromTs: 0, toTs: 9999 } ) ).length ).toBe( 1 ); // not pruned
 		} );
 
-		it( "returns the newest telemetry sample as the diff baseline", async () => {
+		it( "returns the most recently INSERTED sample as the diff baseline (not greatest ts)", async () => {
 			expect( await store.lastTelemetry( "c1" ) ).toBeNull();
 			await store.appendTelemetry( "c1", sample( 100 ) );
 			await store.appendTelemetry( "c1", sample( 300 ) );
-			await store.appendTelemetry( "c1", sample( 200 ) );
-			expect( ( await store.lastTelemetry( "c1" ) )?.ts ).toBe( 300 );
+			await store.appendTelemetry( "c1", sample( 200 ) ); // backward clock step
+			// Insertion order wins: a max-ts baseline would re-diff against the ts=300 row on every
+			// poll after a backward host-clock step, re-emitting the same transition events.
+			expect( ( await store.lastTelemetry( "c1" ) )?.ts ).toBe( 200 );
 			expect( await store.lastTelemetry( "other" ) ).toBeNull();
+		} );
+
+		it( "appendSample persists the sample and its events together", async () => {
+			await store.appendSample( "c1", sample( 100 ), [
+				{ ts: 100, source: "weather", level: "normal", label: "Weather", detail: "one" },
+				{ ts: 100, source: "weather", level: "detail", label: "Weather", detail: "two" },
+			] );
+			expect( ( await store.lastTelemetry( "c1" ) )?.ts ).toBe( 100 );
+			const page = await store.pageEvents( "c1", { fromTs: 0, toTs: 999, limit: 10 } );
+			expect( page.rows.map( ( r ) => r.detail ) ).toEqual( [ "one", "two" ] );
 		} );
 
 		it( "appends + pages events with verbosity ceiling and source filter", async () => {

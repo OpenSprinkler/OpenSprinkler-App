@@ -52,6 +52,20 @@ describe( "diffTelemetryEvents", () => {
 		expect( diffTelemetryEvents( stored(), base( { waterLevel: 55, rainDelay: 1 } ) ) ).toEqual( [] );
 	} );
 
+	it( "emits every simultaneous transition — the fields derive independently", () => {
+		// A 300s-apart poll can legitimately carry all three at once: a completed weather check
+		// that cleared an error and engaged the restriction.
+		const out = diffTelemetryEvents(
+			stored( { weatherErr: -3 } ),
+			base( { weatherErr: 0, weatherRestricted: 1, lastWeatherUpdate: 900, waterLevel: 70 } ),
+		);
+		expect( out ).toHaveLength( 3 );
+		expect( out.map( ( e ) => e.level ) ).toEqual( [ "normal", "normal", "detail" ] );
+		expect( out[ 0 ]!.detail ).toContain( "recovered" );
+		expect( out[ 1 ]!.detail ).toContain( "restricted" );
+		expect( out[ 2 ]!.detail ).toContain( "70%" );
+	} );
+
 	it( "stamps events with the current sample's collector timestamp", () => {
 		const out = diffTelemetryEvents( stored(), base( { ts: 4242, weatherErr: 2 } ) );
 		expect( out[ 0 ]!.ts ).toBe( 4242 );
