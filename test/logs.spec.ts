@@ -3,9 +3,10 @@
  */
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { describe, it, expect } from "vitest";
-import { parseJl, parseJn } from "../www/src/api/client";
+import { afterEach, describe, it, expect } from "vitest";
+import { parseJl, parseJn, parseJo } from "../www/src/api/client";
 import { decodeLogRow, describeLogEntry, lastRunsByStation } from "../www/src/api/decode";
+import { clearSessionLog, recordSessionEvent } from "../www/src/api/session-log";
 import { renderLogs } from "../www/src/views/logs-view";
 
 function fx( name: string ): unknown {
@@ -66,6 +67,24 @@ describe( "log chronology across folded controller wall time", () => {
 		const html = renderLogs( folded, jn );
 		expect( html.indexOf( "ran 3m" ) ).toBeLessThan( html.indexOf( "ran 2m" ) );
 		expect( html.indexOf( "ran 2m" ) ).toBeLessThan( html.indexOf( "ran 1m" ) );
+	} );
+} );
+
+describe( "session-observed events in the log", () => {
+	const jo = parseJo( fx( "jo" ) );
+	afterEach( clearSessionLog );
+	it( "merges a browser-observed weather event by controller-clock position", () => {
+		recordSessionEvent( "detail", "Weather", "Weather fetched: 72°F, cloudy" );
+		const html = renderLogs( jl, jn, jo );
+		expect( html ).toContain( "Weather fetched: 72°F, cloudy" );
+		expect( html ).toContain( ">Detail</td>" );
+		expect( html ).toContain( "(7)" );
+		// The session event (recorded now) is newer than every 2024 fixture row.
+		expect( html.indexOf( "Weather fetched" ) ).toBeLessThan( html.indexOf( "Garden Drip ran 10m" ) );
+	} );
+	it( "omits session events when jo (and so the controller clock offset) is absent", () => {
+		recordSessionEvent( "detail", "Weather", "Weather fetched: 72°F, cloudy" );
+		expect( renderLogs( jl, jn ) ).not.toContain( "Weather fetched" );
 	} );
 } );
 

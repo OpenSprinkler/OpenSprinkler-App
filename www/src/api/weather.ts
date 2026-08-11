@@ -15,6 +15,7 @@
 import type { JcResponse } from "./types";
 import { WEATHER_ERRORS } from "./diagnostics";
 import { osTzOffsetSeconds } from "./time";
+import { recordSessionEvent } from "./session-log";
 
 export const DEFAULT_WEATHER_SERVER_URL = "https://weather.opensprinkler.com";
 const FETCH_TIMEOUT_MS = 10000;
@@ -262,6 +263,13 @@ async function httpErrorMessage( response: Response ): Promise<string> {
 	}
 }
 
+/** One-line plain-English summary of a fetched forecast for the session log. */
+function forecastSummary( data: ForecastData ): string {
+	const today = data.forecast[ 0 ];
+	const rain = today && today.precip > 0 ? `, ${ today.precip.toFixed( 2 ) } in rain expected today` : "";
+	return `Weather fetched: ${ Math.round( data.temp ) }°F, ${ data.description }${ rain }`;
+}
+
 /** Fetch + normalize the forecast for the controller's configured location/provider. */
 export async function fetchForecast( jc: JcResponse, opts: FetchForecastOptions = {} ): Promise<ForecastState> {
 	const url = buildForecastUrl( jc );
@@ -273,19 +281,33 @@ export async function fetchForecast( jc: JcResponse, opts: FetchForecastOptions 
 	if ( opts.signal?.aborted ) abort.abort();
 	else opts.signal?.addEventListener( "abort", cancel, { once: true } );
 	const timer = setTimeout( () => abort.abort(), FETCH_TIMEOUT_MS );
+	// The query string carries the provider API key — the session log only ever sees the path.
+	const redactedUrl = url.split( "?" )[ 0 ]!;
+	const startedAt = Date.now();
+	const logError = ( message: string ): void => {
+		if ( !opts.signal?.aborted ) recordSessionEvent( "normal", "Weather", message );
+	};
 	try {
 		const response = await fetchImpl( url, { signal: abort.signal } );
-		if ( !response.ok ) return { status: "error", error: await httpErrorMessage( response ) };
+		recordSessionEvent( "debug", "Weather", `GET ${ redactedUrl } → ${ response.status } in ${ Date.now() - startedAt } ms` );
+		if ( !response.ok ) {
+			const error = await httpErrorMessage( response );
+			logError( error );
+			return { status: "error", error };
+		}
 		const data = normalizeForecastData( await response.json() );
-		if ( !data ) return { status: "error", error: "The weather service returned an unusable forecast payload." };
+		if ( !data ) {
+			logError( "The weather service returned an unusable forecast payload." );
+			return { status: "error", error: "The weather service returned an unusable forecast payload." };
+		}
+		recordSessionEvent( "detail", "Weather", forecastSummary( data ) );
 		return { status: "ok", data, fetchedAt: now() };
 	} catch ( error ) {
-		return {
-			status: "error",
-			error: abort.signal.aborted && !opts.signal?.aborted
-				? "The weather service did not respond within 10 seconds."
-				: `The weather service could not be reached: ${ String( error ) }`,
-		};
+		const message = abort.signal.aborted && !opts.signal?.aborted
+			? "The weather service did not respond within 10 seconds."
+			: `The weather service could not be reached: ${ String( error ) }`;
+		logError( message );
+		return { status: "error", error: message };
 	} finally {
 		clearTimeout( timer );
 		opts.signal?.removeEventListener( "abort", cancel );
