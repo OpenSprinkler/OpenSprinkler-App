@@ -107,19 +107,30 @@ function annualDate( encoded: number ): string {
 	return `${ decodeEncodedDate( encoded ) }/${ ANNUAL_RANGE_YEAR }`;
 }
 
-function durationFields( name: string, sid: number, raw: number ): string {
+const DURATION_HELP = "Use 0 to skip. Exact seconds and solar spans are preserved when editing.";
+
+/** One flat station row: name | duration | format. Zero-duration rows read as idle. */
+function durationRow( name: string, sid: number, raw: number ): string {
 	let mode = "minutes";
 	let value = raw / 60;
 	if ( raw === 65534 ) { mode = "sunrise-sunset"; value = 0; }
 	else if ( raw === 65535 ) { mode = "sunset-sunrise"; value = 0; }
 	else if ( raw % 60 !== 0 || raw > 64800 ) { mode = "seconds"; value = raw; }
-	return `<fieldset class="duration-field"><legend>${ esc( name ) }</legend>` +
-		selectField( `durMode_${ sid }`, "Duration format", DURATION_OPTS, mode ) +
-		numberField( `dur_${ sid }`, "Duration", value, {
-			min: 0, max: 65533, step: 1,
-			help: "Use 0 to skip. Exact seconds and solar spans are preserved when editing.",
-		} ) + `</fieldset>`;
+	const idle = value === 0 && ( mode === "minutes" || mode === "seconds" );
+	const opts = DURATION_OPTS.map( ( o ) =>
+		`<option value="${ o.value }"${ o.value === mode ? " selected" : "" }>${ o.label }</option>` ).join( "" );
+	return `<div class="dl-row${ idle ? " is-idle" : "" }" role="group" aria-label="${ esc( name ) }">` +
+		`<span class="dl-name">${ esc( name ) }</span>` +
+		`<input type="number" id="f-dur_${ sid }" name="dur_${ sid }" value="${ value }" min="0" max="65533" step="1" aria-label="${ esc( name ) } duration">` +
+		`<select id="f-durMode_${ sid }" name="durMode_${ sid }" aria-label="${ esc( name ) } duration format">${ opts }</select></div>`;
 }
+
+function runTimesFieldset( jn: JnResponse, program?: OSProgram ): string {
+	const rows = jn.snames.map( ( name, sid ) => durationRow( name, sid, program?.[ 4 ][ sid ] ?? 0 ) ).join( "" );
+	return `<fieldset class="duration-list"><legend>Run times</legend>${ rows }` +
+		`<p class="dl-hint">${ DURATION_HELP }</p></fieldset>`;
+}
+
 
 /** Render a new editor, or prefill an existing raw /jp tuple when `program` is supplied. */
 export function renderProgramEditor(
@@ -141,7 +152,6 @@ export function renderProgramEditor(
 	const fixedStarts = fixed ? starts : [ starts[ 0 ] ?? -1, -1, -1, -1 ];
 	const weeklyDays = type === "weekly" ? days0 : 0b0011111;
 	const wd = WEEKDAYS.map( ( d, i ) => checkboxField( `wd_${ i }`, d, ( ( weeklyDays >> i ) & 1 ) === 1 ) ).join( "" );
-	const durs = jn.snames.map( ( name, sid ) => durationFields( name, sid, program?.[ 4 ][ sid ] ?? 0 ) ).join( "" );
 	const fixedTimes = [ 0, 1, 2, 3 ].map( ( i ) =>
 		textField( `t_${ i }`, `Start time ${ i + 1 }`, displayedStart( fixedStarts[ i ] ?? -1 ), {
 			placeholder: "h:mm AM/PM or Sunrise/Sunset", pattern: CLOCK_PATTERN,
@@ -202,7 +212,7 @@ export function renderProgramEditor(
 				{ placeholder: "h:mm AM/PM or Sunrise/Sunset", pattern: CLOCK_PATTERN } ) +
 			numberField( "repeatCount", "Repeat count", repeatCount, { min: repeatCount === 0 ? 0 : 1, max: MAX_REPEAT_COUNT } ) +
 			numberField( "repeatInterval", "Interval (minutes)", repeatInterval, { min: repeatInterval === 0 ? 0 : 1, max: 1440 } ) + `</fieldset>` +
-		`<fieldset class="duration-list"><legend>Run times</legend>${ durs }</fieldset>` +
+		runTimesFieldset( jn, program ) +
 		( fwvCombined >= 2200
 			? `<fieldset><legend>Date range (optional)</legend>` +
 				checkboxField( "useDateRange", "Limit to a seasonal date range", range?.[ 0 ] === 1 ) +

@@ -181,8 +181,22 @@ form.settings input[type="text"], form.settings input[type="number"], form.setti
 form.settings fieldset { border: 1px solid var(--border); border-radius: var(--radius-3); padding: var(--space-3); margin: 0; }
 form.settings fieldset legend { color: var(--muted); font-weight: var(--fw-semibold); font-size: var(--fs-13); padding: 0 6px; }
 fieldset.station-edit { display: grid; gap: var(--space-2); }
-fieldset.duration-list { display: grid; gap: var(--space-3); }
-fieldset.duration-field { display: grid; gap: var(--space-2); }
+/* Run times: flat station rows (name | duration | format), airy rhythm, idle rows dimmed. */
+fieldset.duration-list { display: block; }
+fieldset.duration-list .dl-row {
+	display: grid;
+	grid-template-columns: minmax(6em, 1fr) minmax(5.5em, 7em) minmax(0, 1.1fr);
+	gap: var(--space-2);
+	align-items: center;
+	padding: var(--space-3) 0;
+	border-bottom: 1px solid color-mix(in oklab, var(--border) 55%, transparent);
+}
+fieldset.duration-list .dl-row:last-of-type { border-bottom: none; }
+fieldset.duration-list .dl-name { font-weight: var(--fw-semibold); font-size: var(--fs-14); overflow-wrap: anywhere; }
+fieldset.duration-list .dl-row.is-idle { opacity: .6; }
+fieldset.duration-list .dl-hint { color: var(--muted); font-size: var(--fs-13); margin: var(--space-2) 0 0; max-width: var(--measure); }
+fieldset.duration-list .dl-row input,
+fieldset.duration-list .dl-row select { min-width: 0; font-size: var(--fs-14); padding: 6px 8px; }
 
 /* Program editor scanability: group the flat field run into a visual grid. The DOM stays a
  * single form; CSS alone carries the structure (UX feedback: "hard to visually determine
@@ -192,8 +206,6 @@ fieldset.duration-field { display: grid; gap: var(--space-2); }
 	form[data-settings="program"] > fieldset,
 	form[data-settings="program"] > button,
 	form[data-settings="program"] > .form-actions { grid-column: 1 / -1; }
-	/* One row per zone: name legend above, format + duration side by side. */
-	fieldset.duration-field { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: end; }
 }
 /* Weekday checkboxes read as one horizontal week, not seven stacked rows. */
 form[data-settings="program"] fieldset[data-when="weekly"] { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); }
