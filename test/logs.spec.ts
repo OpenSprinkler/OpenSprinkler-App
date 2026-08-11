@@ -88,6 +88,43 @@ describe( "session-observed events in the log", () => {
 	} );
 } );
 
+describe( "companion events and filters in the log", () => {
+	const jo = parseJo( fx( "jo" ) );
+	afterEach( clearSessionLog );
+	const companion = [
+		{ ts: 1717975800, source: "weather" as const, level: "normal" as const, label: "Weather", detail: "Weather adjustment problem: Timed Out." },
+		{ ts: 1717975860, source: "weather" as const, level: "detail" as const, label: "Weather", detail: "Controller completed a weather check; water level is 85%." },
+	];
+	it( "merges companion events and renders their levels", () => {
+		const html = renderLogs( jl, jn, jo, { companionEvents: companion } );
+		expect( html ).toContain( "Timed Out" );
+		expect( html ).toContain( "water level is 85%" );
+		expect( html ).toContain( "(8)" );
+	} );
+	it( "level filter is a ceiling: Normal hides Detail rows and shows the filtered count", () => {
+		const html = renderLogs( jl, jn, jo, { companionEvents: companion, filter: { level: "normal", source: "all" } } );
+		expect( html ).toContain( "Timed Out" );
+		expect( html ).not.toContain( "water level is 85%" );
+		expect( html ).toContain( "(7 of 8)" );
+	} );
+	it( "source filter isolates one bucket", () => {
+		const html = renderLogs( jl, jn, jo, { companionEvents: companion, filter: { level: "debug", source: "watering" } } );
+		expect( html ).toContain( "Garden Drip ran 10m" );
+		expect( html ).not.toContain( "Timed Out" );
+		expect( html ).not.toContain( "Sensor 1 active" );
+	} );
+	it( "filtered-to-empty says so instead of showing the empty state", () => {
+		const html = renderLogs( [], jn, jo, { companionEvents: companion, filter: { level: "debug", source: "sensors" } } );
+		expect( html ).toContain( "No entries match the current filters." );
+		expect( html ).not.toContain( "No log entries yet" );
+	} );
+	it( "toolbar reflects the active filter", () => {
+		const html = renderLogs( jl, jn, jo, { filter: { level: "debug", source: "weather" } } );
+		expect( html ).toContain( 'data-source="weather" aria-pressed="true"' );
+		expect( html ).toContain( '<option value="debug" selected>' );
+	} );
+} );
+
 describe( "renderLogs", () => {
 	const html = renderLogs( jl, jn );
 	it( "shows all entries, newest first, with the count", () => {

@@ -10,7 +10,8 @@ import { deriveCapabilities } from "../api/client";
 import { renderControllerStatus } from "../spike/status-view";
 import { renderStations } from "./stations-view";
 import { renderPrograms } from "./programs-view";
-import { renderLogs } from "./logs-view";
+import { renderLogs, type LogFilter } from "./logs-view";
+import type { CompanionLogEvent } from "../api/companion";
 import { renderWeather } from "./weather-view";
 import { renderDiagnostics } from "./diagnostics-view";
 import { renderSettings, type ProgramEditorTarget, type SettingsSection } from "./settings/index";
@@ -34,6 +35,10 @@ export interface DashboardOptions {
 	historyHtml?: string;
 	/** Direct weather-service forecast state (Weather/Status/Diagnostics). Omitted = no forecast client. */
 	forecast?: ForecastState;
+	/** Durable companion events for the Log view (omitted = no companion). */
+	companionEvents?: CompanionLogEvent[];
+	/** Log view source/verbosity filter state (host-owned). */
+	logFilter?: LogFilter;
 }
 
 /** Decorative single-stroke tab glyphs (currentColor, aria-hidden — the label is the accessible name). */
@@ -69,7 +74,10 @@ export function renderDashboard( d: DashboardData, active: DashboardTab | "Histo
 		case "Stations": content = renderStations( d.jc, d.jn, { actions: a, je: d.je, jl: d.jl, jo: d.jo } ); break;
 		case "Programs": content = renderPrograms( d.jp, d.jn, { actions: a } ); break;
 		case "Weather": content = renderWeather( d.jc, d.jo, opts.forecast ); break;
-		case "Log": content = renderLogs( d.jl, d.jn, d.jo ); break;
+		case "Log": content = renderLogs( d.jl, d.jn, d.jo, {
+			...( opts.companionEvents ? { companionEvents: opts.companionEvents } : {} ),
+			...( opts.logFilter ? { filter: opts.logFilter } : {} ),
+		} ); break;
 		case "Diagnostics": content = renderDiagnostics( d.jc, d.jo, opts.forecast ); break;
 		case "Settings": content = renderSettings( d.jc, d.jo, d.jn, d.jp, opts.settingsSection, opts.programEditor ); break;
 		case "History": content = opts.historyHtml ?? ""; break;

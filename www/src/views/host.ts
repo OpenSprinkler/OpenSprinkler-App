@@ -15,11 +15,31 @@ import { buildGeneralOptions, isTimezoneAutoManaged } from "./settings/general";
 import { buildWeatherOptions } from "./settings/weather";
 import { buildStationConfig } from "./settings/stations-edit";
 import { buildProgramInput } from "./settings/program-edit";
-import { detectCompanion, fetchHistory, fetchRunLog } from "../api/companion";
+import { detectCompanion, fetchCompanionLog, fetchHistory, fetchRunLog, type CompanionLogEvent } from "../api/companion";
+import { DEFAULT_LOG_FILTER, LOG_LEVEL_FILTERS, LOG_SOURCE_FILTERS, type LogFilter, type LogLevelFilter, type LogSourceFilter } from "./logs-view";
 import type { ForecastState } from "../api/weather";
 import { deliverConfigurationExport } from "../config-export";
 import { renderHistory } from "./history-view";
 import { errorCard, esc } from "../ui/help";
+
+const LOG_FILTER_STORAGE_KEY = "os.logFilter";
+
+function loadLogFilter(): LogFilter {
+	try {
+		const raw = globalThis.localStorage?.getItem( LOG_FILTER_STORAGE_KEY );
+		if ( !raw ) return DEFAULT_LOG_FILTER;
+		const parsed = JSON.parse( raw ) as Partial<LogFilter>;
+		return {
+			level: LOG_LEVEL_FILTERS.includes( parsed.level as LogLevelFilter ) ? parsed.level as LogLevelFilter : DEFAULT_LOG_FILTER.level,
+			source: LOG_SOURCE_FILTERS.includes( parsed.source as LogSourceFilter ) ? parsed.source as LogSourceFilter : DEFAULT_LOG_FILTER.source,
+		};
+	} catch { return DEFAULT_LOG_FILTER; }
+}
+
+function saveLogFilter( filter: LogFilter ): void {
+	try { globalThis.localStorage?.setItem( LOG_FILTER_STORAGE_KEY, JSON.stringify( filter ) ); }
+	catch { /* storage unavailable (private mode); the filter still works for this page */ }
+}
 
 /**
  * If the companion is reachable + healthy, fetch the last 7 days and render the History HTML;
@@ -128,7 +148,7 @@ function sameValue( a: unknown, b: unknown ): boolean {
 		key === bKeys[ index ] && sameValue( aRecord[ key ], bRecord[ key ] ) );
 }
 
-const LOCAL_ACTIONS = new Set( [ "retry", "config-export", "program-new", "program-edit", "program-cancel" ] );
+const LOCAL_ACTIONS = new Set( [ "retry", "config-export", "program-new", "program-edit", "program-cancel", "log-source" ] );
 const EMERGENCY_ACTIONS = new Set( [ "stop-all", "station-stop", "cancel-rain" ] );
 const ACTION_PERMISSIONS: Readonly<Record<string, MutationPermission>> = {
 	"toggle-enable": "controller-enable",
@@ -320,6 +340,11 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 	let automaticError: string | null = null;
 	let automaticFailures = 0;
 	let companionDiscoveryAttempted = false;
+	let companionLogBase: string | null = null;
+	let companionLogEvents: CompanionLogEvent[] | undefined;
+	let companionLogInFlight = false;
+	let lastCompanionLogAttemptAt = 0;
+	let logFilter: LogFilter = loadLogFilter();
 	let disposed = false;
 	const hostDocument = deps.mount.ownerDocument;
 	const mutationPermissions = new Set<MutationPermission>( deps.mutationProof?.hardwareVerified === true
@@ -475,7 +500,8 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 			deps.mount.innerHTML = `<div data-connection-state${ connection ? "" : " hidden" }>${ connection }</div>` +
 				mutationStateHtml() + ( data
 				? renderDashboard( data, activeTab, {
-					actions: true, settingsSection, historyHtml,
+					actions: true, settingsSection, historyHtml, logFilter,
+					...( companionLogEvents ? { companionEvents: companionLogEvents } : {} ),
 					...( forecastState ? { forecast: forecastState } : {} ),
 					...( programEditor ? { programEditor: { pid: programEditor.pid, program: programEditor.source } } : {} ),
 				} )
@@ -568,6 +594,28 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 			.finally( () => { if ( forecastAbort === abort ) forecastAbort = null; } );
 	}
 
+	// Durable companion events refresh on a slow cadence; failures keep the last good list
+	// (the companion is optional and the Log view stays honest without it).
+	const COMPANION_LOG_REFRESH_MS = 5 * 60_000;
+	const COMPANION_LOG_RANGE_DAYS = 7;
+	function maybeRefreshCompanionLog(): void {
+		if ( !companionLogBase || disposed || companionLogInFlight ) return;
+		if ( lastCompanionLogAttemptAt !== 0 && Date.now() - lastCompanionLogAttemptAt < COMPANION_LOG_REFRESH_MS ) return;
+		lastCompanionLogAttemptAt = Date.now();
+		companionLogInFlight = true;
+		const nowSec = Math.floor( Date.now() / 1000 );
+		fetchCompanionLog( companionLogBase, { fromTs: nowSec - COMPANION_LOG_RANGE_DAYS * 86400, toTs: nowSec },
+			deps.companionToken ? { token: deps.companionToken } : undefined )
+			.then( ( fetched ) => {
+				if ( disposed ) return;
+				const changed = JSON.stringify( fetched ) !== JSON.stringify( companionLogEvents );
+				companionLogEvents = fetched;
+				if ( changed && activeTab === "Log" && !hasVisibleDirtyProgramDraft() ) paint();
+			} )
+			.catch( () => { /* companion unreachable: retain the previous events */ } )
+			.finally( () => { companionLogInFlight = false; } );
+	}
+
 	async function performRefresh( options: FullRefreshOptions ): Promise<RefreshResult> {
 		if ( disposed ) return "aborted";
 		const generation = ++refreshGeneration;
@@ -613,6 +661,7 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 			data = loaded;
 			noteControllerSuccess( true );
 			maybeRefreshForecast( loaded.jc );
+			maybeRefreshCompanionLog();
 			// Automatic polling leaves live settings forms intact. Unchanged snapshots also need no repaint.
 			if ( preserveDraft || ( preserveAutomaticSettings && !editorClosed ) ||
 				( options.automatic && !editorClosed && sameSnapshot( previous, loaded ) ) ) {
@@ -626,6 +675,10 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 					const companionBase = deps.companionBase ?? location.origin + "/";
 					nextHistory = await resolveHistoryHtml( companionBase, undefined, deps.companionToken, abort.signal );
 					if ( disposed || abort.signal.aborted || generation !== refreshGeneration ) return "aborted";
+				}
+				if ( nextHistory !== undefined && deps.companionBase !== null ) {
+					companionLogBase = deps.companionBase ?? location.origin + "/";
+					maybeRefreshCompanionLog();
 				}
 				const historyChanged = historyHtml !== nextHistory;
 				historyHtml = nextHistory;
@@ -1294,6 +1347,16 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 		if ( action?.dataset.action ) {
 			if ( action.dataset.action === "retry" ) { void refresh(); return; }
 			if ( action.dataset.action === "config-export" ) { void exportConfiguration(); return; }
+			if ( action.dataset.action === "log-source" ) {
+				const source = action.dataset.source as LogSourceFilter | undefined;
+				if ( source && LOG_SOURCE_FILTERS.includes( source ) ) {
+					logFilter = { ...logFilter, source };
+					saveLogFilter( logFilter );
+					focusAfterPaint = `[data-action="log-source"][data-source="${ source }"]`;
+					paint();
+				}
+				return;
+			}
 			if ( action.dataset.action === "program-new" ) {
 				if ( mutationInFlight ) return;
 				programEditor = null; programDraftDirty = false;
@@ -1351,6 +1414,16 @@ export function mountDashboard( deps: HostDeps ): DashboardController {
 	function onChange( ev: Event ): void {
 		noteProgramDraft( ev );
 		const name = ( ev.target as HTMLElement ).getAttribute?.( "name" );
+		if ( name === "logLevel" ) {
+			const level = ( ev.target as HTMLSelectElement ).value as LogLevelFilter;
+			if ( LOG_LEVEL_FILTERS.includes( level ) ) {
+				logFilter = { ...logFilter, level };
+				saveLogFilter( logFilter );
+				focusAfterPaint = '[name="logLevel"]';
+				paint();
+			}
+			return;
+		}
 		if ( name === "schedType" || name === "startType" || name === "useDateRange" || name === "method" ) {
 			applyConditionalVisibility();
 			applyInteractionState();

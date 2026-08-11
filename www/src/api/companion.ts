@@ -16,6 +16,14 @@ export interface TelemetryPoint {
 	lastWeatherUpdate: number; activeStations: number; rssi: number | null; currentDraw: number | null;
 }
 export interface RunLogPoint { program: number; station: number; durationSec: number; endTs: number; flowGpm: number | null; }
+/** One derived companion event (weather-error transitions, completed weather checks, …). */
+export interface CompanionLogEvent {
+	ts: number;                               // unix seconds, UTC (companion clock)
+	source: "weather" | "system";
+	level: "normal" | "detail" | "debug";
+	label: string;
+	detail: string;
+}
 
 const DEFAULT_TIMEOUT_MS = 4000;
 const DEFAULT_TOTAL_TIMEOUT_MS = 30000;
@@ -24,7 +32,7 @@ const MAX_PAGES = 256;
 const MAX_CURSOR_LENGTH = 512;
 
 export class CompanionError extends Error {
-	constructor( message: string, readonly endpoint: "health" | "history" | "runlog" ) {
+	constructor( message: string, readonly endpoint: "health" | "history" | "runlog" | "log" ) {
 		super( message );
 		this.name = "CompanionError";
 	}
@@ -130,7 +138,7 @@ async function getJson( url: string, endpoint: CompanionError["endpoint"], optio
 }
 
 async function withOverallDeadline<T>(
-	endpoint: "history" | "runlog", options: NormalizedClientOptions,
+	endpoint: "history" | "runlog" | "log", options: NormalizedClientOptions,
 	work: ( signal: AbortSignal ) => Promise<T>,
 ): Promise<T> {
 	if ( options.signal?.aborted ) throw new CompanionError( `Companion ${ endpoint } request was cancelled.`, endpoint );
@@ -260,7 +268,52 @@ export async function fetchRunLog( companionBase: string, r: HistoryRange, optio
 	} );
 }
 
-function parseNextCursor( value: unknown, seen: Set<string>, endpoint: "history" | "runlog" ): string | null {
+const EVENT_SOURCES = new Set( [ "weather", "system" ] );
+const EVENT_LEVELS = new Set( [ "normal", "detail", "debug" ] );
+const EVENT_LABEL_MAX = 40;
+const EVENT_DETAIL_MAX = 500;
+
+/** Untrusted-input rules as elsewhere: whitelist enums, cap string lengths, require finite times. */
+function parseEvent( value: unknown ): CompanionLogEvent {
+	const o = object( value, "log" );
+	const source = o.source, level = o.level, label = o.label, detail = o.detail;
+	if ( typeof source !== "string" || !EVENT_SOURCES.has( source ) ) throw new CompanionError( "Companion log event has an invalid source.", "log" );
+	if ( typeof level !== "string" || !EVENT_LEVELS.has( level ) ) throw new CompanionError( "Companion log event has an invalid level.", "log" );
+	if ( typeof label !== "string" || label.length < 1 || label.length > EVENT_LABEL_MAX ) throw new CompanionError( "Companion log event has an invalid label.", "log" );
+	if ( typeof detail !== "string" || detail.length < 1 || detail.length > EVENT_DETAIL_MAX ) throw new CompanionError( "Companion log event has an invalid detail.", "log" );
+	return {
+		ts: finite( o.ts, "log", "timestamp" ),
+		source: source as CompanionLogEvent["source"],
+		level: level as CompanionLogEvent["level"],
+		label, detail,
+	};
+}
+
+/** Fetch the derived companion event log for a range (all levels; the view filters locally). */
+export async function fetchCompanionLog( companionBase: string, r: HistoryRange, options?: number | CompanionClientOptions ): Promise<CompanionLogEvent[]> {
+	const requestOptions = clientOptions( options );
+	const root = `${ base( companionBase, "log", requestOptions.token ) }api/log?from=${ r.fromTs }&to=${ r.toTs }`;
+	return withOverallDeadline( "log", requestOptions, async ( signal ) => {
+		const rows: CompanionLogEvent[] = [];
+		let cursor: string | null = null;
+		let first = true;
+		let pages = 0;
+		const seen = new Set<string>();
+		while ( first || cursor !== null ) {
+			if ( ++pages > MAX_PAGES ) throw new CompanionError( "Companion log returned too many pages.", "log" );
+			const raw = object( await getJson(
+				root + ( first ? "" : `&cursor=${ encodeURIComponent( cursor! ) }` ), "log", { ...requestOptions, signal },
+			), "log" );
+			if ( !Array.isArray( raw.events ) ) throw new CompanionError( "Companion log response has no events array.", "log" );
+			for ( const event of raw.events ) rows.push( parseEvent( event ) );
+			cursor = parseNextCursor( raw.nextCursor, seen, "log" );
+			first = false;
+		}
+		return rows;
+	} );
+}
+
+function parseNextCursor( value: unknown, seen: Set<string>, endpoint: "history" | "runlog" | "log" ): string | null {
 	if ( value === undefined || value === null ) return null;
 	if ( typeof value !== "string" || value.length < 1 || value.length > MAX_CURSOR_LENGTH ||
 		!/^[A-Za-z0-9_-]+$/.test( value ) || seen.has( value ) ) {

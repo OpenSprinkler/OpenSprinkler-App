@@ -114,6 +114,17 @@ table.log-leveled .lvl-cell.lvl-normal { color: var(--muted); }
 table.log-leveled .lvl-cell.lvl-detail { color: var(--accent); }
 table.log-leveled .lvl-cell.lvl-debug { color: var(--muted); opacity: .7; }
 table.log-leveled .calc-detail { color: var(--muted); padding-left: var(--space-4); }
+.log-toolbar { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; margin-bottom: var(--space-3); }
+.log-toolbar .chip { font: inherit; font-size: var(--fs-13); padding: 4px 12px; min-height: 28px;
+	border-radius: var(--radius-pill); border: 1px solid var(--border); background: transparent;
+	color: var(--muted); cursor: pointer; }
+.log-toolbar .chip:hover { color: var(--fg); border-color: var(--accent); }
+.log-toolbar .chip.active { border-color: var(--accent); color: var(--fg); font-weight: var(--fw-semibold); }
+.log-toolbar .lvl-label { margin-left: auto; color: var(--muted); font-size: var(--fs-13);
+	display: inline-flex; gap: var(--space-2); align-items: center; font-weight: var(--fw-semibold); }
+.log-toolbar .lvl-label select { font-size: var(--fs-14); padding: 4px 6px; border: 1px solid var(--border);
+	border-radius: var(--radius-1); background: transparent; color: inherit; }
+@media (pointer: coarse) { .log-toolbar .chip, .log-toolbar .lvl-label select { min-height: var(--tap); } }
 /* wide-grid escape hatch — a focusable wrapper around ONLY the table, so section padding + help
    tooltips (which render above their anchors) are never clipped. */
 .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }

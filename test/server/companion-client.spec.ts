@@ -1,7 +1,7 @@
 // test/server/companion-client.spec.ts
 import { describe, it, expect, vi, afterEach } from "vitest";
 import {
-	detectCompanion, fetchHistory, fetchRunLog, normalizeCompanionBase, CompanionError,
+	detectCompanion, fetchCompanionLog, fetchHistory, fetchRunLog, normalizeCompanionBase, CompanionError,
 } from "../../www/src/api/companion";
 
 afterEach( () => vi.restoreAllMocks() );
@@ -12,6 +12,25 @@ describe( "companion client", () => {
 		expect( await detectCompanion( "http://c/" ) ).toEqual( { ok: true, pollerStale: false } );
 		globalThis.fetch = vi.fn( async () => { throw new Error( "down" ); } ) as never;
 		expect( await detectCompanion( "http://c/" ) ).toBeNull();
+	} );
+
+	it( "fetchCompanionLog builds a range query and validates event enums + string caps", async () => {
+		const good = { ts: 100, source: "weather", level: "detail", label: "Weather", detail: "Controller completed a weather check; water level is 85%." };
+		const urls: string[] = [];
+		globalThis.fetch = vi.fn( async ( u: RequestInfo | URL ) => {
+			urls.push( String( u ) ); return { ok: true, json: async () => ( { events: [ good ] } ) } as Response;
+		} ) as never;
+		const events = await fetchCompanionLog( "http://c/", { fromTs: 1, toTs: 2 } );
+		expect( urls[ 0 ] ).toBe( "http://c/api/log?from=1&to=2" );
+		expect( events ).toEqual( [ good ] );
+		globalThis.fetch = vi.fn( async () => ( {
+			ok: true, json: async () => ( { events: [ { ...good, level: "verbose" } ] } ),
+		} ) as Response ) as never;
+		await expect( fetchCompanionLog( "http://c/", { fromTs: 1, toTs: 2 } ) ).rejects.toThrow( /invalid level/i );
+		globalThis.fetch = vi.fn( async () => ( {
+			ok: true, json: async () => ( { events: [ { ...good, detail: "x".repeat( 501 ) } ] } ),
+		} ) as Response ) as never;
+		await expect( fetchCompanionLog( "http://c/", { fromTs: 1, toTs: 2 } ) ).rejects.toThrow( /invalid detail/i );
 	} );
 
 	it( "fetchHistory builds a range query", async () => {
