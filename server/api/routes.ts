@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { Buffer } from "node:buffer";
-import type { HistoryPageCursor, StorageProvider } from "../storage/provider";
+import type { EventLevel, EventSource, HistoryPageCursor, StorageProvider } from "../storage/provider";
 
 export const DEFAULT_PAGE_SIZE = 5000;
 export const MAX_PAGE_SIZE = 5000;
@@ -15,7 +15,11 @@ export interface ApiDeps {
 }
 
 interface ParsedQuery { fromTs: number; toTs: number; limit: number; cursorToken: string | null; }
-type CursorKind = "telemetry" | "runlog";
+/** "telemetry", "runlog", or a composed "events|<level>|<source>" — filters bind the cursor. */
+type CursorKind = string;
+
+const EVENT_LEVELS = new Set<string>( [ "normal", "detail", "debug" ] );
+const EVENT_SOURCES = new Set<string>( [ "weather", "system" ] );
 
 const PUBLIC_LAST_ERRORS = new Set( [
 	"database unavailable", "database operation failed", "controller authentication failed",
@@ -118,6 +122,27 @@ export function createApiRoutes( deps: ApiDeps ): Hono {
 		return c.json( {
 			telemetry: page.rows,
 			nextCursor: page.nextCursor ? encodeCursor( "telemetry", query, page.nextCursor ) : null,
+		} );
+	} );
+
+	app.get( "/log", async ( c ) => {
+		const url = new URL( c.req.url );
+		const query = parseQuery( url, deps.now(), deps.historyMaxDays );
+		if ( !query ) return c.json( { error: "invalid range or page" }, 400 );
+		const level = url.searchParams.get( "level" ) ?? "debug";
+		if ( !EVENT_LEVELS.has( level ) ) return c.json( { error: "invalid level" }, 400 );
+		const source = url.searchParams.get( "source" );
+		if ( source !== null && !EVENT_SOURCES.has( source ) ) return c.json( { error: "invalid source" }, 400 );
+		const kind = `events|${ level }|${ source ?? "all" }`;
+		const cursor = decodeCursor( kind, query );
+		if ( cursor === null ) return c.json( { error: "invalid range or page" }, 400 );
+		const page = await deps.store.pageEvents( controllerId( deps ), {
+			fromTs: query.fromTs, toTs: query.toTs, limit: query.limit, cursor: cursor ?? undefined,
+			maxLevel: level as EventLevel, source: ( source as EventSource | null ) ?? undefined,
+		} );
+		return c.json( {
+			events: page.rows,
+			nextCursor: page.nextCursor ? encodeCursor( kind, query, page.nextCursor ) : null,
 		} );
 	} );
 

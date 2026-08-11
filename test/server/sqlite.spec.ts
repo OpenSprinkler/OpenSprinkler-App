@@ -14,11 +14,11 @@ describe( "SQLite file security", () => {
 	it( "rejects a database from a newer schema before creating or changing tables", () => {
 		const db = new Database( ":memory:" );
 		try {
-			db.pragma( "user_version = 2" );
+			db.pragma( "user_version = 3" );
 			expect( () => migrate( db ) ).toThrow( /newer than supported/i );
 			const tables = db.prepare( "SELECT name FROM sqlite_master WHERE type = 'table'" ).all();
 			expect( tables ).toEqual( [] );
-			expect( db.pragma( "user_version", { simple: true } ) ).toBe( 2 );
+			expect( db.pragma( "user_version", { simple: true } ) ).toBe( 3 );
 		} finally { db.close(); }
 	} );
 

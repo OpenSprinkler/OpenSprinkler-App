@@ -15,6 +15,16 @@ export const telemetry = sqliteTable( "telemetry", {
 	raw: text( "raw" ).notNull(),
 }, ( t ) => ( { byCtrlTs: index( "telemetry_ctrl_ts" ).on( t.controller, t.ts ) } ) );
 
+export const events = sqliteTable( "events", {
+	id: integer( "id" ).primaryKey( { autoIncrement: true } ),
+	controller: text( "controller" ).notNull(),
+	ts: integer( "ts" ).notNull(),
+	source: text( "source" ).notNull(),   // "weather" | "system"
+	level: text( "level" ).notNull(),     // "normal" | "detail" | "debug"
+	label: text( "label" ).notNull(),
+	detail: text( "detail" ).notNull(),
+}, ( t ) => ( { byCtrlTs: index( "events_ctrl_ts" ).on( t.controller, t.ts ) } ) );
+
 export const runLog = sqliteTable( "run_log", {
 	id: integer( "id" ).primaryKey( { autoIncrement: true } ),
 	controller: text( "controller" ).notNull(),

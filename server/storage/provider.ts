@@ -20,6 +20,24 @@ export interface RunLogRow {
 	program: number; station: number; durationSec: number; endTs: number; flowGpm: number | null;
 }
 
+export type EventSource = "weather" | "system";
+export type EventLevel = "normal" | "detail" | "debug";
+
+/** A derived observation (weather-error transition, completed weather call, …). Append-only. */
+export interface EventRow {
+	ts: number;         // collector unix seconds (UTC)
+	source: EventSource;
+	level: EventLevel;
+	label: string;      // badge text, e.g. "Weather"
+	detail: string;     // one plain-English sentence
+}
+
+/** Events page query: `maxLevel` includes levels up to that verbosity (normal ⊂ detail ⊂ debug). */
+export interface EventsPageQuery extends HistoryPageQuery {
+	maxLevel?: EventLevel;
+	source?: EventSource;
+}
+
 export interface HistoryQuery { fromTs: number; toTs: number; limit?: number; offset?: number; }
 
 /** Stable keyset cursor: rows inserted after `snapshotId` cannot shift an in-progress page walk. */
@@ -43,6 +61,11 @@ export interface StorageProvider {
 	pageTelemetry( controller: string, q: HistoryPageQuery ): Promise<HistoryPage<StoredTelemetry>>;
 	pageRunLog( controller: string, q: HistoryPageQuery ): Promise<HistoryPage<RunLogRow>>;
 	lastRunLogEndTs( controller: string ): Promise<number | null>;
+	/** Newest stored sample — the diff baseline for event derivation. */
+	lastTelemetry( controller: string ): Promise<StoredTelemetry | null>;
+	appendEvents( controller: string, rows: EventRow[] ): Promise<void>;
+	pageEvents( controller: string, q: EventsPageQuery ): Promise<HistoryPage<EventRow>>;
+	pruneEvents( olderThanTs: number ): Promise<number>;    // # deleted
 	pruneTelemetry( olderThanTs: number ): Promise<number>; // # deleted
 	health( controller: string ): Promise<StorageHealth>;
 	close(): Promise<void>;

@@ -3,7 +3,8 @@ import type { JcResponse, JoResponse } from "../www/src/api/types";
 import { decodeLogRow, flowGpm } from "../www/src/api/decode";
 import { countActiveStations } from "../www/src/spike/status-view";
 import { osTzOffsetSeconds } from "../www/src/api/time";
-import type { StorageProvider, TelemetrySample, RunLogRow } from "./storage/provider";
+import type { StorageProvider, StoredTelemetry, TelemetrySample, RunLogRow } from "./storage/provider";
+import { diffTelemetryEvents } from "./events";
 
 const RUNLOG_OVERLAP_SEC = 3600; // re-scan the last hour to catch late-arriving rows
 const RUNLOG_MAX_CATCHUP_DAYS = 90;
@@ -37,7 +38,7 @@ export function mapTelemetry( jc: JcResponse, jo: JoResponse, now: number ): Tel
 	};
 }
 
-export interface CollectResult { telemetry: boolean; newRunLog: number; errors: string[]; }
+export interface CollectResult { telemetry: boolean; newRunLog: number; newEvents: number; errors: string[]; }
 
 /** One poll cycle. Telemetry + run-log are written independently (FR-7); errors are returned, not thrown. */
 export async function collectOnce(
@@ -47,9 +48,12 @@ export async function collectOnce(
 	const errors: string[] = [];
 	let telemetry = false;
 	let newRunLog = 0;
+	let newEvents = 0;
 	let optionsForFlow: JoResponse | undefined;
 	let statusForClock: JcResponse | undefined;
-	const result = (): CollectResult => ( { telemetry, newRunLog, errors } );
+	let eventBaseline: StoredTelemetry | null = null;
+	let appendedSample: TelemetrySample | undefined;
+	const result = (): CollectResult => ( { telemetry, newRunLog, newEvents, errors } );
 	if ( opts.signal?.aborted ) return result();
 
 	try {
@@ -65,9 +69,23 @@ export async function collectOnce(
 			throw new Error( `controller telemetry read failed: ${ causes.map( String ).join( "; " ) }` );
 		}
 		if ( opts.signal?.aborted ) return result();
-		await store.appendTelemetry( controllerId, mapTelemetry( jcResult.value, joResult.value, opts.now ) );
+		// Read the diff baseline BEFORE appending, so the new sample never becomes its own baseline.
+		// An unreadable baseline degrades to "no events this cycle", never to duplicates.
+		eventBaseline = await store.lastTelemetry( controllerId ).catch( () => null );
+		const sample = mapTelemetry( jcResult.value, joResult.value, opts.now );
+		await store.appendTelemetry( controllerId, sample );
+		appendedSample = sample;
 		telemetry = true;
 	} catch ( e ) { errors.push( `telemetry: ${ String( e ) }` ); }
+	if ( opts.signal?.aborted ) return result();
+
+	try {
+		if ( appendedSample ) {
+			const derived = diffTelemetryEvents( eventBaseline, appendedSample );
+			if ( derived.length ) await store.appendEvents( controllerId, derived );
+			newEvents = derived.length;
+		}
+	} catch ( e ) { errors.push( `events: ${ String( e ) }` ); }
 	if ( opts.signal?.aborted ) return result();
 
 	try {

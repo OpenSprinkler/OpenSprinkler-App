@@ -57,7 +57,9 @@ async function main(): Promise<void> {
 
 		pruner = runtime.dbOk ? new Poller( async ( signal ) => {
 			if ( signal.aborted ) return;
-			await initializedStore.pruneTelemetry( Math.floor( Date.now() / 1000 ) - config.historyMaxDays * 86400 );
+			const cutoff = Math.floor( Date.now() / 1000 ) - config.historyMaxDays * 86400;
+			await initializedStore.pruneTelemetry( cutoff );
+			await initializedStore.pruneEvents( cutoff );
 		}, 86400 ) : null;
 		pruner?.start( false ); // startup already pruned; first retention pass is one day later
 		server = serve( { fetch: runtime.app.fetch, port: config.port, hostname: config.listenHost } );

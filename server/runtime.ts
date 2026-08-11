@@ -23,8 +23,11 @@ export async function buildRuntime( deps: RuntimeDeps ): Promise<Runtime> {
 	let dbOk = true;
 	try { await deps.store.init(); } catch ( e ) { dbOk = false; console.error( "[runtime] DB init failed:", e ); }
 	if ( dbOk ) {
-		try { await deps.store.pruneTelemetry( now() - deps.config.historyMaxDays * 86400 ); }
-		catch ( e ) { console.error( "[runtime] startup telemetry prune failed:", e ); }
+		try {
+			const cutoff = now() - deps.config.historyMaxDays * 86400;
+			await deps.store.pruneTelemetry( cutoff );
+			await deps.store.pruneEvents( cutoff );
+		} catch ( e ) { console.error( "[runtime] startup telemetry prune failed:", e ); }
 	}
 
 	const lastError: string | null = dbOk ? null : "database unavailable";
@@ -55,6 +58,8 @@ function degradedStore(): StorageProvider {
 		pageTelemetry: async () => ( { rows: [], nextCursor: null } ),
 		pageRunLog: async () => ( { rows: [], nextCursor: null } ),
 		lastRunLogEndTs: async () => null,
+		lastTelemetry: async () => null, appendEvents: async () => {},
+		pageEvents: async () => ( { rows: [], nextCursor: null } ), pruneEvents: async () => 0,
 		pruneTelemetry: async () => 0, close: async () => {},
 		health: async () => ( { ok: false, telemetryRows: 0, runLogRows: 0, lastTs: null } ),
 	} as StorageProvider;

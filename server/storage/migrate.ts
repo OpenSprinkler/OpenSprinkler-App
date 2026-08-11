@@ -1,6 +1,6 @@
 import type BetterSqlite3 from "better-sqlite3";
 
-const SCHEMA_VERSION = 1;
+const SCHEMA_VERSION = 2;
 
 /** Idempotent schema creation (FR-14). Single-process, in-container; safe on every boot. */
 export function migrate( db: BetterSqlite3.Database ): void {
@@ -37,8 +37,19 @@ export function migrate( db: BetterSqlite3.Database ): void {
 		);
 		CREATE UNIQUE INDEX IF NOT EXISTS run_log_uniq ON run_log ( controller, station, end_ts );
 		CREATE INDEX IF NOT EXISTS run_log_ctrl_end ON run_log ( controller, end_ts );
+
+		CREATE TABLE IF NOT EXISTS events (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			controller TEXT NOT NULL,
+			ts INTEGER NOT NULL,
+			source TEXT NOT NULL,
+			level TEXT NOT NULL,
+			label TEXT NOT NULL,
+			detail TEXT NOT NULL
+		);
+		CREATE INDEX IF NOT EXISTS events_ctrl_ts ON events ( controller, ts );
 	` );
-	if ( version < SCHEMA_VERSION ) {
+	if ( version < 1 ) {
 		// Releases before schema version 1 stored complete /jc and /jo responses in `raw`, including
 		// optional integration credentials. Overwrite that legacy data, compact it out of the DB,
 		// and truncate the WAL before marking the one-time migration complete.
@@ -46,6 +57,7 @@ export function migrate( db: BetterSqlite3.Database ): void {
 		db.prepare( "UPDATE telemetry SET raw = '{}'" ).run();
 		db.exec( "VACUUM" );
 		db.pragma( "wal_checkpoint(TRUNCATE)" );
-		db.pragma( `user_version = ${ SCHEMA_VERSION }` );
 	}
+	// Schema version 2 only adds the `events` table (created above for every version).
+	if ( version < SCHEMA_VERSION ) db.pragma( `user_version = ${ SCHEMA_VERSION }` );
 }
