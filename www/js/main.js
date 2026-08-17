@@ -64,8 +64,9 @@ OSApp.Constants = {
 	},
 	weather: {
 		DEFAULT_WEATHER_SERVER_URL: "https://weather.opensprinkler.com",
+		SERVER_DEFAULT_PROVIDER: "__server_default__",
 		PROVIDERS: [
-			{ name: "Apple (Default)", id: "Apple", needsKey: false },
+			{ name: "Apple WeatherKit", id: "Apple", needsKey: false },
 			{ name: "AccuWeather", id: "AW", needsKey: true },
 			{ name: "PirateWeather", id: "PW", needsKey: true },
 			{ name: "Open Weather Map", id: "OWM", needsKey: true },

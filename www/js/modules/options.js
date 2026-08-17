@@ -207,7 +207,13 @@ OSApp.Options.showOptions = function( expandItem ) {
 					case "wtkey":
 						return true;
 					case "wto":
-						data = OSApp.Utils.escapeJSON( $.extend( {}, OSApp.Utils.unescapeJSON( data ), { key: page.find( "#wtkey" ).val() } ) );
+						var providerSelect = page.find( "#weatherSelect" ),
+							keyInput = page.find( "#wtkey" );
+						data = OSApp.Utils.escapeJSON( OSApp.Weather.prepareWeatherOptions(
+							OSApp.Utils.unescapeJSON( data ),
+							providerSelect.length ? providerSelect.val() : undefined,
+							keyInput.length ? keyInput.val() : undefined
+						) );
 
 						if ( OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto ) === data ) {
 							return true;
@@ -274,10 +280,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 						}
 						break;
 					case "weatherSelect":
-						if ( OSApp.currentSession.controller.settings.wto && OSApp.currentSession.controller.settings.wto.provider && OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto.provider ) === data ) {
-							return true;
-						}
-						break;
+						return true;
 					case "mda":
 						if ( OSApp.currentSession.controller.settings.wto && OSApp.currentSession.controller.settings.wto.mda && OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto.mda ) === data ) {
 							return true;
@@ -671,21 +674,31 @@ OSApp.Options.showOptions = function( expandItem ) {
 		}
 	}
 
+		var weatherOptions = OSApp.currentSession.controller.settings.wto || {},
+			customWeatherServer = OSApp.Weather.isCustomWeatherServer(),
+			selectedWeatherProvider = OSApp.Weather.getWeatherProviderSelection( weatherOptions );
+
 		if ( typeof OSApp.currentSession.controller?.settings?.wsp !== "undefined" ) {
 			list += "<div class='ui-field-contain'><label for='weatherSelect' class='select'>" + OSApp.Language._( "Weather Data Provider" ) +
 					"<button data-helptext='" +
-						OSApp.Language._( "Select your preferred weather service provider." ) +
+						( selectedWeatherProvider === OSApp.Constants.weather.SERVER_DEFAULT_PROVIDER ? OSApp.Language._( "Uses the provider configured on the custom weather server." ) : OSApp.Language._( "Select your preferred weather service provider." ) ) +
 						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 				"</label><select data-mini='true' id='weatherSelect'>";
 			for ( i = 0; i < OSApp.Constants.weather.PROVIDERS.length; i++ ) {
 				var weatherProvider = OSApp.Weather.getWeatherProviderById( i );
-				list += "<option " + ( ( weatherProvider.id === OSApp.currentSession.controller.settings.wto.provider ) ? "selected" : "" ) + " value='" + weatherProvider.id + "'>" + weatherProvider.name + "</option>";
+				list += "<option " + ( ( weatherProvider.id === selectedWeatherProvider ) ? "selected" : "" ) + " value='" + weatherProvider.id + "'>" + weatherProvider.name + "</option>";
+			}
+			if ( customWeatherServer ) {
+				list += "<option " + ( selectedWeatherProvider === OSApp.Constants.weather.SERVER_DEFAULT_PROVIDER ? "selected" : "" ) +
+					" value='" + OSApp.Constants.weather.SERVER_DEFAULT_PROVIDER + "'>" + OSApp.Language._( "Default Provider" ) + "</option>";
 			}
 			list += "</select></div>";
 		}
 
 		if ( OSApp.Supported.verifyWeatherAPIKey() ) {
-			list += "<div class='ui-field-contain" + ( OSApp.Weather.getCurrentWeatherProvider().needsKey ? "" : " hidden" ) + "'><label for='wtkey'>" + OSApp.Language._( "Weather API Key" ) +
+			var selectedProvider = OSApp.Weather.getWeatherProviderById( selectedWeatherProvider ),
+				providerNeedsKey = !!( selectedProvider && selectedProvider.needsKey );
+			list += "<div class='ui-field-contain" + ( providerNeedsKey ? "" : " hidden" ) + "'><label for='wtkey'>" + OSApp.Language._( "Weather API Key" ) +
 				"<button data-helptext='" +
 				OSApp.Language._( "Please enter an API key for your selected weather provider." ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
@@ -694,10 +707,10 @@ OSApp.Options.showOptions = function( expandItem ) {
 				"<tr style='width:100%;vertical-align: top;'>" +
 					"<td style='width:100%'>" +
 						"<div class='" +
-							( ( OSApp.currentSession.controller.settings.wto.key && OSApp.currentSession.controller.settings.wto.key !== "" ) ? "" : "red " ) +
+							( providerNeedsKey && !weatherOptions.key ? "red " : "" ) +
 							"ui-input-text controlgroup-textinput ui-btn ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'>" +
 								"<input data-role='none' data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' " +
-									"type='text' id='wtkey' value='" + ( OSApp.currentSession.controller.settings.wto.key || "" ) + "'>" +
+									"type='text' id='wtkey' value='" + ( weatherOptions.key || "" ) + "'>" +
 								"<a href='#' tabindex='-1' aria-hidden='true' data-helptext='" + OSApp.Language._( "An invalid API key has been detected." ) +
 									"' class='hidden help-icon ui-input-clear ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'>" +
 								"</a>" +
@@ -1467,10 +1480,28 @@ OSApp.Options.showOptions = function( expandItem ) {
 		}
 	} );
 
+	var updateWeatherApiKeyControls = function( providerId ) {
+		var key = page.find( "#wtkey" ),
+			provider = OSApp.Weather.getWeatherProviderById( providerId ),
+			needsKey = !!( provider && provider.needsKey );
+
+		key.parents( ".ui-field-contain" ).toggleClass( "hidden", !needsKey );
+		key.parent().removeClass( "red green" );
+		key.siblings( ".help-icon" ).hide();
+		if ( needsKey && !key.val() ) {
+			key.parent().addClass( "red" );
+		}
+		return needsKey;
+	};
+
 	page.find( "#verify-api" ).on( "click", function() {
 		var key = page.find( "#wtkey" ),
 			button = $( this ),
 			provider = page.find( "#weatherSelect" );
+
+		if ( !updateWeatherApiKeyControls( provider.val() ) ) {
+			return false;
+		}
 
 		button.prop( "disabled", true );
 
@@ -1490,13 +1521,22 @@ OSApp.Options.showOptions = function( expandItem ) {
 		//remove status from API key entry to prompt re-verify
 		page.find( "#wtkey" ).siblings( ".help-icon" ).hide();
 		page.find( "#wtkey" ).parent().removeClass( "red green" );
-		//make API key input appear if needed
-		page.find( "#wtkey" ).parents( ".ui-field-contain" ).toggleClass( "hidden", !(OSApp.Weather.getWeatherProviderById( this.value ).needsKey));
 		//change wto value based on new selection
 		let curr = OSApp.Utils.unescapeJSON(page.find( "#wto" ).val());
-		curr.provider = this.value;
+		if ( this.value === OSApp.Constants.weather.SERVER_DEFAULT_PROVIDER ) {
+			delete curr.provider;
+			delete curr.key;
+			delete curr.pws;
+		} else {
+			curr.provider = this.value;
+		}
 		page.find( "#wtkey" ).prop( "value", "" );
-		page.find( "#wtkey" ).parent().addClass( "red" );
+		updateWeatherApiKeyControls( this.value );
+		page.find( "label[for='weatherSelect'] .help-icon" ).attr( "data-helptext",
+			this.value === OSApp.Constants.weather.SERVER_DEFAULT_PROVIDER ?
+				OSApp.Language._( "Uses the provider configured on the custom weather server." ) :
+				OSApp.Language._( "Select your preferred weather service provider." )
+		);
 		page.find( "#wto" ).prop( "value", OSApp.Utils.escapeJSON(curr));
 	} );
 
