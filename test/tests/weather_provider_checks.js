@@ -109,6 +109,17 @@ describe("Weather Server Default Provider Checks", function () {
 		assert.include(prepared, { h: 100, t: 90, r: 80, baseETo: 0.2, mda: 100 });
 	});
 
+	it("keeps Default Provider serialization non-empty without adjustment options", function () {
+		var prepared = OSApp.Weather.prepareWeatherOptions({
+			provider: "OpenMeteo",
+			key: "old-key",
+			pws: "old-pws"
+		}, OSApp.Constants.weather.SERVER_DEFAULT_PROVIDER, "reinserted-key");
+
+		assert.deepEqual(prepared, { key: "" });
+		assert.isNotEmpty(OSApp.Utils.escapeJSON(prepared));
+	});
+
 	it("updates regular-provider keys without persisting an untouched selector default", function () {
 		var prepared = OSApp.Weather.prepareWeatherOptions({ h: 100 }, "Apple", "new-key");
 
@@ -172,6 +183,25 @@ describe("Weather Server Default Provider Checks", function () {
 			assert.isFalse(params.has("weatherSelect"));
 			assert.notInclude(url, OSApp.Constants.weather.SERVER_DEFAULT_PROVIDER);
 			assert.deepEqual(weather, { h: 100 });
+		} finally {
+			request.restore();
+		}
+	});
+
+	it("clears a Manual provider override with a non-empty wto request", function () {
+		OSApp.currentSession.controller.options.uwt = 0;
+		OSApp.currentSession.controller.settings.wsp = "https://weather.example.net";
+		OSApp.currentSession.controller.settings.wto = { provider: "OpenMeteo" };
+		var request = sinon.stub(OSApp.Firmware, "sendToOS").returns($.Deferred().promise());
+
+		try {
+			OSApp.Options.showOptions();
+			$("#weatherSelect").val(OSApp.Constants.weather.SERVER_DEFAULT_PROVIDER).trigger("change");
+			$("#os-options .submit").trigger("click");
+
+			assert.isTrue(request.calledOnce);
+			var params = new URL("http://controller" + request.firstCall.args[0]).searchParams;
+			assert.equal(params.get("wto"), '"key":""');
 		} finally {
 			request.restore();
 		}

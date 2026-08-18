@@ -989,6 +989,11 @@ OSApp.Weather.prepareWeatherOptions = function( options, provider, key ) {
 		delete prepared.provider;
 		delete prepared.key;
 		delete prepared.pws;
+		// Firmware ignores an empty wto parameter, so retain a harmless empty
+		// key when no adjustment options remain to make provider clearing stick.
+		if ( Object.keys( prepared ).length === 0 ) {
+			prepared.key = "";
+		}
 		return prepared;
 	}
 
