@@ -829,4 +829,74 @@ describe("Import/Export Checks", function () {
 			OSApp.currentSession.controller = controller;
 		}
 	});
+
+	it("should restore station groups split alongside zone names", function () {
+		var sandbox = sinon.createSandbox(),
+			controller = installImportHarness(sandbox),
+			commands = [];
+
+		try {
+			sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (command) {
+				commands.push(command);
+				return resolved({ result: 1 });
+			});
+			var backup = baseBackup(),
+				snames = [],
+				groups = [],
+				i;
+			for (i = 0; i < 20; i++) {
+				snames.push("S" + i);
+				groups.push([ 0, 1, 2, 3, 255 ][i % 5]);
+			}
+			backup.settings.nbrd = 3;
+			backup.stations = { snames: snames, masop: [ 0, 0, 0 ], stn_grp: groups };
+
+			return cleanupAfter(asNative(OSApp.ImportExport.importConfig(backup)).then(function () {
+				var stationCommands = commands.filter(function (command) {
+					return command.indexOf("/cs?") === 0 && command.indexOf("&s") !== -1;
+				});
+
+				assert.lengthOf(stationCommands, 2);
+				for (i = 0; i < 20; i++) {
+					var params = paramsFor(stationCommands[Math.floor(i / 16)]);
+					assert.equal(params.get("s" + i), snames[i]);
+					assert.equal(params.get("g" + i), String(groups[i]));
+				}
+
+				// Each group rides in the same request as its zone name, never the per-board command
+				assert.equal(paramsFor(stationCommands[0]).get("g0"), "0");
+				assert.isNull(paramsFor(stationCommands[0]).get("g16"));
+				assert.isNull(paramsFor(stationCommands[1]).get("g0"));
+				assert.notMatch(
+					commands.find(function (command) { return command.indexOf("&m0=") !== -1; }),
+					/[?&]g\d+=/
+				);
+			}), sandbox, controller);
+		} catch (error) {
+			OSApp.currentSession.controller = controller;
+			sandbox.restore();
+			throw error;
+		}
+	});
+
+	it("should omit station group parameters when the backup has none", function () {
+		var sandbox = sinon.createSandbox(),
+			controller = installImportHarness(sandbox),
+			commands = [];
+
+		try {
+			sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (command) {
+				commands.push(command);
+				return resolved({ result: 1 });
+			});
+
+			return cleanupAfter(asNative(OSApp.ImportExport.importConfig(baseBackup())).then(function () {
+				assert.notMatch(commands.join("\n"), /[?&]g\d+=/);
+			}), sandbox, controller);
+		} catch (error) {
+			OSApp.currentSession.controller = controller;
+			sandbox.restore();
+			throw error;
+		}
+	});
 });

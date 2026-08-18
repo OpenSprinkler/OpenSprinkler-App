@@ -781,6 +781,15 @@ OSApp.ImportExport.importConfig = function( data ) {
 			}
 		}
 
+		// Station groups are per-zone rather than per-board, so they reuse the zone name split to bound request size
+		if ( Array.isArray( data.stations.stn_grp ) ) {
+			for ( k = 0; k < ncs; k++ ) {
+				for ( i = k * 16; i < ( k + 1 ) * 16 && i < data.stations.stn_grp.length; i++ ) {
+					csi[ k ] += "&g" + i + "=" + data.stations.stn_grp[ i ];
+				}
+			}
+		}
+
 		for ( i = 0; i < data.stations.masop.length; i++ ) {
 			cs += "&m" + i + "=" + data.stations.masop[ i ];
 		}
