@@ -720,7 +720,7 @@ OSApp.Weather.checkURLandUpdateWeather = function() {
 	};
 
 	if ( OSApp.currentSession.controller?.settings?.wsp ) {
-		if ( OSApp.currentSession.controller.settings.wsp === "weather.opensprinkler.com" ) {
+		if ( !OSApp.Weather.isCustomWeatherServer( OSApp.currentSession.controller.settings.wsp ) ) {
 			finish();
 			return;
 		}
@@ -733,6 +733,32 @@ OSApp.Weather.checkURLandUpdateWeather = function() {
 		var wsp = reply.match( /value="([\w|:|/|.]+)" name=wsp/ );
 		finish( wsp ? wsp[ 1 ] : undefined );
 	} );
+};
+
+OSApp.Weather.isCustomWeatherServer = function( weatherServer ) {
+	if ( typeof weatherServer === "undefined" ) {
+		weatherServer = OSApp.currentSession.controller?.settings?.wsp;
+	}
+
+	if ( typeof weatherServer !== "string" || weatherServer.trim() === "" ) {
+		return false;
+	}
+
+	var normalized = weatherServer.trim();
+	if ( !/^https?:\/\//i.test( normalized ) ) {
+		normalized = "https://" + normalized;
+	}
+
+	try {
+		var parsed = new URL( normalized );
+		return parsed.hostname.toLowerCase() !== "weather.opensprinkler.com" ||
+			parsed.port !== "" ||
+			parsed.pathname.replace( /\/+$/, "" ) !== "" ||
+			parsed.search !== "" ||
+			parsed.hash !== "";
+	} catch {
+		return true;
+	}
 };
 
 OSApp.Weather.updateWeatherBox = function() {
@@ -948,12 +974,33 @@ OSApp.Weather.getWeatherProviderById = function( id ) {
 	return false;
 };
 
-OSApp.Weather.getCurrentWeatherProvider = function() {
-	const provider = OSApp.Weather.getWeatherProviderById(OSApp.currentSession.controller.settings.wto.provider);
-	if(provider)
-		return provider;
+OSApp.Weather.getWeatherProviderSelection = function( options, weatherServer ) {
+	options = options || {};
+	if ( OSApp.Weather.isCustomWeatherServer( weatherServer ) && ( !options.provider || options.provider === "local" ) ) {
+		return OSApp.Constants.weather.SERVER_DEFAULT_PROVIDER;
+	}
 
-	return false;
+	return options.provider;
+};
+
+OSApp.Weather.prepareWeatherOptions = function( options, provider, key ) {
+	var prepared = $.extend( {}, options || {} );
+	if ( provider === OSApp.Constants.weather.SERVER_DEFAULT_PROVIDER ) {
+		delete prepared.provider;
+		delete prepared.key;
+		delete prepared.pws;
+		// Firmware ignores an empty wto parameter, so retain a harmless empty
+		// key when no adjustment options remain to make provider clearing stick.
+		if ( Object.keys( prepared ).length === 0 ) {
+			prepared.key = "";
+		}
+		return prepared;
+	}
+
+	if ( typeof key !== "undefined" ) {
+		prepared.key = key;
+	}
+	return prepared;
 };
 
 OSApp.Weather.testAPIKey = function( key, provider, callback ) {

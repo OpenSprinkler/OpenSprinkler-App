@@ -1171,6 +1171,12 @@ msgstr ""
 msgid "Select your preferred weather service provider."
 msgstr ""
 
+msgid "Uses the provider configured on the custom weather server."
+msgstr ""
+
+msgid "Default Provider"
+msgstr ""
+
 msgid "Weather API Key"
 msgstr ""
 
