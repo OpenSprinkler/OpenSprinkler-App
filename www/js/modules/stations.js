@@ -159,6 +159,9 @@ OSApp.Stations.getSpecialBadge = function( sid ) {
 	if ( type === OSApp.Constants.stations.SPECIAL_TYPE_STANDARD ) {
 		return "";
 	}
+	if ( typeof type === "undefined" && !OSApp.currentSession.controller.specialUnavailable ) {
+		return "";
+	}
 
 	return OSApp.Constants.stations.SPECIAL_BADGES[ type ] || "SP";
 };

@@ -164,9 +164,11 @@ describe("Bundle Station Data Checks", function () {
 			});
 	});
 
-	it("uses SP while a special station type is unknown", function () {
+	it("hides an unknown special type until metadata loading fails", function () {
 		controller.stations.stn_spe[0] = 1;
 		delete controller.special;
+		assert.equal(OSApp.Stations.getSpecialBadge(0), "");
+		controller.specialUnavailable = true;
 		assert.equal(OSApp.Stations.getSpecialBadge(0), "SP");
 	});
 

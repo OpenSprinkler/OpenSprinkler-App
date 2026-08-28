@@ -190,6 +190,7 @@ OSApp.Dashboard.displayPage = function() {
 				sid = button.data( "station" ),
 				name = button.siblings( "[id='station_" + sid + "']" ),
 				referencingLeaders,
+				specialTypeLocked,
 				getSelectedBundleMembers = function() {
 					return select.find( ".bundle-member:checked" ).map( function() {
 						return parseInt( this.value, 10 );
@@ -560,6 +561,7 @@ OSApp.Dashboard.displayPage = function() {
 			}
 
 			referencingLeaders = OSApp.Supported.bundle() ? OSApp.Bundles.getReferencingLeaders( sid ) : [];
+			specialTypeLocked = referencingLeaders.length > 0;
 			button.data( "originalSpecialType", OSApp.Stations.getSpecialType( sid ) );
 
 			// Setup two tabs for station configuration (Basic / Advanced) when applicable
@@ -685,18 +687,18 @@ OSApp.Dashboard.displayPage = function() {
 					"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Station Type" ) + ":</div>" +
 					"<select data-mini='true' id='hs'"  + ( OSApp.Stations.isSpecial( sid ) ? " class='ui-disabled'" : "" ) + ">" +
 					"<option data-hs='0' value='0'" + ( OSApp.Stations.isSpecial( sid ) ? "" : "selected" ) + ">" + OSApp.Language._( "Standard" ) + "</option>" +
-					"<option data-hs='1' value='1'>" + OSApp.Language._( "RF" ) + "</option>" +
-					"<option data-hs='2' value='2'>" + OSApp.Language._( "Remote Station (IP)" ) + "</option>" +
+					"<option data-hs='1' value='1'" + ( specialTypeLocked ? " disabled>" : ">" ) + OSApp.Language._( "RF" ) + "</option>" +
+					"<option data-hs='2' value='2'" + ( specialTypeLocked ? " disabled>" : ">" ) + OSApp.Language._( "Remote Station (IP)" ) + "</option>" +
 					"<option data-hs='3' value='3'" + (
-						OSApp.Firmware.checkOSVersion( 217 ) && (
+						!specialTypeLocked && OSApp.Firmware.checkOSVersion( 217 ) && (
 							( typeof OSApp.currentSession.controller.settings.gpio !== "undefined" && OSApp.currentSession.controller.settings.gpio.length > 0 ) || OSApp.Firmware.getHWVersion() === "OSPi" || OSApp.Firmware.getHWVersion() === "2.3"
 						) ? ">" : " disabled>"
 					) + OSApp.Language._( "GPIO" ) + "</option>" +
-					"<option data-hs='4' value='4'" + ( OSApp.Firmware.checkOSVersion( 217 ) ? ">" : " disabled>" ) + OSApp.Language._( "HTTP" ) + "</option>" +
-					"<option data-hs='5' value='5'" + ( typeof OSApp.currentSession.controller.settings.email === "object" ? ">" : " disabled>" ) + OSApp.Language._( "HTTPS" ) + "</option>" +
-					"<option data-hs='6' value='6'" + ( typeof OSApp.currentSession.controller.settings.email === "object" ? ">" : " disabled>" ) + OSApp.Language._( "Remote Station (OTC)" ) + "</option>" +
+					"<option data-hs='4' value='4'" + ( !specialTypeLocked && OSApp.Firmware.checkOSVersion( 217 ) ? ">" : " disabled>" ) + OSApp.Language._( "HTTP" ) + "</option>" +
+					"<option data-hs='5' value='5'" + ( !specialTypeLocked && typeof OSApp.currentSession.controller.settings.email === "object" ? ">" : " disabled>" ) + OSApp.Language._( "HTTPS" ) + "</option>" +
+					"<option data-hs='6' value='6'" + ( !specialTypeLocked && typeof OSApp.currentSession.controller.settings.email === "object" ? ">" : " disabled>" ) + OSApp.Language._( "Remote Station (OTC)" ) + "</option>" +
 					( OSApp.Supported.bundle() ? "<option data-hs='7' value='7'" +
-						( OSApp.Stations.isMaster( sid ) || referencingLeaders.length ? " disabled>" : ">" ) +
+						( OSApp.Stations.isMaster( sid ) || specialTypeLocked ? " disabled>" : ">" ) +
 						OSApp.Language._( "Bundle Station" ) + "</option>" : "" ) +
 					"</select>" +
 					"<div id='specialOpts'></div>";

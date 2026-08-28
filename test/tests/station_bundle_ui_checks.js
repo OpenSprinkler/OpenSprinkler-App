@@ -143,4 +143,23 @@ describe("Dashboard Bundle Station Checks", function () {
 		assert.equal(params.get("st"), "0");
 		assert.equal(params.get("sd"), "0");
 	});
+
+	it("disables special station types for a referenced member", function () {
+		setBundle(1, [ 0 ]);
+		sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (url) {
+			return $.Deferred().resolve(url.indexOf("/je") === 0 ? controller.special : { result: 1 }).promise();
+		});
+		sandbox.stub(OSApp.Sites, "updateController");
+
+		OSApp.Dashboard.displayPage();
+		$("#attrib-0").trigger("click");
+		var options = $("#stn_attrib #hs option");
+
+		assert.isFalse(options.filter("[value='0']").prop("disabled"));
+		options.filter(function () {
+			return this.value !== "0";
+		}).each(function () {
+			assert.isTrue(this.disabled, "station type " + this.value + " should be disabled");
+		});
+	});
 });
