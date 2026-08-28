@@ -26,6 +26,93 @@ OSApp.ImportExport.serializeConfig = function() {
 	return JSON.stringify( controller );
 };
 
+OSApp.ImportExport.prepareBundleStationImport = function( data, targetController ) {
+	var special = $.extend( true, {}, data.special || {} ),
+		stnSpe = Array.isArray( data.stations?.stn_spe ) ? data.stations.stn_spe.slice() : [],
+		targetStations = targetController?.stations || {},
+		supported = Array.isArray( targetStations.stn_bnd ),
+		boardCount = supported ? targetStations.stn_bnd.length : 0,
+		mask = Number( targetStations.bmt ),
+		masters = [ "mas", "mas2", "mas3", "mas4" ].map( function( key ) {
+			return Number( data.options?.[ key ] ) - 1;
+		} ).filter( function( sid ) { return sid >= 0; } ),
+		error = "";
+
+	if ( !Number.isInteger( mask ) || mask < 0 ) {
+		mask = OSApp.Bundles.Constants.DEFAULT_MEMBER_TYPE_MASK;
+	}
+
+	var typeAllowed = function( type ) {
+		return Number.isInteger( type ) && type >= 0 && type <= OSApp.Bundles.Constants.MAX_KNOWN_STATION_TYPE &&
+			( mask & ( 1 << type ) ) !== 0;
+	};
+	var clearSpecialBit = function( sid ) {
+		var bid = ( sid / 8 ) >> 0;
+		if ( typeof stnSpe[ bid ] === "number" ) {
+			stnSpe[ bid ] &= ~( 1 << ( sid % 8 ) );
+		}
+	};
+	var importedType = function( sid ) {
+		if ( Object.prototype.hasOwnProperty.call( special, sid ) ) {
+			var type = Number( special[ sid ].st );
+			return Number.isInteger( type ) ? type : undefined;
+		}
+		var bid = ( sid / 8 ) >> 0;
+		return ( ( stnSpe[ bid ] || 0 ) & ( 1 << ( sid % 8 ) ) ) ? undefined :
+			OSApp.Constants.stations.SPECIAL_TYPE_STANDARD;
+	};
+
+	if ( supported && Array.isArray( data.stations?.stn_bnd ) ) {
+		data.stations.stn_bnd.some( function( value, bid ) {
+			for ( var bit = 0; bit < 8; bit++ ) {
+				var sid = bid * 8 + bit,
+					info = special[ sid ];
+				if ( ( value & ( 1 << bit ) ) && ( !info || Number( info.st ) !== OSApp.Constants.stations.SPECIAL_TYPE_BUNDLE ) ) {
+					error = OSApp.Language._( "This backup contains an incomplete Bundle Station definition." );
+					return true;
+				}
+			}
+			return false;
+		} );
+	}
+
+	Object.keys( special ).forEach( function( leaderKey ) {
+		if ( error ) { return; }
+		var leaderSid = Number( leaderKey ),
+			info = special[ leaderKey ],
+			type = Number( info.st );
+		if ( type !== OSApp.Constants.stations.SPECIAL_TYPE_BUNDLE ) {
+			return;
+		}
+
+		if ( !supported ) {
+			delete special[ leaderKey ];
+			clearSpecialBit( leaderSid );
+			return;
+		}
+
+		var normalized = OSApp.Bundles.normalizeBitmap( String( info.sd || "" ), boardCount ),
+			members = OSApp.Bundles.decodeMembers( normalized, boardCount ),
+			invalid = masters.indexOf( leaderSid ) !== -1 || members.some( function( memberSid ) {
+				return memberSid === leaderSid || masters.indexOf( memberSid ) !== -1 || !typeAllowed( importedType( memberSid ) );
+			} );
+
+		if ( invalid ) {
+			error = OSApp.Language._( "This backup contains Bundle Station assignments that are not supported by this controller." );
+			return;
+		}
+		special[ leaderKey ].sd = normalized;
+	} );
+
+	if ( !supported && Array.isArray( data.stations?.stn_bnd ) ) {
+		data.stations.stn_bnd.forEach( function( value, bid ) {
+			stnSpe[ bid ] = ( stnSpe[ bid ] || 0 ) & ~value;
+		} );
+	}
+
+	return { special: special, stnSpe: stnSpe, error: error };
+};
+
 OSApp.ImportExport.getExportMethod = function() {
 	var popup = $(
 		"<div data-role='popup' data-theme='a'>" +
@@ -655,6 +742,12 @@ OSApp.ImportExport.importConfig = function( data ) {
 		return;
 	}
 
+	var bundleImport = OSApp.ImportExport.prepareBundleStationImport( data, importController );
+	if ( bundleImport.error ) {
+		OSApp.Errors.showError( bundleImport.error, 5000 );
+		return;
+	}
+
 	if ( OSApp.Firmware.checkOSVersion( 210 ) && data.options !== null && typeof data.options === "object" && (
 		data.options.hp0 !== importController.options.hp0 || data.options.hp1 !== importController.options.hp1 ||
 		data.options.dhcp !== importController.options.dhcp || data.options.devid !== importController.options.devid ) ) {
@@ -848,9 +941,9 @@ OSApp.ImportExport.importConfig = function( data ) {
 			}
 		}
 
-		if ( typeof data.stations.stn_spe === "object" ) {
-			for ( i = 0; i < data.stations.stn_spe.length; i++ ) {
-				cs += "&p" + i + "=" + data.stations.stn_spe[ i ];
+		if ( Array.isArray( bundleImport.stnSpe ) ) {
+			for ( i = 0; i < bundleImport.stnSpe.length; i++ ) {
+				cs += "&p" + i + "=" + bundleImport.stnSpe[ i ];
 			}
 		}
 
@@ -872,7 +965,7 @@ OSApp.ImportExport.importConfig = function( data ) {
 		}
 
 		// Normalize station special data object
-		data.special = data.special || {};
+		data.special = bundleImport.special;
 
 		baseCommands.push( OSApp.Utils.transformKeysinString( co ), cs );
 		baseCommands = baseCommands.concat( csi );

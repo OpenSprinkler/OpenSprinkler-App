@@ -637,10 +637,10 @@ OSApp.UIDom.bindPanel = function() {
 	panel.find( ".export_config" ).on( "click", function() {
 
 		// Check if the controller has special stations which are enabled
-		if ( typeof OSApp.currentSession.controller.stations.stn_spe === "object" && typeof OSApp.currentSession.controller.special !== "object" && !OSApp.currentSession.controller.stations.stn_spe.every( function( e ) { return e === 0; } ) ) {
+		if ( typeof OSApp.currentSession.controller.stations.stn_spe === "object" && !OSApp.currentSession.controller.stations.stn_spe.every( function( e ) { return e === 0; } ) ) {
 
-			// Grab station special data before proceeding
-			OSApp.Sites.updateControllerStationSpecial( OSApp.ImportExport.getExportMethod );
+			// Export the authoritative special-station configuration rather than a dashboard cache.
+			OSApp.Sites.ensureControllerStationSpecial( OSApp.ImportExport.getExportMethod, true );
 		} else {
 			OSApp.ImportExport.getExportMethod();
 		}

@@ -55,6 +55,35 @@ OSApp.Options.updateNotificationEventValue = function( value, events, getSelecti
 	return value;
 };
 
+OSApp.Options.removeInvalidBundleMasterOptions = function( options ) {
+	var cleaned = $.extend( {}, options ),
+		removed = [],
+		masters = [
+			{ station: "mas", on: "mton", off: "mtof" },
+			{ station: "mas2", on: "mton2", off: "mtof2" },
+			{ station: "mas3", on: "mton3", off: "mtof3" },
+			{ station: "mas4", on: "mton4", off: "mtof4" }
+		];
+
+	masters.forEach( function( master ) {
+		if ( !Object.prototype.hasOwnProperty.call( cleaned, master.station ) ) {
+			return;
+		}
+
+		var sid = Number( cleaned[ master.station ] ) - 1;
+		if ( sid < 0 || ( !OSApp.Bundles.isLeader( sid ) && OSApp.Bundles.getReferencingLeaders( sid ).length === 0 ) ) {
+			return;
+		}
+
+		removed.push( master.station );
+		delete cleaned[ master.station ];
+		delete cleaned[ master.on ];
+		delete cleaned[ master.off ];
+	} );
+
+	return { options: cleaned, removed: removed };
+};
+
 OSApp.Options.resetStationAttributes = function( attributes ) {
 	var operation = $.Deferred();
 
@@ -431,19 +460,51 @@ OSApp.Options.showOptions = function( expandItem ) {
 				opt = pruned;
 			}
 
-			$.mobile.loading( "show" );
-
-			OSApp.Firmware.sendToOS( "/co?pw=&" + $.param( opt ) ).done( function() {
+			var finishSave = function( message ) {
 				$.mobile.document.one( "pageshow", function() {
-					OSApp.Errors.showError( OSApp.Language._( "Settings have been saved" ) );
+					OSApp.Errors.showError( message );
 				} );
 				OSApp.UIDom.goBack();
 				OSApp.Sites.updateController( OSApp.Weather.updateWeather );
-			} ).fail( function() {
+			};
+			var restoreSubmit = function() {
 				$.mobile.loading( "hide" );
 				button.prop( "disabled", false );
 				page.find( ".submit" ).addClass( "hasChanges" );
-			} );
+			};
+			var sendOptions = function( options, isRecovery ) {
+				OSApp.Firmware.sendToOS( "/co?pw=&" + $.param( options ) ).done( function() {
+					finishSave( isRecovery ?
+						OSApp.Language._( "Settings were saved, but an invalid master station was ignored." ) :
+						OSApp.Language._( "Settings have been saved" ) );
+				} ).fail( function( error ) {
+					if ( !isRecovery && error?.result === 17 && OSApp.Supported.bundle() ) {
+						OSApp.Sites.updateController( function() {
+							OSApp.Sites.ensureControllerStationSpecial( undefined, true ).then( function() {
+								if ( OSApp.currentSession.controller.specialUnavailable ) {
+									restoreSubmit();
+									return;
+								}
+								var recovery = OSApp.Options.removeInvalidBundleMasterOptions( options );
+								if ( recovery.removed.length === 0 ) {
+									finishSave( OSApp.Language._( "Controller settings were refreshed after a rejected change. Review and try again." ) );
+									return;
+								}
+								if ( Object.keys( recovery.options ).length === 0 ) {
+									finishSave( OSApp.Language._( "Settings were saved, but an invalid master station was ignored." ) );
+									return;
+								}
+								sendOptions( recovery.options, true );
+							}, restoreSubmit );
+						}, restoreSubmit );
+						return;
+					}
+					restoreSubmit();
+				} );
+			};
+
+			$.mobile.loading( "show" );
+			sendOptions( opt, false );
 		},
 		header = OSApp.UIDom.changeHeader( {
 			title: OSApp.Language._( "Edit Options" ),
@@ -1751,11 +1812,15 @@ OSApp.Options.showOptions = function( expandItem ) {
 			.text( OSApp.Language._( "None" ) )
 			.appendTo( options );
 		for ( var si = 0; si < snames.length; si++ ) {
-			var val = si + 1;
-			$( "<option></option>" )
+			var val = si + 1,
+				bundleLeader = OSApp.Supported.bundle() && OSApp.Bundles.isLeader( si ),
+				bundleMember = OSApp.Supported.bundle() && OSApp.Bundles.getReferencingLeaders( si ).length > 0,
+				option = $( "<option></option>" )
 				.val( val )
-				.text( OSApp.Stations.getName( si ) )
+				.text( OSApp.Stations.getName( si ) + ( bundleLeader ? " (" + OSApp.Language._( "Bundle Station" ) + ")" :
+					( bundleMember ? " (" + OSApp.Language._( "Bundle member" ) + ")" : "" ) ) )
 				.appendTo( options );
+			option.prop( "disabled", bundleLeader || bundleMember );
 			if ( !OSApp.Firmware.checkOSVersion( 214 ) && si === 7 ) { break; }
 		}
 		return options.children();
@@ -1908,13 +1973,28 @@ OSApp.Options.showOptions = function( expandItem ) {
 		refreshFields();
 	} );
 
-	page.find( "#master1, #master2, #master3, #master4" ).on( "click", function() {
+	var showMasterSettings = function() {
 		var button = this, curr = button.value,
 			conf = $.extend( {}, { mas: 0, mton: 0, mtof: 0 }, OSApp.Utils.unescapeJSON( curr ) ),
 			num = button.id.substring( 6 ),
 			is220 = OSApp.Firmware.checkOSVersion( 220 ),
 			onMin = is220 ? -600 : 0, onMax = is220 ? 600 : 60,
 			offMin = is220 ? -600 : -60, offMax = is220 ? 600 : 0;
+
+		if ( OSApp.Supported.bundle() && !$( button ).data( "bundleMetadataReady" ) ) {
+			$.mobile.loading( "show" );
+			OSApp.Sites.ensureControllerStationSpecial( function() {}, true ).always( function() {
+				$.mobile.loading( "hide" );
+				if ( OSApp.currentSession.controller.specialUnavailable ) {
+					OSApp.Errors.showError( OSApp.Language._( "Unable to load station configuration." ), 4000 );
+					return;
+				}
+				$( button ).data( "bundleMetadataReady", true );
+				showMasterSettings.call( button );
+				$( button ).removeData( "bundleMetadataReady" );
+			} );
+			return false;
+		}
 
 		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
@@ -1992,7 +2072,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 		popup.css( { "box-sizing": "border-box", "width": "calc(100vw - 24px)", "max-width": "380px" } );
 		OSApp.UIDom.openPopup( popup, { positionTo: "window" } );
 		toggleAdjustments();
-	} );
+	};
+
+	page.find( "#master1, #master2, #master3, #master4" ).on( "click", showMasterSettings );
 
 	page.find( "#mqtt" ).on( "click", function() {
 		var button = this, curr = button.value,

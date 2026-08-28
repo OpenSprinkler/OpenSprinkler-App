@@ -2666,3 +2666,75 @@ msgid ""
 "Your device runs the OpenSprinklerASB firmware. This UI has limited support "
 "for it. Please switch to the OpenSprinklerASB mobile app/UI for full support."
 msgstr ""
+
+msgid "Bundle Station"
+msgstr ""
+
+msgid "Bundle member"
+msgstr ""
+
+msgid "Active via Bundle Station"
+msgstr ""
+
+msgid "Running Bundle Station"
+msgstr ""
+
+msgid "This station is active through a running Bundle Station."
+msgstr ""
+
+msgid "also active via Bundle Station"
+msgstr ""
+
+msgid "Filter stations"
+msgstr ""
+
+msgid "Remove unavailable members before saving."
+msgstr ""
+
+msgid "Selected"
+msgstr ""
+
+msgid "active"
+msgstr ""
+
+msgid "minimum runtime"
+msgstr ""
+
+msgid "this station"
+msgstr ""
+
+msgid "master"
+msgstr ""
+
+msgid "disabled"
+msgstr ""
+
+msgid "Special Station"
+msgstr ""
+
+msgid "Remove this station from its Bundle Station before changing its type."
+msgstr ""
+
+msgid "Unable to load Bundle Station configuration."
+msgstr ""
+
+msgid "Bundle Station members changed. Review the selection and try again."
+msgstr ""
+
+msgid "Unable to load station configuration."
+msgstr ""
+
+msgid "This backup contains an incomplete Bundle Station definition."
+msgstr ""
+
+msgid "This backup contains Bundle Station assignments that are not supported by this controller."
+msgstr ""
+
+msgid "Controller settings were refreshed after a rejected change. Review and try again."
+msgstr ""
+
+msgid "Settings were saved, but an invalid master station was ignored."
+msgstr ""
+
+msgid "Bundle Station configuration was rejected. Station settings have been refreshed."
+msgstr ""

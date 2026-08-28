@@ -1173,7 +1173,9 @@ OSApp.Sites.updateController = function( callback, fail ) {
 				delete controller.sensor_desc;
 			}
 
-			// Fix the station status array
+			// Preserve bundle-applied output claims before flattening /js to its station array.
+			controller.bundleApplied = Array.isArray( controller.status?.bap ) ? controller.status.bap :
+				( Array.isArray( controller.settings?.bap ) ? controller.settings.bap : [] );
 			controller.status = controller.status.sn;
 
 			// /ja includes live sensor data, but the firmware intentionally keeps
@@ -1401,6 +1403,7 @@ OSApp.Sites.updateControllerStatus = function( callback, expectedContext ) {
 				if ( !isSiteControllerContextCurrent( context ) ) {
 					return rejectStaleSiteControllerRefresh();
 				}
+				controller.bundleApplied = Array.isArray( status.bap ) ? status.bap : [];
 				controller.status = status.sn;
 				callback();
 				return controller.status;
@@ -1409,6 +1412,7 @@ OSApp.Sites.updateControllerStatus = function( callback, expectedContext ) {
 				if ( !isSiteControllerContextCurrent( context ) ) {
 					return rejectStaleSiteControllerRefresh();
 				}
+				controller.bundleApplied = [];
 				controller.status = [];
 				return controller.status;
 			} );
@@ -1663,6 +1667,7 @@ OSApp.Sites.updateControllerStationSpecial = function( callback, expectedContext
 				return rejectStaleSiteControllerRefresh();
 			}
 			controller.special = special;
+			controller.specialUnavailable = false;
 			callback();
 			return special;
 		},
@@ -1671,8 +1676,48 @@ OSApp.Sites.updateControllerStationSpecial = function( callback, expectedContext
 				return rejectStaleSiteControllerRefresh();
 			}
 			controller.special = {};
+			controller.specialUnavailable = true;
 			return controller.special;
 		} );
+};
+
+OSApp.Sites.ensureControllerStationSpecial = function( callback, force, expectedContext ) {
+	callback = callback || function() {};
+	var context = getSiteControllerContext( expectedContext ),
+		controller = context.controller,
+		hasSpecial = Array.isArray( controller?.stations?.stn_spe ) &&
+			controller.stations.stn_spe.some( function( value ) { return value !== 0; } );
+
+	if ( !hasSpecial && !force ) {
+		controller.special = {};
+		controller.specialUnavailable = false;
+		callback();
+		return $.Deferred().resolve( controller.special ).promise();
+	}
+
+	if ( !force && typeof controller.special === "object" && !controller.specialUnavailable ) {
+		callback();
+		return $.Deferred().resolve( controller.special ).promise();
+	}
+
+	if ( !force && controller.specialRequest ) {
+		return controller.specialRequest.then( callback );
+	}
+
+	var request = OSApp.Sites.updateControllerStationSpecial( callback, context );
+	controller.specialRequest = request;
+	request.always( function() {
+		if ( isSiteControllerContextCurrent( context ) && controller.specialRequest === request ) {
+			delete controller.specialRequest;
+		}
+	} );
+	return request;
+};
+
+OSApp.Sites.invalidateControllerStationSpecial = function( expectedContext ) {
+	var context = getSiteControllerContext( expectedContext );
+	delete context.controller.special;
+	delete context.controller.specialUnavailable;
 };
 
 // Change the current site (needs to be defined AFTER OSApp.Sites.checkConfigured!)
