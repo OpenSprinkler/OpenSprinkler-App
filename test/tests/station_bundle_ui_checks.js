@@ -145,6 +145,7 @@ describe("Dashboard Bundle Station Checks", function () {
 
 	it("names the owning bundle when the member badge is tapped, without prompting a run", function () {
 		setBundle(0, [ 1 ]);
+		setBundle(2, [ 1 ]);
 		sandbox.stub(OSApp.Firmware, "sendToOS")
 			.returns($.Deferred().resolve({ result: 1 }).promise());
 		sandbox.stub(OSApp.Sites, "updateController");
@@ -154,7 +155,12 @@ describe("Dashboard Bundle Station Checks", function () {
 		$("#station_1").siblings(".bundle-member-badge").trigger("click");
 
 		assert.lengthOf($("#bundle-active-info"), 1);
-		assert.include($("#bundle-active-info p").text(), OSApp.Stations.getName(0));
+		assert.equal($("#bundle-active-info h3").text(), "Bundle Member");
+		assert.lengthOf($("#bundle-active-info p.bundle-info-member"), 1);
+		assert.equal($("#bundle-active-info p.bundle-info-member").text(), "This station is a bundle member of:");
+		assert.lengthOf($("#bundle-active-info ul.bundle-info-list li"), 2);
+		assert.equal($("#bundle-active-info ul.bundle-info-list li").eq(0).text(), OSApp.Stations.getName(0));
+		assert.equal($("#bundle-active-info ul.bundle-info-list li").eq(1).text(), OSApp.Stations.getName(2));
 		assert.isFalse(showDurationBox.called);
 	});
 

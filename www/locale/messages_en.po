@@ -2670,7 +2670,10 @@ msgstr ""
 msgid "Bundle Station"
 msgstr ""
 
-msgid "Bundle member"
+msgid "Bundle member of"
+msgstr ""
+
+msgid "Bundle Member"
 msgstr ""
 
 msgid "Active via Bundle Station"
@@ -2739,8 +2742,8 @@ msgstr ""
 msgid "Bundle Station configuration was rejected. Station settings have been refreshed."
 msgstr ""
 
-msgid "This station also runs as part of"
+msgid "This station is no longer part of a Bundle Station."
 msgstr ""
 
-msgid "This station is no longer part of a Bundle Station."
+msgid "This station is a bundle member of"
 msgstr ""

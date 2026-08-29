@@ -903,8 +903,8 @@ input[type=number] {
 	height: 24px;
 	margin: -12px 0 0 -12px;
 	color: #666 !important;
-	font-size: 11px;
-	font-weight: bold;
+	font-size: 13px;
+	font-weight: 800;
 	line-height: 24px;
 	text-align: center;
 	text-indent: 0;
@@ -968,9 +968,23 @@ input[type=number] {
 }
 #bundle-active-info {
 	box-sizing: border-box;
-	width: 90%;
-	max-width: 420px;
+	width: 280px;
+	max-width: 90vw;
 	padding: 10px;
+}
+.bundle-info-line {
+	margin: 4px 0;
+}
+.bundle-info-member {
+	text-align: left;
+}
+.bundle-info-list {
+	margin: 6px 0 10px;
+	padding-left: 24px;
+	text-align: left;
+}
+.bundle-info-list li {
+	margin: 3px 0;
 }
 .station-status {
     top: -3px;

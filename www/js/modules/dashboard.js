@@ -73,7 +73,7 @@ OSApp.Dashboard.displayPage = function() {
 			if ( leaders.length ) {
 				return {
 					text: OSApp.Constants.stations.BUNDLE_MEMBER_BADGE,
-					title: OSApp.Language._( "Bundle member" ) + ": " + getLeaderNames( leaders ).join( ", " ),
+					title: OSApp.Language._( "Bundle member of" ) + ": " + getLeaderNames( leaders ).join( ", " ),
 					bundle: true,
 					member: true
 				};
@@ -107,11 +107,20 @@ OSApp.Dashboard.displayPage = function() {
 				badgeElement.removeAttr( "role tabindex" );
 			}
 		},
-		showBundleInfo = function( heading, detail ) {
+		showBundleInfo = function( heading, details, detailClass, listItems ) {
 			$( "#bundle-active-info" ).popup( "destroy" ).remove();
-			var popup = $( "<div data-role='popup' data-theme='a' id='bundle-active-info'>" +
+			details = Array.isArray( details ) ? details : [ details ];
+			var detailMarkup = details.map( function( detail ) {
+					return "<p class='bundle-info-line " + ( detailClass || "center" ) + "'>" + OSApp.Utils.htmlEscape( detail ) + "</p>";
+				} ).join( "" ),
+				listMarkup = Array.isArray( listItems ) && listItems.length ?
+					"<ul class='bundle-info-list'>" + listItems.map( function( item ) {
+						return "<li>" + OSApp.Utils.htmlEscape( item ) + "</li>";
+					} ).join( "" ) + "</ul>" : "",
+				popup = $( "<div data-role='popup' data-theme='a' id='bundle-active-info'>" +
 					"<h3 class='center'>" + OSApp.Utils.htmlEscape( heading ) + "</h3>" +
-					"<p class='center'>" + OSApp.Utils.htmlEscape( detail ) + "</p>" +
+					detailMarkup +
+					listMarkup +
 					"<a href='#' class='bundle-info-close ui-btn ui-btn-b ui-corner-all'>" + OSApp.Language._( "OK" ) + "</a>" +
 					"</div>" );
 
@@ -131,11 +140,11 @@ OSApp.Dashboard.displayPage = function() {
 		},
 		showBundleMemberInfo = function( sid ) {
 			var leaderNames = getLeaderNames( OSApp.Bundles.getReferencingLeaders( sid ) ),
-				detail = leaderNames.length ?
-					OSApp.Language._( "This station also runs as part of" ) + ": " + leaderNames.join( ", " ) :
-					OSApp.Language._( "This station is no longer part of a Bundle Station." );
+				details = leaderNames.length ?
+					[ OSApp.Language._( "This station is a bundle member of" ) + ":" ] :
+					[ OSApp.Language._( "This station is no longer part of a Bundle Station." ) ];
 
-			showBundleInfo( OSApp.Language._( "Bundle member" ), detail );
+			showBundleInfo( OSApp.Language._( "Bundle Member" ), details, "bundle-info-member", leaderNames );
 		},
 		addTimer = function( station, rem ) {
 			OSApp.uiState.timers[ "station-" + station ] = {
