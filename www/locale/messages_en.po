@@ -2697,7 +2697,7 @@ msgstr ""
 msgid "active"
 msgstr ""
 
-msgid "minimum runtime"
+msgid "Minimum runtime"
 msgstr ""
 
 msgid "this station"
@@ -2737,4 +2737,10 @@ msgid "Settings were saved, but an invalid master station was ignored."
 msgstr ""
 
 msgid "Bundle Station configuration was rejected. Station settings have been refreshed."
+msgstr ""
+
+msgid "This station also runs as part of"
+msgstr ""
+
+msgid "This station is no longer part of a Bundle Station."
 msgstr ""

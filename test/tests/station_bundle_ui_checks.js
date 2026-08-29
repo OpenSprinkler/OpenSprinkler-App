@@ -103,6 +103,158 @@ describe("Dashboard Bundle Station Checks", function () {
 		assert.isFalse(sendToOS.called);
 	});
 
+	it("marks bundle leaders and members with related badges", function () {
+		setBundle(0, [ 1 ]);
+		stations.stn_spe[0] |= 1 << 2;
+		controller.special[2] = {
+			st: OSApp.Constants.stations.SPECIAL_TYPE_RF,
+			sd: "0000000000000000"
+		};
+		sandbox.stub(OSApp.Firmware, "sendToOS")
+			.returns($.Deferred().resolve({ result: 1 }).promise());
+		sandbox.stub(OSApp.Sites, "updateController");
+
+		OSApp.Dashboard.displayPage();
+
+		var leaderBadge = $("#station_0").siblings(".station-type-badge");
+		var memberBadge = $("#station_1").siblings(".station-type-badge");
+
+		assert.equal(leaderBadge.text(), "BS");
+		assert.isTrue(leaderBadge.hasClass("bundle-badge"));
+		assert.isFalse(leaderBadge.hasClass("bundle-member-badge"));
+		assert.equal(leaderBadge.attr("role"), "button");
+		assert.equal(leaderBadge.attr("tabindex"), "0");
+
+		assert.equal(memberBadge.text(), "BM");
+		assert.isTrue(memberBadge.hasClass("bundle-badge"));
+		assert.isTrue(memberBadge.hasClass("bundle-member-badge"));
+		assert.isFalse(memberBadge.hasClass("hidden"));
+		assert.include(memberBadge.attr("title"), OSApp.Stations.getName(0));
+		assert.equal(memberBadge.attr("role"), "button");
+		assert.equal(memberBadge.attr("tabindex"), "0");
+
+		var rfBadge = $("#station_2").siblings(".station-type-badge");
+		assert.equal(rfBadge.text(), "RF");
+		assert.isFalse(rfBadge.hasClass("bundle-badge"));
+		assert.equal(rfBadge.attr("role"), "button");
+		assert.equal(rfBadge.attr("tabindex"), "0");
+
+		// A station in no bundle keeps an empty, hidden badge.
+		assert.isTrue($("#station_3").siblings(".station-type-badge").hasClass("hidden"));
+	});
+
+	it("names the owning bundle when the member badge is tapped, without prompting a run", function () {
+		setBundle(0, [ 1 ]);
+		sandbox.stub(OSApp.Firmware, "sendToOS")
+			.returns($.Deferred().resolve({ result: 1 }).promise());
+		sandbox.stub(OSApp.Sites, "updateController");
+		var showDurationBox = sandbox.stub(OSApp.UIDom, "showDurationBox");
+
+		OSApp.Dashboard.displayPage();
+		$("#station_1").siblings(".bundle-member-badge").trigger("click");
+
+		assert.lengthOf($("#bundle-active-info"), 1);
+		assert.include($("#bundle-active-info p").text(), OSApp.Stations.getName(0));
+		assert.isFalse(showDurationBox.called);
+	});
+
+	it("opens bundle member details using keyboard activation", function () {
+		setBundle(0, [ 1 ]);
+		sandbox.stub(OSApp.Firmware, "sendToOS")
+			.returns($.Deferred().resolve({ result: 1 }).promise());
+		sandbox.stub(OSApp.Sites, "updateController");
+
+		OSApp.Dashboard.displayPage();
+		var memberBadge = $("#station_1").siblings(".bundle-member-badge");
+
+		memberBadge.trigger($.Event("keydown", { keyCode: 40 }));
+		assert.lengthOf($("#bundle-active-info"), 0);
+
+		memberBadge.trigger($.Event("keydown", { keyCode: 13 }));
+		assert.lengthOf($("#bundle-active-info"), 1);
+		$("#bundle-active-info").remove();
+
+		memberBadge.trigger($.Event("keydown", { keyCode: 32 }));
+		assert.lengthOf($("#bundle-active-info"), 1);
+	});
+
+	it("opens Advanced settings from a special station badge", function () {
+		stations.stn_spe[0] |= 1 << 2;
+		controller.special[2] = {
+			st: OSApp.Constants.stations.SPECIAL_TYPE_RF,
+			sd: "0000000000000000"
+		};
+		sandbox.stub(OSApp.Firmware, "sendToOS")
+			.returns($.Deferred().resolve({ result: 1 }).promise());
+		sandbox.stub(OSApp.Sites, "updateController");
+		var showDurationBox = sandbox.stub(OSApp.UIDom, "showDurationBox");
+
+		OSApp.Dashboard.displayPage();
+		$("#station_2").siblings(".station-type-badge").trigger("click");
+
+		assert.lengthOf($("#stn_attrib"), 1);
+		assert.isFalse($("#stn_attrib li[data-tab='tab-basic']").hasClass("current"));
+		assert.isTrue($("#stn_attrib li[data-tab='tab-advanced']").hasClass("current"));
+		assert.isFalse($("#stn_attrib #tab-basic").hasClass("current"));
+		assert.isTrue($("#stn_attrib #tab-advanced").hasClass("current"));
+		assert.isFalse(showDurationBox.called);
+	});
+
+	it("shows the group letter in a settings circle and opens Basic settings", function () {
+		sandbox.stub(OSApp.Firmware, "sendToOS")
+			.returns($.Deferred().resolve({ result: 1 }).promise());
+		sandbox.stub(OSApp.Sites, "updateController");
+		var showDurationBox = sandbox.stub(OSApp.UIDom, "showDurationBox");
+
+		OSApp.Dashboard.displayPage();
+		var settingsButton = $("#attrib-1");
+		var groupLetter = settingsButton.find(".station-gid");
+
+		assert.isFalse(settingsButton.hasClass("ui-icon-gear"));
+		assert.isTrue(settingsButton.hasClass("station-group-settings"));
+		assert.equal(settingsButton.attr("role"), "button");
+		assert.equal(settingsButton.attr("tabindex"), "0");
+		assert.equal(settingsButton.attr("aria-haspopup"), "dialog");
+		assert.equal(groupLetter.text(), OSApp.Groups.mapGIDValueToName(OSApp.Stations.getGIDValue(1)));
+		assert.include(settingsButton.attr("aria-label"), groupLetter.text());
+
+		groupLetter.trigger("click");
+
+		assert.lengthOf($("#stn_attrib"), 1);
+		assert.isTrue($("#stn_attrib li[data-tab='tab-basic']").hasClass("current"));
+		assert.isTrue($("#stn_attrib #tab-basic").hasClass("current"));
+		assert.isFalse($("#stn_attrib #tab-advanced").hasClass("current"));
+		assert.equal($("#stn_attrib #gid").val(), String(OSApp.Stations.getGIDValue(1)));
+		assert.isFalse(showDurationBox.called);
+	});
+
+	it("drops the member badge once the station leaves the bundle", function () {
+		setBundle(0, [ 1 ]);
+		sandbox.stub(OSApp.Firmware, "sendToOS")
+			.returns($.Deferred().resolve({ result: 1 }).promise());
+		sandbox.stub(OSApp.Sites, "updateController");
+
+		OSApp.Dashboard.displayPage();
+		assert.equal($("#station_1").siblings(".station-type-badge").text(), "BM");
+
+		controller.special[0].sd = OSApp.Bundles.encodeMembers([ 2 ]);
+
+		// updateContent only runs while the dashboard is the active page.
+		var page = $("#station_1").closest("[data-role='page']").addClass("ui-page-active");
+		page.trigger("pageshow");
+		$("html").trigger("datarefresh");
+		page.removeClass("ui-page-active");
+
+		var formerMember = $("#station_1").siblings(".station-type-badge");
+		assert.equal(formerMember.text(), "");
+		assert.isFalse(formerMember.hasClass("bundle-badge"));
+		assert.isFalse(formerMember.hasClass("bundle-member-badge"));
+		assert.isTrue(formerMember.hasClass("hidden"));
+		assert.isUndefined(formerMember.attr("role"));
+		assert.isUndefined(formerMember.attr("tabindex"));
+		assert.equal($("#station_2").siblings(".station-type-badge").text(), "BM");
+	});
+
 	it("submits a full Bundle Station member bitmap", function () {
 		var sendToOS = sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (url) {
 			return $.Deferred().resolve(url.indexOf("/je") === 0 ? controller.special : { result: 1 }).promise();

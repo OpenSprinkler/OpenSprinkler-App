@@ -46,37 +46,71 @@ OSApp.Dashboard.displayPage = function() {
 		'</div>';
 
 	var page = $(content),
-		getSpecialBadgeMarkup = function( sid ) {
+		getLeaderNames = function( leaders ) {
+			return leaders.map( function( leaderSid ) {
+				return OSApp.Stations.getName( leaderSid );
+			} );
+		},
+
+		// A station carries at most one badge: its special type, or -- since a bundle member is
+		// always a Standard station -- the fact that a Bundle Station drives it.
+		getStationBadge = function( sid ) {
 			var badge = OSApp.Stations.getSpecialBadge( sid ),
 				type = OSApp.Stations.getSpecialType( sid ),
-				name = OSApp.Stations.getSpecialTypeName( type );
+				leaders;
 
-			return "<span class='card-icon special-station station-type-badge " + ( badge ? "" : "hidden" ) +
-				"' title='" + OSApp.Utils.htmlEscape( name ) + "' aria-label='" + OSApp.Utils.htmlEscape( name ) + "'>" +
-				OSApp.Utils.htmlEscape( badge ) + "</span>";
+			if ( badge ) {
+				return {
+					text: badge,
+					title: OSApp.Stations.getSpecialTypeName( type ),
+					bundle: type === OSApp.Constants.stations.SPECIAL_TYPE_BUNDLE,
+					member: false
+				};
+			}
+
+			leaders = OSApp.Supported.bundle() ? OSApp.Bundles.getReferencingLeaders( sid ) : [];
+
+			if ( leaders.length ) {
+				return {
+					text: OSApp.Constants.stations.BUNDLE_MEMBER_BADGE,
+					title: OSApp.Language._( "Bundle member" ) + ": " + getLeaderNames( leaders ).join( ", " ),
+					bundle: true,
+					member: true
+				};
+			}
+
+			return { text: "", title: "", bundle: false, member: false };
+		},
+		getSpecialBadgeMarkup = function( sid ) {
+			var badge = getStationBadge( sid );
+
+			return "<span class='card-icon special-station station-type-badge" +
+				( badge.bundle ? " bundle-badge" : "" ) + ( badge.member ? " bundle-member-badge" : "" ) +
+				( badge.text ? "" : " hidden" ) +
+				"' title='" + OSApp.Utils.htmlEscape( badge.title ) + "' aria-label='" + OSApp.Utils.htmlEscape( badge.title ) + "'" +
+				( badge.text ? " role='button' tabindex='0'" : "" ) + ">" +
+				OSApp.Utils.htmlEscape( badge.text ) + "</span>";
 		},
 		updateSpecialBadge = function( card, sid ) {
-			var badge = OSApp.Stations.getSpecialBadge( sid ),
-				type = OSApp.Stations.getSpecialType( sid ),
-				name = OSApp.Stations.getSpecialTypeName( type ),
+			var badge = getStationBadge( sid ),
 				badgeElement = card.find( ".special-station" );
 
-			badgeElement.text( badge ).attr( {
-				title: name,
-				"aria-label": name
-			} ).toggleClass( "hidden", !badge );
+			badgeElement.text( badge.text ).attr( {
+				title: badge.title,
+				"aria-label": badge.title
+			} ).toggleClass( "bundle-badge", badge.bundle )
+				.toggleClass( "bundle-member-badge", badge.member ).toggleClass( "hidden", !badge.text );
+
+			if ( badge.text ) {
+				badgeElement.attr( { role: "button", tabindex: "0" } );
+			} else {
+				badgeElement.removeAttr( "role tabindex" );
+			}
 		},
-		showBundleActiveInfo = function( sid ) {
+		showBundleInfo = function( heading, detail ) {
 			$( "#bundle-active-info" ).popup( "destroy" ).remove();
-			var owners = OSApp.Bundles.getOwningLeaders( sid ),
-				ownerNames = owners.map( function( leaderSid ) {
-					return OSApp.Stations.getName( leaderSid );
-				} ),
-				detail = ownerNames.length ?
-					OSApp.Language._( "Running Bundle Station" ) + ": " + ownerNames.join( ", " ) :
-					OSApp.Language._( "This station is active through a running Bundle Station." ),
-				popup = $( "<div data-role='popup' data-theme='a' id='bundle-active-info'>" +
-					"<h3 class='center'>" + OSApp.Language._( "Active via Bundle Station" ) + "</h3>" +
+			var popup = $( "<div data-role='popup' data-theme='a' id='bundle-active-info'>" +
+					"<h3 class='center'>" + OSApp.Utils.htmlEscape( heading ) + "</h3>" +
 					"<p class='center'>" + OSApp.Utils.htmlEscape( detail ) + "</p>" +
 					"<a href='#' class='bundle-info-close ui-btn ui-btn-b ui-corner-all'>" + OSApp.Language._( "OK" ) + "</a>" +
 					"</div>" );
@@ -86,6 +120,22 @@ OSApp.Dashboard.displayPage = function() {
 				return false;
 			} );
 			OSApp.UIDom.openPopup( popup );
+		},
+		showBundleActiveInfo = function( sid ) {
+			var ownerNames = getLeaderNames( OSApp.Bundles.getOwningLeaders( sid ) ),
+				detail = ownerNames.length ?
+					OSApp.Language._( "Running Bundle Station" ) + ": " + ownerNames.join( ", " ) :
+					OSApp.Language._( "This station is active through a running Bundle Station." );
+
+			showBundleInfo( OSApp.Language._( "Active via Bundle Station" ), detail );
+		},
+		showBundleMemberInfo = function( sid ) {
+			var leaderNames = getLeaderNames( OSApp.Bundles.getReferencingLeaders( sid ) ),
+				detail = leaderNames.length ?
+					OSApp.Language._( "This station also runs as part of" ) + ": " + leaderNames.join( ", " ) :
+					OSApp.Language._( "This station is no longer part of a Bundle Station." );
+
+			showBundleInfo( OSApp.Language._( "Bundle member" ), detail );
 		},
 		addTimer = function( station, rem ) {
 			OSApp.uiState.timers[ "station-" + station ] = {
@@ -108,12 +158,20 @@ OSApp.Dashboard.displayPage = function() {
 			var isScheduled = OSApp.Stations.getPID( sid ) > 0,
 				isRunning = OSApp.Stations.isRunning( sid ),
 				isDerivedOnly = OSApp.Bundles.isDerivedOnly( sid ),
+				isMaster = OSApp.Stations.isMaster( sid ),
 				pname = isScheduled ? OSApp.Programs.pidToName( OSApp.Stations.getPID( sid ) ) : "",
 				escapedPname = OSApp.Utils.htmlEscape( pname ),
 				escapedStationName = OSApp.Utils.htmlEscape( OSApp.Stations.getName( sid ) ),
 				rem = OSApp.Stations.getRemainingRuntime( sid ),
 				qPause = OSApp.Supported.pausing() && OSApp.StationQueue.isPaused(),
-				hasImage = sites[ currentSite ].images[ sid ] ? true : false;
+				hasImage = sites[ currentSite ].images[ sid ] ? true : false,
+				groupName = OSApp.Supported.groups() && !isMaster ?
+					OSApp.Groups.mapGIDValueToName( OSApp.Stations.getGIDValue( sid ) ) : "",
+				settingsLabel = isMaster ? OSApp.Language._( "Master Station" ) : OSApp.Language._( "Basic Settings" );
+
+			if ( groupName ) {
+				settingsLabel += " - " + OSApp.Language._( "Sequential Group" ) + ": " + groupName;
+			}
 
 			if ( OSApp.Stations.getStatus( sid ) && rem > 0 ) {
 				addTimer( sid, rem );
@@ -134,13 +192,10 @@ OSApp.Dashboard.displayPage = function() {
 
 			cards += getSpecialBadgeMarkup( sid );
 
-			if ( OSApp.Supported.groups() ) {
-				cards += "<span class='btn-no-border ui-btn card-icon station-gid " + ( OSApp.Stations.isMaster( sid ) ? "hidden" : "" ) +
-					"'>" + OSApp.Groups.mapGIDValueToName( OSApp.Stations.getGIDValue( sid ) ) + "</span>";
-			}
-
-			cards += "<span class='btn-no-border ui-btn " + ( ( OSApp.Stations.isMaster( sid ) ) ? "ui-icon-master" : "ui-icon-gear" ) +
-				" card-icon ui-btn-icon-notext station-settings' data-station='" + sid + "' id='attrib-" + sid + "' " +
+			cards += "<span class='btn-no-border ui-btn " + ( isMaster ? "ui-icon-master" : ( groupName ? "station-group-settings" : "ui-icon-gear" ) ) +
+				" card-icon ui-btn-icon-notext station-settings" +
+				"' role='button' tabindex='0' aria-haspopup='dialog' title='" + OSApp.Utils.htmlEscape( settingsLabel ) +
+				"' aria-label='" + OSApp.Utils.htmlEscape( settingsLabel ) + "' data-station='" + sid + "' id='attrib-" + sid + "' " +
 				( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ? ( "data-um='" + ( OSApp.StationAttributes.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_1 ) ) + "' " ) : "" ) +
 				( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ? ( "data-um2='" + ( OSApp.StationAttributes.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_2 ) ) + "' " ) : "" ) +
 				( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_3 ) ? ( "data-um3='" + ( OSApp.StationAttributes.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_3 ) ) + "' " ) : "" ) +
@@ -155,7 +210,7 @@ OSApp.Dashboard.displayPage = function() {
 				( OSApp.Supported.sequential() ? ( "data-us='" + ( OSApp.StationAttributes.getSequential( sid ) ) + "' " ) : "" ) +
 				( OSApp.Supported.special() ? ( "data-hs='" + ( OSApp.StationAttributes.getSpecial( sid ) ) + "' " ) : "" ) +
 				( OSApp.Supported.groups() ? ( "data-gid='" + OSApp.Stations.getGIDValue( sid ) + "' " ) : "" ) +
-				"></span>";
+				">" + ( groupName ? "<span class='station-gid'>" + groupName + "</span>" : "" ) + "</span>";
 
 			if ( !OSApp.Stations.isMaster( sid ) ) {
 				if ( isDerivedOnly ) {
@@ -183,7 +238,7 @@ OSApp.Dashboard.displayPage = function() {
 				( OSApp.Supported.groups() ? "divider-gid=" + OSApp.Stations.getGIDValue( sid ) : "" ) + "></div>";
 
 		},
-		showAttributes = function() {
+		showAttributes = function( initialTab ) {
 			$( "#stn_attrib" ).popup( "destroy" ).remove();
 
 			var button = $( this ),
@@ -202,7 +257,6 @@ OSApp.Dashboard.displayPage = function() {
 						invalid = select.find( ".bundle-member[data-eligible='0']:checked" ).length > 0;
 
 					select.find( ".bundle-selected-count" ).text( selected.length );
-					select.find( ".bundle-active-count" ).text( eligible.length );
 					select.find( ".bundle-minimum-runtime" ).text( OSApp.Bundles.minimumDuration( eligible.length ) );
 					select.find( ".bundle-member-warning" ).toggleClass( "hidden", !invalid );
 					select.find( ".attrib-submit" ).toggleClass( "ui-disabled", invalid );
@@ -240,9 +294,10 @@ OSApp.Dashboard.displayPage = function() {
 					html += "</div>" +
 						"<p class='bundle-member-warning hidden'>" +
 						OSApp.Language._( "Remove unavailable members before saving." ) + "</p>" +
-						"<p class='bundle-summary center smaller'>" + OSApp.Language._( "Selected" ) + ": <span class='bundle-selected-count'>0</span>; " +
-						OSApp.Language._( "active" ) + ": <span class='bundle-active-count'>0</span>; " +
-						OSApp.Language._( "minimum runtime" ) + ": <span class='bundle-minimum-runtime'>1</span>s</p>";
+						"<div class='bundle-summary'>" +
+						"<div>" + OSApp.Language._( "Selected" ) + ": <span class='bundle-selected-count'>0</span></div>" +
+						"<div>" + OSApp.Language._( "Minimum runtime" ) + ": <span class='bundle-minimum-runtime'>1</span>s</div>" +
+						"</div>";
 
 					return html;
 				},
@@ -554,7 +609,7 @@ OSApp.Dashboard.displayPage = function() {
 						return;
 					}
 					button.data( "bundleMetadataReady", true );
-					showAttributes.call( button[ 0 ] );
+					showAttributes.call( button[ 0 ], initialTab );
 					button.removeData( "bundleMetadataReady" );
 				} );
 				return false;
@@ -752,12 +807,16 @@ OSApp.Dashboard.displayPage = function() {
 			select.find( "ul.tabs li" ).click( function() {
 				var tabId = $( this ).attr( "data-tab" );
 
-				$( "ul.tabs li" ).removeClass( "current" );
-				$( ".tab-content" ).removeClass( "current" );
+				select.find( "ul.tabs li" ).removeClass( "current" );
+				select.find( ".tab-content" ).removeClass( "current" );
 
 				$( this ).addClass( "current" );
-				$( "#" + tabId ).addClass( "current" );
+				select.find( "#" + tabId ).addClass( "current" );
 			} );
+
+			if ( initialTab === "tab-advanced" ) {
+				select.find( "ul.tabs li[data-tab='tab-advanced']" ).trigger( "click" );
+			}
 
 			// Update Advanced tab whenever a new special station type is selected
 			select.find( "#hs" ).on( "change", function() {
@@ -1168,7 +1227,8 @@ OSApp.Dashboard.displayPage = function() {
 		updateContent = function() {
 			var cardHolder = page.find( "#os-stations-list" ),
 				cardList = cardHolder.children(),
-				isScheduled, isRunning, isDerivedOnly, pname, rem, qPause, card, line, hasImage;
+				isScheduled, isRunning, isDerivedOnly, pname, rem, qPause, card, line, hasImage,
+				settingsButton, groupLabel;
 
 			if ( !page.hasClass( "ui-page-active" ) ) {
 				return;
@@ -1218,13 +1278,32 @@ OSApp.Dashboard.displayPage = function() {
 					card.find( "#station_" + sid ).text( OSApp.Stations.getName( sid) );
 					updateSpecialBadge( card, sid );
 					card.find( ".station-status" ).removeClass( "on off wait" ).addClass( isRunning ? "on" : ( isScheduled ? "wait" : "off" ) );
+					settingsButton = card.find( ".station-settings" );
 					if ( OSApp.Stations.isMaster( sid ) ) {
-						card.find( ".station-settings" ).removeClass( "ui-icon-gear" ).addClass( "ui-icon-master" );
+						settingsButton.removeClass( "ui-icon-gear station-group-settings" ).addClass( "ui-icon-master" )
+							.attr( {
+								title: OSApp.Language._( "Master Station" ),
+								"aria-label": OSApp.Language._( "Master Station" )
+							} );
+						settingsButton.find( ".station-gid" ).addClass( "hidden" );
 					} else {
-						card.find( ".station-settings" ).removeClass( "ui-icon-master" ).addClass( "ui-icon-gear" );
+						settingsButton.removeClass( "ui-icon-master" );
+						if ( OSApp.Supported.groups() ) {
+							groupLabel = settingsButton.find( ".station-gid" );
+							if ( !groupLabel.length ) {
+								settingsButton.append( "<span class='station-gid'></span>" );
+							}
+							settingsButton.removeClass( "ui-icon-gear" ).addClass( "station-group-settings" );
+							OSApp.Cards.setGroupLabel( card, OSApp.Groups.mapGIDValueToName( OSApp.Stations.getGIDValue( sid ) ) );
+						} else {
+							settingsButton.removeClass( "station-group-settings" ).addClass( "ui-icon-gear" ).attr( {
+								title: OSApp.Language._( "Basic Settings" ),
+								"aria-label": OSApp.Language._( "Basic Settings" )
+							} );
+						}
 					}
 
-					card.find( ".station-settings" ).data( {
+					settingsButton.data( {
 						um: OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ? OSApp.StationAttributes.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_1 ) : undefined,
 						um2: OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ? OSApp.StationAttributes.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_2 ) : undefined,
 						um3: OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_3 ) ? OSApp.StationAttributes.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_3 ) : undefined,
@@ -1348,7 +1427,30 @@ OSApp.Dashboard.displayPage = function() {
 		OSApp.Sensors.updateHomeCards( page.find( "#os-sensors-home" ) );
 		updateClock();
 
-		page.on( "click", ".station-settings", showAttributes );
+		page.on( "click keydown", ".station-settings", function( event ) {
+			if ( event.type === "keydown" && event.keyCode !== 13 && event.keyCode !== 32 ) {
+				return;
+			}
+
+			showAttributes.call( this );
+			return false;
+		} );
+
+		page.on( "click keydown", ".station-type-badge", function( event ) {
+			if ( event.type === "keydown" && event.keyCode !== 13 && event.keyCode !== 32 ) {
+				return;
+			}
+
+			var badge = $( this ),
+				card = badge.closest( ".card" );
+
+			if ( badge.hasClass( "bundle-member-badge" ) ) {
+				showBundleMemberInfo( OSApp.Cards.getSID( card ) );
+			} else {
+				showAttributes.call( card.find( ".station-settings" )[ 0 ], "tab-advanced" );
+			}
+			return false;
+		} );
 
 		page.on( "click", ".settings-weather", function() {
 			OSApp.UIDom.changePage( "#os-options", {
