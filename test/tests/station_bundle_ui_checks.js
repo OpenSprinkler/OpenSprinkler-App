@@ -125,7 +125,7 @@ describe("Dashboard Bundle Station Checks", function () {
 		assert.equal(leaderBadge.attr("role"), "button");
 		assert.equal(leaderBadge.attr("tabindex"), "0");
 
-		assert.equal(memberBadge.text(), "BM");
+		assert.equal(memberBadge.text(), "bm");
 		assert.isTrue(memberBadge.hasClass("bundle-badge"));
 		assert.isTrue(memberBadge.hasClass("bundle-member-badge"));
 		assert.isFalse(memberBadge.hasClass("hidden"));
@@ -241,7 +241,7 @@ describe("Dashboard Bundle Station Checks", function () {
 		sandbox.stub(OSApp.Sites, "updateController");
 
 		OSApp.Dashboard.displayPage();
-		assert.equal($("#station_1").siblings(".station-type-badge").text(), "BM");
+		assert.equal($("#station_1").siblings(".station-type-badge").text(), "bm");
 
 		controller.special[0].sd = OSApp.Bundles.encodeMembers([ 2 ]);
 
@@ -258,7 +258,7 @@ describe("Dashboard Bundle Station Checks", function () {
 		assert.isTrue(formerMember.hasClass("hidden"));
 		assert.isUndefined(formerMember.attr("role"));
 		assert.isUndefined(formerMember.attr("tabindex"));
-		assert.equal($("#station_2").siblings(".station-type-badge").text(), "BM");
+		assert.equal($("#station_2").siblings(".station-type-badge").text(), "bm");
 	});
 
 	it("submits a full Bundle Station member bitmap", function () {
