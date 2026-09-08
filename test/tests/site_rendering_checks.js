@@ -25,6 +25,7 @@ describe( "Site Rendering Checks", function() {
 
 			OSApp.Sites.addASBCompatibilityNotification();
 			assert.isTrue( addNotification.calledOnce );
+			assert.equal( addNotification.firstCall.args[ 0 ].id, "asb-firmware-compatibility" );
 			assert.equal( addNotification.firstCall.args[ 0 ].title, "ASB firmware detected" );
 			assert.equal( addNotification.firstCall.args[ 0 ].desc, "This UI has limited support for it. Switch to OpenSprinklerASB app/UI." );
 

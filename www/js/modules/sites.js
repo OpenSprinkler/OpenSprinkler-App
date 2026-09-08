@@ -933,6 +933,7 @@ OSApp.Sites.newLoad = function() {
 				OSApp.Analog.updateProgramAdjustments();
 				OSApp.Sites.addASBCompatibilityNotification();
 			}
+			OSApp.Sites.updatePasswordSecurityNotification();
 
 			// Hide change password feature for unsupported devices
 			if ( OSApp.Firmware.isOSPi() || OSApp.Firmware.checkOSVersion( 208 ) ) {
@@ -1038,10 +1039,44 @@ OSApp.Sites.addASBCompatibilityNotification = function() {
 	}
 
 	OSApp.Notifications.addNotification( {
+		id: "asb-firmware-compatibility",
 		title: OSApp.Language._( "ASB firmware detected" ),
 		desc: OSApp.Language._( "This UI has limited support for it. Switch to OpenSprinklerASB app/UI." ),
 		on: function() {
 			OSApp.UIDom.changePage( "#about" );
+			return false;
+		}
+	} );
+};
+
+OSApp.Sites.updatePasswordSecurityNotification = function() {
+	var notificationId = "device-password-security",
+		controller = OSApp.currentSession.controller,
+		options = controller && controller.options;
+
+	if ( !options || Number( options.hwv ) === 255 ) {
+		OSApp.Notifications.removeNotificationById( notificationId );
+		return;
+	}
+
+	var password = typeof OSApp.currentSession.pass === "string" ? OSApp.currentSession.pass.toLowerCase() : "",
+		ignorePassword = Number( options.ipas ) === 1,
+		defaultPassword = password === "opendoor" || password === "a6d82bced638de3def1e9bbb4983225c",
+		emptyPassword = password === "" || password === "d41d8cd98f00b204e9800998ecf8427e";
+
+	if ( !ignorePassword && !defaultPassword && !emptyPassword ) {
+		OSApp.Notifications.removeNotificationById( notificationId );
+		return;
+	}
+
+	OSApp.Notifications.addNotification( {
+		id: notificationId,
+		title: OSApp.Language._( "Device password is not secure" ),
+		desc: ignorePassword ?
+			OSApp.Language._( "Password protection is disabled. Set a secure device password and turn off Ignore Password in Edit Options." ) :
+			OSApp.Language._( "This controller is using a default or empty device password. Change it to protect access." ),
+		on: function() {
+			OSApp.Network.changePassword();
 			return false;
 		}
 	} );

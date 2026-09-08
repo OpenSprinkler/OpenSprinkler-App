@@ -815,6 +815,7 @@ OSApp.Network.changePassword = function( opt ) {
 					sites[ data.current_site ].os_pw = npw;
 					OSApp.currentSession.pass = npw;
 					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
+					OSApp.Sites.updatePasswordSecurityNotification();
 				} );
 				$.mobile.loading( "hide" );
 				popup.popup( "close" );
