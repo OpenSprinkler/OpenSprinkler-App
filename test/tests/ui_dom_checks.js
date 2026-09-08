@@ -18,9 +18,9 @@ describe("UI DOM Checks", function () {
 		OSApp.UIDom.bindPanel();
 	} );
 
-	it( "Only exposes a working firmware update link for direct hardware 3.x sessions", function() {
+	it( "Exposes OS3 and OS4 firmware updates only through configured direct URLs", function() {
 		var session = OSApp.currentSession,
-			originalHwv = session.controller.options.hwv,
+			originalOptions = session.controller.options,
 			originalIp = session.ip,
 			originalPrefix = session.prefix,
 			originalToken = session.token,
@@ -28,7 +28,7 @@ describe("UI DOM Checks", function () {
 			updateLink = updateItem.find( "a" );
 
 		try {
-			session.controller.options.hwv = 30;
+			session.controller.options = { hwv: 30, fwv: 221, fwm: 6, hp0: 80, hp1: 0 };
 			session.ip = "sprinkler.local";
 			session.prefix = "https://";
 			session.token = undefined;
@@ -37,14 +37,27 @@ describe("UI DOM Checks", function () {
 			assert.isFalse( updateItem.hasClass( "hidden" ) );
 			assert.equal( updateLink.attr( "href" ), "https://sprinkler.local/update" );
 
+			session.controller.options.hwv = 40;
 			session.ip = "";
 			session.token = "12345678901234567890123456789012";
 			$( "html" ).trigger( "datarefresh" );
 
-			assert.isTrue( updateItem.hasClass( "hidden" ) );
+			assert.isFalse( updateItem.hasClass( "hidden" ) );
 			assert.equal( updateLink.attr( "href" ), "#" );
+			assert.isTrue( updateLink.hasClass( "ui-state-disabled" ) );
+			assert.isFalse( updateLink.hasClass( "iab" ) );
+			assert.include( updateItem.find( ".update-fw-reason" ).text(), "local network connection" );
+
+			session.ip = "sprinkler.local:8081";
+			$( "html" ).trigger( "datarefresh" );
+			assert.equal( updateLink.attr( "href" ), "https://sprinkler.local:8081/update" );
+			assert.isTrue( updateLink.hasClass( "iab" ) );
+
+			session.controller.options.hwv = 255;
+			$( "html" ).trigger( "datarefresh" );
+			assert.isTrue( updateItem.hasClass( "hidden" ) );
 		} finally {
-			session.controller.options.hwv = originalHwv;
+			session.controller.options = originalOptions;
 			session.ip = originalIp;
 			session.prefix = originalPrefix;
 			session.token = originalToken;

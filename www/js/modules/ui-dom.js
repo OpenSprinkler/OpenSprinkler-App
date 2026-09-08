@@ -711,17 +711,21 @@ OSApp.UIDom.bindPanel = function() {
 				var operation = ( OSApp.currentSession.controller && OSApp.currentSession.controller.settings && OSApp.currentSession.controller.settings.en && OSApp.currentSession.controller.settings.en === 1 ) ? OSApp.Language._( "Disable" ) : OSApp.Language._( "Enable" );
 				panel.find( ".toggleOperation span:first" ).html( operation ).attr( "data-translate", operation );
 
-				// Hardware 3.0 family (hwv 30..39) supports browser-based
-				// firmware update at <baseurl>/update. Only expose this for a
-				// direct session with a complete URL; cloud-token sessions do
-				// not have a directly reachable browser endpoint.
-				var hwv = OSApp.currentSession.controller && OSApp.currentSession.controller.options && OSApp.currentSession.controller.options.hwv,
+				var updateState = OSApp.Firmware.getBrowserFirmwareUpdateState(),
 					updateItem = panel.find( ".update-fw" ),
-					showUpdate = typeof hwv === "number" && hwv >= 30 && hwv < 40 &&
-						!OSApp.currentSession.token && !!OSApp.currentSession.prefix && !!OSApp.currentSession.ip;
-				updateItem.toggleClass( "hidden", !showUpdate );
-				updateItem.find( "a" ).attr( "href", showUpdate ?
-					OSApp.currentSession.prefix + OSApp.currentSession.ip + "/update" : "#" );
+					updateLink = updateItem.find( "a" ),
+					updateReason = updateItem.find( ".update-fw-reason" ),
+					reason = updateState.reason === "reserved-port" ?
+						OSApp.Language._( "Port 8080 is reserved for firmware update. Choose another HTTP port first." ) :
+						OSApp.Language._( "Firmware update requires a local network connection to the controller." );
+
+				updateItem.toggleClass( "hidden", !updateState.supported );
+				updateLink
+					.attr( "href", updateState.url || "#" )
+					.attr( "aria-disabled", updateState.url ? "false" : "true" )
+					.toggleClass( "iab", !!updateState.url )
+					.toggleClass( "ui-state-disabled", !updateState.url );
+				updateReason.text( reason ).toggleClass( "hidden", !!updateState.url );
 			};
 
 		$( "html" ).on( "datarefresh",  updateButtons );

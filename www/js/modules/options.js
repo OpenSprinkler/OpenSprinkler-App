@@ -281,6 +281,13 @@ OSApp.Options.showOptions = function( expandItem ) {
 						return true;
 					case "o12":
 						if ( !isPi ) {
+							var requestedPort = parseInt( data, 10 ),
+								currentPort = OSApp.Firmware.getControllerHTTPPort();
+							if ( requestedPort !== currentPort && OSApp.Firmware.isFirmwareUpdatePortReserved( requestedPort ) ) {
+								OSApp.Errors.showError( OSApp.Language._( "Port 8080 is reserved for firmware update. Please choose another HTTP port." ) );
+								invalid = true;
+								return false;
+							}
 							opt.o12 = data & 0xff;
 							opt.o13 = ( data >> 8 ) & 0xff;
 						}
@@ -465,15 +472,33 @@ OSApp.Options.showOptions = function( expandItem ) {
 					OSApp.Errors.showError( message );
 				} );
 				OSApp.UIDom.goBack();
-				OSApp.Sites.updateController( OSApp.Weather.updateWeather );
+				OSApp.Sites.updateController( function() {
+					OSApp.Sites.updatePasswordSecurityNotification();
+					OSApp.Weather.updateWeather();
+				} );
 			};
-			var restoreSubmit = function() {
+			var restoreSubmit = function( message ) {
 				$.mobile.loading( "hide" );
 				button.prop( "disabled", false );
 				page.find( ".submit" ).addClass( "hasChanges" );
+				if ( message ) {
+					OSApp.Errors.showError( message );
+				}
+			};
+			var reconcileRejectedOptions = function( message ) {
+				restoreSubmit( message );
+				OSApp.Sites.updateControllerOptions().done( function() {
+					var options = OSApp.currentSession.controller.options;
+					if ( options && page.find( "#o12" ).length ) {
+						page.find( "#o12" ).val( OSApp.Firmware.getControllerHTTPPort( options ) );
+					}
+					OSApp.Sites.updatePasswordSecurityNotification();
+				} );
 			};
 			var sendOptions = function( options, isRecovery ) {
-				OSApp.Firmware.sendToOS( "/co?pw=&" + $.param( options ) ).done( function() {
+				OSApp.Firmware.sendToOS( "/co?pw=&" + $.param( options ), undefined, {
+					suppressFirmwareError: true
+				} ).done( function() {
 					finishSave( isRecovery ?
 						OSApp.Language._( "Settings were saved, but an invalid master station was ignored." ) :
 						OSApp.Language._( "Settings have been saved" ) );
@@ -482,12 +507,12 @@ OSApp.Options.showOptions = function( expandItem ) {
 						OSApp.Sites.updateController( function() {
 							OSApp.Sites.ensureControllerStationSpecial( undefined, true ).then( function() {
 								if ( OSApp.currentSession.controller.specialUnavailable ) {
-									restoreSubmit();
+									reconcileRejectedOptions( OSApp.Language._( "Controller rejected one or more invalid options. Review and try again." ) );
 									return;
 								}
 								var recovery = OSApp.Options.removeInvalidBundleMasterOptions( options );
 								if ( recovery.removed.length === 0 ) {
-									finishSave( OSApp.Language._( "Controller settings were refreshed after a rejected change. Review and try again." ) );
+									reconcileRejectedOptions( OSApp.Language._( "Controller rejected one or more invalid options. Review and try again." ) );
 									return;
 								}
 								if ( Object.keys( recovery.options ).length === 0 ) {
@@ -495,11 +520,23 @@ OSApp.Options.showOptions = function( expandItem ) {
 									return;
 								}
 								sendOptions( recovery.options, true );
-							}, restoreSubmit );
-						}, restoreSubmit );
+							}, function() {
+								reconcileRejectedOptions( OSApp.Language._( "Controller rejected one or more invalid options. Review and try again." ) );
+							} );
+						}, function() {
+							reconcileRejectedOptions( OSApp.Language._( "Controller rejected one or more invalid options. Review and try again." ) );
+						} );
 						return;
 					}
-					restoreSubmit();
+					var message = error?.result === 17 ?
+						OSApp.Language._( "Controller rejected one or more invalid options. Review and try again." ) :
+						OSApp.Language._( "Unable to save settings. Controller settings were refreshed; review and try again." );
+					if ( error?.status === 401 ) {
+						message = OSApp.Language._( "Check device password and try again." );
+					} else if ( error?.status === 404 ) {
+						message = OSApp.Language._( "Please check input and try again." );
+					}
+					reconcileRejectedOptions( message );
 				} );
 			};
 
@@ -1086,7 +1123,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 	list += "<button data-mini='true' class='center-div reset-programs'>" + OSApp.Language._( "Delete All Programs" ) + "</button>";
 	list += "<button data-mini='true' class='center-div reset-stations'>" + OSApp.Language._( "Reset Station Attributes" ) + "</button>";
 
-	if ( OSApp.currentSession.controller.options.hwv >= 30 && OSApp.currentSession.controller.options.hwv < 40 ) {
+	if ( OSApp.Firmware.supportsWirelessReset() ) {
 		list += "<hr class='divider'><button data-mini='true' class='center-div reset-wireless'>" + OSApp.Language._( "Reset Wireless Settings" ) + "</button>";
 	}
 
