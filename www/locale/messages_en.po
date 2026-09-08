@@ -2747,3 +2747,30 @@ msgstr ""
 
 msgid "This station is a bundle member of"
 msgstr ""
+
+msgid "Port 8080 is reserved for firmware update. Choose another HTTP port first."
+msgstr ""
+
+msgid "Firmware update requires a local network connection to the controller."
+msgstr ""
+
+msgid "Port 8080 is reserved for firmware update. Please choose another HTTP port."
+msgstr ""
+
+msgid "Controller rejected one or more invalid options. Review and try again."
+msgstr ""
+
+msgid "Unable to save settings. Controller settings were refreshed; review and try again."
+msgstr ""
+
+msgid "Sensor adjustment is unavailable; using 100%."
+msgstr ""
+
+msgid "Device password is not secure"
+msgstr ""
+
+msgid "Password protection is disabled. Set a secure device password and turn off Ignore Password in Edit Options."
+msgstr ""
+
+msgid "This controller is using a default or empty device password. Change it to protect access."
+msgstr ""

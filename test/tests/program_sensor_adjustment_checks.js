@@ -480,6 +480,41 @@ describe("Program Sensor Adjustment Checks", function () {
 		assert.equal($("#rp-apply-wl-percent").text(), "(0%)");
 	});
 
+	it("warns when Run this program uses a neutral factor for an unavailable sensor", function () {
+		OSApp.currentSession.controller.jpaData = [ { wa: 1, sa: 1, ta: 1 } ];
+		OSApp.currentSession.controller.sensors.sn[0].flag = 1;
+		OSApp.currentSession.controller.sensors.sn[0].status = OSApp.Sensors.STATUS.VALID | OSApp.Sensors.STATUS.STALE;
+		sandbox.stub($.fn, "popup").returnsThis();
+		sandbox.stub(OSApp.Storage, "get").callsFake(function (_key, callback) { callback({}); });
+		sandbox.stub(OSApp.StationQueue, "isActive").returns(-1);
+
+		OSApp.Programs.openRunProgramDialog(0, [ 120 ], true, false);
+
+		assert.equal($("#run-program-dialog").data("saFactor"), 1);
+		assert.equal($("#rp-apply-sa-percent").text(), "(100%)");
+		assert.isFalse($("#rp-sa-warning").hasClass("hidden"));
+		assert.include($("#rp-sa-warning").text(), "unavailable");
+	});
+
+	it("only reports sensor adjustment unavailable from conclusive sensor state", function () {
+		var program = OSApp.currentSession.controller.programs.pd[0];
+		var sensor = OSApp.currentSession.controller.sensors.sn[0];
+		sensor.flag = 1;
+		sensor.status = OSApp.Sensors.STATUS.VALID;
+		assert.isFalse(OSApp.Programs.getSensorAdjustmentAvailability(program).unavailable);
+
+		sensor.status = OSApp.Sensors.STATUS.ERROR;
+		assert.isTrue(OSApp.Programs.getSensorAdjustmentAvailability(program).unavailable);
+		sensor.status = OSApp.Sensors.STATUS.VALID;
+		sensor.flag = 0;
+		assert.isTrue(OSApp.Programs.getSensorAdjustmentAvailability(program).unavailable);
+
+		OSApp.currentSession.controller.sensors.sn = [];
+		assert.isTrue(OSApp.Programs.getSensorAdjustmentAvailability(program).unavailable);
+		delete OSApp.currentSession.controller.sensors;
+		assert.isFalse(OSApp.Programs.getSensorAdjustmentAvailability(program).unavailable);
+	});
+
 	it("resets the repeat run mode every time the dialog opens", function () {
 		var popup = $(
 			"<div id='run-program-dialog'>" +

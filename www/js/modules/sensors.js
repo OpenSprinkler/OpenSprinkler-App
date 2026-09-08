@@ -797,7 +797,10 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
 
             // Firmware can mark a type as disabled (dis: 1) — keep it visible
             // for awareness but block selection.
-            if (v.disabled) $option.prop("disabled", true);
+            if (v.disabled) {
+                $option.attr("data-firmware-disabled", "true");
+                $option.prop("disabled", true);
+            }
 
             $select.append($option);
 
@@ -833,14 +836,27 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
         // args to base default and apply the new segment's controller's
         // current option dfl on top.
         $select.on("input", () => {
+            const selected = String($select.val());
+            $select.find('option[data-firmware-disabled="true"]').each(function() {
+                const $option = $(this);
+                $option.prop("disabled", String($option.val()) !== selected);
+            });
+            $select.selectmenu("refresh");
             updateSelect(true);
         });
 
         return {
             get: () => coerceVal($select.val()),
             set: (val) => {
+                $select.find('option[data-firmware-disabled="true"]').prop("disabled", true);
+                const $option = $select.find("option").filter(function() {
+                    return String($(this).val()) === String(val);
+                });
+                if ($option.attr("data-firmware-disabled") === "true") {
+                    $option.prop("disabled", false);
+                }
                 $select.val(val);
-                $select.selectmenu('refresh');
+                $select.selectmenu("refresh");
                 updateSelect(false);
             },
             validate: () => /** @type {HTMLSelectElement} */ ($select[0]).checkValidity(),
@@ -1867,29 +1883,29 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
             return `/csn?${params.toString()}`;
         },
         update: function (data) {
-            for (const [key, value] of Object.entries(data)) {
-                switch (key) {
-                    case "flag":
-                        getFlags(value);
-                        break;
-                    case "extra": {
-                        for (const [extraKey, extraValue] of Object.entries(value)) {
-                            let str;
-                            if (typeof extraValue == "string") {
-                                str = extraValue;
-                            } else {
-                                str = JSON.stringify(extraValue);
-                            }
-
-                            sensorOptions.forEach((v) => v.update(extraKey, str));
-                        }
-                        break;
+            // Establish the active metadata segment before restoring its
+            // options, then apply saved common values last so unit-group and
+            // default rules cannot replace persisted values.
+            if (Object.prototype.hasOwnProperty.call(data, "type")) {
+                baseOptions.forEach((v) => v.update("type", data.type));
+            }
+            if (data.extra && typeof data.extra === "object") {
+                for (const [extraKey, extraValue] of Object.entries(data.extra)) {
+                    let str;
+                    if (typeof extraValue == "string") {
+                        str = extraValue;
+                    } else {
+                        str = JSON.stringify(extraValue);
                     }
-                    default:
-                        baseOptions.forEach((v) => v.update(key, value));
-                        break;
+
+                    sensorOptions.forEach((v) => v.update(extraKey, str));
                 }
             }
+            for (const [key, value] of Object.entries(data)) {
+                if (key === "type" || key === "extra" || key === "flag") continue;
+                baseOptions.forEach((v) => v.update(key, value));
+            }
+            if (Object.prototype.hasOwnProperty.call(data, "flag")) getFlags(data.flag);
         },
         reset: function () {
             baseOptions.forEach((v) => v.reset());
