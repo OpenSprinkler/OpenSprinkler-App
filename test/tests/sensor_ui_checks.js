@@ -71,6 +71,7 @@ describe("Sensor UI Checks", function () {
 		var weather = data.sensors[2];
 		var actions = weather.args[0].options;
 
+		assert.isFalse(data.sensors[1].hardware_detected);
 		assert.equal(weather.name, "Weather Sensor");
 		assert.isFalse(!!weather.disabled);
 		assert.deepEqual(actions.map(function (action) { return action.id; }),
@@ -80,6 +81,26 @@ describe("Sensor UI Checks", function () {
 		assert.equal(actions[11].defaults.unit, 55);
 		assert.deepEqual(actions[11].locked, [ "unit" ]);
 		assert.equal(actions[12].unit_group, 11);
+		assert.deepEqual(data.sensors[3].args[0].options.map(function (option) { return option.id; }), [ 0, 1, 2 ]);
+		assert.deepEqual(data.sensors[4].args[0].options.map(function (option) { return option.id; }), [ 0, 1, 2, 3 ]);
+	});
+
+	it("includes Weather Sensors in shared sensor selectors", function () {
+		var select = $("<select></select>"),
+			originalSensors = OSApp.currentSession.controller.sensors;
+
+		try {
+			OSApp.currentSession.controller.sensors = { sn: [ {
+				uuid: 42,
+				name: "Weather ETo",
+				type: 2,
+				extra: { action: 12 }
+			} ] };
+			OSApp.Sensors.makeSensorSelect(select);
+			assert.equal(select.find('option[value="42"]').text(), "Weather ETo (UUID: 42)");
+		} finally {
+			OSApp.currentSession.controller.sensors = originalSensors;
+		}
 	});
 
 	it("applies Weather Sensor defaults, locks, and unit groups from the 2.2.1(6) schema", function () {

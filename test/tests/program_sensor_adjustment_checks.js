@@ -53,7 +53,15 @@ describe("Program Sensor Adjustment Checks", function () {
 				] ]
 			},
 			sensors: {
-				sn: [ { uuid: 42, name: "Moisture", unit: 1, value: 5, status: 1 } ]
+				sn: [ {
+					uuid: 42,
+					name: "Weather ETo",
+					unit: 1,
+					value: 5,
+					status: 1,
+					type: 2,
+					extra: { action: 12 }
+				} ]
 			},
 			sensor_desc: { units: [ { value: 1, short: "V" } ] }
 		};
@@ -110,6 +118,14 @@ describe("Program Sensor Adjustment Checks", function () {
 			[ [ 0, 100 ], [ 10, 50 ] ]
 		);
 		assert.equal(OSApp.Programs.getSenAdjURL("new"), "&snadj=5,42,0,1,10,0.5");
+	});
+
+	it("offers a Weather Sensor for Program Sensor Adjustment", function () {
+		var page = OSApp.Programs.makeProgram21(0, true);
+		fixture.append(page);
+
+		assert.equal(fixture.find("#sen-adj-sid-new option[value='42']").text(), "Weather ETo (UUID: 42)");
+		assert.equal(fixture.find("#sen-adj-sid-new").val(), "42");
 	});
 
 	it("copies the source program date range into the new-program form", function () {
