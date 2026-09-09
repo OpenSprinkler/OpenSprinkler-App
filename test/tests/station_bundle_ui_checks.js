@@ -10,6 +10,7 @@ describe("Dashboard Bundle Station Checks", function () {
 		saved = {
 			bundleApplied: controller.bundleApplied,
 			special: controller.special,
+			specialUnavailable: controller.specialUnavailable,
 			status: controller.status,
 			ps: controller.settings.ps,
 			stnBnd: stations.stn_bnd,
@@ -61,6 +62,7 @@ describe("Dashboard Bundle Station Checks", function () {
 		sandbox.restore();
 		controller.bundleApplied = saved.bundleApplied;
 		controller.special = saved.special;
+		controller.specialUnavailable = saved.specialUnavailable;
 		controller.status = saved.status;
 		controller.settings.ps = saved.ps;
 		stations.stn_bnd = saved.stnBnd;
@@ -141,6 +143,31 @@ describe("Dashboard Bundle Station Checks", function () {
 
 		// A station in no bundle keeps an empty, hidden badge.
 		assert.isTrue($("#station_3").siblings(".station-type-badge").hasClass("hidden"));
+	});
+
+	it("refreshes special station data when an existing dashboard remains active", function () {
+		var page = $("<div id='sprinklers' class='ui-page-active'></div>").appendTo("body"),
+			refreshed = false,
+			request = sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (command) {
+				assert.equal(command, "/je?pw=");
+				return $.Deferred().resolve({ "0": { st: 7, sd: "02" } }).promise();
+			});
+
+		stations.stn_spe[0] = 1;
+		stations.stn_bnd[0] = 1;
+		delete controller.special;
+		delete controller.specialUnavailable;
+
+		$("html").one("datarefresh.bundleSiteSwitch", function () {
+			refreshed = true;
+		});
+
+		OSApp.UIDom.goHome(true);
+
+		assert.isTrue(request.calledOnce);
+		assert.equal(controller.special[0].st, 7);
+		assert.isTrue(refreshed);
+		page.remove();
 	});
 
 	it("names the owning bundle when the member badge is tapped, without prompting a run", function () {

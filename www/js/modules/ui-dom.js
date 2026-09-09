@@ -186,7 +186,10 @@ OSApp.UIDom.launchApp = function() {
 			if ( $( hash ).length === 0 ) {
 				OSApp.Dashboard.displayPage( data.options.firstLoad );
 			} else {
-				$( hash ).one( "pageshow", function() { OSApp.Status.refreshStatus(); } );
+				$( hash ).one( "pageshow", function() {
+					OSApp.Status.refreshStatus();
+					OSApp.UIDom.refreshHomeStationSpecial();
+				} );
 			}
 		} else if ( hash === "#sensors" && OSApp.Supported.sensors() ) {
 			OSApp.Sensors.displayPage( data.options.expandUuid );
@@ -838,6 +841,16 @@ OSApp.UIDom.insertStyle = function( style ) {
 	document.head.appendChild( a );
 };
 
+OSApp.UIDom.refreshHomeStationSpecial = function() {
+	if ( !$( "#sprinklers" ).length ) {
+		return;
+	}
+
+	OSApp.Sites.ensureControllerStationSpecial( function() {
+		$( "html" ).trigger( "datarefresh" );
+	} );
+};
+
 // Transition to home page after successful load
 OSApp.UIDom.goHome = function( firstLoad ) {
 	if ( $( ".ui-page-active" ).attr( "id" ) !== "sprinklers" ) {
@@ -860,6 +873,8 @@ OSApp.UIDom.goHome = function( firstLoad ) {
 		}
 
 		OSApp.UIDom.changePage( "#sprinklers", opts );
+	} else {
+		OSApp.UIDom.refreshHomeStationSpecial();
 	}
 };
 
