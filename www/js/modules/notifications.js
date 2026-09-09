@@ -60,6 +60,7 @@ OSApp.Notifications.updateNotificationBadge = function() {
 
 OSApp.Notifications.createNotificationItem = function( item ) {
 	var listItem = $( "<li><a class='primary' href='#'><h2>" + item.title + "</h2>" + ( item.desc ? "<p>" + item.desc + "</p>" : "" ) +
+		( item.actionLabel ? "<p class='notification-action blue-text'>" + item.actionLabel + "</p>" : "" ) +
 		"</a><a class='ui-btn ui-btn-icon-notext ui-icon-delete'></a></li>" );
 	listItem.data( "notification", item );
 	if ( item.id ) {
@@ -112,9 +113,12 @@ OSApp.Notifications.showNotifications = function() {
 };
 
 OSApp.Notifications.clearNotifications = function() {
-	var panel = $( "#notificationPanel" );
+	var panel = $( "#notificationPanel" ),
+		remaining = OSApp.uiState.notifications.filter( function( item ) {
+			return typeof item.off === "function" && !item.off();
+		} );
 
-	OSApp.uiState.notifications = [];
+	OSApp.uiState.notifications = remaining;
 	OSApp.Notifications.updateNotificationBadge();
 
 	panel.find( "ul" ).empty();

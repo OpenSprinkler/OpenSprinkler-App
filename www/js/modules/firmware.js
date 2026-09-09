@@ -399,6 +399,20 @@ OSApp.Firmware.getBrowserFirmwareUpdateState = function( session ) {
 	return state;
 };
 
+OSApp.Firmware.openBrowserFirmwareUpdate = function( url, parent ) {
+	if ( !url ) {
+		return false;
+	}
+
+	var route = $( "<a></a>" )
+		.addClass( "hidden iab firmware-update-route" )
+		.attr( "href", url )
+		.appendTo( parent || "body" );
+	route.trigger( "click" );
+	route.remove();
+	return true;
+};
+
 OSApp.Firmware.versionCompare = function( ver, check ) {
 
 	// Returns false when check < ver and 1 when check > ver
@@ -581,8 +595,12 @@ OSApp.Firmware.checkFirmwareUpdate = function() {
 
 					// If the variable does not exist or is lower than the newest update, show the update notification
 					if ( !flag.updateDismiss || flag.updateDismiss < data[ 0 ].tag_name ) {
+						var notificationUpdateState = OSApp.Firmware.getBrowserFirmwareUpdateState();
 						OSApp.Notifications.addNotification( {
+							id: "firmware-update",
 							title: OSApp.Language._( "Firmware update available" ),
+							actionLabel: notificationUpdateState.supported && !notificationUpdateState.url ?
+								OSApp.Language._( "Update Guide" ) : OSApp.Language._( "Update Now" ),
 							on: function() {
 
 								// Modify the changelog by parsing markdown of lists to HTML
@@ -601,7 +619,7 @@ OSApp.Firmware.checkFirmwareUpdate = function() {
 										"<div data-role='popup' class='modal' data-theme='a'>" +
 											"<h3 class='center firmware-release-title' style='margin-bottom:0'></h3>" +
 											"<h5 class='center' style='margin:0'>" + OSApp.Language._( "This Controller" ) + ": " + OSApp.Firmware.getOSVersion() + OSApp.Firmware.getOSMinorVersion() + "</h5>" +
-											( changelog ? "<a class='changelog iab ui-btn ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' target='_blank' rel='noopener noreferrer'>" +
+											( changelog ? "<a class='firmware-changelog iab ui-btn ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' target='_blank' rel='noopener noreferrer'>" +
 												OSApp.Language._( "View Changelog" ) +
 											"</a>" : "" ) +
 											"<a class='guide ui-btn ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' href='#'>" +
@@ -618,21 +636,22 @@ OSApp.Firmware.checkFirmwareUpdate = function() {
 										"</div>"
 									);
 
+								if ( browserUpdate.url ) {
+									OSApp.Firmware.openBrowserFirmwareUpdate( browserUpdate.url );
+									return false;
+								}
+
 								popup.find( ".firmware-release-title" ).text(
 									OSApp.Language._( "Latest" ) + " " + OSApp.Language._( "Firmware" ) + ": " + data[ 0 ].name
 								);
-								popup.find( ".changelog" ).attr( "href", changelog );
+								popup.find( ".firmware-changelog" ).attr( "href", changelog );
 
 								popup.find( ".update" ).on( "click", function() {
 									if ( !canUpdate ) {
 										return false;
 									}
 									if ( isBrowserUpload ) {
-										$( "<a></a>" )
-											.addClass( "hidden iab firmware-update-route" )
-											.attr( "href", browserUpdate.url )
-											.appendTo( popup )
-											.trigger( "click" );
+										OSApp.Firmware.openBrowserFirmwareUpdate( browserUpdate.url, popup );
 										return;
 									}
 
@@ -675,6 +694,11 @@ OSApp.Firmware.checkFirmwareUpdate = function() {
 								} );
 
 								OSApp.UIDom.openPopup( popup );
+								return false;
+							},
+							off: function() {
+								OSApp.Storage.set( { updateDismiss:data[ 0 ].tag_name } );
+								return true;
 							}
 						} );
 					}

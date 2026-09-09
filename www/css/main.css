@@ -518,6 +518,10 @@ input[type=number] {
     white-space: normal;
 }
 
+#notificationPanel .notification-action {
+    text-decoration: underline;
+}
+
 #notificationPanel .clear-all {
     position: absolute;
     right: 5px;
@@ -834,13 +838,6 @@ input[type=number] {
 }
 .location {
 	padding-right: 5px;
-}
-.changelog {
-    font-size: smaller;
-    margin: 10px;
-}
-.changelog li {
-    margin: 0.5em;
 }
 .info-card {
     margin-top: 5px;

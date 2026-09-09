@@ -1075,6 +1075,7 @@ OSApp.Sites.updatePasswordSecurityNotification = function() {
 		desc: ignorePassword ?
 			OSApp.Language._( "Password protection is disabled. Set a secure device password and turn off Ignore Password in Edit Options." ) :
 			OSApp.Language._( "This controller is using a default or empty device password. Change it to protect access." ),
+		actionLabel: OSApp.Language._( "Change Password" ),
 		on: function() {
 			OSApp.Network.changePassword();
 			return false;

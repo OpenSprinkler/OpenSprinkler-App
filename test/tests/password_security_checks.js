@@ -41,7 +41,9 @@ describe("Device Password Security Checks", function () {
 
 			var notification = OSApp.uiState.notifications[0];
 			assert.include(notification.desc, "turn off Ignore Password");
-			assert.isFalse(notification.on());
+			var item = OSApp.Notifications.createNotificationItem(notification);
+			assert.equal(item.find(".notification-action").text(), "Change Password");
+			item.find(".notification-action").trigger("click");
 			assert.isTrue(changePassword.calledOnce);
 		} finally {
 			changePassword.restore();

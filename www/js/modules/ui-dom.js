@@ -981,6 +981,9 @@ OSApp.UIDom.changeHeader = function( opt ) {
 		header.html( newHeader ).toolbar( header.hasClass( "ui-header" ) ? "refresh" : null );
 		header.find( ".ui-btn-left" ).on( "click", opt.leftBtn.on );
 		header.find( ".ui-btn-right" ).on( "click", opt.rightBtn.on );
+		if ( header.find( ".notifications" ).length ) {
+			OSApp.Notifications.updateNotificationBadge();
+		}
 	} ).fadeIn( speed );
 
 	return newHeader;
