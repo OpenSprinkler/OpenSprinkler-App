@@ -1885,7 +1885,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 				option = $( "<option></option>" )
 				.val( val )
 				.text( OSApp.Stations.getName( si ) + ( bundleLeader ? " (" + OSApp.Language._( "Bundle Station" ) + ")" :
-					( bundleMember ? " (" + OSApp.Language._( "Bundle member" ) + ")" : "" ) ) )
+					( bundleMember ? " (" + OSApp.Language._( "Bundle Member" ) + ")" : "" ) ) )
 				.appendTo( options );
 			option.prop( "disabled", bundleLeader || bundleMember );
 			if ( !OSApp.Firmware.checkOSVersion( 214 ) && si === 7 ) { break; }
