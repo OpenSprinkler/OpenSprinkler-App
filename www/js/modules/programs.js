@@ -1003,13 +1003,14 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 							if ( prog[ 4 ][ sid ] && endArray[ sid ] === 0 ) {
 								let cachedJpa = OSApp.currentSession.controller.jpaData;
 								let adjustment = cachedJpa && cachedJpa[ pid ] && simday === devday ? cachedJpa[ pid ] : null;
+								let sensorFactor = adjustment ? adjustment.sa : 1;
 								if ( adjustment && OSApp.Programs.getSensorAdjustmentAvailability( prog ).unavailable ) {
 									sensorAdjustmentUnavailable = true;
+									sensorFactor = 1;
 								}
 								let weatherPercent = adjustment ? Math.round( adjustment.wa * 100 ) : wl;
 								weatherPercent = Number.isFinite( weatherPercent ) ?
 									Math.min( 250, Math.max( 0, weatherPercent ) ) : 100;
-								let sensorFactor = adjustment ? adjustment.sa : 1;
 								let waterTime = Math.floor(
 									OSApp.Stations.getStationDuration( prog[ 4 ][ sid ], simt ) *
 									weatherPercent / 100 * sensorFactor
@@ -3555,7 +3556,7 @@ OSApp.Programs.openRunProgramDialog = function (pid, stationsDurations, uwt, isR
 	var sensorAdjustmentAvailability = OSApp.Programs.getSensorAdjustmentAvailability( prog );
 	if ( OSApp.Supported.sensors() && jpaData && pid != null && jpaData[ pid ] &&
 		 progAdj && ( ( progAdj.flag ?? 0 ) & 1 ) === 1 && ( progAdj.uuid ?? 0 ) !== 0 ) {
-		saFactor = jpaData[ pid ].sa;
+		saFactor = sensorAdjustmentAvailability.unavailable ? 1 : jpaData[ pid ].sa;
 	}
 
 	var $saCheckbox = $popup.find( "#rp-apply-sa" );

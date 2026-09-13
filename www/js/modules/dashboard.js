@@ -626,16 +626,28 @@ OSApp.Dashboard.displayPage = function() {
 			}
 
 			if ( OSApp.Supported.bundle() && !button.data( "bundleMetadataReady" ) ) {
+				var context = { session: OSApp.currentSession, controller: OSApp.currentSession.controller },
+					isCurrent = function() {
+						return OSApp.currentSession === context.session && OSApp.currentSession.controller === context.controller;
+					};
 				$.mobile.loading( "show" );
-				OSApp.Sites.ensureControllerStationSpecial( function() {}, true ).always( function() {
+				OSApp.Sites.ensureControllerStationSpecial( undefined, true, context ).then( function() {
+					if ( !isCurrent() ) {
+						return;
+					}
 					$.mobile.loading( "hide" );
-					if ( OSApp.currentSession.controller.specialUnavailable ) {
+					if ( context.controller.specialUnavailable ) {
 						OSApp.Errors.showError( OSApp.Language._( "Unable to load station configuration." ), 4000 );
 						return;
 					}
 					button.data( "bundleMetadataReady", true );
 					showAttributes.call( button[ 0 ], initialTab );
 					button.removeData( "bundleMetadataReady" );
+				}, function( error ) {
+					if ( isCurrent() && !OSApp.Sites.isStaleControllerRefresh( error ) ) {
+						$.mobile.loading( "hide" );
+						OSApp.Errors.showError( OSApp.Language._( "Unable to load station configuration." ), 4000 );
+					}
 				} );
 				return false;
 			}

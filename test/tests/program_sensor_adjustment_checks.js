@@ -496,8 +496,8 @@ describe("Program Sensor Adjustment Checks", function () {
 		assert.equal($("#rp-apply-wl-percent").text(), "(0%)");
 	});
 
-	it("warns when Run this program uses a neutral factor for an unavailable sensor", function () {
-		OSApp.currentSession.controller.jpaData = [ { wa: 1, sa: 1, ta: 1 } ];
+	it("uses a neutral factor when Run this program has cached /jpa for an unavailable sensor", function () {
+		OSApp.currentSession.controller.jpaData = [ { wa: 1, sa: 0.5, ta: 0.5 } ];
 		OSApp.currentSession.controller.sensors.sn[0].flag = 1;
 		OSApp.currentSession.controller.sensors.sn[0].status = OSApp.Sensors.STATUS.VALID | OSApp.Sensors.STATUS.STALE;
 		sandbox.stub($.fn, "popup").returnsThis();

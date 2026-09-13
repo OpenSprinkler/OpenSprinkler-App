@@ -137,13 +137,13 @@ describe("Program Preview Checks", function () {
 		assert.equal((run.end.getTime() - run.start.getTime()) / 1000, 1);
 	});
 
-	it("shows a warning while applying firmware's neutral factor for an unavailable sensor", function () {
+	it("uses a neutral factor when cached /jpa predates an unavailable sensor", function () {
 		OSApp.Supported.sensors.returns(true);
 		OSApp.currentSession.controller.programs.pd[0][7] = { flag: 1, uuid: 42 };
 		OSApp.currentSession.controller.sensors = {
 			sn: [ { uuid: 42, flag: 1, status: OSApp.Sensors.STATUS.VALID | OSApp.Sensors.STATUS.STALE } ]
 		};
-		var request = $.Deferred().resolve({ jpa: [ { wa: 1, sa: 1, ta: 1 } ] }).promise();
+		var request = $.Deferred().resolve({ jpa: [ { wa: 1, sa: 0.5, ta: 0.5 } ] }).promise();
 		sandbox.stub(OSApp.Firmware, "sendToOS").returns(request);
 
 		var timeline = showPreview();

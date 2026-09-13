@@ -170,6 +170,28 @@ describe("Dashboard Bundle Station Checks", function () {
 		page.remove();
 	});
 
+	it("does not open an old station dialog after switching controllers during /je", function () {
+		var pending = $.Deferred();
+		sandbox.stub(OSApp.Firmware, "sendToOS").returns(pending.promise());
+		sandbox.stub(OSApp.Sites, "updateController");
+
+		OSApp.Dashboard.displayPage();
+		$("#attrib-0").trigger("click");
+		assert.lengthOf($("#stn_attrib"), 0);
+
+		try {
+			OSApp.currentSession.controller = {};
+			$.mobile.loading.resetHistory();
+			pending.reject({ status: 0, statusText: "abort" });
+
+			assert.lengthOf($("#stn_attrib"), 0);
+			assert.isFalse(OSApp.Errors.showError.called);
+			assert.isFalse($.mobile.loading.calledWith("hide"));
+		} finally {
+			OSApp.currentSession.controller = controller;
+		}
+	});
+
 	it("names the owning bundle when the member badge is tapped, without prompting a run", function () {
 		setBundle(0, [ 1 ]);
 		setBundle(2, [ 1 ]);
