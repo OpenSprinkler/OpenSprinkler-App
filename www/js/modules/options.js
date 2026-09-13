@@ -467,9 +467,18 @@ OSApp.Options.showOptions = function( expandItem ) {
 				opt = pruned;
 			}
 
+			var saveContext = { session: OSApp.currentSession, controller: OSApp.currentSession.controller };
+			var isCurrentSave = function() {
+				return OSApp.currentSession === saveContext.session && OSApp.currentSession.controller === saveContext.controller;
+			};
 			var finishSave = function( message ) {
+				if ( !isCurrentSave() ) {
+					return;
+				}
 				$.mobile.document.one( "pageshow", function() {
-					OSApp.Errors.showError( message );
+					if ( isCurrentSave() ) {
+						OSApp.Errors.showError( message );
+					}
 				} );
 				OSApp.UIDom.goBack();
 				OSApp.Sites.updateController( function() {
@@ -478,6 +487,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 				} );
 			};
 			var restoreSubmit = function( message ) {
+				if ( !isCurrentSave() ) {
+					return;
+				}
 				$.mobile.loading( "hide" );
 				button.prop( "disabled", false );
 				page.find( ".submit" ).addClass( "hasChanges" );
@@ -486,8 +498,14 @@ OSApp.Options.showOptions = function( expandItem ) {
 				}
 			};
 			var reconcileRejectedOptions = function( message ) {
+				if ( !isCurrentSave() ) {
+					return;
+				}
 				restoreSubmit( message );
-				OSApp.Sites.updateControllerOptions().done( function() {
+				OSApp.Sites.updateControllerOptions( undefined, saveContext ).done( function() {
+					if ( !isCurrentSave() ) {
+						return;
+					}
 					var options = OSApp.currentSession.controller.options;
 					if ( options && page.find( "#o12" ).length ) {
 						page.find( "#o12" ).val( OSApp.Firmware.getControllerHTTPPort( options ) );
@@ -499,13 +517,25 @@ OSApp.Options.showOptions = function( expandItem ) {
 				OSApp.Firmware.sendToOS( "/co?pw=&" + $.param( options ), undefined, {
 					suppressFirmwareError: true
 				} ).done( function() {
+					if ( !isCurrentSave() ) {
+						return;
+					}
 					finishSave( isRecovery ?
 						OSApp.Language._( "Settings were saved, but an invalid master station was ignored." ) :
 						OSApp.Language._( "Settings have been saved" ) );
 				} ).fail( function( error ) {
+					if ( !isCurrentSave() ) {
+						return;
+					}
 					if ( !isRecovery && error?.result === 17 && OSApp.Supported.bundle() ) {
 						OSApp.Sites.updateController( function() {
-							OSApp.Sites.ensureControllerStationSpecial( undefined, true ).then( function() {
+							if ( !isCurrentSave() ) {
+								return;
+							}
+							OSApp.Sites.ensureControllerStationSpecial( undefined, true, saveContext ).then( function() {
+								if ( !isCurrentSave() ) {
+									return;
+								}
 								if ( OSApp.currentSession.controller.specialUnavailable ) {
 									reconcileRejectedOptions( OSApp.Language._( "Controller rejected one or more invalid options. Review and try again." ) );
 									return;
@@ -2019,16 +2049,28 @@ OSApp.Options.showOptions = function( expandItem ) {
 			offMin = is220 ? -600 : -60, offMax = is220 ? 600 : 0;
 
 		if ( OSApp.Supported.bundle() && !$( button ).data( "bundleMetadataReady" ) ) {
+			var context = { session: OSApp.currentSession, controller: OSApp.currentSession.controller },
+				isCurrent = function() {
+					return OSApp.currentSession === context.session && OSApp.currentSession.controller === context.controller;
+				};
 			$.mobile.loading( "show" );
-			OSApp.Sites.ensureControllerStationSpecial( function() {}, true ).always( function() {
+			OSApp.Sites.ensureControllerStationSpecial( undefined, true, context ).then( function() {
+				if ( !isCurrent() ) {
+					return;
+				}
 				$.mobile.loading( "hide" );
-				if ( OSApp.currentSession.controller.specialUnavailable ) {
+				if ( context.controller.specialUnavailable ) {
 					OSApp.Errors.showError( OSApp.Language._( "Unable to load station configuration." ), 4000 );
 					return;
 				}
 				$( button ).data( "bundleMetadataReady", true );
 				showMasterSettings.call( button );
 				$( button ).removeData( "bundleMetadataReady" );
+			}, function( error ) {
+				if ( isCurrent() && !OSApp.Sites.isStaleControllerRefresh( error ) ) {
+					$.mobile.loading( "hide" );
+					OSApp.Errors.showError( OSApp.Language._( "Unable to load station configuration." ), 4000 );
+				}
 			} );
 			return false;
 		}

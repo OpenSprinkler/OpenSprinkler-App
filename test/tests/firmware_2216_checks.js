@@ -143,6 +143,71 @@ describe("Firmware 2.2.1(6) UI Checks", function () {
 		assert.isTrue(showError.calledWithMatch("Controller rejected"));
 	});
 
+	it("does not recover a rejected /co after switching controllers", function () {
+		setFirmware(40);
+		controller.options.hp0 = 80;
+		controller.options.hp1 = 0;
+		var header = showOptionsWithCapturedHeader(),
+			pending = $.Deferred(),
+			sendToOS = sandbox.stub(OSApp.Firmware, "sendToOS").returns(pending.promise()),
+			updateController = sandbox.stub(OSApp.Sites, "updateController").callsFake(function (callback) { callback(); }),
+			ensureSpecial = sandbox.stub(OSApp.Sites, "ensureControllerStationSpecial")
+				.returns($.Deferred().resolve({}).promise());
+		sandbox.stub(OSApp.Supported, "bundle").returns(true);
+		sandbox.stub(OSApp.Options, "removeInvalidBundleMasterOptions")
+			.returns({ options: { o12: 81 }, removed: [ "mas" ] });
+		var loading = sandbox.stub($.mobile, "loading");
+
+		$("#os-options #o12").val("8081");
+		header.options.rightBtn.on();
+		assert.isTrue(sendToOS.calledOnce);
+
+		try {
+			OSApp.currentSession.controller = $.extend({}, controller);
+			loading.resetHistory();
+			pending.reject({ result: 17 });
+
+			assert.isTrue(sendToOS.calledOnce);
+			assert.isFalse(updateController.called);
+			assert.isFalse(ensureSpecial.called);
+			assert.isFalse(loading.calledWith("hide"));
+		} finally {
+			OSApp.currentSession.controller = controller;
+		}
+	});
+
+	it("does not retry /co when the controller switches during bundle recovery", function () {
+		setFirmware(40);
+		controller.options.hp0 = 80;
+		controller.options.hp1 = 0;
+		var header = showOptionsWithCapturedHeader(),
+			pendingSpecial = $.Deferred(),
+			sendToOS = sandbox.stub(OSApp.Firmware, "sendToOS")
+				.onFirstCall().returns($.Deferred().reject({ result: 17 }).promise()),
+			updateController = sandbox.stub(OSApp.Sites, "updateController").callsFake(function (callback) { callback(); }),
+			ensureSpecial = sandbox.stub(OSApp.Sites, "ensureControllerStationSpecial").returns(pendingSpecial.promise());
+		sendToOS.onSecondCall().returns($.Deferred().resolve({ result: 1 }).promise());
+		sandbox.stub(OSApp.Supported, "bundle").returns(true);
+		var removeInvalid = sandbox.stub(OSApp.Options, "removeInvalidBundleMasterOptions")
+			.returns({ options: { o12: 81 }, removed: [ "mas" ] });
+		sandbox.stub($.mobile, "loading");
+
+		$("#os-options #o12").val("8081");
+		header.options.rightBtn.on();
+		assert.isTrue(updateController.calledOnce);
+		assert.isTrue(ensureSpecial.calledOnce);
+
+		try {
+			OSApp.currentSession.controller = $.extend({}, controller);
+			pendingSpecial.resolve({});
+
+			assert.isTrue(sendToOS.calledOnce);
+			assert.isFalse(removeInvalid.called);
+		} finally {
+			OSApp.currentSession.controller = controller;
+		}
+	});
+
 	it("shows Reset Wireless on OS4 and uses the established command", function () {
 		setFirmware(40);
 		showOptionsWithCapturedHeader();
