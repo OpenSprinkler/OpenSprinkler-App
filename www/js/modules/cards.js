@@ -35,9 +35,17 @@ OSApp.Cards.getGroupLabel = function( cardObj ) {
 
 OSApp.Cards.setGroupLabel = function( cardObj, value ) {
 	if ( !OSApp.Supported.groups() ) { return; }
-	var groupLabel = OSApp.Cards.getGroupLabel( cardObj );
+	var groupLabel = OSApp.Cards.getGroupLabel( cardObj ),
+		description = OSApp.Language._( "Basic Settings" ) + " - " + OSApp.Language._( "Sequential Group" ) + ": " + value;
+
 	groupLabel.removeClass( "hidden" );
 	groupLabel.text( value );
+	if ( !OSApp.Cards.isMasterStation( cardObj ) ) {
+		groupLabel.closest( ".station-settings" ).attr( {
+			title: description,
+			"aria-label": description
+		} );
+	}
 };
 
 OSApp.Cards.getGIDValue = function( cardObj ) {

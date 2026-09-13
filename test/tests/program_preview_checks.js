@@ -137,6 +137,23 @@ describe("Program Preview Checks", function () {
 		assert.equal((run.end.getTime() - run.start.getTime()) / 1000, 1);
 	});
 
+	it("uses a neutral factor when cached /jpa predates an unavailable sensor", function () {
+		OSApp.Supported.sensors.returns(true);
+		OSApp.currentSession.controller.programs.pd[0][7] = { flag: 1, uuid: 42 };
+		OSApp.currentSession.controller.sensors = {
+			sn: [ { uuid: 42, flag: 1, status: OSApp.Sensors.STATUS.VALID | OSApp.Sensors.STATUS.STALE } ]
+		};
+		var request = $.Deferred().resolve({ jpa: [ { wa: 1, sa: 0.5, ta: 0.5 } ] }).promise();
+		sandbox.stub(OSApp.Firmware, "sendToOS").returns(request);
+
+		var timeline = showPreview();
+		var run = timeline.items.find(function (item) { return item.group === "station-0"; });
+
+		assert.equal((run.end.getTime() - run.start.getTime()) / 1000, 60);
+		assert.isFalse($("#preview-sensor-adjustment-warning").hasClass("hidden"));
+		assert.include($("#preview-sensor-adjustment-warning").text(), "using 100%");
+	});
+
 	it("uses integer weather-percent arithmetic at floating-point boundaries", function () {
 		OSApp.currentSession.controller.programs.pd[0][4] = [ 25, 0, 0, 0, 0, 0, 0, 0 ];
 		OSApp.currentSession.controller.jpaData = [ { wa: 1.16, sa: 1, ta: 1.16 } ];

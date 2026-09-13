@@ -53,7 +53,15 @@ describe("Program Sensor Adjustment Checks", function () {
 				] ]
 			},
 			sensors: {
-				sn: [ { uuid: 42, name: "Moisture", unit: 1, value: 5, status: 1 } ]
+				sn: [ {
+					uuid: 42,
+					name: "Weather ETo",
+					unit: 1,
+					value: 5,
+					status: 1,
+					type: 2,
+					extra: { action: 12 }
+				} ]
 			},
 			sensor_desc: { units: [ { value: 1, short: "V" } ] }
 		};
@@ -110,6 +118,14 @@ describe("Program Sensor Adjustment Checks", function () {
 			[ [ 0, 100 ], [ 10, 50 ] ]
 		);
 		assert.equal(OSApp.Programs.getSenAdjURL("new"), "&snadj=5,42,0,1,10,0.5");
+	});
+
+	it("offers a Weather Sensor for Program Sensor Adjustment", function () {
+		var page = OSApp.Programs.makeProgram21(0, true);
+		fixture.append(page);
+
+		assert.equal(fixture.find("#sen-adj-sid-new option[value='42']").text(), "Weather ETo (UUID: 42)");
+		assert.equal(fixture.find("#sen-adj-sid-new").val(), "42");
 	});
 
 	it("copies the source program date range into the new-program form", function () {
@@ -478,6 +494,41 @@ describe("Program Sensor Adjustment Checks", function () {
 
 		assert.equal($("#run-program-dialog").data("weatherPercent"), 0);
 		assert.equal($("#rp-apply-wl-percent").text(), "(0%)");
+	});
+
+	it("uses a neutral factor when Run this program has cached /jpa for an unavailable sensor", function () {
+		OSApp.currentSession.controller.jpaData = [ { wa: 1, sa: 0.5, ta: 0.5 } ];
+		OSApp.currentSession.controller.sensors.sn[0].flag = 1;
+		OSApp.currentSession.controller.sensors.sn[0].status = OSApp.Sensors.STATUS.VALID | OSApp.Sensors.STATUS.STALE;
+		sandbox.stub($.fn, "popup").returnsThis();
+		sandbox.stub(OSApp.Storage, "get").callsFake(function (_key, callback) { callback({}); });
+		sandbox.stub(OSApp.StationQueue, "isActive").returns(-1);
+
+		OSApp.Programs.openRunProgramDialog(0, [ 120 ], true, false);
+
+		assert.equal($("#run-program-dialog").data("saFactor"), 1);
+		assert.equal($("#rp-apply-sa-percent").text(), "(100%)");
+		assert.isFalse($("#rp-sa-warning").hasClass("hidden"));
+		assert.include($("#rp-sa-warning").text(), "unavailable");
+	});
+
+	it("only reports sensor adjustment unavailable from conclusive sensor state", function () {
+		var program = OSApp.currentSession.controller.programs.pd[0];
+		var sensor = OSApp.currentSession.controller.sensors.sn[0];
+		sensor.flag = 1;
+		sensor.status = OSApp.Sensors.STATUS.VALID;
+		assert.isFalse(OSApp.Programs.getSensorAdjustmentAvailability(program).unavailable);
+
+		sensor.status = OSApp.Sensors.STATUS.ERROR;
+		assert.isTrue(OSApp.Programs.getSensorAdjustmentAvailability(program).unavailable);
+		sensor.status = OSApp.Sensors.STATUS.VALID;
+		sensor.flag = 0;
+		assert.isTrue(OSApp.Programs.getSensorAdjustmentAvailability(program).unavailable);
+
+		OSApp.currentSession.controller.sensors.sn = [];
+		assert.isTrue(OSApp.Programs.getSensorAdjustmentAvailability(program).unavailable);
+		delete OSApp.currentSession.controller.sensors;
+		assert.isFalse(OSApp.Programs.getSensorAdjustmentAvailability(program).unavailable);
 	});
 
 	it("resets the repeat run mode every time the dialog opens", function () {

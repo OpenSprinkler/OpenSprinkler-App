@@ -154,9 +154,11 @@ OSApp.Status.checkStatus = function() {
 			}
 		}
 
-		sample = Object.keys( open )[ 0 ];
-		pid    = OSApp.Stations.getPID( sample );
-		pname  = OSApp.Programs.pidToName( pid );
+		sample = Object.keys( open ).find( function( sid ) {
+			return OSApp.Stations.getPID( sid ) > 0;
+		} );
+		pid = typeof sample === "undefined" ? 0 : OSApp.Stations.getPID( sample );
+		pname = pid > 0 ? OSApp.Programs.pidToName( pid ) : OSApp.Language._( "Bundle Station" );
 		line   = "<div><div class='running-icon'></div><div class='running-text pointer'>";
 
 		line += OSApp.Utils.htmlEscape( pname ) + " " + OSApp.Language._( "is running on" ) + " " + Object.keys( open ).length + " " + OSApp.Language._( "stations" ) + " ";

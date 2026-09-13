@@ -18,6 +18,23 @@ var OSApp = OSApp || {};
 OSApp.Notifications = OSApp.Notifications || {};
 
 OSApp.Notifications.addNotification = function( item ) {
+	if ( item.id ) {
+		var existingIndex = OSApp.uiState.notifications.findIndex( function( notification ) {
+			return notification.id === item.id;
+		} );
+		if ( existingIndex !== -1 ) {
+			OSApp.uiState.notifications[ existingIndex ] = item;
+			var existingItem = $( "#notificationPanel li" ).filter( function() {
+				return $( this ).attr( "data-notification-id" ) === item.id;
+			} );
+			if ( existingItem.length ) {
+				existingItem.replaceWith( OSApp.Notifications.createNotificationItem( item ) );
+				$( "#notificationPanel ul" ).listview( "refresh" );
+			}
+			return item;
+		}
+	}
+
 	OSApp.uiState.notifications.push( item );
 	OSApp.Notifications.updateNotificationBadge();
 
@@ -26,6 +43,7 @@ OSApp.Notifications.addNotification = function( item ) {
 	if ( panel.hasClass( "ui-panel-open" ) ) {
 		panel.find( "ul" ).append( OSApp.Notifications.createNotificationItem( item ) ).listview( "refresh" );
 	}
+	return item;
 };
 
 OSApp.Notifications.updateNotificationBadge = function() {
@@ -42,7 +60,12 @@ OSApp.Notifications.updateNotificationBadge = function() {
 
 OSApp.Notifications.createNotificationItem = function( item ) {
 	var listItem = $( "<li><a class='primary' href='#'><h2>" + item.title + "</h2>" + ( item.desc ? "<p>" + item.desc + "</p>" : "" ) +
+		( item.actionLabel ? "<p class='notification-action blue-text'>" + item.actionLabel + "</p>" : "" ) +
 		"</a><a class='ui-btn ui-btn-icon-notext ui-icon-delete'></a></li>" );
+	listItem.data( "notification", item );
+	if ( item.id ) {
+		listItem.attr( "data-notification-id", item.id );
+	}
 
 	listItem.find( ".primary" ).on( "click", item.on );
 	listItem.find( ".ui-icon-delete" ).on( "click", function() {
@@ -65,7 +88,7 @@ OSApp.Notifications.showNotifications = function() {
 			var button = $( this );
 
 			if ( button.hasClass( "clear" ) ) {
-				OSApp.Notifications.clearNotifications();
+				OSApp.Notifications.clearNotifications( true );
 			} else {
 				button.removeClass( "delete ui-btn-icon-notext ui-icon-delete" ).addClass( "clear" ).text( OSApp.Language._( "Clear" ) );
 				setTimeout( function() {
@@ -89,10 +112,13 @@ OSApp.Notifications.showNotifications = function() {
 	panel.panel( "open" );
 };
 
-OSApp.Notifications.clearNotifications = function() {
-	var panel = $( "#notificationPanel" );
+OSApp.Notifications.clearNotifications = function( persistDismissal ) {
+	var panel = $( "#notificationPanel" ),
+		remaining = persistDismissal ? OSApp.uiState.notifications.filter( function( item ) {
+			return typeof item.off === "function" && !item.off();
+		} ) : [];
 
-	OSApp.uiState.notifications = [];
+	OSApp.uiState.notifications = remaining;
 	OSApp.Notifications.updateNotificationBadge();
 
 	panel.find( "ul" ).empty();
@@ -103,7 +129,14 @@ OSApp.Notifications.clearNotifications = function() {
 
 OSApp.Notifications.removeNotification = function( button ) {
 	var panel = $( "#notificationPanel" ),
-		off = OSApp.uiState.notifications[ button.index() - 1 ].off;
+		item = button.data( "notification" ),
+		index = OSApp.uiState.notifications.indexOf( item );
+
+	if ( index === -1 ) {
+		return;
+	}
+
+	var off = item.off;
 
 	if ( typeof off === "function" ) {
 		if ( !off() ) {
@@ -111,10 +144,31 @@ OSApp.Notifications.removeNotification = function( button ) {
 		}
 	}
 
-	OSApp.uiState.notifications.remove( button.index() - 1 );
+	OSApp.uiState.notifications.splice( index, 1 );
 	button.remove();
 	OSApp.Notifications.updateNotificationBadge();
 	if ( OSApp.uiState.notifications.length === 0 && panel.hasClass( "ui-panel-open" ) ) {
 		panel.panel( "close" );
 	}
+};
+
+OSApp.Notifications.removeNotificationById = function( id ) {
+	var item = OSApp.uiState.notifications.find( function( notification ) {
+		return notification.id === id;
+	} );
+	if ( !item ) {
+		return;
+	}
+
+	var panel = $( "#notificationPanel" ),
+		listItem = panel.find( "li" ).filter( function() {
+			return $( this ).attr( "data-notification-id" ) === id;
+		} );
+	if ( listItem.length ) {
+		OSApp.Notifications.removeNotification( listItem );
+		return;
+	}
+
+	OSApp.uiState.notifications.splice( OSApp.uiState.notifications.indexOf( item ), 1 );
+	OSApp.Notifications.updateNotificationBadge();
 };

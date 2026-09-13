@@ -136,6 +136,57 @@ OSApp.Stations.isSpecial = function( sid ) {
 	return OSApp.StationAttributes.getSpecial( sid ) > 0;
 };
 
+OSApp.Stations.getSpecialType = function( sid ) {
+	if ( !OSApp.Stations.isSpecial( sid ) ) {
+		return OSApp.Constants.stations.SPECIAL_TYPE_STANDARD;
+	}
+
+	if ( OSApp.Bundles.isLeader( sid ) ) {
+		return OSApp.Constants.stations.SPECIAL_TYPE_BUNDLE;
+	}
+
+	var special = OSApp.currentSession.controller.special;
+	if ( typeof special !== "object" || special === null || !Object.prototype.hasOwnProperty.call( special, sid ) ) {
+		return undefined;
+	}
+
+	var type = parseInt( special[ sid ].st, 10 );
+	return isNaN( type ) ? undefined : type;
+};
+
+OSApp.Stations.getSpecialBadge = function( sid ) {
+	var type = OSApp.Stations.getSpecialType( sid );
+	if ( type === OSApp.Constants.stations.SPECIAL_TYPE_STANDARD ) {
+		return "";
+	}
+	if ( typeof type === "undefined" && !OSApp.currentSession.controller.specialUnavailable ) {
+		return "";
+	}
+
+	return OSApp.Constants.stations.SPECIAL_BADGES[ type ] || "SP";
+};
+
+OSApp.Stations.getSpecialTypeName = function( type ) {
+	switch ( type ) {
+		case OSApp.Constants.stations.SPECIAL_TYPE_RF:
+			return OSApp.Language._( "RF" );
+		case OSApp.Constants.stations.SPECIAL_TYPE_REMOTE_IP:
+			return OSApp.Language._( "Remote Station (IP)" );
+		case OSApp.Constants.stations.SPECIAL_TYPE_GPIO:
+			return OSApp.Language._( "GPIO" );
+		case OSApp.Constants.stations.SPECIAL_TYPE_HTTP:
+			return OSApp.Language._( "HTTP" );
+		case OSApp.Constants.stations.SPECIAL_TYPE_HTTPS:
+			return OSApp.Language._( "HTTPS" );
+		case OSApp.Constants.stations.SPECIAL_TYPE_REMOTE_OTC:
+			return OSApp.Language._( "Remote Station (OTC)" );
+		case OSApp.Constants.stations.SPECIAL_TYPE_BUNDLE:
+			return OSApp.Language._( "Bundle Station" );
+		default:
+			return OSApp.Language._( "Special Station" );
+	}
+};
+
 OSApp.Stations.isDisabled = function( sid )  {
 	return OSApp.StationAttributes.getDisabled( sid ) > 0;
 };

@@ -62,6 +62,26 @@ OSApp.Constants = {
 	regex: { // Define general regex patterns
 		GPS: /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/
 	},
+	stations: { // Special station types reported by /je and accepted by /cs
+		SPECIAL_TYPE_STANDARD: 0,
+		SPECIAL_TYPE_RF: 1,
+		SPECIAL_TYPE_REMOTE_IP: 2,
+		SPECIAL_TYPE_GPIO: 3,
+		SPECIAL_TYPE_HTTP: 4,
+		SPECIAL_TYPE_HTTPS: 5,
+		SPECIAL_TYPE_REMOTE_OTC: 6,
+		SPECIAL_TYPE_BUNDLE: 7,
+		BUNDLE_MEMBER_BADGE: "bm",
+		SPECIAL_BADGES: {
+			1: "RF",
+			2: "RS",
+			3: "IO",
+			4: "HT",
+			5: "HT",
+			6: "RS",
+			7: "BS"
+		}
+	},
 	weather: {
 		DEFAULT_WEATHER_SERVER_URL: "https://weather.opensprinkler.com",
 		SERVER_DEFAULT_PROVIDER: "__server_default__",
