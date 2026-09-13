@@ -452,13 +452,25 @@ OSApp.Dashboard.displayPage = function() {
 					}
 
 					if ( hs === OSApp.Constants.stations.SPECIAL_TYPE_BUNDLE && bundleValidated !== true ) {
-						var selectedMembers = getSelectedBundleMembers();
+						var selectedMembers = getSelectedBundleMembers(),
+							context = { session: OSApp.currentSession, controller: OSApp.currentSession.controller },
+							isCurrent = function() {
+								return OSApp.currentSession === context.session && OSApp.currentSession.controller === context.controller;
+							},
+							finishValidation = function() {
+								select.find( ".attrib-submit" ).removeClass( "ui-disabled" );
+								if ( isCurrent() ) {
+									$.mobile.loading( "hide" );
+								}
+							};
 						$.mobile.loading( "show" );
 						select.find( ".attrib-submit" ).addClass( "ui-disabled" );
-						OSApp.Sites.ensureControllerStationSpecial( function() {}, true ).always( function() {
-							$.mobile.loading( "hide" );
-							if ( OSApp.currentSession.controller.specialUnavailable ) {
-								select.find( ".attrib-submit" ).removeClass( "ui-disabled" );
+						OSApp.Sites.ensureControllerStationSpecial( undefined, true, context ).then( function() {
+							finishValidation();
+							if ( !isCurrent() ) {
+								return;
+							}
+							if ( context.controller.specialUnavailable ) {
 								OSApp.Errors.showError( OSApp.Language._( "Unable to load Bundle Station configuration." ), 4000 );
 								return;
 							}
@@ -468,13 +480,17 @@ OSApp.Dashboard.displayPage = function() {
 								return !OSApp.Bundles.memberEligibility( memberSid, sid ).selectable;
 							} );
 							if ( invalid ) {
-								select.find( ".attrib-submit" ).removeClass( "ui-disabled" );
 								OSApp.Errors.showError( OSApp.Language._( "Bundle Station members changed. Review the selection and try again." ), 4000 );
 								showSpecialOptions( hs );
 								return;
 							}
 
 							saveChanges( checkPassed, true );
+						}, function( error ) {
+							finishValidation();
+							if ( isCurrent() && !OSApp.Sites.isStaleControllerRefresh( error ) ) {
+								OSApp.Errors.showError( OSApp.Language._( "Unable to load Bundle Station configuration." ), 4000 );
+							}
 						} );
 						return;
 					}

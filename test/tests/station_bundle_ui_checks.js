@@ -309,6 +309,42 @@ describe("Dashboard Bundle Station Checks", function () {
 		assert.equal(params.get("sd"), OSApp.Bundles.encodeMembers([ 1 ]));
 	});
 
+	it("does not save a bundle to a different site after its metadata request finishes", function () {
+		var originalSession = OSApp.currentSession,
+			pending = $.Deferred(),
+			specialRequests = 0,
+			sendToOS = sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (url) {
+				if (url.indexOf("/je") === 0) {
+					specialRequests++;
+					return specialRequests === 1 ? $.Deferred().resolve(controller.special).promise() : pending.promise();
+				}
+				return $.Deferred().resolve({ result: 1 }).promise();
+			});
+		sandbox.stub(OSApp.Sites, "updateController");
+
+		try {
+			OSApp.Dashboard.displayPage();
+			$("#attrib-0").trigger("click");
+			var popup = $("#stn_attrib");
+			popup.find("#hs").val(String(OSApp.Constants.stations.SPECIAL_TYPE_BUNDLE)).trigger("change");
+			popup.find(".bundle-member[value='1']").prop("checked", true).trigger("change");
+			popup.find("form").trigger("submit");
+
+			assert.equal(specialRequests, 2);
+			originalSession.controller = {};
+			$.mobile.loading.resetHistory();
+			pending.resolve({ "0": { st: 7, sd: "02" } });
+
+			assert.isFalse(sendToOS.getCalls().some(function (call) {
+				return call.args[0].indexOf("/cs?") === 0;
+			}));
+			assert.isFalse(OSApp.Errors.showError.called);
+			assert.isFalse($.mobile.loading.calledWith("hide"));
+		} finally {
+			originalSession.controller = controller;
+		}
+	});
+
 	it("clears bundle data when converting a leader to Standard", function () {
 		setBundle(0, [ 1 ]);
 		var sendToOS = sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (url) {

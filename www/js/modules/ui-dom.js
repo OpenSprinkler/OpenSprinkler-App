@@ -643,7 +643,24 @@ OSApp.UIDom.bindPanel = function() {
 		if ( typeof OSApp.currentSession.controller.stations.stn_spe === "object" && !OSApp.currentSession.controller.stations.stn_spe.every( function( e ) { return e === 0; } ) ) {
 
 			// Export the authoritative special-station configuration rather than a dashboard cache.
-			OSApp.Sites.ensureControllerStationSpecial( OSApp.ImportExport.getExportMethod, true );
+			var context = { session: OSApp.currentSession, controller: OSApp.currentSession.controller },
+				isCurrent = function() {
+					return OSApp.currentSession === context.session && OSApp.currentSession.controller === context.controller;
+				};
+			OSApp.Sites.ensureControllerStationSpecial( undefined, true, context ).then( function() {
+				if ( !isCurrent() ) {
+					return;
+				}
+				if ( context.controller.specialUnavailable ) {
+					OSApp.Errors.showError( OSApp.Language._( "Unable to load station configuration." ), 4000 );
+					return;
+				}
+				OSApp.ImportExport.getExportMethod();
+			}, function( error ) {
+				if ( isCurrent() && !OSApp.Sites.isStaleControllerRefresh( error ) ) {
+					OSApp.Errors.showError( OSApp.Language._( "Unable to load station configuration." ), 4000 );
+				}
+			} );
 		} else {
 			OSApp.ImportExport.getExportMethod();
 		}

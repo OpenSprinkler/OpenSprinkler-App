@@ -65,6 +65,41 @@ describe("UI DOM Checks", function () {
 		}
 	} );
 
+	it( "Reports failed special-station export preparation and permits retry", function() {
+		var controller = OSApp.currentSession.controller,
+			stnSpe = controller.stations.stn_spe,
+			special = controller.special,
+			specialUnavailable = controller.specialUnavailable,
+			sendToOS = sinon.stub( OSApp.Firmware, "sendToOS" ),
+			exportMethod = sinon.stub( OSApp.ImportExport, "getExportMethod" ),
+			showError = sinon.stub( OSApp.Errors, "showError" ),
+			button = $( "#sprinklers-settings .export_config" );
+
+		try {
+			controller.stations.stn_spe = [ 1 ];
+			sendToOS.onFirstCall().returns( $.Deferred().reject( { status: 404 } ).promise() );
+			sendToOS.onSecondCall().returns( $.Deferred().resolve( { "0": { st: 1, sd: "code" } } ).promise() );
+
+			button.trigger( "click" );
+			assert.isTrue( sendToOS.calledOnceWith( "/je?pw=" ) );
+			assert.isFalse( exportMethod.called );
+			assert.isTrue( showError.calledOnce );
+			assert.include( showError.firstCall.args[ 0 ], "Unable to load station configuration." );
+
+			button.trigger( "click" );
+			assert.isTrue( sendToOS.calledTwice );
+			assert.isTrue( exportMethod.calledOnce );
+			assert.equal( controller.special[ 0 ].st, 1 );
+		} finally {
+			controller.stations.stn_spe = stnSpe;
+			controller.special = special;
+			controller.specialUnavailable = specialUnavailable;
+			sendToOS.restore();
+			exportMethod.restore();
+			showError.restore();
+		}
+	} );
+
 	it( "Only handles sensor keyboard shortcuts when the controller supports sensors", function() {
 		var controller = OSApp.currentSession.controller,
 			hadSensors = Object.prototype.hasOwnProperty.call( controller, "sensors" ),
