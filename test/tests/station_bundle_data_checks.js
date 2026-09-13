@@ -10,6 +10,7 @@ describe("Bundle Station Data Checks", function () {
 			bundleApplied: controller.bundleApplied,
 			en: controller.settings.en,
 			mas: controller.options.mas,
+			mexp: controller.options.mexp,
 			ps: controller.settings.ps,
 			pq: controller.settings.pq,
 			re: controller.options.re,
@@ -41,6 +42,7 @@ describe("Bundle Station Data Checks", function () {
 		controller.bundleApplied = saved.bundleApplied;
 		controller.settings.en = saved.en;
 		controller.options.mas = saved.mas;
+		controller.options.mexp = saved.mexp;
 		controller.settings.ps = saved.ps;
 		controller.settings.pq = saved.pq;
 		controller.options.re = saved.re;
@@ -216,6 +218,60 @@ describe("Bundle Station Data Checks", function () {
 			var result = OSApp.ImportExport.prepareBundleStationImport(backup(), controller);
 			assert.equal(result.error, "");
 			assert.equal(result.special[0].sd, "0600");
+		});
+
+		it("preserves members on boards enabled by the backup", function () {
+			var source = backup();
+			source.options.ext = 1;
+			source.stations.stn_bnd = [ 1, 0 ];
+			source.special[0].sd = "0601";
+			controller.stations.stn_bnd = [ 0 ];
+			controller.options.mexp = 2;
+
+			var result = OSApp.ImportExport.prepareBundleStationImport(source, controller);
+			assert.equal(result.error, "");
+			assert.equal(result.special[0].sd, "0601");
+		});
+
+		it("uses the restored board count when the backup enables fewer boards", function () {
+			var source = backup();
+			source.options.ext = 0;
+
+			var result = OSApp.ImportExport.prepareBundleStationImport(source, controller);
+			assert.equal(result.error, "");
+			assert.equal(result.special[0].sd, "06");
+		});
+
+		it("keeps the current board count when the backup does not restore ext", function () {
+			var source = backup();
+			source.settings = { nbrd: 1 };
+
+			var result = OSApp.ImportExport.prepareBundleStationImport(source, controller);
+			assert.equal(result.error, "");
+			assert.equal(result.special[0].sd, "0600");
+		});
+
+		it("rejects bundle restores beyond the target board capacity", function () {
+			var source = backup();
+			source.options.ext = 1;
+			source.special[0].sd = "0601";
+			controller.stations.stn_bnd = [ 0 ];
+			controller.options.mexp = 0;
+
+			var result = OSApp.ImportExport.prepareBundleStationImport(source, controller);
+			assert.isNotEmpty(result.error);
+		});
+
+		it("does not apply bundle capacity checks to a backup without bundles", function () {
+			var source = backup();
+			source.options.ext = 1;
+			source.special = {};
+			source.stations.stn_bnd = [ 0, 0 ];
+			controller.stations.stn_bnd = [ 0 ];
+			controller.options.mexp = 0;
+
+			var result = OSApp.ImportExport.prepareBundleStationImport(source, controller);
+			assert.equal(result.error, "");
 		});
 
 		it("removes bundle commands and bits on unsupported firmware", function () {

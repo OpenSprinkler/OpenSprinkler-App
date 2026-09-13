@@ -42,12 +42,25 @@ describe("Notification Checks", function () {
 		}, 0);
 	});
 
-	it("runs dismissal handlers when clearing all notifications", function () {
+	it("does not dismiss notifications when clearing for a controller reload", function () {
+		var notifications = OSApp.uiState.notifications,
+			off = sinon.stub().returns(true);
+
+		OSApp.uiState.notifications = [ { off: off } ];
+		OSApp.Notifications.clearNotifications();
+
+		assert.isFalse(off.called);
+		assert.lengthOf(OSApp.uiState.notifications, 0);
+		OSApp.uiState.notifications = notifications;
+		OSApp.Notifications.updateNotificationBadge();
+	});
+
+	it("runs dismissal handlers when the user clears all notifications", function () {
 		var notifications = OSApp.uiState.notifications,
 			off = sinon.stub().returns(true);
 
 		OSApp.uiState.notifications = [ { off: off }, {} ];
-		OSApp.Notifications.clearNotifications();
+		OSApp.Notifications.clearNotifications(true);
 
 		assert.isTrue(off.calledOnce);
 		assert.lengthOf(OSApp.uiState.notifications, 0);

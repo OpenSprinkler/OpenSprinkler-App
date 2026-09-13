@@ -88,7 +88,7 @@ OSApp.Notifications.showNotifications = function() {
 			var button = $( this );
 
 			if ( button.hasClass( "clear" ) ) {
-				OSApp.Notifications.clearNotifications();
+				OSApp.Notifications.clearNotifications( true );
 			} else {
 				button.removeClass( "delete ui-btn-icon-notext ui-icon-delete" ).addClass( "clear" ).text( OSApp.Language._( "Clear" ) );
 				setTimeout( function() {
@@ -112,11 +112,11 @@ OSApp.Notifications.showNotifications = function() {
 	panel.panel( "open" );
 };
 
-OSApp.Notifications.clearNotifications = function() {
+OSApp.Notifications.clearNotifications = function( persistDismissal ) {
 	var panel = $( "#notificationPanel" ),
-		remaining = OSApp.uiState.notifications.filter( function( item ) {
+		remaining = persistDismissal ? OSApp.uiState.notifications.filter( function( item ) {
 			return typeof item.off === "function" && !item.off();
-		} );
+		} ) : [];
 
 	OSApp.uiState.notifications = remaining;
 	OSApp.Notifications.updateNotificationBadge();

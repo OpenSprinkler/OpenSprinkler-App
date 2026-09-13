@@ -31,12 +31,21 @@ OSApp.ImportExport.prepareBundleStationImport = function( data, targetController
 		stnSpe = Array.isArray( data.stations?.stn_spe ) ? data.stations.stn_spe.slice() : [],
 		targetStations = targetController?.stations || {},
 		supported = Array.isArray( targetStations.stn_bnd ),
-		boardCount = supported ? targetStations.stn_bnd.length : 0,
+		currentBoardCount = supported ? targetStations.stn_bnd.length : 0,
+		restoredBoardCount = Number.isInteger( data.options?.ext ) && data.options.ext >= 0 ? data.options.ext + 1 :
+			currentBoardCount,
+		maxBoardCount = Number.isInteger( targetController?.options?.mexp ) && targetController.options.mexp >= 0 ?
+			targetController.options.mexp + 1 : currentBoardCount,
+		boardCount = supported ? Math.min( restoredBoardCount, maxBoardCount ) : 0,
+		hasBundle = Object.keys( special ).some( function( key ) {
+			return special[ key ] && Number( special[ key ].st ) === OSApp.Constants.stations.SPECIAL_TYPE_BUNDLE;
+		} ),
 		mask = Number( targetStations.bmt ),
 		masters = [ "mas", "mas2", "mas3", "mas4" ].map( function( key ) {
 			return Number( data.options?.[ key ] ) - 1;
 		} ).filter( function( sid ) { return sid >= 0; } ),
-		error = "";
+		error = supported && hasBundle && restoredBoardCount > maxBoardCount ?
+			OSApp.Language._( "This backup contains Bundle Station assignments that are not supported by this controller." ) : "";
 
 	if ( !Number.isInteger( mask ) || mask < 0 ) {
 		mask = OSApp.Bundles.Constants.DEFAULT_MEMBER_TYPE_MASK;
