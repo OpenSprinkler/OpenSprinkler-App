@@ -1,0 +1,37 @@
+diff --git a/node_modules/cordova-plugin-x-socialsharing/src/android/nl/xservices/plugins/FileProvider.java b/node_modules/cordova-plugin-x-socialsharing/src/android/nl/xservices/plugins/FileProvider.java
+index 2dedd9c..2d803a0 100644
+--- a/node_modules/cordova-plugin-x-socialsharing/src/android/nl/xservices/plugins/FileProvider.java
++++ b/node_modules/cordova-plugin-x-socialsharing/src/android/nl/xservices/plugins/FileProvider.java
+@@ -1,4 +1,20 @@
+ package nl.xservices.plugins;
+ 
++import android.net.Uri;
++
+ public class FileProvider extends androidx.core.content.FileProvider {
++  // Receiving apps (Google Drive, Gmail, Files, ...) read a shared file's MIME
++  // type from the content provider via ContentResolver.getType(), NOT from the
++  // sharing Intent's setType(). The androidx default derives the type from
++  // MimeTypeMap, which has no reliable "csv" entry and therefore falls back to
++  // "application/octet-stream" -- so CSV exports land as generic binary files.
++  // Report text/csv explicitly so they open as spreadsheets.
++  @Override
++  public String getType(Uri uri) {
++    final String path = uri.getPath();
++    if (path != null && path.toLowerCase().endsWith(".csv")) {
++      return "text/csv";
++    }
++    return super.getType(uri);
++  }
+ }
+diff --git a/node_modules/cordova-plugin-x-socialsharing/src/android/nl/xservices/plugins/SocialSharing.java b/node_modules/cordova-plugin-x-socialsharing/src/android/nl/xservices/plugins/SocialSharing.java
+index a722bc6..6f2c413 100644
+--- a/node_modules/cordova-plugin-x-socialsharing/src/android/nl/xservices/plugins/SocialSharing.java
++++ b/node_modules/cordova-plugin-x-socialsharing/src/android/nl/xservices/plugins/SocialSharing.java
+@@ -517,6 +517,7 @@ public class SocialSharing extends CordovaPlugin {
+     MIME_Map.put("class", "application/octet-stream");
+     MIME_Map.put("conf",  "text/plain");
+     MIME_Map.put("cpp",   "text/plain");
++    MIME_Map.put("csv",   "text/csv");
+     MIME_Map.put("doc",   "application/msword");
+     MIME_Map.put("docx",  "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+     MIME_Map.put("xls",   "application/vnd.ms-excel");

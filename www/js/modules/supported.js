@@ -65,6 +65,10 @@ OSApp.Supported.special = function() {
 	return ( typeof OSApp.currentSession.controller.stations.stn_spe === "object" ) ? true : false;
 };
 
+OSApp.Supported.bundle = function() {
+	return Array.isArray( OSApp.currentSession.controller?.stations?.stn_bnd );
+};
+
 OSApp.Supported.pausing = function() {
 	return OSApp.currentSession.controller.settings.pq !== undefined;
 };
@@ -77,8 +81,16 @@ OSApp.Supported.dateRange = function() {
 	return OSApp.Firmware.checkOSVersion( 220 );
 };
 
+OSApp.Supported.officialSensorAPIAllowed = function( controller ) {
+	return !OSApp.Analog.checkAnalogSensorAvail( controller );
+};
+
+OSApp.Supported.legacySensorEndpoints = function( controller ) {
+	return OSApp.Supported.officialSensorAPIAllowed( controller ) && OSApp.Firmware.checkOSVersion( 2215 );
+};
+
 OSApp.Supported.sensors = function() {
-	return Array.isArray( OSApp.currentSession.controller?.sensors?.sn );
+	return OSApp.Supported.officialSensorAPIAllowed() && Array.isArray( OSApp.currentSession.controller?.sensors?.sn );
 };
 
 OSApp.Supported.changePause = function() {

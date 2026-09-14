@@ -98,6 +98,26 @@ OSApp.StationAttributes.getSequential = function( sid ) {
 	return ( boardSequentialAttribute & boardStationID ) ? 1 : 0;
 };
 
+OSApp.StationAttributes.getBundle = function( sid ) {
+	if ( !OSApp.Supported.bundle() ) { return 0; }
+	var bid = ( sid / 8 ) >> 0,
+		boardBundleAttribute = OSApp.currentSession.controller.stations.stn_bnd[ bid ] || 0,
+		boardStationID = 1 << ( sid % 8 );
+
+	return ( boardBundleAttribute & boardStationID ) ? 1 : 0;
+};
+
+OSApp.StationAttributes.getBundleApplied = function( sid ) {
+	var bundleApplied = OSApp.currentSession.controller?.bundleApplied;
+	if ( !Array.isArray( bundleApplied ) ) { return 0; }
+
+	var bid = ( sid / 8 ) >> 0,
+		boardBundleAppliedAttribute = bundleApplied[ bid ] || 0,
+		boardStationID = 1 << ( sid % 8 );
+
+	return ( boardBundleAppliedAttribute & boardStationID ) ? 1 : 0;
+};
+
 OSApp.StationAttributes.getSpecial = function( sid ) {
 	if ( !OSApp.Supported.special() ) { return 0; }
 	var bid = ( sid / 8 ) >> 0,

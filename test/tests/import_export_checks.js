@@ -202,6 +202,68 @@ describe("Import/Export Checks", function () {
 		return sensor.uuid;
 	}
 
+	it("should exclude the read-only sensor description from exported configuration", function () {
+		var previousController = OSApp.currentSession.controller,
+			controller = {
+				options: { fwv: 300 },
+				sensors: { sn: [
+					onboardSensor(42, "Soil", 0),
+					weatherSensor(43, "Weather ETo", 0)
+				] },
+				sensor_desc: sensorDescription()
+			};
+
+		try {
+			OSApp.currentSession.controller = controller;
+			var backup = JSON.parse(OSApp.ImportExport.serializeConfig());
+
+			assert.deepEqual(backup.options, controller.options);
+			assert.deepEqual(backup.sensors, controller.sensors);
+			assert.notProperty(backup, "sensor_desc");
+			assert.property(controller, "sensor_desc");
+		} finally {
+			OSApp.currentSession.controller = previousController;
+		}
+	});
+
+	it("should import an enabled Weather Sensor definition", function () {
+		var sandbox = sinon.createSandbox(),
+			state = [],
+			controller = installImportHarness(sandbox, state),
+			commands = [],
+			description = sensorDescription();
+		description.sensors[2].disabled = false;
+
+		try {
+			sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (command) {
+				commands.push(command);
+				if (command.indexOf("/jsd?") === 0) return resolved(description);
+				if (command.indexOf("/jsn?") === 0) return resolved({ sn: JSON.parse(JSON.stringify(state)), count: state.length });
+				if (command.indexOf("/csn?") === 0) {
+					applySensorCommand(state, command, 100);
+					return resolved({ result: 1 });
+				}
+				return resolved({ result: 1 });
+			});
+			var backup = baseBackup();
+			backup.sensors = { sn: [ weatherSensor(42, "Imported weather", 0) ], count: 1 };
+
+			return cleanupAfter(asNative(OSApp.ImportExport.importConfig(backup)).then(function () {
+				var create = commands.find(function (command) {
+					return command.indexOf("/csn?") === 0 && paramsFor(command).get("uuid") === "-1";
+				});
+				assert.equal(paramsFor(create).get("type"), "2");
+				assert.equal(paramsFor(create).get("action"), "0");
+				assert.equal(state[0].uuid, 100);
+				assert.equal(state[0].name, "Imported weather");
+			}), sandbox, controller);
+		} catch (error) {
+			OSApp.currentSession.controller = controller;
+			sandbox.restore();
+			throw error;
+		}
+	});
+
 	it("should transform master and sensor 3/4 option indices to firmware JSON names", function () {
 		var checkOSVersion = sinon.stub(OSApp.Firmware, "checkOSVersion").returns(true);
 		try {
@@ -251,7 +313,8 @@ describe("Import/Export Checks", function () {
 			backup.programs.pd = [
 				program("Morning & East=West", { flag: 1, uuid: 42, splits: [ { x: 0, y: 50 } ] }),
 				program("Disabled adjustment", { flag: 0, uuid: 42, splits: [ { x: 10, y: 0.75 } ] }),
-				program("Empty adjustment", {})
+				program("Empty adjustment", {}),
+				program("Disabled without points", { flag: 4, uuid: 42, splits: [] })
 			];
 
 			return cleanupAfter(asNative(OSApp.ImportExport.importConfig(backup)).then(function () {
@@ -273,6 +336,8 @@ describe("Import/Export Checks", function () {
 				assert.include(programCommands[1], "&snadj=0,42,10,0.75");
 				assert.include(programCommands[2], "&name=Empty%20adjustment");
 				assert.include(programCommands[2], "&snadj=0,0");
+				assert.include(programCommands[3], "&name=Disabled%20without%20points");
+				assert.include(programCommands[3], "&snadj=4,42");
 				assert.notInclude(commands.join("\n"), "/csn?");
 				assert.notInclude(commands.join("\n"), "/dsn?");
 				assert.notInclude(commands.join("\n"), "/jsn?");
@@ -774,8 +839,13 @@ describe("Import/Export Checks", function () {
 			malformedNonEmptyAdjustment.programs.pd = [ program("Incomplete adjustment", { uuid: 1 }) ];
 			OSApp.ImportExport.importConfig(malformedNonEmptyAdjustment);
 			assert.isTrue(OSApp.UIDom.areYouSure.notCalled);
+
+			var enabledWithoutPoints = baseBackup();
+			enabledWithoutPoints.programs.pd = [ program("Enabled without points", { flag: 1, uuid: 1, splits: [] }) ];
+			OSApp.ImportExport.importConfig(enabledWithoutPoints);
+			assert.isTrue(OSApp.UIDom.areYouSure.notCalled);
 			assert.isTrue(OSApp.Firmware.sendToOS.notCalled);
-			assert.equal(OSApp.Errors.showError.callCount, 4);
+			assert.equal(OSApp.Errors.showError.callCount, 5);
 		} finally {
 			sandbox.restore();
 			OSApp.currentSession.controller = controller;
@@ -798,6 +868,76 @@ describe("Import/Export Checks", function () {
 		} finally {
 			sandbox.restore();
 			OSApp.currentSession.controller = controller;
+		}
+	});
+
+	it("should restore station groups split alongside zone names", function () {
+		var sandbox = sinon.createSandbox(),
+			controller = installImportHarness(sandbox),
+			commands = [];
+
+		try {
+			sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (command) {
+				commands.push(command);
+				return resolved({ result: 1 });
+			});
+			var backup = baseBackup(),
+				snames = [],
+				groups = [],
+				i;
+			for (i = 0; i < 20; i++) {
+				snames.push("S" + i);
+				groups.push([ 0, 1, 2, 3, 255 ][i % 5]);
+			}
+			backup.settings.nbrd = 3;
+			backup.stations = { snames: snames, masop: [ 0, 0, 0 ], stn_grp: groups };
+
+			return cleanupAfter(asNative(OSApp.ImportExport.importConfig(backup)).then(function () {
+				var stationCommands = commands.filter(function (command) {
+					return command.indexOf("/cs?") === 0 && command.indexOf("&s") !== -1;
+				});
+
+				assert.lengthOf(stationCommands, 2);
+				for (i = 0; i < 20; i++) {
+					var params = paramsFor(stationCommands[Math.floor(i / 16)]);
+					assert.equal(params.get("s" + i), snames[i]);
+					assert.equal(params.get("g" + i), String(groups[i]));
+				}
+
+				// Each group rides in the same request as its zone name, never the per-board command
+				assert.equal(paramsFor(stationCommands[0]).get("g0"), "0");
+				assert.isNull(paramsFor(stationCommands[0]).get("g16"));
+				assert.isNull(paramsFor(stationCommands[1]).get("g0"));
+				assert.notMatch(
+					commands.find(function (command) { return command.indexOf("&m0=") !== -1; }),
+					/[?&]g\d+=/
+				);
+			}), sandbox, controller);
+		} catch (error) {
+			OSApp.currentSession.controller = controller;
+			sandbox.restore();
+			throw error;
+		}
+	});
+
+	it("should omit station group parameters when the backup has none", function () {
+		var sandbox = sinon.createSandbox(),
+			controller = installImportHarness(sandbox),
+			commands = [];
+
+		try {
+			sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (command) {
+				commands.push(command);
+				return resolved({ result: 1 });
+			});
+
+			return cleanupAfter(asNative(OSApp.ImportExport.importConfig(baseBackup())).then(function () {
+				assert.notMatch(commands.join("\n"), /[?&]g\d+=/);
+			}), sandbox, controller);
+		} catch (error) {
+			OSApp.currentSession.controller = controller;
+			sandbox.restore();
+			throw error;
 		}
 	});
 });

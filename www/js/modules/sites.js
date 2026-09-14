@@ -931,7 +931,9 @@ OSApp.Sites.newLoad = function() {
 			if ( OSApp.Analog.checkAnalogSensorAvail() ) {
 				OSApp.Analog.updateAnalogSensor();
 				OSApp.Analog.updateProgramAdjustments();
+				OSApp.Sites.addASBCompatibilityNotification();
 			}
+			OSApp.Sites.updatePasswordSecurityNotification();
 
 			// Hide change password feature for unsupported devices
 			if ( OSApp.Firmware.isOSPi() || OSApp.Firmware.checkOSVersion( 208 ) ) {
@@ -976,6 +978,16 @@ OSApp.Sites.newLoad = function() {
 			if ( OSApp.currentSession.controller.options.firstRun ) {
 				OSApp.Sites.showGuidedSetup();
 			} else {
+				if ( OSApp.Analog.checkAnalogSensorAvail() ) {
+					$.mobile.document.off( "pageshow.asbCompatibility", "#sprinklers" );
+					if ( $( ".ui-page-active" ).attr( "id" ) === "sprinklers" ) {
+						OSApp.Sites.showASBCompatibilityNotice( name );
+					} else {
+						$.mobile.document.one( "pageshow.asbCompatibility", "#sprinklers", function() {
+							OSApp.Sites.showASBCompatibilityNotice( name );
+						} );
+					}
+				}
 				OSApp.UIDom.goHome( true );
 			}
 		},
@@ -1019,6 +1031,93 @@ OSApp.Sites.newLoad = function() {
 			}
 		}
 	);
+};
+
+OSApp.Sites.addASBCompatibilityNotification = function() {
+	if ( !OSApp.Analog.checkAnalogSensorAvail() ) {
+		return;
+	}
+
+	OSApp.Notifications.addNotification( {
+		id: "asb-firmware-compatibility",
+		title: OSApp.Language._( "ASB firmware detected" ),
+		desc: OSApp.Language._( "This UI has limited support for it. Switch to OpenSprinklerASB app/UI." ),
+		on: function() {
+			OSApp.UIDom.changePage( "#about" );
+			return false;
+		}
+	} );
+};
+
+OSApp.Sites.updatePasswordSecurityNotification = function() {
+	var notificationId = "device-password-security",
+		controller = OSApp.currentSession.controller,
+		options = controller && controller.options;
+
+	if ( !options || Number( options.hwv ) === 255 ) {
+		OSApp.Notifications.removeNotificationById( notificationId );
+		return;
+	}
+
+	var password = typeof OSApp.currentSession.pass === "string" ? OSApp.currentSession.pass.toLowerCase() : "",
+		ignorePassword = Number( options.ipas ) === 1,
+		defaultPassword = password === "opendoor" || password === "a6d82bced638de3def1e9bbb4983225c",
+		emptyPassword = password === "" || password === "d41d8cd98f00b204e9800998ecf8427e";
+
+	if ( !ignorePassword && !defaultPassword && !emptyPassword ) {
+		OSApp.Notifications.removeNotificationById( notificationId );
+		return;
+	}
+
+	OSApp.Notifications.addNotification( {
+		id: notificationId,
+		title: OSApp.Language._( "Device password is not secure" ),
+		desc: ignorePassword ?
+			OSApp.Language._( "Password protection is disabled. Set a secure device password and turn off Ignore Password in Edit Options." ) :
+			OSApp.Language._( "This controller is using a default or empty device password. Change it to protect access." ),
+		actionLabel: OSApp.Language._( "Change Password" ),
+		on: function() {
+			OSApp.Network.changePassword();
+			return false;
+		}
+	} );
+};
+
+OSApp.Sites.showASBCompatibilityNotice = function( siteName ) {
+	if ( !OSApp.Analog.checkAnalogSensorAvail() ) {
+		return;
+	}
+
+	var identity = siteName || OSApp.currentSession.token || OSApp.currentSession.ip || "local",
+		storageKey = "asbCompatibilityDismissed:" + encodeURIComponent( identity );
+
+	OSApp.Storage.get( storageKey, function( data ) {
+		if ( data[ storageKey ] === "1" || !OSApp.Analog.checkAnalogSensorAvail() ) {
+			return;
+		}
+
+		var popup = $( "<div data-role='popup' data-theme='a' data-dismissible='false' class='asb-compatibility-popup'></div>" ),
+			title = $( "<h3 class='center'></h3>" ).text(
+				OSApp.Language._( "OpenSprinklerASB Firmware Detected" )
+			),
+			message = $( "<p></p>" ).text(
+				OSApp.Language._( "Your device runs the OpenSprinklerASB firmware. This UI has limited support for it. Please switch to the OpenSprinklerASB mobile app/UI for full support." )
+			),
+			continueButton = $( "<a class='ui-btn ui-btn-b ui-corner-all ui-shadow' href='#'></a>" ).text(
+				OSApp.Language._( "Continue" )
+			);
+
+		continueButton.one( "click", function() {
+			var dismissed = {};
+			dismissed[ storageKey ] = "1";
+			OSApp.Storage.set( dismissed );
+			popup.popup( "close" );
+			return false;
+		} );
+
+		popup.append( title, message, continueButton );
+		OSApp.UIDom.openPopup( popup );
+	} );
 };
 
 // Update controller information
@@ -1071,6 +1170,20 @@ OSApp.Sites.updateController = function( callback, fail ) {
 			fail( error );
 		}
 	};
+	var allowMissingSensorEndpoint = function( request, clearUnavailableData ) {
+		var optionalRequest = $.Deferred();
+		request.then( function( data ) {
+			optionalRequest.resolve( data );
+		}, function( error ) {
+			if ( !error || error.status !== 404 ) {
+				optionalRequest.reject( error );
+				return;
+			}
+			clearUnavailableData();
+			optionalRequest.resolve( null );
+		} );
+		return optionalRequest.promise();
+	};
 
 	if ( session.isControllerConnected() && OSApp.Firmware.checkOSVersion( 216 ) ) {
 		OSApp.Firmware.sendToOS( "/ja?pw=", "json" ).then( function( data ) {
@@ -1087,14 +1200,28 @@ OSApp.Sites.updateController = function( callback, fail ) {
 			// from separate endpoints (special, sensor_desc, jpaData) are preserved automatically.
 			$.extend( controller, data );
 
-			// Fix the station status array
+			// Stefan's ASB firmware (feature "ASB") implements its own analog sensor
+			// endpoints (/sl, /se, /sa) instead of the upstream sensor system
+			// (/jsn, /jsd, /jsl). Drop any sensor payload so the app falls back to
+			// the legacy analog UI and never queries the unsupported endpoints.
+			if ( !OSApp.Supported.officialSensorAPIAllowed( controller ) ) {
+				delete controller.sensors;
+				delete controller.sensor_desc;
+			}
+
+			// Preserve bundle-applied output claims before flattening /js to its station array.
+			controller.bundleApplied = Array.isArray( controller.status?.bap ) ? controller.status.bap :
+				( Array.isArray( controller.settings?.bap ) ? controller.settings.bap : [] );
 			controller.status = controller.status.sn;
 
 			// /ja includes live sensor data, but the firmware intentionally keeps
 			// the larger sensor-description schema on /jsd. Prime that schema on
 			// first load so unit labels and sensor controls are immediately ready.
-			if ( Array.isArray( controller.sensors?.sn ) && !controller.sensor_desc ) {
-				OSApp.Sites.updateControllerSensorDescription( undefined, context ).then( finish, failCurrent );
+			if ( Array.isArray( controller.sensors?.sn ) && typeof controller.sensor_desc === "undefined" ) {
+				allowMissingSensorEndpoint(
+					OSApp.Sites.updateControllerSensorDescription( undefined, context ),
+					function() { controller.sensor_desc = null; }
+				).then( finish, failCurrent );
 			} else {
 				finish();
 			}
@@ -1110,10 +1237,16 @@ OSApp.Sites.updateController = function( callback, fail ) {
 			if ( !isCurrentContext() ) {
 				return;
 			}
-			if ( OSApp.Firmware.checkOSVersion( 2215 ) ) {
+			if ( OSApp.Supported.legacySensorEndpoints( controller ) ) {
 				$.when(
-					OSApp.Sites.updateControllerSensors( undefined, context ),
-					OSApp.Sites.updateControllerSensorDescription( undefined, context ),
+					allowMissingSensorEndpoint(
+						OSApp.Sites.updateControllerSensors( undefined, context ),
+						function() { delete controller.sensors; }
+					),
+					allowMissingSensorEndpoint(
+						OSApp.Sites.updateControllerSensorDescription( undefined, context ),
+						function() { controller.sensor_desc = null; }
+					),
 				).then( finish, failCurrent );
 			} else {
 				finish();
@@ -1306,6 +1439,7 @@ OSApp.Sites.updateControllerStatus = function( callback, expectedContext ) {
 				if ( !isSiteControllerContextCurrent( context ) ) {
 					return rejectStaleSiteControllerRefresh();
 				}
+				controller.bundleApplied = Array.isArray( status.bap ) ? status.bap : [];
 				controller.status = status.sn;
 				callback();
 				return controller.status;
@@ -1314,6 +1448,7 @@ OSApp.Sites.updateControllerStatus = function( callback, expectedContext ) {
 				if ( !isSiteControllerContextCurrent( context ) ) {
 					return rejectStaleSiteControllerRefresh();
 				}
+				controller.bundleApplied = [];
 				controller.status = [];
 				return controller.status;
 			} );
@@ -1442,6 +1577,17 @@ OSApp.Sites.updateControllerSensors = function( callback, expectedContext ) {
 		controller.sensors = { sn: [] };
 		callback();
 		return $.Deferred().resolve( controller.sensors ).promise();
+	} else if ( !OSApp.Supported.officialSensorAPIAllowed( controller ) ) {
+
+		// ASB firmware uses its own analog endpoints (/sl, /se, /sa); the upstream
+		// sensor endpoints (/jsn, /jsd) do not exist. Resolve null so callers and
+		// OSApp.Supported.sensors() treat the sensor system as unavailable.
+		if ( !isCurrentContext() ) {
+			return rejectStaleSiteControllerRefresh();
+		}
+		delete controller.sensors;
+		callback();
+		return $.Deferred().resolve( null ).promise();
 	} else {
 		return OSApp.Firmware.sendToOS( "/jsn?pw=", "json" ).then( function( sensors ) {
 			if ( !isCurrentContext() ) {
@@ -1465,6 +1611,15 @@ OSApp.Sites.updateControllerSensorDescription = function( callback, expectedCont
 	}
 
 	if ( session.fw183 === true ) {
+		if ( !isCurrentContext() ) {
+			return rejectStaleSiteControllerRefresh();
+		}
+		controller.sensor_desc = null;
+		callback();
+		return $.Deferred().resolve( controller.sensor_desc ).promise();
+	} else if ( !OSApp.Supported.officialSensorAPIAllowed( controller ) ) {
+
+		// ASB firmware has no /jsd sensor-description schema; see updateControllerSensors.
 		if ( !isCurrentContext() ) {
 			return rejectStaleSiteControllerRefresh();
 		}
@@ -1548,6 +1703,7 @@ OSApp.Sites.updateControllerStationSpecial = function( callback, expectedContext
 				return rejectStaleSiteControllerRefresh();
 			}
 			controller.special = special;
+			controller.specialUnavailable = false;
 			callback();
 			return special;
 		},
@@ -1556,8 +1712,48 @@ OSApp.Sites.updateControllerStationSpecial = function( callback, expectedContext
 				return rejectStaleSiteControllerRefresh();
 			}
 			controller.special = {};
+			controller.specialUnavailable = true;
 			return controller.special;
 		} );
+};
+
+OSApp.Sites.ensureControllerStationSpecial = function( callback, force, expectedContext ) {
+	callback = callback || function() {};
+	var context = getSiteControllerContext( expectedContext ),
+		controller = context.controller,
+		hasSpecial = Array.isArray( controller?.stations?.stn_spe ) &&
+			controller.stations.stn_spe.some( function( value ) { return value !== 0; } );
+
+	if ( !hasSpecial && !force ) {
+		controller.special = {};
+		controller.specialUnavailable = false;
+		callback();
+		return $.Deferred().resolve( controller.special ).promise();
+	}
+
+	if ( !force && typeof controller.special === "object" && !controller.specialUnavailable ) {
+		callback();
+		return $.Deferred().resolve( controller.special ).promise();
+	}
+
+	if ( !force && controller.specialRequest ) {
+		return controller.specialRequest.then( callback );
+	}
+
+	var request = OSApp.Sites.updateControllerStationSpecial( callback, context );
+	controller.specialRequest = request;
+	request.always( function() {
+		if ( isSiteControllerContextCurrent( context ) && controller.specialRequest === request ) {
+			delete controller.specialRequest;
+		}
+	} );
+	return request;
+};
+
+OSApp.Sites.invalidateControllerStationSpecial = function( expectedContext ) {
+	var context = getSiteControllerContext( expectedContext );
+	delete context.controller.special;
+	delete context.controller.specialUnavailable;
 };
 
 // Change the current site (needs to be defined AFTER OSApp.Sites.checkConfigured!)
@@ -1622,7 +1818,7 @@ OSApp.Sites.refreshData = function() {
 			OSApp.Sites.updateControllerPrograms(),
 			OSApp.Sites.updateControllerStations(),
 		];
-		if ( OSApp.Firmware.checkOSVersion( 2215 ) ) {
+		if ( OSApp.Supported.legacySensorEndpoints() ) {
 			refreshPromises.push( OSApp.Sites.updateControllerSensors() );
 		}
 		$.when.apply( $, refreshPromises ).fail( OSApp.Sites.handleControllerRefreshFailure );

@@ -154,9 +154,11 @@ OSApp.Status.checkStatus = function() {
 			}
 		}
 
-		sample = Object.keys( open )[ 0 ];
-		pid    = OSApp.Stations.getPID( sample );
-		pname  = OSApp.Programs.pidToName( pid );
+		sample = Object.keys( open ).find( function( sid ) {
+			return OSApp.Stations.getPID( sid ) > 0;
+		} );
+		pid = typeof sample === "undefined" ? 0 : OSApp.Stations.getPID( sample );
+		pname = pid > 0 ? OSApp.Programs.pidToName( pid ) : OSApp.Language._( "Bundle Station" );
 		line   = "<div><div class='running-icon'></div><div class='running-text pointer'>";
 
 		line += OSApp.Utils.htmlEscape( pname ) + " " + OSApp.Language._( "is running on" ) + " " + Object.keys( open ).length + " " + OSApp.Language._( "stations" ) + " ";
@@ -253,26 +255,14 @@ OSApp.Status.checkStatus = function() {
 		return;
 	}
 
-	// Tapping a sensor-active footer opens Edit Options at the Weather and
-	// Sensors section so users can adjust sensor configuration.
+	// Tapping a sensor-active footer opens the built-in sensor options.
 	var openSensorOptions = function() {
-		OSApp.UIDom.changePage( "#os-options", { expandItem: "weather" } );
-	};
-
-	// Map a sensor type code to a short display name for the footer alert.
-	var sensorTypeShort = function( t ) {
-		switch ( t ) {
-			case 1: return OSApp.Language._( "Rain" );
-			case 2: return OSApp.Language._( "Flow" );
-			case 3: return OSApp.Language._( "Soil" );
-			case 240: return OSApp.Language._( "Program Switch" );
-			default: return OSApp.Language._( "Rain" );
-		}
+		OSApp.UIDom.changePage( "#os-options", { expandItem: "sensors" } );
 	};
 
 	// Build a sensor-active footer message: "{Type} (SN{N}) Activated".
 	var sensorActivatedMsg = function( num, typeCode ) {
-		return "<p class='running-text center pointer'>" + sensorTypeShort( typeCode ) + " (SN" + num + ") " + OSApp.Language._( "Activated" ) + "</p>";
+		return "<p class='running-text center pointer'>" + OSApp.Sensors.getBuiltInSensorTypeName( typeCode, true ) + " (SN" + num + ") " + OSApp.Language._( "Activated" ) + "</p>";
 	};
 
 	// Handle rain sensor triggered (legacy urs/rs scheme — sensor 1 only).

@@ -33,6 +33,101 @@ describe("Sensor Mutation Checks", function () {
 			showError.restore();
 		});
 
+		[ "/sp?pw=&npw=new", "/pq?pw=&dur=60", "/dl?pw=&day=all", "/sa?pw=&nr=1", "/sc?pw=&nr=1",
+			"/sb?pw=&nr=1", "/sn?pw=" ].forEach(function (endpoint) {
+			it("should classify " + endpoint.split("?")[0] + " as a mutation", function () {
+				assert.isTrue(OSApp.Firmware.isChangeRequest(endpoint));
+			});
+		});
+
+		it("should parse empty query segments and preserve embedded equals", function () {
+			assert.deepEqual(OSApp.Firmware.getUrlVars("/sn?pw=&"), { pw: "" });
+			assert.deepEqual(
+				OSApp.Firmware.getUrlVars("/sc?pw=&name=Tank=North&unit=L%2Fmin%2Bavg"),
+				{ pw: "", name: "Tank=North", unit: "L/min+avg" }
+			);
+		});
+
+		it("should POST clear-log requests without phantom parameters", function () {
+			checkOSVersion.returns(true);
+			ajaxq.callsFake(function () {
+				return $.Deferred().resolve({ deleted: 0 }).promise();
+			});
+
+			return OSApp.Firmware.sendToOS("/sn?pw=&").then(function () {
+				var request = ajaxq.firstCall.args[1];
+				assert.equal(ajaxq.firstCall.args[0], "change");
+				assert.equal(request.type, "POST");
+				assert.deepEqual(request.data, { pw: OSApp.currentSession.pass });
+			});
+		});
+
+		it("should round-trip encoded analog sensor text through POST data", function () {
+			var sensor = {
+				nr: 1,
+				type: OSApp.Analog.Constants.USERDEF_SENSOR,
+				group: 2,
+				name: "Tank=North & South+\u96ea",
+				ip: 0,
+				port: 80,
+				id: 3,
+				ri: 60,
+				fac: 1.5,
+				div: 2,
+				unit: "\u00b5S/cm=&+",
+				enable: 1,
+				log: 1,
+				show: 1
+			};
+			checkOSVersion.returns(true);
+			ajaxq.callsFake(function () {
+				return $.Deferred().resolve({ result: 1 }).promise();
+			});
+
+			return OSApp.Firmware.sendToOS(OSApp.Analog.buildSensorConfigCommand(sensor)).then(function () {
+				var request = ajaxq.firstCall.args[1];
+				assert.equal(ajaxq.firstCall.args[0], "change");
+				assert.equal(request.type, "POST");
+				assert.equal(request.data.name, sensor.name);
+				assert.equal(request.data.unit, sensor.unit);
+			});
+		});
+
+		it("should abort only the mutation request associated with an external signal", function () {
+			var request = $.Deferred();
+			var controller = new AbortController();
+			var xhr = {
+				abort: sinon.spy(function () {
+					request.reject({ status: 0, statusText: "abort" });
+				}),
+				setRequestHeader: sinon.spy()
+			};
+			ajaxq.callsFake(function (_queue, options) {
+				options.beforeSend(xhr);
+				return request.promise();
+			});
+
+			var mutation = OSApp.Firmware.sendToOS("/dsl?pw=&uuid=7", "json", {
+				signal: controller.signal
+			});
+			controller.abort();
+
+			return new Promise(function (resolve, reject) {
+				mutation
+					.done(function () { reject(new Error("An aborted deletion request was reported as successful")); })
+					.fail(function (error) {
+						try {
+							assert.equal(error.statusText, "abort");
+							assert.isTrue(xhr.abort.calledOnce);
+							assert.isFalse(showError.called);
+							resolve();
+						} catch (assertionError) {
+							reject(assertionError);
+						}
+					});
+			});
+		});
+
 		[ "/csn?pw=&uuid=-1", "/dsn?pw=&uuid=7", "/dsl?pw=&uuid=7" ].forEach(function (endpoint) {
 			it("should reject firmware errors from " + endpoint.split("?")[0], function () {
 				return new Promise(function (resolve, reject) {
@@ -91,6 +186,44 @@ describe("Sensor Mutation Checks", function () {
 						try {
 							assert.strictEqual(actual, error);
 							assert.equal(ajaxq.firstCall.args[0], "change");
+							resolve();
+						} catch (assertionError) {
+							reject(assertionError);
+						}
+					});
+			});
+		});
+
+		it("should show feedback for otherwise silent mutation transport failures", function () {
+			var error = { status: 500 };
+			ajaxq.callsFake(function () { return $.Deferred().reject(error).promise(); });
+
+			return new Promise(function (resolve, reject) {
+				OSApp.Firmware.sendToOS("/sp?pw=&npw=new&cpw=old", "json")
+					.done(function () { reject(new Error("Password transport failure was reported as success")); })
+					.fail(function (actual) {
+						try {
+							assert.strictEqual(actual, error);
+							assert.equal(ajaxq.firstCall.args[0], "change");
+							assert.isTrue(showError.calledOnceWith("Network Error"));
+							resolve();
+						} catch (assertionError) {
+							reject(assertionError);
+						}
+					});
+			});
+		});
+
+		it("should show feedback when a mutation endpoint is missing", function () {
+			ajaxq.callsFake(function () { return $.Deferred().resolve({ result: 32 }).promise(); });
+
+			return new Promise(function (resolve, reject) {
+				OSApp.Firmware.sendToOS("/sp?pw=&npw=new&cpw=old", "json")
+					.done(function () { reject(new Error("Missing mutation endpoint was reported as success")); })
+					.fail(function (actual) {
+						try {
+							assert.equal(actual.status, 404);
+							assert.isTrue(showError.calledOnceWith("Please check input and try again."));
 							resolve();
 						} catch (assertionError) {
 							reject(assertionError);
@@ -459,6 +592,36 @@ describe("Sensor Mutation Checks", function () {
 		}
 	});
 
+	it("should abort a binary sensor log request from the caller signal", function () {
+		var fetchSignal;
+		var fetchRequest = sinon.stub(window, "fetch").callsFake(function (_url, options) {
+			fetchSignal = options.signal;
+			return new Promise(function (_resolve, reject) {
+				fetchSignal.addEventListener("abort", function () { reject({ status: 0, statusText: "abort" }); });
+			});
+		});
+		var controller = new AbortController();
+
+		return new Promise(function (resolve, reject) {
+			OSApp.Firmware.sendToOS(
+				"/jsl?pw=&page=1&cursor=0&count=5000&fmt=binary",
+				"arraybuffer-response",
+				{ signal: controller.signal }
+			).done(function () {
+				reject(new Error("An aborted sensor log request was reported as success"));
+			}).fail(function (error) {
+				try {
+					assert.deepEqual(error, { status: 0, statusText: "abort" });
+					assert.isTrue(fetchSignal.aborted);
+					resolve();
+				} catch (assertionError) {
+					reject(assertionError);
+				}
+			});
+			controller.abort();
+		}).finally(function () { fetchRequest.restore(); });
+	});
+
 	it("should allow a full CSV export ten minutes before timing out", function () {
 		var clock = sinon.useFakeTimers();
 		var fetchRequest = sinon.stub(window, "fetch").returns(new Promise(function () {}));
@@ -527,6 +690,38 @@ describe("Sensor Mutation Checks", function () {
 				assert.equal(data.byteLength, 0);
 				assert.isTrue(data.noLogHeader);
 			});
+		});
+
+		it("should preserve response headers for paginated binary logs", function () {
+			var body = new ArrayBuffer(10);
+			var headers = {
+				get: function (name) {
+					if (name === "Content-Type") return "application/octet-stream";
+					if (name === "X-OS-Next-Cursor") return "5000";
+					return null;
+				}
+			};
+			var fetchRequest = sinon.stub(window, "fetch").returns(Promise.resolve({
+				ok: true,
+				headers: headers,
+				arrayBuffer: function () { return Promise.resolve(body); }
+			}));
+
+			return new Promise(function (resolve, reject) {
+				OSApp.Firmware.sendToOS(
+					"/jsl?pw=&page=1&cursor=0&count=5000&fmt=binary",
+					"arraybuffer-response"
+				).done(function (responseData) {
+					try {
+						assert.strictEqual(responseData.data, body);
+						assert.strictEqual(responseData.headers, headers);
+						assert.equal(responseData.headers.get("X-OS-Next-Cursor"), "5000");
+						resolve();
+					} catch (error) {
+						reject(error);
+					}
+				}).fail(reject);
+			}).finally(function () { fetchRequest.restore(); });
 		});
 
 		it("should return a server CSV response as a Blob", function () {

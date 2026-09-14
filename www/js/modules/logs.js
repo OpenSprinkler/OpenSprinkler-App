@@ -17,6 +17,14 @@
 var OSApp = OSApp || {};
 OSApp.Logs = OSApp.Logs || {};
 
+OSApp.Logs.getSensorLogEvents = function( options ) {
+	var events = {};
+	OSApp.Sensors.getBuiltInSensors( options ).forEach( function( sensor ) {
+		events[ sensor.code ] = sensor;
+	} );
+	return events;
+};
+
 OSApp.Logs.displayPage = function() {
 	// Build the log page and add it to DOM
 	var page = $(`
@@ -61,6 +69,8 @@ OSApp.Logs.displayPage = function() {
 		groups = [],
 		waterlog = [],
 		flowlog = [],
+		logEvents = {},
+		stationCount = 0,
 		sortData = function( type, grouping ) {
 
 			var sortedData = [],
@@ -77,6 +87,7 @@ OSApp.Logs.displayPage = function() {
 
 			$.each( data, function() {
 				var station = this[ 1 ],
+					logEvent = typeof station === "string" ? logEvents[ station ] : null,
 					duration = parseInt( this[ 2 ] ),
 					flowRate = ( typeof this[ 4 ] !== "undefined" ) ? OSApp.Utils.flowRateToVolume( parseFloat( this[ 4 ] ) ) : null;
 
@@ -90,19 +101,12 @@ OSApp.Logs.displayPage = function() {
 						date.getUTCMinutes(), date.getUTCSeconds() );
 
 				if ( typeof station === "string" ) {
-					if ( station === "rd" ) {
-						station = stations.length - 1;
-					} else if ( station === "s1" ) {
-						station = stations.length - 3;
-					} else if ( station === "s2" ) {
-						station = stations.length - 2;
-					} else if ( station === "rs" ) {
-						station = stations.length - 2;
-					} else {
+					if ( !logEvent ) {
 						return;
 					}
+					station = logEvent.index;
 				} else if ( typeof station === "number" ) {
-					if ( station > stations.length - 2 || OSApp.Stations.isMaster( station ) ) {
+					if ( station < 0 || station >= stationCount || OSApp.Stations.isMaster( station ) ) {
 						return;
 					}
 
@@ -136,21 +140,9 @@ OSApp.Logs.displayPage = function() {
 					var pid = parseInt( this[ 0 ] ),
 						className, name, group;
 
-					if ( this[ 1 ] === "rs" ) {
+					if ( logEvent ) {
 						className = "delayed";
-						name = OSApp.Language._( "Rain Sensor" );
-						group = name;
-					} else if ( this[ 1 ] === "rd" ) {
-						className = "delayed";
-						name = OSApp.Language._( "Rain Delay" );
-						group = name;
-					} else if ( this[ 1 ] === "s1" ) {
-						className = "delayed";
-						name = OSApp.currentSession.controller.options.sn1t === 3 ? OSApp.Language._( "Soil Sensor" ) : OSApp.Language._( "Rain Sensor" );
-						group = name;
-					} else if ( this[ 1 ] === "s2" ) {
-						className = "delayed";
-						name = OSApp.currentSession.controller.options.sn2t === 3 ? OSApp.Language._( "Soil Sensor" ) : OSApp.Language._( "Rain Sensor" );
+						name = logEvent.label;
 						group = name;
 					} else if ( pid === 0 ) {
 						return;
@@ -602,13 +594,34 @@ OSApp.Logs.displayPage = function() {
 	page.find( "#log_table" ).prop( "checked", isNarrow );
 
 	function begin() {
-		var additionalMetrics = OSApp.Firmware.checkOSVersion( 219 ) ? [
-			OSApp.currentSession.controller.options.sn1t === 3 ? OSApp.Language._( "Soil Sensor" ) : OSApp.Language._( "Rain Sensor" ),
-			OSApp.currentSession.controller.options.sn2t === 3 ? OSApp.Language._( "Soil Sensor" ) : OSApp.Language._( "Rain Sensor" ),
-			OSApp.Language._( "Rain Delay" )
-		] : [ OSApp.Language._( "Rain Sensor" ), OSApp.Language._( "Rain Delay" ) ];
+		var stationNames = OSApp.currentSession.controller.stations?.snames || [],
+			additionalMetrics = [],
+			addLogEvent = function( code, label ) {
+				logEvents[ code ] = {
+					index: stationCount + additionalMetrics.length,
+					label: label
+				};
+				additionalMetrics.push( label );
+			};
 
-		stations = $.merge( $.merge( [], OSApp.currentSession.controller.stations?.snames ), additionalMetrics );
+		stationCount = stationNames.length;
+		logEvents = {};
+		if ( OSApp.Firmware.checkOSVersion( 219 ) ) {
+			var sensorEvents = OSApp.Logs.getSensorLogEvents( OSApp.currentSession.controller.options );
+			Object.keys( sensorEvents ).forEach( function( code ) {
+				addLogEvent( code, sensorEvents[ code ].label );
+			} );
+			if ( logEvents.s1 ) {
+				logEvents.rs = logEvents.s1;
+			} else {
+				addLogEvent( "rs", OSApp.Language._( "Rain Sensor" ) );
+			}
+		} else {
+			addLogEvent( "rs", OSApp.Language._( "Rain Sensor" ) );
+		}
+		addLogEvent( "rd", OSApp.Language._( "Rain Delay" ) );
+
+		stations = $.merge( $.merge( [], stationNames ), additionalMetrics );
 		page.find( ".clear_logs" ).toggleClass( "hidden", ( OSApp.Firmware.isOSPi() || OSApp.Firmware.checkOSVersion( 210 ) ?  false : true ) );
 
 		if ( logStart.val() === "" || logEnd.val() === "" ) {

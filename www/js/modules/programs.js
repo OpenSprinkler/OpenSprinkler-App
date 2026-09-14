@@ -721,6 +721,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 					<input class="center" type="date" name="preview_date" id="preview_date">
 					<button class="preview-plus ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border"></button>
 				</div>
+				<p id="preview-sensor-adjustment-warning" class="sensor-hw-missing center hidden"></p>
 				<div id="timeline"></div>
 				<div data-role="controlgroup" data-type="horizontal" id="timeline-navigation">
 					<a class="ui-btn ui-corner-all ui-icon-plus ui-btn-icon-notext btn-no-border" title="${OSApp.Language._("Zoom in")}"></a>
@@ -736,6 +737,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 		nextID = 0,
 		adjustmentRequest = null,
 		adjustmentState = "ready",
+		sensorAdjustmentUnavailable = false,
 		timeline = null,
 		timelineResize = null,
 		previewData, previewGroups, processPrograms, checkMatch, checkMatch183, checkMatch21, checkDayMatch, checkMatch216, runSched, runSched216,
@@ -911,6 +913,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 	processPrograms = function( month, day, year ) {
 		previewData = [];
 		previewGroups = [];
+		sensorAdjustmentUnavailable = false;
 		var devday = Math.floor( OSApp.currentSession.controller.settings.devt / ( 60 * 60 * 24 ) ),
 			simminutes = 0,
 			simt = Date.UTC( year, month - 1, day, 0, 0, 0, 0 ),
@@ -1000,10 +1003,14 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 							if ( prog[ 4 ][ sid ] && endArray[ sid ] === 0 ) {
 								let cachedJpa = OSApp.currentSession.controller.jpaData;
 								let adjustment = cachedJpa && cachedJpa[ pid ] && simday === devday ? cachedJpa[ pid ] : null;
+								let sensorFactor = adjustment ? adjustment.sa : 1;
+								if ( adjustment && OSApp.Programs.getSensorAdjustmentAvailability( prog ).unavailable ) {
+									sensorAdjustmentUnavailable = true;
+									sensorFactor = 1;
+								}
 								let weatherPercent = adjustment ? Math.round( adjustment.wa * 100 ) : wl;
 								weatherPercent = Number.isFinite( weatherPercent ) ?
 									Math.min( 250, Math.max( 0, weatherPercent ) ) : 100;
-								let sensorFactor = adjustment ? adjustment.sa : 1;
 								let waterTime = Math.floor(
 									OSApp.Stations.getStationDuration( prog[ 4 ][ sid ], simt ) *
 									weatherPercent / 100 * sensorFactor
@@ -1654,6 +1661,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 	};
 
 	function showAdjustmentStatus( message, className ) {
+		page.find( "#preview-sensor-adjustment-warning" ).addClass( "hidden" );
 		navi.hide();
 		placeholder.empty().append(
 			$( "<p class='center'></p>" ).addClass( className ).text( message )
@@ -1687,6 +1695,9 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 			return;
 		}
 		processPrograms( date[ 1 ], date[ 2 ], date[ 0 ] );
+		page.find( "#preview-sensor-adjustment-warning" )
+			.text( OSApp.Language._( "Sensor adjustment is unavailable; using 100%." ) )
+			.toggleClass( "hidden", !sensorAdjustmentUnavailable );
 
 		navi.hide();
 
@@ -3000,6 +3011,35 @@ OSApp.Programs.cacheProgramAdjustmentData = function( controller, data ) {
 	}
 };
 
+OSApp.Programs.getSensorAdjustmentAvailability = function( program, controller ) {
+	controller = controller || OSApp.currentSession.controller;
+	var configured = !!( program && program[ 7 ] && ( ( Number( program[ 7 ].flag ) || 0 ) & 1 ) && Number( program[ 7 ].uuid ) ),
+		result = { configured: configured, unavailable: false };
+
+	if ( !configured || !Array.isArray( controller?.sensors?.sn ) ) {
+		return result;
+	}
+
+	var sensor = controller.sensors.sn.find( function( item ) {
+		return String( item.uuid ) === String( program[ 7 ].uuid );
+	} );
+	if ( !sensor ) {
+		result.unavailable = true;
+		return result;
+	}
+	if ( Number.isFinite( Number( sensor.flag ) ) && ( Number( sensor.flag ) & 1 ) === 0 ) {
+		result.unavailable = true;
+		return result;
+	}
+	if ( Number.isFinite( Number( sensor.status ) ) ) {
+		var status = Number( sensor.status ),
+			unhealthy = !( status & OSApp.Sensors.STATUS.VALID ) ||
+				( status & ( OSApp.Sensors.STATUS.ERROR | OSApp.Sensors.STATUS.STALE ) );
+		result.unavailable = !!unhealthy;
+	}
+	return result;
+};
+
 OSApp.Programs.getSenAdjURL = function (id) {
     const vals = [];
 
@@ -3441,6 +3481,7 @@ OSApp.Programs.openRunProgramDialog = function (pid, stationsDurations, uwt, isR
 							${OSApp.Language._("Apply Sensor Adjustment")} <span id="rp-apply-sa-percent"></span>
 						</label>
 					</fieldset>
+					<p id="rp-sa-warning" class="sensor-hw-missing hidden"></p>
 
 <fieldset data-role="controlgroup" data-mini="true" id="rp-repeat-wrap" style="display:none;margin-top:6px;">
 						<label>
@@ -3512,9 +3553,10 @@ OSApp.Programs.openRunProgramDialog = function (pid, stationsDurations, uwt, isR
 	// Sensor adjustment — only available when jpaData exists and program has sensor adjustment enabled
 	var progAdj = prog && prog[ 7 ];
 	var saFactor = null;
+	var sensorAdjustmentAvailability = OSApp.Programs.getSensorAdjustmentAvailability( prog );
 	if ( OSApp.Supported.sensors() && jpaData && pid != null && jpaData[ pid ] &&
 		 progAdj && ( ( progAdj.flag ?? 0 ) & 1 ) === 1 && ( progAdj.uuid ?? 0 ) !== 0 ) {
-		saFactor = jpaData[ pid ].sa;
+		saFactor = sensorAdjustmentAvailability.unavailable ? 1 : jpaData[ pid ].sa;
 	}
 
 	var $saCheckbox = $popup.find( "#rp-apply-sa" );
@@ -3525,8 +3567,12 @@ OSApp.Programs.openRunProgramDialog = function (pid, stationsDurations, uwt, isR
 			$saCheckbox.checkboxradio( "refresh" );
 		}
 		$popup.find( "#rp-sa-wrap" ).show();
+		$popup.find( "#rp-sa-warning" )
+			.text( OSApp.Language._( "Sensor adjustment is unavailable; using 100%." ) )
+			.toggleClass( "hidden", !sensorAdjustmentAvailability.unavailable );
 	} else {
 		$popup.find( "#rp-sa-wrap" ).hide();
+		$popup.find( "#rp-sa-warning" ).addClass( "hidden" );
 	}
 
 	// Store factors so the run handler doesn't need to recompute

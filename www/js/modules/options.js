@@ -17,6 +17,102 @@
 var OSApp = OSApp || {};
 OSApp.Options = OSApp.Options || {};
 
+OSApp.Options.getNotificationEvents = function( options ) {
+	options = options || {};
+	var events = [
+		{ id: "program", bit: 0, label: OSApp.Language._( "Program Start" ) },
+		{ id: "sensor1", bit: 1, label: OSApp.Language._( "Sensor 1 Update" ) },
+		{ id: "flow", bit: 2, label: OSApp.Language._( "Flow Sensor Update" ) },
+		{ id: "weather", bit: 3, label: OSApp.Language._( "Weather Adjustment Update" ) },
+		{ id: "reboot", bit: 4, label: OSApp.Language._( "Controller Reboot" ) },
+		{ id: "run", bit: 5, label: OSApp.Language._( "Station Finish" ) },
+		{ id: "sensor2", bit: 6, label: OSApp.Language._( "Sensor 2 Update" ) },
+		{ id: "rain", bit: 7, label: OSApp.Language._( "Rain Delay Update" ) },
+		{ id: "station", bit: 8, label: OSApp.Language._( "Station Start" ) },
+		{ id: "flow_alert", bit: 9, label: OSApp.Language._( "Flow Alert" ) },
+		{ id: "curr_alert", bit: 10, label: OSApp.Language._( "Under/Overcurrent Fault" ) },
+		{ id: "sensor3", bit: 11, label: OSApp.Language._( "Sensor 3 Update" ), option: "sn3t" },
+		{ id: "sensor4", bit: 12, label: OSApp.Language._( "Sensor 4 Update" ), option: "sn4t" }
+	];
+
+	return events.filter( function( event ) {
+		return !event.option || typeof options[ event.option ] !== "undefined";
+	} );
+};
+
+OSApp.Options.updateNotificationEventValue = function( value, events, getSelection ) {
+	events.forEach( function( event ) {
+		var selected = getSelection( event );
+		if ( typeof selected !== "boolean" ) {
+			return;
+		}
+		if ( selected ) {
+			value |= 1 << event.bit;
+		} else {
+			value &= ~( 1 << event.bit );
+		}
+	} );
+	return value;
+};
+
+OSApp.Options.removeInvalidBundleMasterOptions = function( options ) {
+	var cleaned = $.extend( {}, options ),
+		removed = [],
+		masters = [
+			{ station: "mas", on: "mton", off: "mtof" },
+			{ station: "mas2", on: "mton2", off: "mtof2" },
+			{ station: "mas3", on: "mton3", off: "mtof3" },
+			{ station: "mas4", on: "mton4", off: "mtof4" }
+		];
+
+	masters.forEach( function( master ) {
+		if ( !Object.prototype.hasOwnProperty.call( cleaned, master.station ) ) {
+			return;
+		}
+
+		var sid = Number( cleaned[ master.station ] ) - 1;
+		if ( sid < 0 || ( !OSApp.Bundles.isLeader( sid ) && OSApp.Bundles.getReferencingLeaders( sid ).length === 0 ) ) {
+			return;
+		}
+
+		removed.push( master.station );
+		delete cleaned[ master.station ];
+		delete cleaned[ master.on ];
+		delete cleaned[ master.off ];
+	} );
+
+	return { options: cleaned, removed: removed };
+};
+
+OSApp.Options.resetStationAttributes = function( attributes ) {
+	var operation = $.Deferred();
+
+	$.mobile.loading( "show" );
+	OSApp.Storage.get( "current_site", function( data ) {
+		var targetSite = data.current_site;
+
+		OSApp.Firmware.sendToOS( "/cs?pw=&" + attributes ).done( function( result ) {
+			OSApp.Storage.get( "sites", function( latestData ) {
+				var sites = OSApp.Sites.parseSites( latestData.sites );
+
+				if ( sites[ targetSite ] ) {
+					sites[ targetSite ].notes = {};
+					sites[ targetSite ].images = {};
+					sites[ targetSite ].lastRunTime = {};
+					OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
+				}
+				OSApp.Errors.showError( OSApp.Language._( "Stations have been updated" ) );
+				OSApp.Sites.updateController();
+				operation.resolve( result );
+			} );
+		} ).fail( function( error ) {
+			operation.reject( error );
+		} );
+	} );
+
+	return operation.promise();
+};
+
 // FIXME: please, please, please refactor me!
 // Device setting management functions
 OSApp.Options.showOptions = function( expandItem ) {
@@ -140,7 +236,13 @@ OSApp.Options.showOptions = function( expandItem ) {
 					case "wtkey":
 						return true;
 					case "wto":
-						data = OSApp.Utils.escapeJSON( $.extend( {}, OSApp.Utils.unescapeJSON( data ), { key: page.find( "#wtkey" ).val() } ) );
+						var providerSelect = page.find( "#weatherSelect" ),
+							keyInput = page.find( "#wtkey" );
+						data = OSApp.Utils.escapeJSON( OSApp.Weather.prepareWeatherOptions(
+							OSApp.Utils.unescapeJSON( data ),
+							providerSelect.length ? providerSelect.val() : undefined,
+							keyInput.length ? keyInput.val() : undefined
+						) );
 
 						if ( OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto ) === data ) {
 							return true;
@@ -179,6 +281,13 @@ OSApp.Options.showOptions = function( expandItem ) {
 						return true;
 					case "o12":
 						if ( !isPi ) {
+							var requestedPort = parseInt( data, 10 ),
+								currentPort = OSApp.Firmware.getControllerHTTPPort();
+							if ( requestedPort !== currentPort && OSApp.Firmware.isFirmwareUpdatePortReserved( requestedPort ) ) {
+								OSApp.Errors.showError( OSApp.Language._( "Port 8080 is reserved for firmware update. Please choose another HTTP port." ) );
+								invalid = true;
+								return false;
+							}
 							opt.o12 = data & 0xff;
 							opt.o13 = ( data >> 8 ) & 0xff;
 						}
@@ -207,10 +316,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 						}
 						break;
 					case "weatherSelect":
-						if ( OSApp.currentSession.controller.settings.wto && OSApp.currentSession.controller.settings.wto.provider && OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto.provider ) === data ) {
-							return true;
-						}
-						break;
+						return true;
 					case "mda":
 						if ( OSApp.currentSession.controller.settings.wto && OSApp.currentSession.controller.settings.wto.mda && OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto.mda ) === data ) {
 							return true;
@@ -361,19 +467,111 @@ OSApp.Options.showOptions = function( expandItem ) {
 				opt = pruned;
 			}
 
-			$.mobile.loading( "show" );
-
-			OSApp.Firmware.sendToOS( "/co?pw=&" + $.param( opt ) ).done( function() {
+			var saveContext = { session: OSApp.currentSession, controller: OSApp.currentSession.controller };
+			var isCurrentSave = function() {
+				return OSApp.currentSession === saveContext.session && OSApp.currentSession.controller === saveContext.controller;
+			};
+			var finishSave = function( message ) {
+				if ( !isCurrentSave() ) {
+					return;
+				}
 				$.mobile.document.one( "pageshow", function() {
-					OSApp.Errors.showError( OSApp.Language._( "Settings have been saved" ) );
+					if ( isCurrentSave() ) {
+						OSApp.Errors.showError( message );
+					}
 				} );
 				OSApp.UIDom.goBack();
-				OSApp.Sites.updateController( OSApp.Weather.updateWeather );
-			} ).fail( function() {
+				OSApp.Sites.updateController( function() {
+					OSApp.Sites.updatePasswordSecurityNotification();
+					OSApp.Weather.updateWeather();
+				} );
+			};
+			var restoreSubmit = function( message ) {
+				if ( !isCurrentSave() ) {
+					return;
+				}
 				$.mobile.loading( "hide" );
 				button.prop( "disabled", false );
 				page.find( ".submit" ).addClass( "hasChanges" );
-			} );
+				if ( message ) {
+					OSApp.Errors.showError( message );
+				}
+			};
+			var reconcileRejectedOptions = function( message ) {
+				if ( !isCurrentSave() ) {
+					return;
+				}
+				restoreSubmit( message );
+				OSApp.Sites.updateControllerOptions( undefined, saveContext ).done( function() {
+					if ( !isCurrentSave() ) {
+						return;
+					}
+					var options = OSApp.currentSession.controller.options;
+					if ( options && page.find( "#o12" ).length ) {
+						page.find( "#o12" ).val( OSApp.Firmware.getControllerHTTPPort( options ) );
+					}
+					OSApp.Sites.updatePasswordSecurityNotification();
+				} );
+			};
+			var sendOptions = function( options, isRecovery ) {
+				OSApp.Firmware.sendToOS( "/co?pw=&" + $.param( options ), undefined, {
+					suppressFirmwareError: true
+				} ).done( function() {
+					if ( !isCurrentSave() ) {
+						return;
+					}
+					finishSave( isRecovery ?
+						OSApp.Language._( "Settings were saved, but an invalid master station was ignored." ) :
+						OSApp.Language._( "Settings have been saved" ) );
+				} ).fail( function( error ) {
+					if ( !isCurrentSave() ) {
+						return;
+					}
+					if ( !isRecovery && error?.result === 17 && OSApp.Supported.bundle() ) {
+						OSApp.Sites.updateController( function() {
+							if ( !isCurrentSave() ) {
+								return;
+							}
+							OSApp.Sites.ensureControllerStationSpecial( undefined, true, saveContext ).then( function() {
+								if ( !isCurrentSave() ) {
+									return;
+								}
+								if ( OSApp.currentSession.controller.specialUnavailable ) {
+									reconcileRejectedOptions( OSApp.Language._( "Controller rejected one or more invalid options. Review and try again." ) );
+									return;
+								}
+								var recovery = OSApp.Options.removeInvalidBundleMasterOptions( options );
+								if ( recovery.removed.length === 0 ) {
+									reconcileRejectedOptions( OSApp.Language._( "Controller rejected one or more invalid options. Review and try again." ) );
+									return;
+								}
+								if ( Object.keys( recovery.options ).length === 0 ) {
+									finishSave( OSApp.Language._( "Settings were saved, but an invalid master station was ignored." ) );
+									return;
+								}
+								sendOptions( recovery.options, true );
+							}, function() {
+								reconcileRejectedOptions( OSApp.Language._( "Controller rejected one or more invalid options. Review and try again." ) );
+							} );
+						}, function() {
+							reconcileRejectedOptions( OSApp.Language._( "Controller rejected one or more invalid options. Review and try again." ) );
+						} );
+						return;
+					}
+					var message = error?.result === 17 ?
+						OSApp.Language._( "Controller rejected one or more invalid options. Review and try again." ) :
+						OSApp.Language._( "Unable to save settings. Controller settings were refreshed; review and try again." );
+					if ( error?.status === 401 ) {
+						message = OSApp.Language._( "Check device password and try again." );
+					} else if ( error?.status === 404 ) {
+						message = OSApp.Language._( "Please check input and try again." );
+					}
+					reconcileRejectedOptions( message );
+				} );
+			};
+
+			$.mobile.loading( "show" );
+			sendOptions( opt, false );
 		},
 		header = OSApp.UIDom.changeHeader( {
 			title: OSApp.Language._( "Edit Options" ),
@@ -541,7 +739,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 	list += "</fieldset><fieldset data-role='collapsible'" +
 		( typeof expandItem === "string" && expandItem === "weather" ? " data-collapsed='false'" : "" ) + ">" +
-		"<legend>" + OSApp.Language._( "Weather and Sensors" ) + "</legend>";
+		"<legend>" + OSApp.Language._( "Weather Adjustment" ) + "</legend>";
 
 	if ( typeof OSApp.currentSession.controller.options.uwt !== "undefined" ) {
 		list += "<div class='ui-field-contain'><label for='o31' class='select'>" + OSApp.Language._( "Adjustment Method" ) +
@@ -604,21 +802,31 @@ OSApp.Options.showOptions = function( expandItem ) {
 		}
 	}
 
+		var weatherOptions = OSApp.currentSession.controller.settings.wto || {},
+			customWeatherServer = OSApp.Weather.isCustomWeatherServer(),
+			selectedWeatherProvider = OSApp.Weather.getWeatherProviderSelection( weatherOptions );
+
 		if ( typeof OSApp.currentSession.controller?.settings?.wsp !== "undefined" ) {
 			list += "<div class='ui-field-contain'><label for='weatherSelect' class='select'>" + OSApp.Language._( "Weather Data Provider" ) +
 					"<button data-helptext='" +
-						OSApp.Language._( "Select your preferred weather service provider." ) +
+						( selectedWeatherProvider === OSApp.Constants.weather.SERVER_DEFAULT_PROVIDER ? OSApp.Language._( "Uses the provider configured on the custom weather server." ) : OSApp.Language._( "Select your preferred weather service provider." ) ) +
 						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 				"</label><select data-mini='true' id='weatherSelect'>";
 			for ( i = 0; i < OSApp.Constants.weather.PROVIDERS.length; i++ ) {
 				var weatherProvider = OSApp.Weather.getWeatherProviderById( i );
-				list += "<option " + ( ( weatherProvider.id === OSApp.currentSession.controller.settings.wto.provider ) ? "selected" : "" ) + " value='" + weatherProvider.id + "'>" + weatherProvider.name + "</option>";
+				list += "<option " + ( ( weatherProvider.id === selectedWeatherProvider ) ? "selected" : "" ) + " value='" + weatherProvider.id + "'>" + weatherProvider.name + "</option>";
+			}
+			if ( customWeatherServer ) {
+				list += "<option " + ( selectedWeatherProvider === OSApp.Constants.weather.SERVER_DEFAULT_PROVIDER ? "selected" : "" ) +
+					" value='" + OSApp.Constants.weather.SERVER_DEFAULT_PROVIDER + "'>" + OSApp.Language._( "Default Provider" ) + "</option>";
 			}
 			list += "</select></div>";
 		}
 
 		if ( OSApp.Supported.verifyWeatherAPIKey() ) {
-			list += "<div class='ui-field-contain" + ( OSApp.Weather.getCurrentWeatherProvider().needsKey ? "" : " hidden" ) + "'><label for='wtkey'>" + OSApp.Language._( "Weather API Key" ) +
+			var selectedProvider = OSApp.Weather.getWeatherProviderById( selectedWeatherProvider ),
+				providerNeedsKey = !!( selectedProvider && selectedProvider.needsKey );
+			list += "<div class='ui-field-contain" + ( providerNeedsKey ? "" : " hidden" ) + "'><label for='wtkey'>" + OSApp.Language._( "Weather API Key" ) +
 				"<button data-helptext='" +
 				OSApp.Language._( "Please enter an API key for your selected weather provider." ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
@@ -627,10 +835,10 @@ OSApp.Options.showOptions = function( expandItem ) {
 				"<tr style='width:100%;vertical-align: top;'>" +
 					"<td style='width:100%'>" +
 						"<div class='" +
-							( ( OSApp.currentSession.controller.settings.wto.key && OSApp.currentSession.controller.settings.wto.key !== "" ) ? "" : "red " ) +
+							( providerNeedsKey && !weatherOptions.key ? "red " : "" ) +
 							"ui-input-text controlgroup-textinput ui-btn ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'>" +
 								"<input data-role='none' data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' " +
-									"type='text' id='wtkey' value='" + ( OSApp.currentSession.controller.settings.wto.key || "" ) + "'>" +
+									"type='text' id='wtkey' value='" + ( weatherOptions.key || "" ) + "'>" +
 								"<a href='#' tabindex='-1' aria-hidden='true' data-helptext='" + OSApp.Language._( "An invalid API key has been detected." ) +
 									"' class='hidden help-icon ui-input-clear ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'>" +
 								"</a>" +
@@ -705,10 +913,13 @@ OSApp.Options.showOptions = function( expandItem ) {
 			"</div>";
 	};
 
-	list += renderSensorButton( 1 );
-	list += renderSensorButton( 2 );
-	list += renderSensorButton( 3 );
-	list += renderSensorButton( 4 );
+	var sensorButtons = renderSensorButton( 1 ) + renderSensorButton( 2 ) +
+		renderSensorButton( 3 ) + renderSensorButton( 4 );
+	if ( sensorButtons ) {
+		list += "</fieldset><fieldset data-role='collapsible'" +
+			( typeof expandItem === "string" && expandItem === "sensors" ? " data-collapsed='false'" : "" ) + ">" +
+			"<legend>" + OSApp.Language._( "Built-in Sensors" ) + "</legend>" + sensorButtons;
+	}
 
 	if ( typeof OSApp.currentSession.controller.settings.ifkey !== "undefined" || typeof OSApp.currentSession.controller.settings.mqtt !== "undefined" ||
 		typeof OSApp.currentSession.controller.settings.otc !== "undefined" ) {
@@ -942,7 +1153,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 	list += "<button data-mini='true' class='center-div reset-programs'>" + OSApp.Language._( "Delete All Programs" ) + "</button>";
 	list += "<button data-mini='true' class='center-div reset-stations'>" + OSApp.Language._( "Reset Station Attributes" ) + "</button>";
 
-	if ( OSApp.currentSession.controller.options.hwv >= 30 && OSApp.currentSession.controller.options.hwv < 40 ) {
+	if ( OSApp.Firmware.supportsWirelessReset() ) {
 		list += "<hr class='divider'><button data-mini='true' class='center-div reset-wireless'>" + OSApp.Language._( "Reset Wireless Settings" ) + "</button>";
 	}
 
@@ -1369,20 +1580,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 		}
 
 		OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to reset station attributes?" ), OSApp.Language._( "This will reset all station attributes" ), function() {
-			$.mobile.loading( "show" );
-			OSApp.Storage.get( [ "sites", "current_site" ], function( data ) {
-				var sites = OSApp.Sites.parseSites( data.sites );
-
-				sites[ data.current_site ].notes = {};
-				sites[ data.current_site ].images = {};
-				sites[ data.current_site ].lastRunTime = {};
-
-				OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
-			} );
-			OSApp.Firmware.sendToOS( "/cs?pw=&" + cs ).done( function() {
-				OSApp.Errors.showError( OSApp.Language._( "Stations have been updated" ) );
-				OSApp.Sites.updateController();
-			} );
+			OSApp.Options.resetStationAttributes( cs );
 		} );
 	} );
 
@@ -1410,10 +1608,28 @@ OSApp.Options.showOptions = function( expandItem ) {
 		}
 	} );
 
+	var updateWeatherApiKeyControls = function( providerId ) {
+		var key = page.find( "#wtkey" ),
+			provider = OSApp.Weather.getWeatherProviderById( providerId ),
+			needsKey = !!( provider && provider.needsKey );
+
+		key.parents( ".ui-field-contain" ).toggleClass( "hidden", !needsKey );
+		key.parent().removeClass( "red green" );
+		key.siblings( ".help-icon" ).hide();
+		if ( needsKey && !key.val() ) {
+			key.parent().addClass( "red" );
+		}
+		return needsKey;
+	};
+
 	page.find( "#verify-api" ).on( "click", function() {
 		var key = page.find( "#wtkey" ),
 			button = $( this ),
 			provider = page.find( "#weatherSelect" );
+
+		if ( !updateWeatherApiKeyControls( provider.val() ) ) {
+			return false;
+		}
 
 		button.prop( "disabled", true );
 
@@ -1433,13 +1649,22 @@ OSApp.Options.showOptions = function( expandItem ) {
 		//remove status from API key entry to prompt re-verify
 		page.find( "#wtkey" ).siblings( ".help-icon" ).hide();
 		page.find( "#wtkey" ).parent().removeClass( "red green" );
-		//make API key input appear if needed
-		page.find( "#wtkey" ).parents( ".ui-field-contain" ).toggleClass( "hidden", !(OSApp.Weather.getWeatherProviderById( this.value ).needsKey));
 		//change wto value based on new selection
 		let curr = OSApp.Utils.unescapeJSON(page.find( "#wto" ).val());
-		curr.provider = this.value;
+		if ( this.value === OSApp.Constants.weather.SERVER_DEFAULT_PROVIDER ) {
+			delete curr.provider;
+			delete curr.key;
+			delete curr.pws;
+		} else {
+			curr.provider = this.value;
+		}
 		page.find( "#wtkey" ).prop( "value", "" );
-		page.find( "#wtkey" ).parent().addClass( "red" );
+		updateWeatherApiKeyControls( this.value );
+		page.find( "label[for='weatherSelect'] .help-icon" ).attr( "data-helptext",
+			this.value === OSApp.Constants.weather.SERVER_DEFAULT_PROVIDER ?
+				OSApp.Language._( "Uses the provider configured on the custom weather server." ) :
+				OSApp.Language._( "Select your preferred weather service provider." )
+		);
 		page.find( "#wto" ).prop( "value", OSApp.Utils.escapeJSON(curr));
 	} );
 
@@ -1578,26 +1803,16 @@ OSApp.Options.showOptions = function( expandItem ) {
 	} );
 
 	page.find( "#o49" ).on( "click", function() {
-		var events = {
-			program: OSApp.Language._( "Program Start" ),
-			sensor1: OSApp.Language._( "Sensor 1 Update" ),
-			flow: OSApp.Language._( "Flow Sensor Update" ),
-			weather: OSApp.Language._( "Weather Adjustment Update" ),
-			reboot: OSApp.Language._( "Controller Reboot" ),
-			run: OSApp.Language._( "Station Finish" ),
-			sensor2: OSApp.Language._( "Sensor 2 Update" ),
-			rain: OSApp.Language._( "Rain Delay Update" ),
-			station: OSApp.Language._( "Station Start" ),
-			flow_alert: OSApp.Language._( "Flow Alert" ),
-			curr_alert: OSApp.Language._( "Under/Overcurrent Fault" ),
-		}, button = this, curr = parseInt( button.value ), inputs = "", a = 0, ife = 0;
+		var events = OSApp.Options.getNotificationEvents( OSApp.currentSession.controller.options ),
+			button = this,
+			curr = parseInt( button.value ),
+			inputs = "";
 
 		let no_ife2 = typeof OSApp.currentSession.controller.options.ife2 === "undefined";
-		$.each( events, function( i, val ) {
-			inputs += "<label for='notif-" + i + "'><input class='needsclick' data-iconpos='right' id='notif-" + i + "' type='checkbox' " +
-				( OSApp.Utils.getBitFromByte( curr, a ) ? "checked='checked'" : "" ) + ( no_ife2 && a >= 8 ? " disabled" : "" ) + ">" + val +
+		events.forEach( function( event ) {
+			inputs += "<label for='notif-" + event.id + "'><input class='needsclick' data-iconpos='right' id='notif-" + event.id + "' type='checkbox' " +
+				( OSApp.Utils.getBitFromByte( curr, event.bit ) ? "checked='checked'" : "" ) + ( no_ife2 && event.bit >= 8 ? " disabled" : "" ) + ">" + event.label +
 			"</label>";
-			a++;
 		} );
 
 		var popup = $(
@@ -1610,10 +1825,12 @@ OSApp.Options.showOptions = function( expandItem ) {
 			"</div>" );
 
 		popup.find( ".submit" ).on( "click", function() {
-			a = 0;
-			$.each( events, function( i ) {
-				ife |= popup.find( "#notif-" + i ).is( ":checked" ) << a;
-				a++;
+			var ife = OSApp.Options.updateNotificationEventValue( curr, events, function( event ) {
+				var input = popup.find( "#notif-" + event.id );
+				if ( input.is( ":disabled" ) ) {
+					return undefined;
+				}
+				return input.is( ":checked" );
 			} );
 			popup.popup( "close" );
 
@@ -1654,21 +1871,23 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 	// Build station <option> nodes for a master-zone <select>. Station names are
 	// controller data, so assign them with .text() rather than treating them as HTML.
-	var buildMasterStationOptions = function( current ) {
+	var buildMasterStationOptions = function() {
 		var options = $( "<select></select>" ),
 			snames = OSApp.currentSession.controller.stations.snames;
 		$( "<option></option>" )
 			.val( 0 )
 			.text( OSApp.Language._( "None" ) )
-			.prop( "selected", current === 0 )
 			.appendTo( options );
 		for ( var si = 0; si < snames.length; si++ ) {
-			var val = si + 1;
-			$( "<option></option>" )
+			var val = si + 1,
+				bundleLeader = OSApp.Supported.bundle() && OSApp.Bundles.isLeader( si ),
+				bundleMember = OSApp.Supported.bundle() && OSApp.Bundles.getReferencingLeaders( si ).length > 0,
+				option = $( "<option></option>" )
 				.val( val )
-				.text( OSApp.Stations.getName( si ) )
-				.prop( "selected", current === val )
+				.text( OSApp.Stations.getName( si ) + ( bundleLeader ? " (" + OSApp.Language._( "Bundle Station" ) + ")" :
+					( bundleMember ? " (" + OSApp.Language._( "Bundle Member" ) + ")" : "" ) ) )
 				.appendTo( options );
+			option.prop( "disabled", bundleLeader || bundleMember );
 			if ( !OSApp.Firmware.checkOSVersion( 214 ) && si === 7 ) { break; }
 		}
 		return options.children();
@@ -1696,7 +1915,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 		var button = this, curr = button.value,
 			conf = $.extend( {}, { type: 0, no: 0, on: 0, off: 0, fpr: 0, fprUnit: "liter" }, OSApp.Utils.unescapeJSON( curr ) ),
 			num = parseInt( button.id.substring( 6 ) ),
-			hasFlow = num === 1 && typeof OSApp.currentSession.controller.options.fpr0 !== "undefined";
+			hasFlow = num === 1 && typeof OSApp.currentSession.controller.options.fpr0 !== "undefined",
+			currentType = parseInt( conf.type ) || 0,
+			normallyOpen = parseInt( conf.no ) === 1 || currentType === 0;
 
 		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
@@ -1736,12 +1957,12 @@ OSApp.Options.showOptions = function( expandItem ) {
 				"<div class='ui-content'>" +
 					"<div class='ui-field-contain'>" +
 						"<label for='sn-type' class='select'>" + OSApp.Language._( "Type" ) + "</label>" +
-						"<select data-mini='true' id='sn-type'>" + buildSensorTypeOptions( num, parseInt( conf.type ) || 0, hasFlow ) + "</select>" +
+						"<select data-mini='true' id='sn-type'>" + buildSensorTypeOptions( num, currentType, hasFlow ) + "</select>" +
 					"</div>" +
 					"<div class='ui-field-contain sn-no'>" +
 						"<label class='select sn-option-label'>" + OSApp.Language._( "Option" ) + "</label>" +
 						"<label class='sn-no-toggle' for='sn-no'>" +
-							"<input data-mini='true' data-iconpos='right' id='sn-no' type='checkbox'" + ( conf.no ? " checked='checked'" : "" ) + ">" +
+							"<input data-mini='true' data-iconpos='right' id='sn-no' type='checkbox'" + ( normallyOpen ? " checked='checked'" : "" ) + ">" +
 							OSApp.Language._( "Normally Open" ) +
 						"</label>" +
 					"</div>" +
@@ -1791,7 +2012,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 			var newConf = {
 				type: type,
-				no: ( type === 1 || type === 3 || type === 240 ) && popup.find( "#sn-no" ).prop( "checked" ) ? 1 : 0,
+				// Preserve this option while hidden for Flow so changing between
+				// active sensor types does not silently change the wiring mode.
+				no: type !== 0 && popup.find( "#sn-no" ).prop( "checked" ) ? 1 : 0,
 				on: usesDelays ? parseInt( onInput.val() ) || 0 : 0,
 				off: usesDelays ? parseInt( offInput.val() ) || 0 : 0
 			};
@@ -1817,13 +2040,40 @@ OSApp.Options.showOptions = function( expandItem ) {
 		refreshFields();
 	} );
 
-	page.find( "#master1, #master2, #master3, #master4" ).on( "click", function() {
+	var showMasterSettings = function() {
 		var button = this, curr = button.value,
 			conf = $.extend( {}, { mas: 0, mton: 0, mtof: 0 }, OSApp.Utils.unescapeJSON( curr ) ),
 			num = button.id.substring( 6 ),
 			is220 = OSApp.Firmware.checkOSVersion( 220 ),
 			onMin = is220 ? -600 : 0, onMax = is220 ? 600 : 60,
 			offMin = is220 ? -600 : -60, offMax = is220 ? 600 : 0;
+
+		if ( OSApp.Supported.bundle() && !$( button ).data( "bundleMetadataReady" ) ) {
+			var context = { session: OSApp.currentSession, controller: OSApp.currentSession.controller },
+				isCurrent = function() {
+					return OSApp.currentSession === context.session && OSApp.currentSession.controller === context.controller;
+				};
+			$.mobile.loading( "show" );
+			OSApp.Sites.ensureControllerStationSpecial( undefined, true, context ).then( function() {
+				if ( !isCurrent() ) {
+					return;
+				}
+				$.mobile.loading( "hide" );
+				if ( context.controller.specialUnavailable ) {
+					OSApp.Errors.showError( OSApp.Language._( "Unable to load station configuration." ), 4000 );
+					return;
+				}
+				$( button ).data( "bundleMetadataReady", true );
+				showMasterSettings.call( button );
+				$( button ).removeData( "bundleMetadataReady" );
+			}, function( error ) {
+				if ( isCurrent() && !OSApp.Sites.isStaleControllerRefresh( error ) ) {
+					$.mobile.loading( "hide" );
+					OSApp.Errors.showError( OSApp.Language._( "Unable to load station configuration." ), 4000 );
+				}
+			} );
+			return false;
+		}
 
 		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
@@ -1848,7 +2098,12 @@ OSApp.Options.showOptions = function( expandItem ) {
 					"<button class='submit' data-theme='b'>" + OSApp.Language._( "Submit" ) + "</button>" +
 				"</div>" +
 			"</div>" );
-		popup.find( "#mas-zone" ).append( buildMasterStationOptions( parseInt( conf.mas ) || 0 ) );
+		var masterZone = popup.find( "#mas-zone" ),
+			configuredZone = String( parseInt( conf.mas ) || 0 );
+		masterZone.append( buildMasterStationOptions() ).val( configuredZone );
+		if ( masterZone.val() === null ) {
+			masterZone.val( "0" );
+		}
 
 		// Hide on/off adjustments when no zone is selected.
 		var toggleAdjustments = function() {
@@ -1896,7 +2151,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 		popup.css( { "box-sizing": "border-box", "width": "calc(100vw - 24px)", "max-width": "380px" } );
 		OSApp.UIDom.openPopup( popup, { positionTo: "window" } );
 		toggleAdjustments();
-	} );
+	};
+
+	page.find( "#master1, #master2, #master3, #master4" ).on( "click", showMasterSettings );
 
 	page.find( "#mqtt" ).on( "click", function() {
 		var button = this, curr = button.value,

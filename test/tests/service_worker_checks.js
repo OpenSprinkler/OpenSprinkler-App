@@ -148,6 +148,14 @@ describe("Service Worker Fetch Checks", function () {
 		});
 	});
 
+	it("pre-caches the Bundle Station module required by the app shell", function () {
+		var harness = makeHarness();
+
+		return harness.dispatchInstall().then(function () {
+			assert.include(harness.cache.addAll.firstCall.args[0], "/js/modules/bundles.js");
+		});
+	});
+
 	it("only removes obsolete OpenSprinkler caches during activation", function () {
 		var harness = makeHarness();
 		harness.caches.keys.resolves([

@@ -59,6 +59,10 @@ OSApp.About.displayPage = function() {
 					${OSApp.Language._("App Version")}: ${OSApp.uiState.appVersion}
 					<br>
 					${OSApp.Language._("Firmware")}: <span class="firmware"></span>
+					<span class="asbCompatibility hidden">
+						<br>
+						<span class="asb-compatibility-warning"></span>
+					</span>
 					<br>
 					<span class="hardwareLabel">${OSApp.Language._("Hardware Version")}:</span> <span class="hardware"></span>
 				</p>
@@ -73,6 +77,10 @@ OSApp.About.displayPage = function() {
 		page.find( ".hardwareLabel" ).toggleClass( "hidden", showHardware );
 
 		page.find( ".firmware" ).text( OSApp.Firmware.getOSVersion() + OSApp.Firmware.getOSMinorVersion() + ( OSApp.Analog.checkAnalogSensorAvail() ? " - ASB" : "" ) );
+		page.find( ".asbCompatibility" ).toggleClass( "hidden", !OSApp.Analog.checkAnalogSensorAvail() )
+			.find( ".asb-compatibility-warning" ).text(
+				OSApp.Language._( "This UI has limited support for ASB firmware." )
+			);
 
 		page.one( "pagehide", function() {
 			page.detach();
