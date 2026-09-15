@@ -97,6 +97,7 @@ OSApp.Sensors.getBuiltInSensorTypeName = function( type, shortName ) {
 		1: [ OSApp.Language._( "Rain" ), OSApp.Language._( "Rain Sensor" ) ],
 		2: [ OSApp.Language._( "Flow" ), OSApp.Language._( "Flow Sensor" ) ],
 		3: [ OSApp.Language._( "Soil" ), OSApp.Language._( "Soil Sensor" ) ],
+		4: [ OSApp.Language._( "Pressure" ), OSApp.Language._( "Pressure Sensor" ) ],
 		240: [ OSApp.Language._( "Program Switch" ), OSApp.Language._( "Program Switch" ) ]
 	};
 	var name = names[ type ] || [ OSApp.Language._( "Sensor" ), OSApp.Language._( "Sensor" ) ];

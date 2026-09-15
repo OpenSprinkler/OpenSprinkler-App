@@ -825,6 +825,15 @@ msgstr ""
 msgid "Flow Sensor"
 msgstr ""
 
+msgid "Pressure"
+msgstr ""
+
+msgid "Pressure Sensor"
+msgstr ""
+
+msgid "Pressure Sensor Update"
+msgstr ""
+
 msgid "Runtime"
 msgstr ""
 
