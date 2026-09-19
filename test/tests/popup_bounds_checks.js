@@ -271,4 +271,33 @@ describe("Options Popup Bounds Checks", function () {
 			options.mas4 = original.mas4;
 		}
 	});
+
+	it("does not open an old master dialog after switching controllers during /je", function () {
+		var controller = OSApp.currentSession.controller,
+			bundle = sinon.stub(OSApp.Supported, "bundle").returns(true),
+			pending = $.Deferred(),
+			sendToOS,
+			loading;
+
+		try {
+			OSApp.Options.showOptions();
+			sendToOS = sinon.stub(OSApp.Firmware, "sendToOS").returns(pending.promise());
+			loading = sinon.stub($.mobile, "loading");
+			$("#master1").trigger("click");
+			assert.lengthOf($("#masterSettings"), 0);
+
+			OSApp.currentSession.controller = $.extend({}, controller);
+			loading.resetHistory();
+			pending.reject({ status: 0, statusText: "abort" });
+
+			assert.lengthOf($("#masterSettings"), 0);
+			assert.isFalse(showError.called);
+			assert.isFalse(loading.calledWith("hide"));
+		} finally {
+			OSApp.currentSession.controller = controller;
+			bundle.restore();
+			if (sendToOS) { sendToOS.restore(); }
+			if (loading) { loading.restore(); }
+		}
+	});
 });

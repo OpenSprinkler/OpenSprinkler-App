@@ -128,7 +128,7 @@ OSApp.Firmware.sendToOS = function( dest, type, requestOptions ) {
 
 		// Handle incorrect password
 		} else if ( data.result === 2 ) {
-			if ( isChange ) {
+			if ( isChange && !requestOptions.suppressFirmwareError ) {
 				OSApp.Errors.showError( OSApp.Language._( "Check device password and try again." ) );
 			}
 
@@ -137,7 +137,7 @@ OSApp.Firmware.sendToOS = function( dest, type, requestOptions ) {
 
 		// Handle page not found by triggering fail
 		} else if ( data.result === 32 ) {
-			if ( isChange ) {
+			if ( isChange && !requestOptions.suppressFirmwareError ) {
 				OSApp.Errors.showError( OSApp.Language._( "Please check input and try again." ) );
 			}
 
@@ -147,8 +147,8 @@ OSApp.Firmware.sendToOS = function( dest, type, requestOptions ) {
 		// All numeric firmware errors reject, including JSON read endpoints such
 		// as /jsn and /jsd. Only mutations show the generic firmware toast; read
 		// callers provide operation-specific context.
-		if ( isChange ) {
-				// Friendly text for well-known firmware result codes (see
+		if ( isChange && !requestOptions.suppressFirmwareError ) {
+			// Friendly text for well-known firmware result codes (see
 				// HTML_* in OpenSprinkler firmware/defines.h). Anything not
 				// in the map falls back to the generic message. The raw code
 				// is always appended so unknown errors can still be looked up.
@@ -338,6 +338,81 @@ OSApp.Firmware.isOSPi = function() {
 	return false;
 };
 
+OSApp.Firmware.supportsBrowserFirmwareUpdate = function( hwv ) {
+	hwv = Number( typeof hwv === "undefined" ? OSApp.currentSession.controller?.options?.hwv : hwv );
+	return Number.isFinite( hwv ) && hwv >= 30 && hwv < 50;
+};
+
+OSApp.Firmware.supportsWirelessReset = function( hwv ) {
+	hwv = Number( typeof hwv === "undefined" ? OSApp.currentSession.controller?.options?.hwv : hwv );
+	return Number.isFinite( hwv ) && hwv >= 30 && hwv < 50;
+};
+
+OSApp.Firmware.getControllerHTTPPort = function( options ) {
+	options = options || OSApp.currentSession.controller?.options;
+	if ( !options || !Number.isFinite( Number( options.hp0 ) ) || !Number.isFinite( Number( options.hp1 ) ) ) {
+		return null;
+	}
+	return Number( options.hp1 ) * 256 + Number( options.hp0 );
+};
+
+OSApp.Firmware.isFirmwareUpdatePortReserved = function( port, hwv ) {
+	return Number( port ) === 8080 && OSApp.Firmware.supportsBrowserFirmwareUpdate( hwv ) &&
+		OSApp.Firmware.checkOSVersion( 2216 );
+};
+
+OSApp.Firmware.getBrowserFirmwareUpdateState = function( session ) {
+	session = session || OSApp.currentSession;
+	var options = session.controller?.options,
+		hwv = options?.hwv,
+		state = { supported: OSApp.Firmware.supportsBrowserFirmwareUpdate( hwv ), url: null, reason: null };
+
+	if ( !state.supported ) {
+		return state;
+	}
+	if ( OSApp.Firmware.isFirmwareUpdatePortReserved( OSApp.Firmware.getControllerHTTPPort( options ), hwv ) ) {
+		state.reason = "reserved-port";
+		return state;
+	}
+	if ( typeof session.prefix !== "string" || typeof session.ip !== "string" ||
+		!session.prefix.trim() || !session.ip.trim() ) {
+		state.reason = "local-network";
+		return state;
+	}
+
+	try {
+		var url = new URL( session.prefix + session.ip );
+		if ( ( url.protocol !== "http:" && url.protocol !== "https:" ) || !url.hostname ) {
+			state.reason = "local-network";
+			return state;
+		}
+		url.username = "";
+		url.password = "";
+		url.search = "";
+		url.hash = "";
+		url.pathname = url.pathname.replace( /\/+$/, "" ) + "/update";
+		state.url = url.href;
+	} catch {
+		state.reason = "local-network";
+	}
+
+	return state;
+};
+
+OSApp.Firmware.openBrowserFirmwareUpdate = function( url, parent ) {
+	if ( !url ) {
+		return false;
+	}
+
+	var route = $( "<a></a>" )
+		.addClass( "hidden iab firmware-update-route" )
+		.attr( "href", url )
+		.appendTo( parent || "body" );
+	route.trigger( "click" );
+	route.remove();
+	return true;
+};
+
 OSApp.Firmware.versionCompare = function( ver, check ) {
 
 	// Returns false when check < ver and 1 when check > ver
@@ -520,48 +595,63 @@ OSApp.Firmware.checkFirmwareUpdate = function() {
 
 					// If the variable does not exist or is lower than the newest update, show the update notification
 					if ( !flag.updateDismiss || flag.updateDismiss < data[ 0 ].tag_name ) {
+						var notificationUpdateState = OSApp.Firmware.getBrowserFirmwareUpdateState();
 						OSApp.Notifications.addNotification( {
+							id: "firmware-update",
 							title: OSApp.Language._( "Firmware update available" ),
+							actionLabel: notificationUpdateState.supported && !notificationUpdateState.url ?
+								OSApp.Language._( "Update Guide" ) : OSApp.Language._( "Update Now" ),
 							on: function() {
 
 								// Modify the changelog by parsing markdown of lists to HTML
 								var button = $( this ).parent(),
 									hwVersion = OSApp.currentSession.controller.options.hwv,
-									isBrowserUpload = hwVersion >= 30 && hwVersion < 40,
-									canUpdate = ( isBrowserUpload && !OSApp.currentSession.token && !!OSApp.currentSession.ip ) ||
-										( hwVersion > 63 && OSApp.Firmware.checkOSVersion( 216 ) ),
+									browserUpdate = OSApp.Firmware.getBrowserFirmwareUpdateState(),
+									isBrowserUpload = browserUpdate.supported,
+									isScriptUpdate = hwVersion >= 64 && hwVersion < 255 && OSApp.Firmware.checkOSVersion( 216 ),
+									showUpdate = isBrowserUpload || isScriptUpdate,
+									canUpdate = !!browserUpdate.url || isScriptUpdate,
+									unavailableReason = browserUpdate.reason === "reserved-port" ?
+										OSApp.Language._( "Port 8080 is reserved for firmware update. Choose another HTTP port first." ) :
+										OSApp.Language._( "Firmware update requires a local network connection to the controller." ),
 									changelog = OSApp.Firmware.getTrustedGithubUrl( data[ 0 ][ "html_url" ] ),
 									popup = $(
 										"<div data-role='popup' class='modal' data-theme='a'>" +
 											"<h3 class='center firmware-release-title' style='margin-bottom:0'></h3>" +
 											"<h5 class='center' style='margin:0'>" + OSApp.Language._( "This Controller" ) + ": " + OSApp.Firmware.getOSVersion() + OSApp.Firmware.getOSMinorVersion() + "</h5>" +
-											( changelog ? "<a class='changelog iab ui-btn ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' target='_blank' rel='noopener noreferrer'>" +
+											( changelog ? "<a class='firmware-changelog iab ui-btn ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' target='_blank' rel='noopener noreferrer'>" +
 												OSApp.Language._( "View Changelog" ) +
 											"</a>" : "" ) +
 											"<a class='guide ui-btn ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' href='#'>" +
 												OSApp.Language._( "Update Guide" ) +
 											"</a>" +
-											( canUpdate ? "<a class='update ui-btn ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' href='#'>" +
+											( showUpdate ? "<a class='update ui-btn ui-corner-all ui-shadow" + ( canUpdate ? "" : " ui-state-disabled" ) +
+												"' aria-disabled='" + ( canUpdate ? "false" : "true" ) + "' style='width:80%;margin:5px auto;' href='#'>" +
 												OSApp.Language._( "Update Now" ) +
 											"</a>" : "" ) +
+											( showUpdate && !canUpdate ? "<p class='center firmware-update-unavailable'>" + unavailableReason + "</p>" : "" ) +
 											"<a class='dismiss ui-btn ui-btn-b ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' href='#'>" +
 												OSApp.Language._( "Dismiss" ) +
 											"</a>" +
 										"</div>"
 									);
 
+								if ( browserUpdate.url ) {
+									OSApp.Firmware.openBrowserFirmwareUpdate( browserUpdate.url );
+									return false;
+								}
+
 								popup.find( ".firmware-release-title" ).text(
 									OSApp.Language._( "Latest" ) + " " + OSApp.Language._( "Firmware" ) + ": " + data[ 0 ].name
 								);
-								popup.find( ".changelog" ).attr( "href", changelog );
+								popup.find( ".firmware-changelog" ).attr( "href", changelog );
 
 								popup.find( ".update" ).on( "click", function() {
+									if ( !canUpdate ) {
+										return false;
+									}
 									if ( isBrowserUpload ) {
-										$( "<a></a>" )
-											.addClass( "hidden iab" )
-											.attr( "href", OSApp.currentSession.prefix + OSApp.currentSession.ip + "/update" )
-											.appendTo( popup )
-											.trigger( "click" );
+										OSApp.Firmware.openBrowserFirmwareUpdate( browserUpdate.url, popup );
 										return;
 									}
 
@@ -604,6 +694,11 @@ OSApp.Firmware.checkFirmwareUpdate = function() {
 								} );
 
 								OSApp.UIDom.openPopup( popup );
+								return false;
+							},
+							off: function() {
+								OSApp.Storage.set( { updateDismiss:data[ 0 ].tag_name } );
+								return true;
 							}
 						} );
 					}

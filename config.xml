@@ -26,7 +26,7 @@
     <preference name="loadUrlTimeoutValue" value="700000" />
     <platform name="ios">
         <custom-preference name="ios-XCBuildConfiguration-PRODUCT_BUNDLE_IDENTIFIER[sdk=macosx*]" value="com.albahra.Sprinklers.osx" buildType="release" />
-        <preference name="deployment-target" value="12.0" />
+        <preference name="deployment-target" value="15.0" />
         <preference name="scheme" value="ionic" />
         <config-file target="*-Info.plist" parent="NSLocationAlwaysAndWhenInUseUsageDescription">
             <string>Your current location will be used to configure OpenSprinkler.</string>
@@ -110,7 +110,7 @@
         </config-file>
         <preference name="Scheme" value="http" />
         <preference name="android-minSdkVersion" value="24" />
-        <preference name="android-targetSdkVersion" value="35" />
+        <preference name="android-targetSdkVersion" value="36" />
         <preference name="android-theme" value="@android:style/Theme.Holo.Light.NoActionBar" />
         <preference name="AndroidWindowSplashScreenAnimatedIcon" value="res/android/screens/splash.png" />
         <preference name="AndroidWindowSplashScreenBackground" value="#1c1c1c" />

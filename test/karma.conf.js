@@ -25,6 +25,7 @@ module.exports = function (config) {
 			{ pattern: 'www/index.html', included: false, watched: false, served: true },
 			{ pattern: 'www/sw.js', included: false, watched: false, served: true },
 			{ pattern: 'www/css/images/ajax-loader.gif', included: false, watched: false, served: true },
+			{ pattern: 'test/fixtures/**/*.json', included: false, watched: false, served: true },
 			{ pattern: 'www/js/modules/**/*.js', included: true, watched: false },
 			{ pattern: 'www/js/main.js', included: true, watched: false },
 			'node_modules/sinon/pkg/sinon.js',

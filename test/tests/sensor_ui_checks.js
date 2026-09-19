@@ -14,6 +14,14 @@
  */
 
 describe("Sensor UI Checks", function () {
+	var jsd2216;
+
+	before(function () {
+		return fetch("/base/test/fixtures/jsd_2216.json")
+			.then(function (response) { return response.json(); })
+			.then(function (data) { jsd2216 = data; });
+	});
+
 	function sensorLogBuffer(recordCount, uuids, timestamps) {
 		recordCount = typeof recordCount === "number" ? recordCount : 1;
 		var buffer = new ArrayBuffer(recordCount * 10);
@@ -57,6 +65,126 @@ describe("Sensor UI Checks", function () {
 			sensors: [ { name: "Test Sensor", args: [] } ]
 		};
 	}
+
+	it("normalizes every Weather Sensor action advertised by firmware 2.2.1(6)", function () {
+		var data = OSApp.Sensors.normalizeJsd(jsd2216);
+		var weather = data.sensors[2];
+		var actions = weather.args[0].options;
+
+		assert.isFalse(data.sensors[1].hardware_detected);
+		assert.equal(weather.name, "Weather Sensor");
+		assert.isFalse(!!weather.disabled);
+		assert.deepEqual(actions.map(function (action) { return action.id; }),
+			[ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ]);
+		assert.equal(actions[0].defaults.interval, "360");
+		assert.equal(actions[7].defaults.interval, "1440");
+		assert.equal(actions[11].defaults.unit, 55);
+		assert.deepEqual(actions[11].locked, [ "unit" ]);
+		assert.equal(actions[12].unit_group, 11);
+		assert.deepEqual(data.sensors[3].args[0].options.map(function (option) { return option.id; }), [ 0, 1, 2 ]);
+		assert.deepEqual(data.sensors[4].args[0].options.map(function (option) { return option.id; }), [ 0, 1, 2, 3 ]);
+	});
+
+	it("includes Weather Sensors in shared sensor selectors", function () {
+		var select = $("<select></select>"),
+			originalSensors = OSApp.currentSession.controller.sensors;
+
+		try {
+			OSApp.currentSession.controller.sensors = { sn: [ {
+				uuid: 42,
+				name: "Weather ETo",
+				type: 2,
+				extra: { action: 12 }
+			} ] };
+			OSApp.Sensors.makeSensorSelect(select);
+			assert.equal(select.find('option[value="42"]').text(), "Weather ETo (UUID: 42)");
+		} finally {
+			OSApp.currentSession.controller.sensors = originalSensors;
+		}
+	});
+
+	it("applies Weather Sensor defaults, locks, and unit groups from the 2.2.1(6) schema", function () {
+		var parent = $("<div></div>").appendTo("body");
+		var originalSensors = OSApp.currentSession.controller.sensors;
+		try {
+			OSApp.currentSession.controller.sensors = { sn: [] };
+			var editor = OSApp.Sensors.createSensorPage(parent, "", OSApp.Sensors.normalizeJsd(jsd2216));
+			var type = parent.find('select[id*="-type-"]');
+			var action = parent.find('select[id*="sen-2-action"]');
+			var interval = parent.find('input[id*="-interval-"]');
+			var minimum = parent.find('input[id*="-min-"]');
+			var maximum = parent.find('input[id*="-max-"]');
+			var unit = parent.find('select[id*="-unit-"]');
+
+			type.val("2").trigger("input");
+			assert.equal(action.val(), "0");
+			assert.equal(interval.val(), "360");
+			assert.equal(minimum.val(), "-40");
+			assert.equal(maximum.val(), "185");
+			assert.equal(unit.val(), "18");
+			assert.isFalse(unit.find('option[value="17"]').prop("disabled"));
+			assert.isTrue(unit.find('option[value="31"]').prop("disabled"));
+
+			action.val("1").trigger("change");
+			assert.equal(interval.val(), "360");
+			assert.equal(maximum.val(), "100");
+			assert.equal(unit.val(), "1");
+			assert.isTrue(unit.prop("disabled"));
+
+			action.val("12").trigger("change");
+			assert.equal(interval.val(), "1440");
+			assert.equal(maximum.val(), "2");
+			assert.equal(unit.val(), "54");
+			assert.isFalse(unit.prop("disabled"));
+			assert.isFalse(unit.find('option[value="50"]').prop("disabled"));
+			assert.isTrue(unit.find('option[value="18"]').prop("disabled"));
+			assert.match(editor.getURL(), /(?:^|&)action=12(?:&|$)/);
+		} finally {
+			OSApp.currentSession.controller.sensors = originalSensors;
+			parent.remove();
+		}
+	});
+
+	it("preserves an existing Weather Sensor and keeps disabled firmware types visible", function () {
+		var raw = $.extend(true, {}, jsd2216);
+		raw.sensors[2].dis = 1;
+		var data = OSApp.Sensors.normalizeJsd(raw);
+		var parent = $("<div></div>").appendTo("body");
+		var originalSensors = OSApp.currentSession.controller.sensors;
+		try {
+			OSApp.currentSession.controller.sensors = { sn: [] };
+			var editor = OSApp.Sensors.createSensorPage(parent, 42, data);
+			var type = parent.find('select[id*="-type-"]');
+			assert.equal(type.find('option[value="2"]').text(), "Weather Sensor");
+			assert.isTrue(type.find('option[value="2"]').prop("disabled"));
+
+			editor.update({
+				name: "Weather ETo",
+				interval: 1440,
+				unit: 54,
+				min: 0,
+				max: 2,
+				type: 2,
+				flag: 3,
+				extra: { action: 12 }
+			});
+			var params = new URL(editor.getURL(), "http://controller").searchParams;
+			assert.equal(type.val(), "2");
+			assert.equal(params.get("name"), "Weather ETo");
+			assert.equal(params.get("type"), "2");
+			assert.equal(params.get("action"), "12");
+			assert.equal(params.get("unit"), "54");
+			assert.equal(params.get("flag"), "3");
+			assert.equal(params.get("uuid"), "42");
+
+			editor.reset();
+			assert.equal(type.val(), "1");
+			assert.isTrue(type.find('option[value="2"]').prop("disabled"));
+		} finally {
+			OSApp.currentSession.controller.sensors = originalSensors;
+			parent.remove();
+		}
+	});
 
 	it("should render the home card as a keyboard-accessible navigation link", function () {
 		var controller = OSApp.currentSession.controller;

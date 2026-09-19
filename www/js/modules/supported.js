@@ -65,6 +65,10 @@ OSApp.Supported.special = function() {
 	return ( typeof OSApp.currentSession.controller.stations.stn_spe === "object" ) ? true : false;
 };
 
+OSApp.Supported.bundle = function() {
+	return Array.isArray( OSApp.currentSession.controller?.stations?.stn_bnd );
+};
+
 OSApp.Supported.pausing = function() {
 	return OSApp.currentSession.controller.settings.pq !== undefined;
 };

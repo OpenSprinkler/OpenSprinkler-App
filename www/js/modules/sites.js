@@ -933,6 +933,7 @@ OSApp.Sites.newLoad = function() {
 				OSApp.Analog.updateProgramAdjustments();
 				OSApp.Sites.addASBCompatibilityNotification();
 			}
+			OSApp.Sites.updatePasswordSecurityNotification();
 
 			// Hide change password feature for unsupported devices
 			if ( OSApp.Firmware.isOSPi() || OSApp.Firmware.checkOSVersion( 208 ) ) {
@@ -1038,10 +1039,45 @@ OSApp.Sites.addASBCompatibilityNotification = function() {
 	}
 
 	OSApp.Notifications.addNotification( {
+		id: "asb-firmware-compatibility",
 		title: OSApp.Language._( "ASB firmware detected" ),
 		desc: OSApp.Language._( "This UI has limited support for it. Switch to OpenSprinklerASB app/UI." ),
 		on: function() {
 			OSApp.UIDom.changePage( "#about" );
+			return false;
+		}
+	} );
+};
+
+OSApp.Sites.updatePasswordSecurityNotification = function() {
+	var notificationId = "device-password-security",
+		controller = OSApp.currentSession.controller,
+		options = controller && controller.options;
+
+	if ( !options || Number( options.hwv ) === 255 ) {
+		OSApp.Notifications.removeNotificationById( notificationId );
+		return;
+	}
+
+	var password = typeof OSApp.currentSession.pass === "string" ? OSApp.currentSession.pass.toLowerCase() : "",
+		ignorePassword = Number( options.ipas ) === 1,
+		defaultPassword = password === "opendoor" || password === "a6d82bced638de3def1e9bbb4983225c",
+		emptyPassword = password === "" || password === "d41d8cd98f00b204e9800998ecf8427e";
+
+	if ( !ignorePassword && !defaultPassword && !emptyPassword ) {
+		OSApp.Notifications.removeNotificationById( notificationId );
+		return;
+	}
+
+	OSApp.Notifications.addNotification( {
+		id: notificationId,
+		title: OSApp.Language._( "Device password is not secure" ),
+		desc: ignorePassword ?
+			OSApp.Language._( "Password protection is disabled. Set a secure device password and turn off Ignore Password in Edit Options." ) :
+			OSApp.Language._( "This controller is using a default or empty device password. Change it to protect access." ),
+		actionLabel: OSApp.Language._( "Change Password" ),
+		on: function() {
+			OSApp.Network.changePassword();
 			return false;
 		}
 	} );
@@ -1173,7 +1209,9 @@ OSApp.Sites.updateController = function( callback, fail ) {
 				delete controller.sensor_desc;
 			}
 
-			// Fix the station status array
+			// Preserve bundle-applied output claims before flattening /js to its station array.
+			controller.bundleApplied = Array.isArray( controller.status?.bap ) ? controller.status.bap :
+				( Array.isArray( controller.settings?.bap ) ? controller.settings.bap : [] );
 			controller.status = controller.status.sn;
 
 			// /ja includes live sensor data, but the firmware intentionally keeps
@@ -1401,6 +1439,7 @@ OSApp.Sites.updateControllerStatus = function( callback, expectedContext ) {
 				if ( !isSiteControllerContextCurrent( context ) ) {
 					return rejectStaleSiteControllerRefresh();
 				}
+				controller.bundleApplied = Array.isArray( status.bap ) ? status.bap : [];
 				controller.status = status.sn;
 				callback();
 				return controller.status;
@@ -1409,6 +1448,7 @@ OSApp.Sites.updateControllerStatus = function( callback, expectedContext ) {
 				if ( !isSiteControllerContextCurrent( context ) ) {
 					return rejectStaleSiteControllerRefresh();
 				}
+				controller.bundleApplied = [];
 				controller.status = [];
 				return controller.status;
 			} );
@@ -1663,6 +1703,7 @@ OSApp.Sites.updateControllerStationSpecial = function( callback, expectedContext
 				return rejectStaleSiteControllerRefresh();
 			}
 			controller.special = special;
+			controller.specialUnavailable = false;
 			callback();
 			return special;
 		},
@@ -1671,8 +1712,48 @@ OSApp.Sites.updateControllerStationSpecial = function( callback, expectedContext
 				return rejectStaleSiteControllerRefresh();
 			}
 			controller.special = {};
+			controller.specialUnavailable = true;
 			return controller.special;
 		} );
+};
+
+OSApp.Sites.ensureControllerStationSpecial = function( callback, force, expectedContext ) {
+	callback = callback || function() {};
+	var context = getSiteControllerContext( expectedContext ),
+		controller = context.controller,
+		hasSpecial = Array.isArray( controller?.stations?.stn_spe ) &&
+			controller.stations.stn_spe.some( function( value ) { return value !== 0; } );
+
+	if ( !hasSpecial && !force ) {
+		controller.special = {};
+		controller.specialUnavailable = false;
+		callback();
+		return $.Deferred().resolve( controller.special ).promise();
+	}
+
+	if ( !force && typeof controller.special === "object" && !controller.specialUnavailable ) {
+		callback();
+		return $.Deferred().resolve( controller.special ).promise();
+	}
+
+	if ( !force && controller.specialRequest ) {
+		return controller.specialRequest.then( callback );
+	}
+
+	var request = OSApp.Sites.updateControllerStationSpecial( callback, context );
+	controller.specialRequest = request;
+	request.always( function() {
+		if ( isSiteControllerContextCurrent( context ) && controller.specialRequest === request ) {
+			delete controller.specialRequest;
+		}
+	} );
+	return request;
+};
+
+OSApp.Sites.invalidateControllerStationSpecial = function( expectedContext ) {
+	var context = getSiteControllerContext( expectedContext );
+	delete context.controller.special;
+	delete context.controller.specialUnavailable;
 };
 
 // Change the current site (needs to be defined AFTER OSApp.Sites.checkConfigured!)

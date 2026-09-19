@@ -186,7 +186,10 @@ OSApp.UIDom.launchApp = function() {
 			if ( $( hash ).length === 0 ) {
 				OSApp.Dashboard.displayPage( data.options.firstLoad );
 			} else {
-				$( hash ).one( "pageshow", function() { OSApp.Status.refreshStatus(); } );
+				$( hash ).one( "pageshow", function() {
+					OSApp.Status.refreshStatus();
+					OSApp.UIDom.refreshHomeStationSpecial();
+				} );
 			}
 		} else if ( hash === "#sensors" && OSApp.Supported.sensors() ) {
 			OSApp.Sensors.displayPage( data.options.expandUuid );
@@ -637,10 +640,27 @@ OSApp.UIDom.bindPanel = function() {
 	panel.find( ".export_config" ).on( "click", function() {
 
 		// Check if the controller has special stations which are enabled
-		if ( typeof OSApp.currentSession.controller.stations.stn_spe === "object" && typeof OSApp.currentSession.controller.special !== "object" && !OSApp.currentSession.controller.stations.stn_spe.every( function( e ) { return e === 0; } ) ) {
+		if ( typeof OSApp.currentSession.controller.stations.stn_spe === "object" && !OSApp.currentSession.controller.stations.stn_spe.every( function( e ) { return e === 0; } ) ) {
 
-			// Grab station special data before proceeding
-			OSApp.Sites.updateControllerStationSpecial( OSApp.ImportExport.getExportMethod );
+			// Export the authoritative special-station configuration rather than a dashboard cache.
+			var context = { session: OSApp.currentSession, controller: OSApp.currentSession.controller },
+				isCurrent = function() {
+					return OSApp.currentSession === context.session && OSApp.currentSession.controller === context.controller;
+				};
+			OSApp.Sites.ensureControllerStationSpecial( undefined, true, context ).then( function() {
+				if ( !isCurrent() ) {
+					return;
+				}
+				if ( context.controller.specialUnavailable ) {
+					OSApp.Errors.showError( OSApp.Language._( "Unable to load station configuration." ), 4000 );
+					return;
+				}
+				OSApp.ImportExport.getExportMethod();
+			}, function( error ) {
+				if ( isCurrent() && !OSApp.Sites.isStaleControllerRefresh( error ) ) {
+					OSApp.Errors.showError( OSApp.Language._( "Unable to load station configuration." ), 4000 );
+				}
+			} );
 		} else {
 			OSApp.ImportExport.getExportMethod();
 		}
@@ -711,17 +731,21 @@ OSApp.UIDom.bindPanel = function() {
 				var operation = ( OSApp.currentSession.controller && OSApp.currentSession.controller.settings && OSApp.currentSession.controller.settings.en && OSApp.currentSession.controller.settings.en === 1 ) ? OSApp.Language._( "Disable" ) : OSApp.Language._( "Enable" );
 				panel.find( ".toggleOperation span:first" ).html( operation ).attr( "data-translate", operation );
 
-				// Hardware 3.0 family (hwv 30..39) supports browser-based
-				// firmware update at <baseurl>/update. Only expose this for a
-				// direct session with a complete URL; cloud-token sessions do
-				// not have a directly reachable browser endpoint.
-				var hwv = OSApp.currentSession.controller && OSApp.currentSession.controller.options && OSApp.currentSession.controller.options.hwv,
+				var updateState = OSApp.Firmware.getBrowserFirmwareUpdateState(),
 					updateItem = panel.find( ".update-fw" ),
-					showUpdate = typeof hwv === "number" && hwv >= 30 && hwv < 40 &&
-						!OSApp.currentSession.token && !!OSApp.currentSession.prefix && !!OSApp.currentSession.ip;
-				updateItem.toggleClass( "hidden", !showUpdate );
-				updateItem.find( "a" ).attr( "href", showUpdate ?
-					OSApp.currentSession.prefix + OSApp.currentSession.ip + "/update" : "#" );
+					updateLink = updateItem.find( "a" ),
+					updateReason = updateItem.find( ".update-fw-reason" ),
+					reason = updateState.reason === "reserved-port" ?
+						OSApp.Language._( "Port 8080 is reserved for firmware update. Choose another HTTP port first." ) :
+						OSApp.Language._( "Firmware update requires a local network connection to the controller." );
+
+				updateItem.toggleClass( "hidden", !updateState.supported );
+				updateLink
+					.attr( "href", updateState.url || "#" )
+					.attr( "aria-disabled", updateState.url ? "false" : "true" )
+					.toggleClass( "iab", !!updateState.url )
+					.toggleClass( "ui-state-disabled", !updateState.url );
+				updateReason.text( reason ).toggleClass( "hidden", !!updateState.url );
 			};
 
 		$( "html" ).on( "datarefresh",  updateButtons );
@@ -834,6 +858,16 @@ OSApp.UIDom.insertStyle = function( style ) {
 	document.head.appendChild( a );
 };
 
+OSApp.UIDom.refreshHomeStationSpecial = function() {
+	if ( !$( "#sprinklers" ).length ) {
+		return;
+	}
+
+	OSApp.Sites.ensureControllerStationSpecial( function() {
+		$( "html" ).trigger( "datarefresh" );
+	} );
+};
+
 // Transition to home page after successful load
 OSApp.UIDom.goHome = function( firstLoad ) {
 	if ( $( ".ui-page-active" ).attr( "id" ) !== "sprinklers" ) {
@@ -856,6 +890,8 @@ OSApp.UIDom.goHome = function( firstLoad ) {
 		}
 
 		OSApp.UIDom.changePage( "#sprinklers", opts );
+	} else {
+		OSApp.UIDom.refreshHomeStationSpecial();
 	}
 };
 
@@ -962,6 +998,9 @@ OSApp.UIDom.changeHeader = function( opt ) {
 		header.html( newHeader ).toolbar( header.hasClass( "ui-header" ) ? "refresh" : null );
 		header.find( ".ui-btn-left" ).on( "click", opt.leftBtn.on );
 		header.find( ".ui-btn-right" ).on( "click", opt.rightBtn.on );
+		if ( header.find( ".notifications" ).length ) {
+			OSApp.Notifications.updateNotificationBadge();
+		}
 	} ).fadeIn( speed );
 
 	return newHeader;

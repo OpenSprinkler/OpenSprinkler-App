@@ -206,7 +206,10 @@ describe("Import/Export Checks", function () {
 		var previousController = OSApp.currentSession.controller,
 			controller = {
 				options: { fwv: 300 },
-				sensors: { sn: [ onboardSensor(42, "Soil", 0) ] },
+				sensors: { sn: [
+					onboardSensor(42, "Soil", 0),
+					weatherSensor(43, "Weather ETo", 0)
+				] },
 				sensor_desc: sensorDescription()
 			};
 
@@ -220,6 +223,44 @@ describe("Import/Export Checks", function () {
 			assert.property(controller, "sensor_desc");
 		} finally {
 			OSApp.currentSession.controller = previousController;
+		}
+	});
+
+	it("should import an enabled Weather Sensor definition", function () {
+		var sandbox = sinon.createSandbox(),
+			state = [],
+			controller = installImportHarness(sandbox, state),
+			commands = [],
+			description = sensorDescription();
+		description.sensors[2].disabled = false;
+
+		try {
+			sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (command) {
+				commands.push(command);
+				if (command.indexOf("/jsd?") === 0) return resolved(description);
+				if (command.indexOf("/jsn?") === 0) return resolved({ sn: JSON.parse(JSON.stringify(state)), count: state.length });
+				if (command.indexOf("/csn?") === 0) {
+					applySensorCommand(state, command, 100);
+					return resolved({ result: 1 });
+				}
+				return resolved({ result: 1 });
+			});
+			var backup = baseBackup();
+			backup.sensors = { sn: [ weatherSensor(42, "Imported weather", 0) ], count: 1 };
+
+			return cleanupAfter(asNative(OSApp.ImportExport.importConfig(backup)).then(function () {
+				var create = commands.find(function (command) {
+					return command.indexOf("/csn?") === 0 && paramsFor(command).get("uuid") === "-1";
+				});
+				assert.equal(paramsFor(create).get("type"), "2");
+				assert.equal(paramsFor(create).get("action"), "0");
+				assert.equal(state[0].uuid, 100);
+				assert.equal(state[0].name, "Imported weather");
+			}), sandbox, controller);
+		} catch (error) {
+			OSApp.currentSession.controller = controller;
+			sandbox.restore();
+			throw error;
 		}
 	});
 

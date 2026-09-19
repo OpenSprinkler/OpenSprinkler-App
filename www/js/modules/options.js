@@ -55,6 +55,35 @@ OSApp.Options.updateNotificationEventValue = function( value, events, getSelecti
 	return value;
 };
 
+OSApp.Options.removeInvalidBundleMasterOptions = function( options ) {
+	var cleaned = $.extend( {}, options ),
+		removed = [],
+		masters = [
+			{ station: "mas", on: "mton", off: "mtof" },
+			{ station: "mas2", on: "mton2", off: "mtof2" },
+			{ station: "mas3", on: "mton3", off: "mtof3" },
+			{ station: "mas4", on: "mton4", off: "mtof4" }
+		];
+
+	masters.forEach( function( master ) {
+		if ( !Object.prototype.hasOwnProperty.call( cleaned, master.station ) ) {
+			return;
+		}
+
+		var sid = Number( cleaned[ master.station ] ) - 1;
+		if ( sid < 0 || ( !OSApp.Bundles.isLeader( sid ) && OSApp.Bundles.getReferencingLeaders( sid ).length === 0 ) ) {
+			return;
+		}
+
+		removed.push( master.station );
+		delete cleaned[ master.station ];
+		delete cleaned[ master.on ];
+		delete cleaned[ master.off ];
+	} );
+
+	return { options: cleaned, removed: removed };
+};
+
 OSApp.Options.resetStationAttributes = function( attributes ) {
 	var operation = $.Deferred();
 
@@ -252,6 +281,13 @@ OSApp.Options.showOptions = function( expandItem ) {
 						return true;
 					case "o12":
 						if ( !isPi ) {
+							var requestedPort = parseInt( data, 10 ),
+								currentPort = OSApp.Firmware.getControllerHTTPPort();
+							if ( requestedPort !== currentPort && OSApp.Firmware.isFirmwareUpdatePortReserved( requestedPort ) ) {
+								OSApp.Errors.showError( OSApp.Language._( "Port 8080 is reserved for firmware update. Please choose another HTTP port." ) );
+								invalid = true;
+								return false;
+							}
 							opt.o12 = data & 0xff;
 							opt.o13 = ( data >> 8 ) & 0xff;
 						}
@@ -431,19 +467,111 @@ OSApp.Options.showOptions = function( expandItem ) {
 				opt = pruned;
 			}
 
-			$.mobile.loading( "show" );
-
-			OSApp.Firmware.sendToOS( "/co?pw=&" + $.param( opt ) ).done( function() {
+			var saveContext = { session: OSApp.currentSession, controller: OSApp.currentSession.controller };
+			var isCurrentSave = function() {
+				return OSApp.currentSession === saveContext.session && OSApp.currentSession.controller === saveContext.controller;
+			};
+			var finishSave = function( message ) {
+				if ( !isCurrentSave() ) {
+					return;
+				}
 				$.mobile.document.one( "pageshow", function() {
-					OSApp.Errors.showError( OSApp.Language._( "Settings have been saved" ) );
+					if ( isCurrentSave() ) {
+						OSApp.Errors.showError( message );
+					}
 				} );
 				OSApp.UIDom.goBack();
-				OSApp.Sites.updateController( OSApp.Weather.updateWeather );
-			} ).fail( function() {
+				OSApp.Sites.updateController( function() {
+					OSApp.Sites.updatePasswordSecurityNotification();
+					OSApp.Weather.updateWeather();
+				} );
+			};
+			var restoreSubmit = function( message ) {
+				if ( !isCurrentSave() ) {
+					return;
+				}
 				$.mobile.loading( "hide" );
 				button.prop( "disabled", false );
 				page.find( ".submit" ).addClass( "hasChanges" );
-			} );
+				if ( message ) {
+					OSApp.Errors.showError( message );
+				}
+			};
+			var reconcileRejectedOptions = function( message ) {
+				if ( !isCurrentSave() ) {
+					return;
+				}
+				restoreSubmit( message );
+				OSApp.Sites.updateControllerOptions( undefined, saveContext ).done( function() {
+					if ( !isCurrentSave() ) {
+						return;
+					}
+					var options = OSApp.currentSession.controller.options;
+					if ( options && page.find( "#o12" ).length ) {
+						page.find( "#o12" ).val( OSApp.Firmware.getControllerHTTPPort( options ) );
+					}
+					OSApp.Sites.updatePasswordSecurityNotification();
+				} );
+			};
+			var sendOptions = function( options, isRecovery ) {
+				OSApp.Firmware.sendToOS( "/co?pw=&" + $.param( options ), undefined, {
+					suppressFirmwareError: true
+				} ).done( function() {
+					if ( !isCurrentSave() ) {
+						return;
+					}
+					finishSave( isRecovery ?
+						OSApp.Language._( "Settings were saved, but an invalid master station was ignored." ) :
+						OSApp.Language._( "Settings have been saved" ) );
+				} ).fail( function( error ) {
+					if ( !isCurrentSave() ) {
+						return;
+					}
+					if ( !isRecovery && error?.result === 17 && OSApp.Supported.bundle() ) {
+						OSApp.Sites.updateController( function() {
+							if ( !isCurrentSave() ) {
+								return;
+							}
+							OSApp.Sites.ensureControllerStationSpecial( undefined, true, saveContext ).then( function() {
+								if ( !isCurrentSave() ) {
+									return;
+								}
+								if ( OSApp.currentSession.controller.specialUnavailable ) {
+									reconcileRejectedOptions( OSApp.Language._( "Controller rejected one or more invalid options. Review and try again." ) );
+									return;
+								}
+								var recovery = OSApp.Options.removeInvalidBundleMasterOptions( options );
+								if ( recovery.removed.length === 0 ) {
+									reconcileRejectedOptions( OSApp.Language._( "Controller rejected one or more invalid options. Review and try again." ) );
+									return;
+								}
+								if ( Object.keys( recovery.options ).length === 0 ) {
+									finishSave( OSApp.Language._( "Settings were saved, but an invalid master station was ignored." ) );
+									return;
+								}
+								sendOptions( recovery.options, true );
+							}, function() {
+								reconcileRejectedOptions( OSApp.Language._( "Controller rejected one or more invalid options. Review and try again." ) );
+							} );
+						}, function() {
+							reconcileRejectedOptions( OSApp.Language._( "Controller rejected one or more invalid options. Review and try again." ) );
+						} );
+						return;
+					}
+					var message = error?.result === 17 ?
+						OSApp.Language._( "Controller rejected one or more invalid options. Review and try again." ) :
+						OSApp.Language._( "Unable to save settings. Controller settings were refreshed; review and try again." );
+					if ( error?.status === 401 ) {
+						message = OSApp.Language._( "Check device password and try again." );
+					} else if ( error?.status === 404 ) {
+						message = OSApp.Language._( "Please check input and try again." );
+					}
+					reconcileRejectedOptions( message );
+				} );
+			};
+
+			$.mobile.loading( "show" );
+			sendOptions( opt, false );
 		},
 		header = OSApp.UIDom.changeHeader( {
 			title: OSApp.Language._( "Edit Options" ),
@@ -1025,7 +1153,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 	list += "<button data-mini='true' class='center-div reset-programs'>" + OSApp.Language._( "Delete All Programs" ) + "</button>";
 	list += "<button data-mini='true' class='center-div reset-stations'>" + OSApp.Language._( "Reset Station Attributes" ) + "</button>";
 
-	if ( OSApp.currentSession.controller.options.hwv >= 30 && OSApp.currentSession.controller.options.hwv < 40 ) {
+	if ( OSApp.Firmware.supportsWirelessReset() ) {
 		list += "<hr class='divider'><button data-mini='true' class='center-div reset-wireless'>" + OSApp.Language._( "Reset Wireless Settings" ) + "</button>";
 	}
 
@@ -1751,11 +1879,15 @@ OSApp.Options.showOptions = function( expandItem ) {
 			.text( OSApp.Language._( "None" ) )
 			.appendTo( options );
 		for ( var si = 0; si < snames.length; si++ ) {
-			var val = si + 1;
-			$( "<option></option>" )
+			var val = si + 1,
+				bundleLeader = OSApp.Supported.bundle() && OSApp.Bundles.isLeader( si ),
+				bundleMember = OSApp.Supported.bundle() && OSApp.Bundles.getReferencingLeaders( si ).length > 0,
+				option = $( "<option></option>" )
 				.val( val )
-				.text( OSApp.Stations.getName( si ) )
+				.text( OSApp.Stations.getName( si ) + ( bundleLeader ? " (" + OSApp.Language._( "Bundle Station" ) + ")" :
+					( bundleMember ? " (" + OSApp.Language._( "Bundle Member" ) + ")" : "" ) ) )
 				.appendTo( options );
+			option.prop( "disabled", bundleLeader || bundleMember );
 			if ( !OSApp.Firmware.checkOSVersion( 214 ) && si === 7 ) { break; }
 		}
 		return options.children();
@@ -1908,13 +2040,40 @@ OSApp.Options.showOptions = function( expandItem ) {
 		refreshFields();
 	} );
 
-	page.find( "#master1, #master2, #master3, #master4" ).on( "click", function() {
+	var showMasterSettings = function() {
 		var button = this, curr = button.value,
 			conf = $.extend( {}, { mas: 0, mton: 0, mtof: 0 }, OSApp.Utils.unescapeJSON( curr ) ),
 			num = button.id.substring( 6 ),
 			is220 = OSApp.Firmware.checkOSVersion( 220 ),
 			onMin = is220 ? -600 : 0, onMax = is220 ? 600 : 60,
 			offMin = is220 ? -600 : -60, offMax = is220 ? 600 : 0;
+
+		if ( OSApp.Supported.bundle() && !$( button ).data( "bundleMetadataReady" ) ) {
+			var context = { session: OSApp.currentSession, controller: OSApp.currentSession.controller },
+				isCurrent = function() {
+					return OSApp.currentSession === context.session && OSApp.currentSession.controller === context.controller;
+				};
+			$.mobile.loading( "show" );
+			OSApp.Sites.ensureControllerStationSpecial( undefined, true, context ).then( function() {
+				if ( !isCurrent() ) {
+					return;
+				}
+				$.mobile.loading( "hide" );
+				if ( context.controller.specialUnavailable ) {
+					OSApp.Errors.showError( OSApp.Language._( "Unable to load station configuration." ), 4000 );
+					return;
+				}
+				$( button ).data( "bundleMetadataReady", true );
+				showMasterSettings.call( button );
+				$( button ).removeData( "bundleMetadataReady" );
+			}, function( error ) {
+				if ( isCurrent() && !OSApp.Sites.isStaleControllerRefresh( error ) ) {
+					$.mobile.loading( "hide" );
+					OSApp.Errors.showError( OSApp.Language._( "Unable to load station configuration." ), 4000 );
+				}
+			} );
+			return false;
+		}
 
 		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
@@ -1992,7 +2151,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 		popup.css( { "box-sizing": "border-box", "width": "calc(100vw - 24px)", "max-width": "380px" } );
 		OSApp.UIDom.openPopup( popup, { positionTo: "window" } );
 		toggleAdjustments();
-	} );
+	};
+
+	page.find( "#master1, #master2, #master3, #master4" ).on( "click", showMasterSettings );
 
 	page.find( "#mqtt" ).on( "click", function() {
 		var button = this, curr = button.value,
