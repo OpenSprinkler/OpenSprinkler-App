@@ -109,6 +109,7 @@
             </provider>
         </config-file>
         <preference name="Scheme" value="http" />
+        <preference name="BackgroundColor" value="0xff1c1c1c" />
         <preference name="android-minSdkVersion" value="24" />
         <preference name="android-targetSdkVersion" value="36" />
         <preference name="android-theme" value="@android:style/Theme.Holo.Light.NoActionBar" />
