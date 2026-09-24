@@ -316,24 +316,39 @@ OSApp.Firmware.checkOSVersion = function( check ) {
 		}
 	}
 
-	if ( OSApp.Firmware.isOSPi() ) {
+	// The legacy Python-based OSPi server reported its version as a string
+	// (e.g. "1.8.3-ospi"), which can't be meaningfully compared numerically.
+	// The modern unified firmware reports "fwv" as a plain number on every
+	// platform, including OSPi, so only bail out for the legacy string case
+	// -- do NOT key this off isOSPi(), or version checks (including the
+	// password-hashing check in changePassword()/fixPasswordHash()) silently
+	// break for every OSPi device once isOSPi() correctly detects them.
+	if ( typeof version !== "number" ) {
 		return false;
-	} else {
-		if ( check === version ) {
-			return true;
-		} else {
-			return OSApp.Firmware.versionCompare( version.toString().split( "" ), check.toString().split( "" ) );
-		}
 	}
+	if ( check === version ) {
+		return true;
+	}
+	return OSApp.Firmware.versionCompare( version.toString().split( "" ), check.toString().split( "" ) );
 };
 
 OSApp.Firmware.isOSPi = function() {
 	if ( OSApp.currentSession.controller &&
-		typeof OSApp.currentSession.controller.options === "object" &&
-		typeof OSApp.currentSession.controller.options.fwv === "string" &&
-		OSApp.currentSession.controller.options.fwv.search( /ospi/i ) !== -1 ) {
+		typeof OSApp.currentSession.controller.options === "object" ) {
+		var options = OSApp.currentSession.controller.options;
 
-		return true;
+		// Legacy Python-based OSPi server (pre-unified firmware).
+		if ( typeof options.fwv === "string" && options.fwv.search( /ospi/i ) !== -1 ) {
+			return true;
+		}
+
+		// Modern unified C++ firmware running on OSPi hardware reports "fwv"
+		// as a plain number like any other board, so it has to be detected
+		// via "hwv" instead -- see OSPI_HW_VERSION_BASE (0x40 = 64) in
+		// firmware/defines.h.
+		if ( options.hwv === 64 ) {
+			return true;
+		}
 	}
 	return false;
 };
