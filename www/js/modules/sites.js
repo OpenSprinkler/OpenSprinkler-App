@@ -697,9 +697,7 @@ OSApp.Sites.submitNewSite = function( ssl, useAuth ) {
 				sites[ name ].os_ip = OSApp.currentSession.ip = ip;
 
 				if ( typeof data.fwv === "number" && data.fwv >= 213 ) {
-					if ( typeof data.wl === "number" ) {
-						pw = md5( pw );
-					}
+					pw = md5( pw );
 				}
 
 				sites[ name ].os_pw = savePW ? pw : "";
@@ -1775,15 +1773,11 @@ OSApp.Sites.fixPasswordHash = function( current ) {
 		if ( !OSApp.Utils.isMD5( OSApp.currentSession.pass ) ) {
 			var pw = md5( OSApp.currentSession.pass );
 
-			OSApp.Firmware.sendToOS(
-				"/sp?pw=&npw=" + encodeURIComponent( pw ) +
-				"&cpw=" + encodeURIComponent( pw ), "json"
-			).done( function( info ) {
-				var result = info.result;
-
-				if ( !result || result > 1 ) {
-					return false;
-				} else {
+			// Firmware 2.1.3+ only ever stores the hash, never the raw password,
+			// so verifying with the stale raw value here would always fail.
+			// checkPW() authenticates with the hash itself instead.
+			OSApp.Network.checkPW( pw, function( result ) {
+				if ( result ) {
 					sites[ current ].os_pw = OSApp.currentSession.pass = pw;
 					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
 				}
