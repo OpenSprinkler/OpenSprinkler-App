@@ -90,4 +90,43 @@ describe("OpenSprinkler Firmware Version Functions", function () {
 			assert.equal("2.0.4", OSApp.Firmware.getOSVersion());
 		});
 	});
+
+	describe("Test against the unified (post-Python) firmware running on OSPi hardware", function () {
+
+		// The modern C++ firmware reports "fwv" as a plain number on every
+		// platform, including OSPi -- only the retired Python-based OSPi
+		// server used the "X.X.X-ospi" string format asserted above. OSPi
+		// hardware is now only distinguishable via "hwv" (64 ==
+		// OSPI_HW_VERSION_BASE in firmware/defines.h).
+		before(function () {
+			OSApp.currentSession.controller.options = {
+				fwv: 221,
+				hwv: 64
+			};
+		});
+		it("isOSPi() should still identify the device as an OSPi", function () {
+			assert.equal(true, OSApp.Firmware.isOSPi());
+		});
+		it("checkOSVersion(compare) must keep doing real numeric comparisons instead of short-circuiting to false", function () {
+			assert.strictEqual(1, OSApp.Firmware.checkOSVersion(213));
+			assert.strictEqual(1, OSApp.Firmware.checkOSVersion(210));
+			assert.strictEqual(false, OSApp.Firmware.checkOSVersion(222));
+		});
+	});
+
+	describe("Test against non-OSPi hardware reporting a numeric firmware version", function () {
+		before(function () {
+			OSApp.currentSession.controller.options = {
+				fwv: 221,
+				hwv: 30
+			};
+		});
+		it("isOSPi() must not misidentify ordinary hardware as an OSPi", function () {
+			assert.equal(false, OSApp.Firmware.isOSPi());
+		});
+		it("checkOSVersion(compare) should still perform a normal numeric comparison", function () {
+			assert.strictEqual(1, OSApp.Firmware.checkOSVersion(213));
+			assert.strictEqual(false, OSApp.Firmware.checkOSVersion(222));
+		});
+	});
 });
