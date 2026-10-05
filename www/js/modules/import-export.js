@@ -584,6 +584,11 @@ OSApp.ImportExport.importConfig = function( data ) {
 			return hasOwn( activeSensorUUIDs, key ) ? Number( uuid ) : 0;
 		},
 		i, sensorKey;
+	if ( data.stations.cs !== undefined && ( !Array.isArray( data.stations.cs ) ||
+		data.stations.cs.length !== sourceStationCount || !data.stations.cs.every( OSApp.CycleSoak.validPolicy ) ) ) {
+		OSApp.Errors.showError( OSApp.Language._( "Invalid cycle and soak configuration" ) );
+		return;
+	}
 
 	if ( ( targetProgramLimit !== null && programs.length > targetProgramLimit ) || programs.some( function( prog ) {
 		return !OSApp.ImportExport.validateProgramDefinition(
@@ -1054,6 +1059,15 @@ OSApp.ImportExport.importConfig = function( data ) {
 				baseCommands.push( "/cs?pw=&sid=" + sid + "&st=" + info.st + "&sd=" + encodeURIComponent( info.sd ) );
 			}
 		} );
+		if ( OSApp.CycleSoak.supported() ) {
+			// Clear policies before restoring Bundle definitions, then restore snapshots.
+			baseCommands.unshift( "/cs?pw=&csreset=1" );
+			( data.stations.cs || [] ).forEach( function( policy, sid ) {
+				if ( sid < importController.stations.snames.length ) {
+					baseCommands.push( "/cs?pw=&sid=" + sid + "&cse=" + policy[ 0 ] + "&csc=" + policy[ 1 ] + "&css=" + policy[ 2 ] );
+				}
+			} );
+		}
 
 		var isImportContextCurrent = function() {
 				return OSApp.currentSession === importSession && OSApp.currentSession.controller === importController;

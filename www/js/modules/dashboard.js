@@ -243,6 +243,8 @@ OSApp.Dashboard.displayPage = function() {
 			}
 
 			// Add sequential group divider and close current card group
+			var cycleText = OSApp.CycleSoak.runtimeText( sid );
+			if ( cycleText ) { cards += "<p class='cycle-status center'>" + OSApp.Utils.htmlEscape( cycleText ) + "</p>"; }
 			cards += "</div><hr style='display:none' class='content-divider'" +
 				( OSApp.Supported.groups() ? "divider-gid=" + OSApp.Stations.getGIDValue( sid ) : "" ) + "></div>";
 
@@ -445,6 +447,15 @@ OSApp.Dashboard.displayPage = function() {
 				},
 				saveChanges = function( checkPassed, bundleValidated ) {
 					var hs = parseInt( select.find( "#hs" ).val() );
+					if ( OSApp.CycleSoak.supported() && !OSApp.Stations.isMaster( sid ) ) {
+						var cyclePolicy = [ select.find( "#cycle-enabled" ).is( ":checked" ) ? 1 : 0,
+							Number( select.find( "#cycle-minutes" ).val() ) * 60, Number( select.find( "#soak-minutes" ).val() ) * 60 ];
+						if ( !OSApp.CycleSoak.validPolicy( cyclePolicy ) ) {
+							OSApp.Errors.showError( OSApp.Language._( "Cycle and soak times must be between 1 and 240 minutes." ) );
+							return;
+						}
+						button.data( "cyclePolicy", cyclePolicy );
+					}
 
 					if ( hs !== OSApp.Constants.stations.SPECIAL_TYPE_STANDARD && referencingLeaders.length ) {
 						OSApp.Errors.showError( OSApp.Language._( "Remove this station from its Bundle Station before changing its type." ), 4000 );
@@ -773,6 +784,9 @@ OSApp.Dashboard.displayPage = function() {
 			}
 
 			// Station tab is initially set to disabled until we have refreshed station data from firmware
+			if ( OSApp.CycleSoak.supported() && !OSApp.Stations.isMaster( sid ) ) {
+				select += OSApp.CycleSoak.fields( sid );
+			}
 			// Note: HTTPS and Remote OTC stations are supported at the same time with Email notification support
 			if ( OSApp.Supported.special() ) {
 				select +=
@@ -807,6 +821,10 @@ OSApp.Dashboard.displayPage = function() {
 			} );
 
 			// Populate sequential group selection menu
+			select.find( "#cycle-enabled" ).on( "change", function() {
+				select.find( "#cycle-minutes, #soak-minutes" ).prop( "disabled", !this.checked );
+			} ).trigger( "change" );
+
 			if ( OSApp.Supported.groups() ) {
 				var seqGroupSelect = select.find( "select.seqgrp" ),
 					seqGroupLabel = select.find( "span.seqgrp" ),
@@ -1042,6 +1060,11 @@ OSApp.Dashboard.displayPage = function() {
 				}
 			}
 
+			var cyclePolicy = page.find( "#attrib-" + id ).data( "cyclePolicy" );
+			if ( OSApp.CycleSoak.supported() && cyclePolicy ) {
+				special.sid = id;
+				special.cse = cyclePolicy[ 0 ]; special.csc = cyclePolicy[ 1 ]; special.css = cyclePolicy[ 2 ];
+			}
 			$.mobile.loading( "show" );
 			OSApp.Firmware.sendToOS( "/cs?pw=&" + $.param( names ) +
 				( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ? "&" + $.param( master ) : "" ) +
@@ -1262,6 +1285,21 @@ OSApp.Dashboard.displayPage = function() {
 			}
 		},
 		updateContent = function() {
+			page.find( ".cycle-diagnostic" ).remove();
+			if ( OSApp.currentSession.controller.settings.cserr ) {
+				var diagnostic = $( "<div class='cycle-diagnostic ui-body ui-body-a' role='alert'></div>" );
+				diagnostic.append( $( "<p></p>" ).text( OSApp.Language._( "Cycle and soak settings could not be read. Affected stations water without cycling." ) ) );
+				diagnostic.append( $( "<button class='ui-btn ui-mini'></button>" ).text( OSApp.Language._( "Reset cycle and soak settings" ) ).on( "click", function() {
+					OSApp.UIDom.areYouSure( OSApp.Language._( "Reset cycle and soak settings for all stations?" ), "", function() {
+						OSApp.Firmware.sendToOS( "/cs?pw=&csreset=1" ).done( function() { OSApp.Sites.updateController(); } );
+					} );
+				} ) );
+				page.find( ".ui-content" ).first().prepend( diagnostic );
+			}
+			if ( OSApp.currentSession.controller.settings.qrej ) {
+				page.find( ".ui-content" ).first().prepend( $( "<p class='cycle-diagnostic center' role='status'></p>" ).text(
+					OSApp.Language._( "Requests declined because the queue was full" ) + ": " + OSApp.currentSession.controller.settings.qrej ) );
+			}
 			var cardHolder = page.find( "#os-stations-list" ),
 				cardList = cardHolder.children(),
 				isScheduled, isRunning, isDerivedOnly, pname, rem, qPause, card, line, hasImage,
@@ -1393,6 +1431,11 @@ OSApp.Dashboard.displayPage = function() {
 						}
 					} else {
 						card.find( ".rem" ).remove();
+					}
+					card.find( ".cycle-status" ).remove();
+					var cycleText = OSApp.CycleSoak.runtimeText( sid );
+					if ( cycleText ) {
+						card.find( ".ui-body" ).append( $( "<p class='cycle-status center'></p>" ).text( cycleText ) );
 					}
 
 				}
@@ -1536,8 +1579,9 @@ OSApp.Dashboard.displayPage = function() {
 						seconds: sites[ currentSite ].lastRunTime[ sid ] > 0 ? sites[ currentSite ].lastRunTime[ sid ] : 0,
 						helptext: OSApp.Language._( "Enter a duration to manually run " ) + name,
 						showQOCheckbox: OSApp.Groups.canPreempt( stationGID ) && OSApp.Stations.isSequential( sid ),
-						callback: function( duration, qo ) {
-							var preParam = qo ? "&qo=1" : "";
+						showCycleSoakCheckbox: OSApp.CycleSoak.supported() && !!OSApp.CycleSoak.policy( sid )[ 0 ],
+						callback: function( duration, qo, cycleSoak ) {
+							var preParam = ( qo ? "&qo=1" : "" ) + ( cycleSoak ? "&cs=1" : "" );
 							OSApp.Firmware.sendToOS( "/cm?sid=" + sid + "&en=1&t=" + duration + preParam + "&pw=", "json" ).done( function() {
 
 								// Update local state until next device refresh occurs

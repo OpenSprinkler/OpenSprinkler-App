@@ -118,6 +118,18 @@ describe("Program Preview Checks", function () {
 		assert.isBelow(zulu.start.getTime(), alpha.start.getTime());
 	});
 
+	it("renders cycle segments through the real program preview path", function () {
+		var c = OSApp.currentSession.controller;
+		c.stations.csver = 1; c.stations.qmax = 120;
+		c.stations.cs = [[1, 60, 60], [0, 0, 0]];
+		c.programs.pd[0][4] = [121, 0, 0, 0, 0, 0, 0, 0];
+		var timeline = showPreview();
+		var runs = timeline.items.filter(function (item) { return item.group === "station-0"; });
+		assert.lengthOf(runs, 3);
+		assert.deepEqual(runs.map(function (r) { return (r.end - r.start) / 1000; }), [41, 40, 40]);
+		assert.equal((runs[1].start - runs[0].end) / 1000, 60);
+	});
+
 	it("orders Unicode station names by UTF-8 bytes like firmware strcmp", function () {
 		OSApp.currentSession.controller.stations.snames[0] = "\uE000";
 		OSApp.currentSession.controller.stations.snames[1] = "\u{10000}";

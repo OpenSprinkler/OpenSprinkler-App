@@ -226,6 +226,25 @@ describe("Import/Export Checks", function () {
 		}
 	});
 
+	it("restores cycle settings after special station definitions", function () {
+		var sandbox = sinon.createSandbox(), controller = installImportHarness(sandbox, []), commands = [];
+		try {
+			OSApp.currentSession.controller.stations = {csver: 1, snames: ["S1"]};
+			sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (command) {
+				commands.push(command); return resolved({result:1});
+			});
+			var backup = baseBackup();
+			backup.stations.cs = [[1, 300, 600]];
+			backup.special = {0: {st:0, sd:"0"}};
+			return cleanupAfter(asNative(OSApp.ImportExport.importConfig(backup)).then(function () {
+				var reset = commands.indexOf("/cs?pw=&csreset=1");
+				var special = commands.indexOf("/cs?pw=&sid=0&st=0&sd=0");
+				var policy = commands.indexOf("/cs?pw=&sid=0&cse=1&csc=300&css=600");
+				assert.isAtLeast(reset, 0); assert.isAbove(special, reset); assert.isAbove(policy, special);
+			}), sandbox, controller);
+		} catch (error) { OSApp.currentSession.controller = controller; sandbox.restore(); throw error; }
+	});
+
 	it("should import an enabled Weather Sensor definition", function () {
 		var sandbox = sinon.createSandbox(),
 			state = [],

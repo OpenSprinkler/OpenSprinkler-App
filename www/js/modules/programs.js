@@ -722,6 +722,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 					<button class="preview-plus ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border"></button>
 				</div>
 				<p id="preview-sensor-adjustment-warning" class="sensor-hw-missing center hidden"></p>
+				<p id="preview-queue-warning" class="sensor-hw-missing center hidden"></p>
 				<div id="timeline"></div>
 				<div data-role="controlgroup" data-type="horizontal" id="timeline-navigation">
 					<a class="ui-btn ui-corner-all ui-icon-plus ui-btn-icon-notext btn-no-border" title="${OSApp.Language._("Zoom in")}"></a>
@@ -932,7 +933,21 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 			lastStopTime = 0,
 			lastSeqStopTime = 0,
 			lastSeqStopTimes = new Array( OSApp.Constants.options.NUM_SEQ_GROUPS ), // Use this array if seq group is available
-			busy, matchFound, prog, sid, qid, d, q, sqi, bid, bid2, s, s2;
+			busy, matchFound, prog, sid, qid, d, q, sqi, bid, bid2, s, s2,
+			cyclePreview = OSApp.CycleSoak.supported() ? OSApp.CycleSoak.createPreview( {
+				capacity: OSApp.currentSession.controller.stations.qmax,
+				delay: OSApp.currentSession.controller.options.sdt,
+				remote: !!OSApp.currentSession.controller.options.re,
+				policy: OSApp.CycleSoak.policy,
+				masters: OSApp.CycleSoak.masters,
+				minimum: function( station ) {
+					var count = OSApp.Bundles.getEligibleMembers( OSApp.Bundles.getMembers( station ), station ).length;
+					return count ? OSApp.Bundles.minimumDuration( count ) : 0;
+				}
+			}, function( segment ) {
+				pushMasterPreviews( segment.sid, segment.st, segment.st + segment.dur );
+				timeToText( segment.sid, segment.st, segment.pid, segment.st + segment.dur, simt );
+			} ) : null;
 
 		for ( sid = 0; sid < nstations; sid++ ) {
 			startArray[ sid ] = -1;
@@ -944,12 +959,14 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 		for ( d = 0; d < OSApp.Constants.options.NUM_SEQ_GROUPS; d++ ) { lastSeqStopTimes[ d ] = 0; }
 
 		do {
+			if ( cyclePreview ) { cyclePreview.advance( simminutes * 60 - 1 ); }
 			busy = 0;
 			matchFound = 0;
 			for ( var pid = 0; pid < OSApp.currentSession.controller.programs.pd.length; pid++ ) {
 				prog = OSApp.currentSession.controller.programs.pd[ pid ];
 				let runcount = checkMatch( prog, simminutes, simt, simday, devday );
 				if ( runcount > 0 ) {
+					var cycleRequests = [];
 					let station_order = gen_station_runorder(runcount, nstations, prog);
 
 					// prepare watering level
@@ -1025,7 +1042,10 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 
 								// After weather scaling, we maybe getting 0 water time
 								if ( waterTime > 0 ) {
-									if ( is216 ) {
+									if ( cyclePreview ) {
+										cycleRequests.push( { sid: sid, pid: pid + 1, dur: waterTime,
+											gid: OSApp.currentSession.controller.stations.stn_grp[ sid ] } );
+									} else if ( is216 ) {
 										if ( rtQueue.length < nstations ) {
 
 											// Check if there is space in the queue (queue is as large as number of stations)
@@ -1053,7 +1073,13 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 							}
 						}
 					}
+					if ( cyclePreview ) { cyclePreview.admit( cycleRequests, simminutes * 60 ); }
 				}
+			}
+			if ( cyclePreview ) {
+				cyclePreview.advance( simminutes * 60 );
+				simminutes++;
+				continue;
 			}
 			if ( matchFound ) {
 				var acctime = simminutes * 60,
@@ -1263,6 +1289,11 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 				}
 			}
 		} while ( simminutes < 24 * 60 );
+		if ( cyclePreview ) {
+			cyclePreview.advance( Number.MAX_SAFE_INTEGER );
+		}
+		page.find( "#preview-queue-warning" ).toggleClass( "hidden", !cyclePreview || !cyclePreview.rejections() )
+			.text( OSApp.Language._( "Some program starts exceed the queue capacity and are not shown." ) );
 	};
 
 	// Push a preview entry per active master that this station is bound to.
@@ -1280,7 +1311,10 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 		masters.forEach( function( m ) {
 			if ( typeof opts[ m.mas ] === "undefined" || opts[ m.mas ] <= 0 ) { return; }
 			var mop = stations[ m.mop ];
-			if ( !mop || !( mop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) ) ) { return; }
+			var owners = [ sid ].concat( OSApp.CycleSoak.supported() ?
+				OSApp.Bundles.getEligibleMembers( OSApp.Bundles.getMembers( sid ), sid ) : [] );
+			if ( !mop || !owners.some( function( member ) { return mop[ member >> 3 ] & ( 1 << ( member & 7 ) ); } ) ) { return; }
+			if ( endTs + opts[ m.mtof ] < startTs + opts[ m.mton ] ) { return; }
 			var groupName = OSApp.Language._( "Master" ) + ( m.num === 1 ? "" : " " + m.num );
 			previewData.push( {
 				"start": startTs + opts[ m.mton ],

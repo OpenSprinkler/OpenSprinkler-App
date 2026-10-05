@@ -331,6 +331,30 @@ describe("Dashboard Bundle Station Checks", function () {
 		assert.equal(params.get("sd"), OSApp.Bundles.encodeMembers([ 1 ]));
 	});
 
+	it("renders soaking immediately and saves station cycle policy in seconds", function () {
+		var oldCS = stations.cs, oldVersion = stations.csver, oldRuntime = controller.settings.cs;
+		try {
+			stations.csver = 1; stations.cs = [[1, 60, 60]];
+			controller.settings.cs = [[0, 1, 2, 80, 40, 1102, 1102, 1]];
+			var sendToOS = sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (url) {
+				return $.Deferred().resolve(url.indexOf("/je") === 0 ? controller.special : {result:1}).promise();
+			});
+			sandbox.stub(OSApp.Sites, "updateController");
+			OSApp.Dashboard.displayPage();
+			assert.include($("#station_0").siblings(".cycle-status").text(), "Soaking");
+			$("#attrib-0").trigger("click");
+			var popup = $("#stn_attrib");
+			popup.find("#cycle-minutes").val("5"); popup.find("#soak-minutes").val("10");
+			popup.find("form").trigger("submit");
+			var command = sendToOS.getCalls().map(function(c){return c.args[0];}).find(function(url){return url.indexOf("/cs?")===0;});
+			var params = new URLSearchParams(command.split("?")[1]);
+			assert.equal(params.get("sid"), "0"); assert.equal(params.get("cse"), "1");
+			assert.equal(params.get("csc"), "300"); assert.equal(params.get("css"), "600");
+		} finally {
+			stations.cs = oldCS; stations.csver = oldVersion; controller.settings.cs = oldRuntime;
+		}
+	});
+
 	it("does not save a bundle to a different site after its metadata request finishes", function () {
 		var originalSession = OSApp.currentSession,
 			pending = $.Deferred(),
