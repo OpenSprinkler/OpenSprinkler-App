@@ -220,15 +220,16 @@ OSApp.Dates.dateToString = function( date, toUTC, shorten ) {
 	}
 };
 
-OSApp.Dates.minutesToTime = function( minutes ) {
-	var period = minutes > 719 ? "PM" : "AM",
+OSApp.Dates.minutesToTime = function( minutes, seconds ) {
+	var period = minutes > 719 ? OSApp.Language._( "PM" ) : OSApp.Language._( "AM" ),
+		secondsText = typeof seconds === "number" ? ":" + OSApp.Utils.pad( seconds ) : "",
 		hour = parseInt( minutes / 60 ) % 12;
 
 	if ( hour === 0 ) {
 		hour = 12;
 	}
 
-	return OSApp.uiState.is24Hour ? ( OSApp.Utils.pad( ( minutes / 60 >> 0 ) % 24 ) + ":" + OSApp.Utils.pad( minutes % 60 ) ) : ( hour + ":" + OSApp.Utils.pad( minutes % 60 ) + " " + period );
+	return OSApp.uiState.is24Hour ? ( OSApp.Utils.pad( ( minutes / 60 >> 0 ) % 24 ) + ":" + OSApp.Utils.pad( minutes % 60 ) + secondsText ) : ( hour + ":" + OSApp.Utils.pad( minutes % 60 ) + secondsText + " " + period );
 };
 
 // Return day of the week

@@ -17,6 +17,72 @@
 var OSApp = OSApp || {};
 OSApp.Programs = OSApp.Programs || {};
 
+OSApp.Programs.bindPreviewTouchDetails = function( timeline, element, items ) {
+	var timer, origin, active = false, held = false,
+		byId = new Map( items.map( function( item ) { return [ item.id, item ]; } ) ),
+		tip = $( "<div class='preview-touch-details' role='status'></div>" ).hide().appendTo( document.body );
+	function cancel() { clearTimeout( timer ); timer = null; }
+	function start( event ) {
+		cancel();
+		tip.hide();
+		if ( event.touches.length !== 1 ) { active = false; return; }
+		held = false;
+		active = element.contains( event.target );
+		if ( !active ) { return; }
+		element.classList.add( "preview-touch-active" );
+		var touch = event.touches[ 0 ],
+			item = byId.get( timeline.getEventProperties( {
+				target: event.target, clientX: touch.clientX, clientY: touch.clientY,
+				pageX: touch.pageX, pageY: touch.pageY
+			} ).item );
+		if ( !item ) { return; }
+		origin = { x: touch.clientX, y: touch.clientY };
+		timer = setTimeout( function() {
+			held = true;
+			tip.text( item.previewDetails ).show();
+			tip.css( {
+				left: Math.max( 8, Math.min( origin.x, window.innerWidth - tip.outerWidth() - 8 ) ),
+				top: Math.max( 8, origin.y - tip.outerHeight() - 16 )
+			} );
+		}, 500 );
+	}
+	function move( event ) {
+		if ( !active || !origin ) { return; }
+		var touch = event.touches[ 0 ];
+		if ( event.touches.length !== 1 || Math.abs( touch.clientX - origin.x ) > 8 || Math.abs( touch.clientY - origin.y ) > 8 ) {
+			cancel(); tip.hide();
+		}
+	}
+	function end() { cancel(); active = false; }
+	function dismiss() { end(); tip.hide(); }
+	function mouse( event ) {
+		if ( event.pointerType === "mouse" ) {
+			held = false; dismiss(); element.classList.remove( "preview-touch-active" );
+		}
+	}
+	function contextMenu( event ) {
+		if ( element.contains( event.target ) && ( active || held ) ) { event.preventDefault(); }
+	}
+	var handlers = { touchstart: start, touchmove: move, touchend: end, touchcancel: dismiss, pointerdown: mouse, pointermove: mouse, contextmenu: contextMenu };
+	Object.keys( handlers ).forEach( function( name ) { document.addEventListener( name, handlers[ name ], true ); } );
+	window.addEventListener( "resize", dismiss );
+	return {
+		suppressesSelection: function( event ) {
+			if ( held || ( active && event?.type === "press" ) ) {
+				timeline.setSelection( [] );
+				return true;
+			}
+			return false;
+		},
+		destroy: function() {
+			cancel(); tip.remove();
+			element.classList.remove( "preview-touch-active" );
+			Object.keys( handlers ).forEach( function( name ) { document.removeEventListener( name, handlers[ name ], true ); } );
+			window.removeEventListener( "resize", dismiss );
+		}
+	};
+};
+
 OSApp.Programs.displayPage = function(programId) {
 	// Program management functions
 	var adjustmentRequest = null,
@@ -741,10 +807,12 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 		sensorAdjustmentUnavailable = false,
 		timeline = null,
 		timelineResize = null,
+		touchDetails = null,
 		previewData, previewGroups, processPrograms, checkMatch, checkMatch183, checkMatch21, checkDayMatch, checkMatch216, runSched, runSched216,
 		timeToText, changeday, render, date, day, now, is21, is211, is216;
 
 	function destroyTimeline() {
+		if ( touchDetails ) { touchDetails.destroy(); touchDetails = null; }
 		$.mobile.window.off( ".programPreview" );
 		timelineResize = null;
 		placeholder.off( ".programPreview" );
@@ -1748,6 +1816,8 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 		var max = new Date( date[ 0 ], date[ 1 ] - 1, date[ 2 ], 24 );
 
 		$.each( previewData, function() {
+			if ( typeof this.id === "undefined" ) { this.id = nextID++; }
+			var duration = this.end - this.start;
 			var total = this.start + this.end;
 
 			this.start = new Date( date[ 0 ], date[ 1 ] - 1, date[ 2 ], 0, 0, this.start );
@@ -1760,6 +1830,10 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 			} else {
 				this.end = new Date( date[ 0 ], date[ 1 ] - 1, date[ 2 ], 0, 0, this.end );
 			}
+			var startTime = OSApp.Dates.minutesToTime( this.start.getHours() * 60 + this.start.getMinutes(), this.start.getSeconds() );
+			this.previewDetails = OSApp.Language._( "Start Time" ) + ": " + startTime + "\n" +
+				OSApp.Language._( "Run Time" ) + ": " + OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( duration ) );
+			this.title = OSApp.Utils.htmlEscape( this.previewDetails ).replace( /\n/g, "<br>" );
 		} );
 
 		// Sync time format with 24 hour option
@@ -1796,6 +1870,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 			currentTime = new Date( now );
 
 		timeline = new vis.Timeline( placeholder[ 0 ], previewData, options );
+		touchDetails = OSApp.Programs.bindPreviewTouchDetails( timeline, placeholder[ 0 ], previewData );
 		timelineResize = function() {
 			if ( timeline ) {
 				timeline.redraw();
@@ -1809,9 +1884,10 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 
 		// When block clicked, open that program
 		timeline.on( "select", function( data ) {
+			if ( touchDetails && touchDetails.suppressesSelection( data.event ) ) { return; }
 			if ( data.items.length > 0 ) {
 				previewData.forEach( ( item ) => {
-					if ( item.id === data.items[0] ) {
+					if ( item.id === data.items[0] && typeof item.pid === "number" ) {
 						OSApp.UIDom.changePage( "#programs", {
 							"programToExpand": item.pid
 						} );

@@ -871,6 +871,24 @@ input[type=number] {
 #stn_attrib label[for="soak-minutes"] {
     font-size: 12.5px;
 }
+.preview-touch-active .vis-tooltip {
+    display: none !important;
+}
+.preview-touch-details {
+    position: fixed;
+    z-index: 10000;
+    max-width: calc(100vw - 32px);
+    box-sizing: border-box;
+    padding: 8px 12px;
+    border: 1px solid #bfbfbf;
+    border-radius: 4px;
+    background: #fff;
+    color: #333;
+    font-size: 13px;
+    text-shadow: none;
+    white-space: pre-line;
+    pointer-events: none;
+}
 .location {
 	padding-right: 5px;
 }
