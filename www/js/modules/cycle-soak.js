@@ -53,8 +53,8 @@ OSApp.CycleSoak.masters = function( sid ) {
 	return result;
 };
 
-// Deterministic append/re-arm model. One live slot per logical request, not per
-// segment; completed cycles append behind reservations already in their group.
+// One live slot per logical request. Initial admissions append; natural re-arms
+// fill whole-segment gaps unless negative delay or duplicate stations preclude it.
 OSApp.CycleSoak.createPreview = function( config, emit ) {
 	var jobs = [], lastOff = {}, rejected = 0;
 	function reserve( now, exclude ) {
@@ -76,6 +76,18 @@ OSApp.CycleSoak.createPreview = function( config, emit ) {
 		} ).map( function( master ) { return master.off; } ) );
 	}
 	function plot( job ) { emit( { sid: job.sid, pid: job.pid, st: job.st, dur: job.dur } ); }
+	function firstGap( job, now, start ) {
+		var lead = Math.max( 0, ...job.masters.map( function( master ) { return -master.on; } ) );
+		for (;;) {
+			var adjusted = start + ( start - now <= lead ? lead : 0 ),
+				conflict = jobs.find( function( other ) {
+					return other !== job && !other.tail && other.gid === job.gid &&
+						adjusted < other.st + other.dur + config.delay && adjusted + job.dur + config.delay > other.st;
+				} );
+			if ( !conflict ) { return start; }
+			start = conflict.st + conflict.dur + config.delay;
+		}
+	}
 	function advance( until ) {
 		for (;;) {
 			var next = jobs.filter( function( job ) { return !job.tail && job.st + job.dur <= until; } )
@@ -84,11 +96,15 @@ OSApp.CycleSoak.createPreview = function( config, emit ) {
 			var off = next.st + next.dur;
 			if ( next.soak ) { lastOff[ next.sid ] = Math.max( lastOff[ next.sid ] || 0, off + next.soak ); }
 			if ( next.left ) {
-				var bounds = reserve( off, next ), previousTail = next.previousTail;
+				var bounds = reserve( off, next ), previousTail = next.previousTail,
+					gap = next.gid !== 255 && config.delay >= 0 && !jobs.some( function( other ) {
+						return other !== next && !other.tail && other.sid === next.sid;
+					} );
 				next.dur = Math.ceil( next.remaining / next.left-- );
 				next.remaining -= next.dur;
 				next.st = Math.max( off + 1, off + next.soak, bounds.cooldown[ next.sid ] || 0, previousTail + 1,
-					next.gid === 255 ? 0 : ( bounds.groups[ next.gid ] || 0 ) + config.delay );
+					next.gid === 255 || gap ? 0 : ( bounds.groups[ next.gid ] || 0 ) + config.delay );
+				if ( gap ) { next.st = firstGap( next, off, next.st ); }
 				masterAdjust( next, off );
 				plot( next );
 			} else {
