@@ -667,15 +667,14 @@ OSApp.Dashboard.displayPage = function() {
 
 			var isMaster = OSApp.Stations.isMaster( sid ),
 				hasWatering = !isMaster && ( OSApp.Supported.groups() || OSApp.Supported.sequential() ||
-					OSApp.CycleSoak.supported() || OSApp.Supported.ignoreRain() ||
-					[ 1, 2, 3, 4 ].some( function( number ) { return OSApp.Supported.ignoreSensor( number ); } ) ),
-				hasOutput = !isMaster && ( OSApp.Supported.special() || OSApp.Supported.actRelay() ||
-					[ 1, 2, 3, 4 ].some( function( number ) { return OSApp.Supported.master( number ); } ) );
+					OSApp.CycleSoak.supported() ),
+				hasMasters = !isMaster && [ 1, 2, 3, 4 ].some( function( number ) { return OSApp.Supported.master( number ); } ),
+				hasOutput = OSApp.Supported.special() || hasMasters || ( !isMaster && OSApp.Supported.actRelay() );
 
 			select += "<ul class='tabs' role='tablist'>" +
 				"<li class='current' data-tab='tab-basic' role='tab' tabindex='0' aria-selected='true'>" + OSApp.Language._( "Basic" ) + "</li>" +
-				( hasWatering ? "<li data-tab='tab-watering' role='tab' tabindex='0' aria-selected='false'>" + OSApp.Language._( "Watering" ) + "</li>" : "" ) +
 				( hasOutput ? "<li data-tab='tab-output' role='tab' tabindex='0' aria-selected='false'>" + OSApp.Language._( "Output" ) + "</li>" : "" ) +
+				( hasWatering ? "<li data-tab='tab-watering' role='tab' tabindex='0' aria-selected='false'>" + OSApp.Language._( "Watering" ) + "</li>" : "" ) +
 				"</ul><div id='tab-basic' class='tab-content current' role='tabpanel'>";
 
 			select += "<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Station Name" ) + ":</div>" +
@@ -687,44 +686,6 @@ OSApp.Dashboard.displayPage = function() {
 				"</button>";
 
 			if ( !isMaster ) {
-				if ( OSApp.Supported.disabled() ) {
-					select += "<label for='sd'><input class='needsclick' data-iconpos='right' id='sd' type='checkbox' " +
-						( ( button.data( "sd" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Disable" ) +
-						"</label>";
-				}
-
-			}
-
-			select += "<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Station Notes" ) + ":</div>" +
-				"<textarea data-corners='false' class='tight stn-notes' id='stn-notes'>" +
-				OSApp.Utils.htmlEscape( sites[ currentSite ].notes[ sid ] || "" ) +
-				"</textarea>";
-
-			select += "</div>";
-
-			if ( hasWatering ) {
-				select += "<div id='tab-watering' class='tab-content' role='tabpanel'>";
-				if ( OSApp.Supported.sequential() && !OSApp.Supported.groups() ) {
-					select += "<label for='us'><input class='needsclick' data-iconpos='right' id='us' type='checkbox' " +
-						( ( button.data( "us" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Sequential" ) +
-						"</label>";
-				}
-				// Create sequential group selection menu
-				if ( OSApp.Supported.groups() && !OSApp.Stations.isMaster( sid ) ) {
-					select +=
-						"<div class='ui-bar-a ui-bar seq-container'>" + OSApp.Language._( "Sequential Group" ) + ":</div>" +
-						"<select id='gid' class='seqgrp' data-mini='true'></select>" +
-						"<div><p id='prohibit-change' class='center hidden' style='color: #ff0033;'>Changing group designation is prohibited while station is running</p></div>";
-				}
-
-				if ( OSApp.CycleSoak.supported() && !OSApp.Stations.isMaster( sid ) ) {
-					select += OSApp.CycleSoak.fields( sid );
-				}
-
-				if ( OSApp.Supported.ignoreRain() ||
-					[ 1, 2, 3, 4 ].some( function( number ) { return OSApp.Supported.ignoreSensor( number ); } ) ) {
-					select += "<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Rain and Sensor Overrides" ) + "</div>";
-				}
 				if ( OSApp.Supported.ignoreRain() ) {
 					select += "<label for='ir'><input class='needsclick' data-iconpos='right' id='ir' type='checkbox' " +
 						( ( button.data( "ir" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Ignore Rain" ) +
@@ -755,11 +716,62 @@ OSApp.Dashboard.displayPage = function() {
 						"</label>";
 				}
 
-				select += "</div>";
+				if ( OSApp.Supported.disabled() ) {
+					select += "<label for='sd'><input class='needsclick' data-iconpos='right' id='sd' type='checkbox' " +
+						( ( button.data( "sd" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Disable" ) +
+						"</label>";
+				}
+
 			}
+
+			select += "<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Station Notes" ) + ":</div>" +
+				"<textarea data-corners='false' class='tight stn-notes' id='stn-notes'>" +
+				OSApp.Utils.htmlEscape( sites[ currentSite ].notes[ sid ] || "" ) +
+				"</textarea>";
+
+			select += "</div>";
 
 			if ( hasOutput ) {
 				select += "<div id='tab-output' class='tab-content' role='tabpanel'>";
+				if ( hasMasters ) {
+					select += "<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Masters" ) + ":</div>";
+				}
+
+				var hasAdditionalMaster =
+					OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ||
+					OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_3 ) ||
+					OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_4 );
+
+				if ( !isMaster && OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ) {
+					select += "<label for='um'><input class='needsclick' data-iconpos='right' id='um' type='checkbox' " +
+						( ( button.data( "um" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Use Master" ) + " " +
+						( hasAdditionalMaster ? "1" : "" ) + "</label>";
+				}
+
+				if ( !isMaster && OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ) {
+					select += "<label for='um2'><input class='needsclick' data-iconpos='right' id='um2' type='checkbox' " +
+						( ( button.data( "um2" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Use Master" ) + " 2" +
+						"</label>";
+				}
+
+				if ( !isMaster && OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_3 ) ) {
+					select += "<label for='um3'><input class='needsclick' data-iconpos='right' id='um3' type='checkbox' " +
+						( ( button.data( "um3" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Use Master" ) + " 3" +
+						"</label>";
+				}
+
+				if ( !isMaster && OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_4 ) ) {
+					select += "<label for='um4'><input class='needsclick' data-iconpos='right' id='um4' type='checkbox' " +
+						( ( button.data( "um4" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Use Master" ) + " 4" +
+						"</label>";
+				}
+
+				if ( !isMaster && OSApp.Supported.actRelay() ) {
+					select += "<label for='ar'><input class='needsclick' data-iconpos='right' id='ar' type='checkbox' " +
+						( ( button.data( "ar" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Activate Relay" ) +
+						"</label>";
+				}
+
 				// Note: HTTPS and Remote OTC stations are supported at the same time with Email notification support
 				if ( OSApp.Supported.special() ) {
 					select +=
@@ -783,40 +795,28 @@ OSApp.Dashboard.displayPage = function() {
 						"<div id='specialOpts'></div>";
 				}
 
-				var hasAdditionalMaster =
-					OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ||
-					OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_3 ) ||
-					OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_4 );
+				select += "</div>";
+			}
 
-				if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ) {
-					select += "<label for='um'><input class='needsclick' data-iconpos='right' id='um' type='checkbox' " +
-						( ( button.data( "um" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Use Master" ) + " " +
-						( hasAdditionalMaster ? "1" : "" ) + "</label>";
-				}
-
-				if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ) {
-					select += "<label for='um2'><input class='needsclick' data-iconpos='right' id='um2' type='checkbox' " +
-						( ( button.data( "um2" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Use Master" ) + " 2" +
+			if ( hasWatering ) {
+				select += "<div id='tab-watering' class='tab-content' role='tabpanel'>";
+				if ( OSApp.Supported.sequential() && !OSApp.Supported.groups() ) {
+					select += "<label for='us'><input class='needsclick' data-iconpos='right' id='us' type='checkbox' " +
+						( ( button.data( "us" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Sequential" ) +
 						"</label>";
 				}
-
-				if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_3 ) ) {
-					select += "<label for='um3'><input class='needsclick' data-iconpos='right' id='um3' type='checkbox' " +
-						( ( button.data( "um3" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Use Master" ) + " 3" +
-						"</label>";
+				// Create sequential group selection menu
+				if ( OSApp.Supported.groups() && !OSApp.Stations.isMaster( sid ) ) {
+					select +=
+						"<div class='ui-bar-a ui-bar seq-container'>" + OSApp.Language._( "Sequential Group" ) + ":</div>" +
+						"<select id='gid' class='seqgrp' data-mini='true'></select>" +
+						"<div><p id='prohibit-change' class='center hidden' style='color: #ff0033;'>Changing group designation is prohibited while station is running</p></div>";
 				}
 
-				if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_4 ) ) {
-					select += "<label for='um4'><input class='needsclick' data-iconpos='right' id='um4' type='checkbox' " +
-						( ( button.data( "um4" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Use Master" ) + " 4" +
-						"</label>";
+				if ( OSApp.CycleSoak.supported() && !OSApp.Stations.isMaster( sid ) ) {
+					select += OSApp.CycleSoak.fields( sid );
 				}
 
-				if ( OSApp.Supported.actRelay() ) {
-					select += "<label for='ar'><input class='needsclick' data-iconpos='right' id='ar' type='checkbox' " +
-						( ( button.data( "ar" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Activate Relay" ) +
-						"</label>";
-				}
 
 				select += "</div>";
 			}
@@ -885,9 +885,6 @@ OSApp.Dashboard.displayPage = function() {
 
 				$( this ).addClass( "current" ).attr( "aria-selected", "true" );
 				select.find( "#" + tabId ).addClass( "current" );
-				if ( select.parent().hasClass( "ui-popup-active" ) ) {
-					select.popup( "reposition", { positionTo: "window" } );
-				}
 			} );
 
 			if ( initialTab === "tab-output" ) {
@@ -930,18 +927,17 @@ OSApp.Dashboard.displayPage = function() {
 
 			$.mobile.pageContainer.append( select );
 
-			var opts = { history: false };
+			select.one( "popupafteropen", function() {
+				var container = select.parent(),
+					panel = select.find( ".tab-content.current" ),
+					chromeHeight = container.outerHeight() - panel.outerHeight(),
+					availableHeight = $( window ).scrollTop() + $( window ).height() -
+						container.offset().top - chromeHeight - 30;
 
-			if ( OSApp.currentDevice.isiOS ) {
-				var pageTop = OSApp.UIDom.getPageTop();
-
-				opts.x = pageTop.x;
-				opts.y = pageTop.y;
-			} else {
-				opts.positionTo = "window";
-			}
-
-			select.popup( opts ).popup( "open" );
+				// Center once, then keep the top fixed and scroll taller tab contents.
+				select.find( ".tab-content" ).css( "max-height", Math.max( 0, availableHeight ) );
+			} );
+			select.popup( { history: false, positionTo: "window" } ).popup( "open" );
 		},
 		submitStations = function( id ) {
 			var is208 = ( OSApp.Firmware.checkOSVersion( 208 ) === true ),

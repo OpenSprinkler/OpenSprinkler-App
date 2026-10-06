@@ -835,7 +835,7 @@ input[type=number] {
 }
 #stn_attrib {
     border: 0;
-    width: 360px;
+    width: 230px;
     max-width: calc(100vw - 30px);
 }
 #stn_attrib .tabs {
@@ -865,6 +865,10 @@ input[type=number] {
 }
 #stn_attrib .ui-checkbox label {
     white-space: normal;
+}
+#stn_attrib label[for="cycle-minutes"],
+#stn_attrib label[for="soak-minutes"] {
+    font-size: 12.5px;
 }
 .location {
 	padding-right: 5px;

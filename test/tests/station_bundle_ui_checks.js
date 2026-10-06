@@ -296,6 +296,7 @@ describe("Dashboard Bundle Station Checks", function () {
 		sandbox.stub(OSApp.CycleSoak, "supported").returns(true);
 		sandbox.stub(OSApp.Sites, "updateController");
 		controller.options.mas = 8;
+		sandbox.stub(OSApp.Supported, "ignoreRain").returns(true);
 		var send = sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (url) {
 			return $.Deferred().resolve(url.indexOf("/je") === 0 ? controller.special : {result: 1}).promise();
 		});
@@ -303,6 +304,12 @@ describe("Dashboard Bundle Station Checks", function () {
 		$("#attrib-0").trigger("click");
 		var popup = $("#stn_attrib");
 		assert.lengthOf(popup.find(".tabs li"), 3);
+		assert.deepEqual(popup.find(".tabs li").map(function () {
+			return $(this).data("tab");
+		}).get(), ["tab-basic", "tab-output", "tab-watering"]);
+		assert.lengthOf(popup.find("#tab-basic #ir"), 1);
+		assert.isBelow(popup.find("input").index(popup.find("#ir")), popup.find("input").index(popup.find("#sd")));
+		assert.isBelow(popup.find("input, select").index(popup.find("#um")), popup.find("input, select").index(popup.find("#hs")));
 		assert.lengthOf(popup.find("#tab-basic #sd"), 1);
 		assert.lengthOf(popup.find("#tab-watering #gid"), 1);
 		assert.lengthOf(popup.find("#tab-output #um"), 1);
@@ -327,7 +334,7 @@ describe("Dashboard Bundle Station Checks", function () {
 		assert.equal(Number(params.get("m0")) & 1, 1);
 	});
 
-	it("shows only Basic for a master and preserves attributes whose controls are hidden", function () {
+	it("allows master Station Type editing while preserving hidden watering and master attributes", function () {
 		controller.options.mas = 1;
 		sandbox.stub(OSApp.Sites, "updateController");
 		sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (url) {
@@ -338,8 +345,10 @@ describe("Dashboard Bundle Station Checks", function () {
 		button.data("um", 1).data("sn1", 1).data("us", 1).data("sd", 1);
 		button.trigger("click");
 		var popup = $("#stn_attrib");
-		assert.lengthOf(popup.find(".tabs li"), 1);
-		assert.lengthOf(popup.find("#gid, #hs, #cycle-enabled, #um, #sd"), 0);
+		assert.lengthOf(popup.find(".tabs li"), 2);
+		assert.lengthOf(popup.find("#tab-output #hs"), 1);
+		assert.isTrue(popup.find("#hs option[data-hs='7']").prop("disabled"));
+		assert.lengthOf(popup.find("#gid, #cycle-enabled, #um, #um2, #um3, #um4, #sd"), 0);
 		popup.find("form").trigger("submit");
 		assert.equal(button.data("um"), 1);
 		assert.equal(button.data("sn1"), 1);
