@@ -17,10 +17,16 @@ OSApp.CycleSoak.policy = function( sid ) {
 	return OSApp.CycleSoak.validPolicy( policy ) ? policy : [ 0, 0, 0 ];
 };
 
+OSApp.CycleSoak.readablePolicy = function( sid ) {
+	var controller = OSApp.currentSession.controller,
+		policy = controller.stations.cs?.[ sid ];
+	return !controller.settings.cserr && OSApp.CycleSoak.validPolicy( policy ) ? policy.slice() : null;
+};
+
 OSApp.CycleSoak.fields = function( sid ) {
 	var policy = OSApp.CycleSoak.policy( sid );
 	return "<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Cycle and Soak" ) + "</div>" +
-		"<label for='cycle-enabled'><input id='cycle-enabled' type='checkbox'" + ( policy[ 0 ] ? " checked" : "" ) + ">" +
+		"<label for='cycle-enabled'><input class='needsclick' data-iconpos='right' id='cycle-enabled' type='checkbox'" + ( policy[ 0 ] ? " checked" : "" ) + ">" +
 		OSApp.Language._( "Enable Cycle and Soak" ) + "</label>" +
 		"<label for='cycle-minutes'>" + OSApp.Language._( "Maximum cycle (minutes)" ) + "</label>" +
 		"<input id='cycle-minutes' type='number' min='1' max='240' step='1' value='" + ( policy[ 1 ] / 60 || "" ) + "'>" +

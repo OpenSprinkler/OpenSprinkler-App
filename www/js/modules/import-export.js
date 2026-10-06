@@ -1059,7 +1059,7 @@ OSApp.ImportExport.importConfig = function( data ) {
 				baseCommands.push( "/cs?pw=&sid=" + sid + "&st=" + info.st + "&sd=" + encodeURIComponent( info.sd ) );
 			}
 		} );
-		if ( OSApp.CycleSoak.supported() ) {
+		if ( OSApp.CycleSoak.supported() && Array.isArray( data.stations.cs ) ) {
 			// Clear policies before restoring Bundle definitions, then restore snapshots.
 			baseCommands.unshift( "/cs?pw=&csreset=1" );
 			( data.stations.cs || [] ).forEach( function( policy, sid ) {

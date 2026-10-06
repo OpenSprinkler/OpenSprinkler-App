@@ -249,10 +249,12 @@ OSApp.Dashboard.displayPage = function() {
 
 		},
 		showAttributes = function( initialTab ) {
+			$( window ).add( window.visualViewport || [] ).off( ".stationAttributeLayout" );
 			$( "#stn_attrib" ).popup( "destroy" ).remove();
 
 			var button = $( this ),
 				sid = button.data( "station" ),
+				loadedCyclePolicy = OSApp.CycleSoak.readablePolicy( sid ),
 				name = button.siblings( "[id='station_" + sid + "']" ),
 				referencingLeaders,
 				specialTypeLocked,
@@ -446,14 +448,19 @@ OSApp.Dashboard.displayPage = function() {
 				},
 				saveChanges = function( checkPassed, bundleValidated ) {
 					var hs = select.find( "#hs" ).length ? parseInt( select.find( "#hs" ).val(), 10 ) : button.data( "originalSpecialType" );
-					if ( OSApp.CycleSoak.supported() && !OSApp.Stations.isMaster( sid ) ) {
+					button.removeData( "cyclePolicy" );
+					if ( OSApp.CycleSoak.supported() && loadedCyclePolicy &&
+						OSApp.CycleSoak.readablePolicy( sid ) && !OSApp.Stations.isMaster( sid ) ) {
 						var cyclePolicy = [ select.find( "#cycle-enabled" ).is( ":checked" ) ? 1 : 0,
 							Number( select.find( "#cycle-minutes" ).val() ) * 60, Number( select.find( "#soak-minutes" ).val() ) * 60 ];
 						if ( !OSApp.CycleSoak.validPolicy( cyclePolicy ) ) {
+							select.find( "li[data-tab='tab-watering']" ).trigger( "click" );
 							OSApp.Errors.showError( OSApp.Language._( "Cycle and soak times must be between 1 and 240 minutes." ) );
 							return;
 						}
-						button.data( "cyclePolicy", cyclePolicy );
+						if ( cyclePolicy.some( function( value, index ) { return value !== loadedCyclePolicy[ index ]; } ) ) {
+							button.data( "cyclePolicy", cyclePolicy );
+						}
 					}
 
 					if ( select.find( "#hs" ).length ) {
@@ -835,8 +842,10 @@ OSApp.Dashboard.displayPage = function() {
 
 			// Populate sequential group selection menu
 			select.find( "#cycle-enabled" ).on( "change", function() {
-				select.find( "#cycle-minutes, #soak-minutes" ).prop( "disabled", !this.checked );
-			} ).trigger( "change" );
+				var enabled = !!loadedCyclePolicy && this.checked;
+				select.find( "#cycle-minutes, #soak-minutes" ).prop( "required", enabled )
+					.textinput( enabled ? "enable" : "disable" );
+			} ).checkboxradio( loadedCyclePolicy ? "enable" : "disable" ).trigger( "change" );
 
 			if ( OSApp.Supported.groups() ) {
 				var seqGroupSelect = select.find( "select.seqgrp" ),
@@ -927,15 +936,31 @@ OSApp.Dashboard.displayPage = function() {
 
 			$.mobile.pageContainer.append( select );
 
-			select.one( "popupafteropen", function() {
+			function fitAttributePanel() {
 				var container = select.parent(),
 					panel = select.find( ".tab-content.current" ),
+					viewport = window.visualViewport,
+					viewportTop = $( window ).scrollTop() + ( viewport ? viewport.offsetTop : 0 ),
+					viewportHeight = viewport ? viewport.height : $( window ).height(),
 					chromeHeight = container.outerHeight() - panel.outerHeight(),
-					availableHeight = $( window ).scrollTop() + $( window ).height() -
-						container.offset().top - chromeHeight - 30;
+					minimum = Math.min( 120, Math.max( 0, viewportHeight - chromeHeight - 60 ) ),
+					top = Math.max( viewportTop + 30, Math.min( container.offset().top,
+						viewportTop + viewportHeight - chromeHeight - minimum - 30 ) ),
+					availableHeight = viewportTop + viewportHeight - top - chromeHeight - 30;
 
-				// Center once, then keep the top fixed and scroll taller tab contents.
+				// Preserve the top unless the viewport leaves too little usable content space.
+				container.offset( { top: top } );
 				select.find( ".tab-content" ).css( "max-height", Math.max( 0, availableHeight ) );
+			}
+			select.one( "popupafteropen", function() {
+				fitAttributePanel();
+				$( window ).add( window.visualViewport || [] ).on( "resize.stationAttributeLayout", function() {
+					setTimeout( function() {
+						if ( select.parent().hasClass( "ui-popup-active" ) ) { fitAttributePanel(); }
+					}, 0 );
+				} );
+			} ).one( "popupafterclose", function() {
+				$( window ).add( window.visualViewport || [] ).off( ".stationAttributeLayout" );
 			} );
 			select.popup( { history: false, positionTo: "window" } ).popup( "open" );
 		},
@@ -1077,13 +1102,14 @@ OSApp.Dashboard.displayPage = function() {
 				}
 			}
 
-			var cyclePolicy = page.find( "#attrib-" + id ).data( "cyclePolicy" );
+			var cyclePolicy = page.find( "#attrib-" + id ).data( "cyclePolicy" ),
+				cycleParams = {};
 			if ( OSApp.CycleSoak.supported() && cyclePolicy ) {
-				special.sid = id;
-				special.cse = cyclePolicy[ 0 ]; special.csc = cyclePolicy[ 1 ]; special.css = cyclePolicy[ 2 ];
+				cycleParams = { sid: id, cse: cyclePolicy[ 0 ], csc: cyclePolicy[ 1 ], css: cyclePolicy[ 2 ] };
 			}
 			$.mobile.loading( "show" );
 			OSApp.Firmware.sendToOS( "/cs?pw=&" + $.param( names ) +
+				"&" + $.param( cycleParams ) +
 				( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ? "&" + $.param( master ) : "" ) +
 				( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ? "&" + $.param( master2 ) : "" ) +
 				( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_3 ) ? "&" + $.param( master3 ) : "" ) +

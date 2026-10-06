@@ -844,9 +844,10 @@ input[type=number] {
 }
 #stn_attrib .tabs li {
     box-sizing: border-box;
-    flex: 1 1 0;
+    flex: 0 1 auto;
+    max-width: 100%;
     min-width: 0;
-    padding: 10px 6px;
+    padding: 10px 15px;
     text-align: center;
     overflow-wrap: anywhere;
 }

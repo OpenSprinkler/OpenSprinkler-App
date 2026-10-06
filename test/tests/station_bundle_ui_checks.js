@@ -20,6 +20,8 @@ describe("Dashboard Bundle Station Checks", function () {
 			masop: stations.masop,
 			stnSeq: stations.stn_seq,
 			actRelay: stations.act_relay,
+			cs: stations.cs,
+			cserr: controller.settings.cserr,
 			mas: controller.options.mas,
 			mas2: controller.options.mas2,
 			mas3: controller.options.mas3,
@@ -39,6 +41,8 @@ describe("Dashboard Bundle Station Checks", function () {
 		stations.masop = [0];
 		stations.stn_seq = [0];
 		stations.act_relay = [0];
+		stations.cs = [[0, 0, 0]];
+		controller.settings.cserr = 0;
 		controller.options.mas = 0;
 		controller.options.mas2 = 0;
 		controller.options.mas3 = 0;
@@ -78,6 +82,8 @@ describe("Dashboard Bundle Station Checks", function () {
 		stations.masop = saved.masop;
 		stations.stn_seq = saved.stnSeq;
 		stations.act_relay = saved.actRelay;
+		stations.cs = saved.cs;
+		controller.settings.cserr = saved.cserr;
 		controller.options.mas = saved.mas;
 		controller.options.mas2 = saved.mas2;
 		controller.options.mas3 = saved.mas3;
@@ -332,6 +338,64 @@ describe("Dashboard Bundle Station Checks", function () {
 		assert.equal(params.get("csc"), "300");
 		assert.equal(params.get("css"), "720");
 		assert.equal(Number(params.get("m0")) & 1, 1);
+	});
+
+	it("opens Watering for empty enabled cycle values, including native validation", function () {
+		sandbox.stub(OSApp.CycleSoak, "supported").returns(true);
+		sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (url) {
+			return $.Deferred().resolve(url.indexOf("/je") === 0 ? controller.special : {result: 1}).promise();
+		});
+		OSApp.Dashboard.displayPage();
+		$("#attrib-0").trigger("click");
+		var popup = $("#stn_attrib");
+		popup.find("#cycle-enabled").prop("checked", true).trigger("change");
+		assert.isTrue(popup.find("#cycle-minutes").prop("required"));
+		assert.isFalse(popup.find("form")[0].checkValidity());
+		assert.isTrue(popup.find("#tab-watering").hasClass("current"));
+		popup.find("[data-tab='tab-basic']").trigger("click");
+		popup.find("form").trigger("submit");
+		assert.isTrue(popup.find("#tab-watering").hasClass("current"));
+	});
+
+	it("saves cycle settings independently of special-station support", function () {
+		sandbox.stub(OSApp.CycleSoak, "supported").returns(true);
+		sandbox.stub(OSApp.Supported, "special").returns(false);
+		sandbox.stub(OSApp.Supported, "bundle").returns(false);
+		sandbox.stub(OSApp.Sites, "updateController");
+		var send = sandbox.stub(OSApp.Firmware, "sendToOS").returns($.Deferred().resolve({result: 1}).promise());
+		OSApp.Dashboard.displayPage();
+		$("#attrib-0").trigger("click");
+		$("#cycle-enabled").prop("checked", true).trigger("change");
+		$("#cycle-minutes").val("5");
+		$("#soak-minutes").val("10");
+		$("#stn_attrib form").trigger("submit");
+		var command = send.getCalls().map(function (call) { return call.args[0]; }).find(function (url) { return url.indexOf("/cs?") === 0; });
+		var params = new URLSearchParams(command.split("?")[1]);
+		assert.equal(params.get("sid"), "0");
+		assert.equal(params.get("cse"), "1");
+		assert.equal(params.get("csc"), "300");
+		assert.equal(params.get("css"), "600");
+	});
+
+	["missing", "invalid", "cserr", "unchanged"].forEach(function (mode) {
+		it("does not write cycle settings when policy is " + mode, function () {
+			sandbox.stub(OSApp.CycleSoak, "supported").returns(true);
+			if (mode === "missing") { delete stations.cs; }
+			if (mode === "invalid") { stations.cs = [[1, -1, 60]]; }
+			if (mode === "cserr") { controller.settings.cserr = 1; }
+			sandbox.stub(OSApp.Sites, "updateController");
+			var send = sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (url) {
+				return $.Deferred().resolve(url.indexOf("/je") === 0 ? controller.special : {result: 1}).promise();
+			});
+			OSApp.Dashboard.displayPage();
+			$("#attrib-0").trigger("click");
+			assert.equal($("#cycle-enabled").prop("disabled"), mode !== "unchanged");
+			$("#stn-name").val("Renamed");
+			$("#stn_attrib form").trigger("submit");
+			var command = send.getCalls().map(function (call) { return call.args[0]; }).find(function (url) { return url.indexOf("/cs?") === 0; });
+			assert.isString(command);
+			assert.notMatch(command, /[&?](cse|csc|css)=/);
+		});
 	});
 
 	it("allows master Station Type editing while preserving hidden watering and master attributes", function () {
