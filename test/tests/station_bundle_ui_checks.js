@@ -17,6 +17,9 @@ describe("Dashboard Bundle Station Checks", function () {
 			stnSpe: stations.stn_spe,
 			stnDis: stations.stn_dis,
 			bmt: stations.bmt,
+			masop: stations.masop,
+			stnSeq: stations.stn_seq,
+			actRelay: stations.act_relay,
 			mas: controller.options.mas,
 			mas2: controller.options.mas2,
 			mas3: controller.options.mas3,
@@ -33,6 +36,9 @@ describe("Dashboard Bundle Station Checks", function () {
 		stations.stn_spe = new Array(Math.ceil(stations.snames.length / 8)).fill(0);
 		stations.stn_dis = new Array(Math.ceil(stations.snames.length / 8)).fill(0);
 		stations.bmt = 1;
+		stations.masop = [0];
+		stations.stn_seq = [0];
+		stations.act_relay = [0];
 		controller.options.mas = 0;
 		controller.options.mas2 = 0;
 		controller.options.mas3 = 0;
@@ -69,6 +75,9 @@ describe("Dashboard Bundle Station Checks", function () {
 		stations.stn_spe = saved.stnSpe;
 		stations.stn_dis = saved.stnDis;
 		stations.bmt = saved.bmt;
+		stations.masop = saved.masop;
+		stations.stn_seq = saved.stnSeq;
+		stations.act_relay = saved.actRelay;
 		controller.options.mas = saved.mas;
 		controller.options.mas2 = saved.mas2;
 		controller.options.mas3 = saved.mas3;
@@ -233,7 +242,7 @@ describe("Dashboard Bundle Station Checks", function () {
 		assert.lengthOf($("#bundle-active-info"), 1);
 	});
 
-	it("opens Advanced settings from a special station badge", function () {
+	it("opens Output settings from a special station badge", function () {
 		stations.stn_spe[0] |= 1 << 2;
 		controller.special[2] = {
 			st: OSApp.Constants.stations.SPECIAL_TYPE_RF,
@@ -249,9 +258,9 @@ describe("Dashboard Bundle Station Checks", function () {
 
 		assert.lengthOf($("#stn_attrib"), 1);
 		assert.isFalse($("#stn_attrib li[data-tab='tab-basic']").hasClass("current"));
-		assert.isTrue($("#stn_attrib li[data-tab='tab-advanced']").hasClass("current"));
+		assert.isTrue($("#stn_attrib li[data-tab='tab-output']").hasClass("current"));
 		assert.isFalse($("#stn_attrib #tab-basic").hasClass("current"));
-		assert.isTrue($("#stn_attrib #tab-advanced").hasClass("current"));
+		assert.isTrue($("#stn_attrib #tab-output").hasClass("current"));
 		assert.isFalse(showDurationBox.called);
 	});
 
@@ -278,9 +287,81 @@ describe("Dashboard Bundle Station Checks", function () {
 		assert.lengthOf($("#stn_attrib"), 1);
 		assert.isTrue($("#stn_attrib li[data-tab='tab-basic']").hasClass("current"));
 		assert.isTrue($("#stn_attrib #tab-basic").hasClass("current"));
-		assert.isFalse($("#stn_attrib #tab-advanced").hasClass("current"));
+		assert.isFalse($("#stn_attrib #tab-output").hasClass("current"));
 		assert.equal($("#stn_attrib #gid").val(), String(OSApp.Stations.getGIDValue(1)));
 		assert.isFalse(showDurationBox.called);
+	});
+
+	it("keeps edits across Basic, Watering and Output and submits them together", function () {
+		sandbox.stub(OSApp.CycleSoak, "supported").returns(true);
+		sandbox.stub(OSApp.Sites, "updateController");
+		controller.options.mas = 8;
+		var send = sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (url) {
+			return $.Deferred().resolve(url.indexOf("/je") === 0 ? controller.special : {result: 1}).promise();
+		});
+		OSApp.Dashboard.displayPage();
+		$("#attrib-0").trigger("click");
+		var popup = $("#stn_attrib");
+		assert.lengthOf(popup.find(".tabs li"), 3);
+		assert.lengthOf(popup.find("#tab-basic #sd"), 1);
+		assert.lengthOf(popup.find("#tab-watering #gid"), 1);
+		assert.lengthOf(popup.find("#tab-output #um"), 1);
+		popup.find("#stn-name").val("Cycle zone");
+		popup.find("[data-tab='tab-watering']").trigger("click");
+		popup.find("#cycle-enabled").prop("checked", true).trigger("change");
+		popup.find("#cycle-minutes").val("5");
+		popup.find("#soak-minutes").val("12");
+		popup.find("#gid").val("1").trigger("change");
+		popup.find("[data-tab='tab-output']").trigger("click");
+		popup.find("#um").prop("checked", true);
+		popup.find("[data-tab='tab-basic']").trigger("click");
+		assert.equal(popup.find("#cycle-minutes").val(), "5");
+		popup.find("form").trigger("submit");
+		var command = send.getCalls().map(function (call) {return call.args[0];})
+			.find(function (url) {return url.indexOf("/cs?") === 0;});
+		var params = new URLSearchParams(command.split("?")[1]);
+		assert.equal(params.get("s0"), "Cycle zone");
+		assert.equal(params.get("g0"), "1");
+		assert.equal(params.get("csc"), "300");
+		assert.equal(params.get("css"), "720");
+		assert.equal(Number(params.get("m0")) & 1, 1);
+	});
+
+	it("shows only Basic for a master and preserves attributes whose controls are hidden", function () {
+		controller.options.mas = 1;
+		sandbox.stub(OSApp.Sites, "updateController");
+		sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (url) {
+			return $.Deferred().resolve(url.indexOf("/je") === 0 ? controller.special : {result: 1}).promise();
+		});
+		OSApp.Dashboard.displayPage();
+		var button = $("#attrib-0");
+		button.data("um", 1).data("sn1", 1).data("us", 1).data("sd", 1);
+		button.trigger("click");
+		var popup = $("#stn_attrib");
+		assert.lengthOf(popup.find(".tabs li"), 1);
+		assert.lengthOf(popup.find("#gid, #hs, #cycle-enabled, #um, #sd"), 0);
+		popup.find("form").trigger("submit");
+		assert.equal(button.data("um"), 1);
+		assert.equal(button.data("sn1"), 1);
+		assert.equal(button.data("us"), 1);
+		assert.equal(button.data("sd"), 1);
+	});
+
+	it("keeps legacy relay and master settings accessible without special station support", function () {
+		sandbox.stub(OSApp.Supported, "special").returns(false);
+		sandbox.stub(OSApp.Supported, "bundle").returns(false);
+		sandbox.stub(OSApp.Supported, "groups").returns(false);
+		sandbox.stub(OSApp.Supported, "sequential").returns(true);
+		sandbox.stub(OSApp.Supported, "actRelay").returns(true);
+		sandbox.stub(OSApp.CycleSoak, "supported").returns(false);
+		controller.options.mas = 8;
+		OSApp.Dashboard.displayPage();
+		$("#attrib-0").trigger("click");
+		var popup = $("#stn_attrib");
+		assert.lengthOf(popup.find("#tab-output #um"), 1);
+		assert.lengthOf(popup.find("#tab-output #ar"), 1);
+		assert.lengthOf(popup.find("#tab-watering #us"), 1);
+		assert.lengthOf(popup.find("#hs, #cycle-enabled, #tab-alert"), 0);
 	});
 
 	it("drops the member badge once the station leaves the bundle", function () {

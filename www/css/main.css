@@ -835,6 +835,36 @@ input[type=number] {
 }
 #stn_attrib {
     border: 0;
+    width: 360px;
+    max-width: calc(100vw - 30px);
+}
+#stn_attrib .tabs {
+    display: flex;
+    flex-wrap: wrap;
+}
+#stn_attrib .tabs li {
+    box-sizing: border-box;
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 10px 6px;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+#stn_attrib .tabs li:focus-visible {
+    outline: 2px solid #517d99;
+    outline-offset: -2px;
+}
+#stn_attrib .tab-content {
+    box-sizing: border-box;
+    max-height: calc(100vh - 160px);
+    overflow-y: auto;
+    width: 100%;
+}
+#stn_attrib .ui-bar {
+    white-space: normal;
+}
+#stn_attrib .ui-checkbox label {
+    white-space: normal;
 }
 .location {
 	padding-right: 5px;
