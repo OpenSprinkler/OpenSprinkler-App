@@ -179,7 +179,7 @@ OSApp.Dashboard.displayPage = function() {
 				settingsLabel = isMaster ? OSApp.Language._( "Master Station" ) : OSApp.Language._( "Basic Settings" );
 
 			if ( groupName ) {
-				settingsLabel += " - " + OSApp.Language._( "Sequential Group" ) + ": " + groupName;
+				settingsLabel = OSApp.Cards.getGroupDescription( sid, groupName );
 			}
 
 			if ( OSApp.Stations.getStatus( sid ) && rem > 0 ) {
@@ -200,7 +200,7 @@ OSApp.Dashboard.displayPage = function() {
 
 			cards += getSpecialBadgeMarkup( sid );
 
-			cards += "<span class='btn-no-border ui-btn " + ( isMaster ? "ui-icon-master" : ( groupName ? "station-group-settings" : "ui-icon-gear" ) ) +
+			cards += "<span class='btn-no-border ui-btn " + ( isMaster ? "ui-icon-master" : ( groupName ? "station-group-settings" + ( OSApp.CycleSoak.enabled( sid ) ? " station-cycle" : "" ) : "ui-icon-gear" ) ) +
 				" card-icon ui-btn-icon-notext station-settings" +
 				"' role='button' tabindex='0' aria-haspopup='dialog' title='" + OSApp.Utils.htmlEscape( settingsLabel ) +
 				"' aria-label='" + OSApp.Utils.htmlEscape( settingsLabel ) + "' data-station='" + sid + "' id='attrib-" + sid + "' " +
@@ -1398,7 +1398,7 @@ OSApp.Dashboard.displayPage = function() {
 					card.find( ".station-status" ).removeClass( "on off wait" ).addClass( isRunning ? "on" : ( isScheduled ? "wait" : "off" ) );
 					settingsButton = card.find( ".station-settings" );
 					if ( OSApp.Stations.isMaster( sid ) ) {
-						settingsButton.removeClass( "ui-icon-gear station-group-settings" ).addClass( "ui-icon-master" )
+						settingsButton.removeClass( "ui-icon-gear station-group-settings station-cycle" ).addClass( "ui-icon-master" )
 							.attr( {
 								title: OSApp.Language._( "Master Station" ),
 								"aria-label": OSApp.Language._( "Master Station" )
@@ -1412,9 +1412,10 @@ OSApp.Dashboard.displayPage = function() {
 								settingsButton.append( "<span class='station-gid'></span>" );
 							}
 							settingsButton.removeClass( "ui-icon-gear" ).addClass( "station-group-settings" );
+							settingsButton.toggleClass( "station-cycle", OSApp.CycleSoak.enabled( sid ) );
 							OSApp.Cards.setGroupLabel( card, OSApp.Groups.mapGIDValueToName( OSApp.Stations.getGIDValue( sid ) ) );
 						} else {
-							settingsButton.removeClass( "station-group-settings" ).addClass( "ui-icon-gear" ).attr( {
+							settingsButton.removeClass( "station-group-settings station-cycle" ).addClass( "ui-icon-gear" ).attr( {
 								title: OSApp.Language._( "Basic Settings" ),
 								"aria-label": OSApp.Language._( "Basic Settings" )
 							} );

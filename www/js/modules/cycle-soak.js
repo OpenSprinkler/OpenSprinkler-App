@@ -23,6 +23,10 @@ OSApp.CycleSoak.readablePolicy = function( sid ) {
 	return !controller.settings.cserr && OSApp.CycleSoak.validPolicy( policy ) ? policy.slice() : null;
 };
 
+OSApp.CycleSoak.enabled = function( sid ) {
+	return OSApp.CycleSoak.supported() && !!OSApp.CycleSoak.readablePolicy( sid )?.[ 0 ];
+};
+
 OSApp.CycleSoak.fields = function( sid ) {
 	var policy = OSApp.CycleSoak.policy( sid );
 	return "<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Cycle and Soak" ) + "</div>" +

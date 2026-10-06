@@ -437,6 +437,34 @@ describe("Dashboard Bundle Station Checks", function () {
 		assert.lengthOf(popup.find("#hs, #cycle-enabled, #tab-alert"), 0);
 	});
 
+	it("marks only cycle and soak stations with the arrow indicator", function () {
+		sandbox.stub(OSApp.Supported, "groups").returns(true);
+		sandbox.stub(OSApp.CycleSoak, "supported").returns(true);
+		controller.stations.cs = controller.stations.snames.map(function (_, sid) {
+			return sid === 0 ? [ 1, 300, 600 ] : [ 0, 0, 0 ];
+		});
+		controller.settings.cserr = 0;
+		OSApp.Dashboard.displayPage();
+		assert.isTrue($("#attrib-0").hasClass("station-cycle"));
+		assert.include($("#attrib-0").attr("title"), "Cycle and Soak");
+		assert.include($("#attrib-0").attr("title"), "Maximum cycle (minutes): 5");
+		assert.include($("#attrib-0").attr("title"), "Minimum soak (minutes): 10");
+		assert.notInclude($("#attrib-0").attr("title"), "Basic Settings");
+		assert.equal($("#attrib-0").attr("title"), $("#attrib-0").attr("aria-label"));
+		assert.isFalse($("#attrib-1").hasClass("station-cycle"));
+		assert.notInclude($("#attrib-1").attr("title"), "Cycle and Soak");
+		assert.lengthOf($("#attrib-0 .station-gid"), 1);
+		controller.stations.cs[0] = [1, 120, 420];
+		OSApp.Cards.setGroupLabel($("#attrib-0").closest(".card"), "B");
+		assert.include($("#attrib-0").attr("title"), "Sequential Group: B");
+		assert.include($("#attrib-0").attr("title"), "Maximum cycle (minutes): 2");
+		assert.include($("#attrib-0").attr("title"), "Minimum soak (minutes): 7");
+
+		controller.settings.cserr = 1;
+		OSApp.Dashboard.displayPage();
+		assert.isFalse($("#attrib-0").hasClass("station-cycle"));
+	});
+
 	it("drops the member badge once the station leaves the bundle", function () {
 		setBundle(0, [ 1 ]);
 		sandbox.stub(OSApp.Firmware, "sendToOS")

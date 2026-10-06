@@ -926,6 +926,22 @@ input[type=number] {
 	background-color: transparent;
 	background-image: none;
 }
+/* Cycle and Soak replaces the group circle with a closed circular arrow. */
+.station-group-settings.station-cycle:after {
+	width: 28px;
+	height: 28px;
+	margin-top: -14px;
+	margin-left: -14px;
+	border: 0;
+	border-radius: 0;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Cpath d='M17.59 4.13A10.5 10.5 0 1 1 10.41 4.13' fill='none' stroke='%230e8fb5' stroke-width='1.9' stroke-linecap='round'/%3E%3Cpath d='M9.38 1.31L14.17 2.77L11.43 6.95Z' fill='%230e8fb5' stroke='%230e8fb5' stroke-width='.8' stroke-linejoin='round'/%3E%3C/svg%3E");
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: 28px 28px;
+}
+.station-group-settings.station-cycle .station-gid {
+	color: #0e8fb5 !important;
+}
 .station-group-settings .station-gid {
 	position: absolute;
 	z-index: 1;
