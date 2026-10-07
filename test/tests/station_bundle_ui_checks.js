@@ -120,6 +120,26 @@ describe("Dashboard Bundle Station Checks", function () {
 		assert.isFalse(sendToOS.called);
 	});
 
+	it("matches cycle status typography and spacing to the running-program line", function () {
+		sandbox.stub(OSApp.Firmware, "sendToOS")
+			.returns($.Deferred().resolve({ result: 1 }).promise());
+		sandbox.stub(OSApp.Sites, "updateController");
+		sandbox.stub(OSApp.CycleSoak, "runtimeText").callsFake(function (sid) {
+			return sid === 0 ? "Cycle running" : "";
+		});
+		controller.status[0] = 1;
+		controller.settings.ps[0] = [1, 60, 0, 0];
+		OSApp.Dashboard.displayPage();
+		var card = $("#station_0").closest(".card");
+		assert.lengthOf(card.find(".rem"), 1);
+		assert.lengthOf(card.find(".cycle-status"), 1);
+		var running = getComputedStyle(card.find(".rem")[0]);
+		var cycle = getComputedStyle(card.find(".cycle-status")[0]);
+		["fontSize", "marginTop", "marginBottom", "width", "whiteSpace"].forEach(function (property) {
+			assert.equal(cycle[property], running[property], property);
+		});
+	});
+
 	it("marks bundle leaders and members with related badges", function () {
 		setBundle(0, [ 1 ]);
 		stations.stn_spe[0] |= 1 << 2;

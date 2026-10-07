@@ -1120,7 +1120,7 @@ div.running-text{
 .attrib-submit {
     border: 0;
 }
-.rem {
+.rem, .cycle-status {
     width: 80%;
     margin:0 auto;
     font-size:.71em!important;
