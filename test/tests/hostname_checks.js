@@ -29,13 +29,42 @@ describe("Controller hostname options", function () {
 		OSApp.Options.showOptions();
 		assert.equal($("#hname").val(), "");
 		assert.equal($("#hname").attr("placeholder"), "Default");
-		assert.include($("#hname").closest("fieldset").text(), "Advanced");
+		assert.include($("#hname").closest("fieldset").text(), "Network");
 		assert.isTrue(!!($("#hname")[0].compareDocumentPosition($("#o3")[0]) & Node.DOCUMENT_POSITION_FOLLOWING));
 	});
 	it("hides the field when firmware does not expose hname", function () {
 		delete controller.settings.hname;
 		OSApp.Options.showOptions();
 		assert.lengthOf($("#hname"), 0);
+	});
+	it("groups network controls in order and keeps other controls in Advanced", function () {
+		Object.assign(controller.options, {ar: 1, ntp: 1, subn1: 255, subn2: 255, subn3: 255, subn4: 0,
+			dns1: 1, dns2: 1, dns3: 1, dns4: 1, bst: 100});
+		OSApp.Options.showOptions("network");
+		var network = $("#hname").closest("fieldset");
+		assert.equal(network.attr("data-collapsed"), "false");
+		assert.deepEqual(network.find("input[id], button[id]").map(function () {return this.id;}).get(),
+			["o12", "hname", "o14", "o3", "ip_addr", "subnet", "gateway", "dns", "o2", "ntp_addr", "o26"]);
+		var advanced = $("#o25").closest("fieldset");
+		assert.include(advanced.find("legend").text(), "Advanced");
+		assert.lengthOf(advanced.find("#o30, #o48"), 2);
+		assert.equal(network.next("fieldset")[0], advanced[0]);
+		$("#o3").prop("checked", false).trigger("change");
+		["ip_addr", "subnet", "gateway", "dns"].forEach(function (id) {
+			assert.isFalse($("#" + id).closest(".ui-field-contain").hasClass("hidden"));
+		});
+		$("#o3").prop("checked", true).trigger("change");
+		assert.isTrue($("#ip_addr").closest(".ui-field-contain").hasClass("hidden"));
+		$("#o2").prop("checked", false).trigger("change");
+		assert.isTrue($("#ntp_addr").closest(".ui-field-contain").hasClass("hidden"));
+		$("#o2").prop("checked", true).trigger("change");
+		assert.isFalse($("#ntp_addr").closest(".ui-field-contain").hasClass("hidden"));
+	});
+	it("omits an empty Network section on unsupported controllers", function () {
+		delete controller.settings.hname;
+		["hp0", "devid", "ar", "dhcp", "ntp"].forEach(function (key) {delete controller.options[key];});
+		OSApp.Options.showOptions();
+		assert.isFalse($("#os-options legend").toArray().some(function (node) {return $(node).text() === "Network";}));
 	});
 	["Garden-Controller", "", "unchanged"].forEach(function (value) {
 		it("serializes the hostname correctly for " + JSON.stringify(value), function () {

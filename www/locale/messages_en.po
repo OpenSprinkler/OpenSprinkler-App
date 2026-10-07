@@ -2781,6 +2781,9 @@ msgstr ""
 msgid "Default"
 msgstr ""
 
+msgid "Network"
+msgstr ""
+
 msgid "Network name advertised to your router when using DHCP. Leave empty to restore the device default. Use up to 32 letters, numbers or hyphens. This is separate from Device Name."
 msgstr ""
 

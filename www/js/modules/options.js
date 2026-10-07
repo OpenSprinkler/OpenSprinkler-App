@@ -1039,9 +1039,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 		"<input type='range' id='o29' min='0' max='255' step='10' data-highlight='true' value='" + ( OSApp.currentSession.controller.options.dim ) + "'></div>";
 	}
 
-	list += "</fieldset><fieldset data-role='collapsible' data-theme='b'" +
-		( typeof expandItem === "string" && expandItem === "advanced" ? " data-collapsed='false'" : "" ) + ">" +
-		"<legend>" + OSApp.Language._( "Advanced" ) + "</legend>";
+	list += "</fieldset><fieldset data-role='collapsible'" +
+		( typeof expandItem === "string" && expandItem === "network" ? " data-collapsed='false'" : "" ) + ">" +
+		"<legend>" + OSApp.Language._( "Network" ) + "</legend>";
 
 	if ( typeof OSApp.currentSession.controller.options.hp0 !== "undefined" ) {
 		list += "<div class='ui-field-contain'><label for='o12'>" + OSApp.Language._( "HTTP Port (restart required)" ) + "</label>" +
@@ -1058,6 +1058,48 @@ OSApp.Options.showOptions = function( expandItem ) {
 			OSApp.Utils.htmlEscape( OSApp.currentSession.controller.settings.hname ) + "'></div>";
 	}
 
+	if ( typeof OSApp.currentSession.controller.options.ar !== "undefined" ) {
+		list += "<label for='o14'><input data-mini='true' id='o14' type='checkbox' " + ( ( OSApp.currentSession.controller.options.ar === 1 ) ? "checked='checked'" : "" ) + ">" +
+			OSApp.Language._( "Auto Reconnect" ) + "</label>";
+	}
+
+	if ( typeof OSApp.currentSession.controller.options.dhcp !== "undefined" && OSApp.Firmware.checkOSVersion( 210 ) ) {
+		list += "<label for='o3'><input data-mini='true' id='o3' type='checkbox' " + ( ( OSApp.currentSession.controller.options.dhcp === 1 ) ? "checked='checked'" : "" ) + ">" +
+			OSApp.Language._( "Use DHCP (restart required)" ) + "</label>";
+
+		var ip = [ OSApp.currentSession.controller.options.ip1, OSApp.currentSession.controller.options.ip2, OSApp.currentSession.controller.options.ip3, OSApp.currentSession.controller.options.ip4 ].join( "." ),
+			gw = [ OSApp.currentSession.controller.options.gw1, OSApp.currentSession.controller.options.gw2, OSApp.currentSession.controller.options.gw3, OSApp.currentSession.controller.options.gw4 ].join( "." );
+
+		list += "<div class='" + ( ( OSApp.currentSession.controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='ip_addr'>" +
+			OSApp.Language._( "IP Address" ) + "</label><button data-mini='true' id='ip_addr' value='" + ip + "'>" + ip + "</button></div>";
+		if ( typeof OSApp.currentSession.controller.options.subn1 !== "undefined" ) {
+			var subnet = [ OSApp.currentSession.controller.options.subn1, OSApp.currentSession.controller.options.subn2, OSApp.currentSession.controller.options.subn3, OSApp.currentSession.controller.options.subn4 ].join( "." );
+			list += "<div class='" + ( ( OSApp.currentSession.controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='subnet'>" +
+				OSApp.Language._( "Subnet Mask" ) + "</label><button data-mini='true' id='subnet' value='" + subnet + "'>" + subnet + "</button></div>";
+		}
+
+		list += "<div class='" + ( ( OSApp.currentSession.controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='gateway'>" +
+			OSApp.Language._( "Gateway Address" ) + "</label><button data-mini='true' id='gateway' value='" + gw + "'>" + gw + "</button></div>";
+
+		if ( typeof OSApp.currentSession.controller.options.dns1 !== "undefined" ) {
+			var dns = [ OSApp.currentSession.controller.options.dns1, OSApp.currentSession.controller.options.dns2, OSApp.currentSession.controller.options.dns3, OSApp.currentSession.controller.options.dns4 ].join( "." );
+			list += "<div class='" + ( ( OSApp.currentSession.controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='dns'>" +
+				OSApp.Language._( "DNS Address" ) + "</label><button data-mini='true' id='dns' value='" + dns + "'>" + dns + "</button></div>";
+		}
+
+	}
+
+	if ( typeof OSApp.currentSession.controller.options.ntp !== "undefined" ) {
+		list += "<label for='o2'><input data-mini='true' id='o2' type='checkbox' " + ( ( OSApp.currentSession.controller.options.ntp === 1 ) ? "checked='checked'" : "" ) + ">" +
+			OSApp.Language._( "NTP Sync" ) + "</label>";
+	}
+
+	if ( typeof OSApp.currentSession.controller.options.ntp !== "undefined" && OSApp.Firmware.checkOSVersion( 210 ) ) {
+		var ntpIP = [ OSApp.currentSession.controller.options.ntp1, OSApp.currentSession.controller.options.ntp2, OSApp.currentSession.controller.options.ntp3, OSApp.currentSession.controller.options.ntp4 ].join( "." );
+		list += "<div class='" + ( ( OSApp.currentSession.controller.options.ntp === 1 ) ? "" : "hidden " ) + "ui-field-contain duration-field'><label for='ntp_addr'>" +
+			OSApp.Language._( "NTP IP Address" ) + "</label><button data-mini='true' id='ntp_addr' value='" + ntpIP + "'>" + ntpIP + "</button></div>";
+	}
+
 	if ( typeof OSApp.currentSession.controller.options.devid !== "undefined" ) {
 		list += "<div class='ui-field-contain'><label for='o26'>" + OSApp.Language._( "Device ID (restart required)" ) +
 			"<button data-helptext='" +
@@ -1065,6 +1107,10 @@ OSApp.Options.showOptions = function( expandItem ) {
 			"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label>" +
 			"<input data-mini='true' type='number' pattern='[0-9]*' max='255' id='o26' value='" + OSApp.currentSession.controller.options.devid + "'></div>";
 	}
+
+	list += "</fieldset><fieldset data-role='collapsible' data-theme='b'" +
+		( typeof expandItem === "string" && expandItem === "advanced" ? " data-collapsed='false'" : "" ) + ">" +
+		"<legend>" + OSApp.Language._( "Advanced" ) + "</legend>";
 
 	if ( typeof OSApp.currentSession.controller.options.rlp !== "undefined" ) {
 		list += "<div class='ui-field-contain duration-field'>" +
@@ -1124,47 +1170,6 @@ OSApp.Options.showOptions = function( expandItem ) {
 				OSApp.Language._( "Maximum is 24V. Set to 0 for default." ) +
 			"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label>" +
 			"<input type='range' id='latof' min='0' max='24' step='1' data-highlight='true' value='" + ( OSApp.currentSession.controller.options.latof ) + "'></div>";
-	}
-
-	if ( typeof OSApp.currentSession.controller.options.ntp !== "undefined" && OSApp.Firmware.checkOSVersion( 210 ) ) {
-		var ntpIP = [ OSApp.currentSession.controller.options.ntp1, OSApp.currentSession.controller.options.ntp2, OSApp.currentSession.controller.options.ntp3, OSApp.currentSession.controller.options.ntp4 ].join( "." );
-		list += "<div class='" + ( ( OSApp.currentSession.controller.options.ntp === 1 ) ? "" : "hidden " ) + "ui-field-contain duration-field'><label for='ntp_addr'>" +
-			OSApp.Language._( "NTP IP Address" ) + "</label><button data-mini='true' id='ntp_addr' value='" + ntpIP + "'>" + ntpIP + "</button></div>";
-	}
-
-	if ( typeof OSApp.currentSession.controller.options.dhcp !== "undefined" && OSApp.Firmware.checkOSVersion( 210 ) ) {
-		var ip = [ OSApp.currentSession.controller.options.ip1, OSApp.currentSession.controller.options.ip2, OSApp.currentSession.controller.options.ip3, OSApp.currentSession.controller.options.ip4 ].join( "." ),
-			gw = [ OSApp.currentSession.controller.options.gw1, OSApp.currentSession.controller.options.gw2, OSApp.currentSession.controller.options.gw3, OSApp.currentSession.controller.options.gw4 ].join( "." );
-
-		list += "<div class='" + ( ( OSApp.currentSession.controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='ip_addr'>" +
-			OSApp.Language._( "IP Address" ) + "</label><button data-mini='true' id='ip_addr' value='" + ip + "'>" + ip + "</button></div>";
-		list += "<div class='" + ( ( OSApp.currentSession.controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='gateway'>" +
-			OSApp.Language._( "Gateway Address" ) + "</label><button data-mini='true' id='gateway' value='" + gw + "'>" + gw + "</button></div>";
-
-		if ( typeof OSApp.currentSession.controller.options.subn1 !== "undefined" ) {
-			var subnet = [ OSApp.currentSession.controller.options.subn1, OSApp.currentSession.controller.options.subn2, OSApp.currentSession.controller.options.subn3, OSApp.currentSession.controller.options.subn4 ].join( "." );
-			list += "<div class='" + ( ( OSApp.currentSession.controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='subnet'>" +
-				OSApp.Language._( "Subnet Mask" ) + "</label><button data-mini='true' id='subnet' value='" + subnet + "'>" + subnet + "</button></div>";
-		}
-
-		if ( typeof OSApp.currentSession.controller.options.dns1 !== "undefined" ) {
-			var dns = [ OSApp.currentSession.controller.options.dns1, OSApp.currentSession.controller.options.dns2, OSApp.currentSession.controller.options.dns3, OSApp.currentSession.controller.options.dns4 ].join( "." );
-			list += "<div class='" + ( ( OSApp.currentSession.controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='dns'>" +
-				OSApp.Language._( "DNS Address" ) + "</label><button data-mini='true' id='dns' value='" + dns + "'>" + dns + "</button></div>";
-		}
-
-		list += "<label for='o3'><input data-mini='true' id='o3' type='checkbox' " + ( ( OSApp.currentSession.controller.options.dhcp === 1 ) ? "checked='checked'" : "" ) + ">" +
-			OSApp.Language._( "Use DHCP (restart required)" ) + "</label>";
-	}
-
-	if ( typeof OSApp.currentSession.controller.options.ntp !== "undefined" ) {
-		list += "<label for='o2'><input data-mini='true' id='o2' type='checkbox' " + ( ( OSApp.currentSession.controller.options.ntp === 1 ) ? "checked='checked'" : "" ) + ">" +
-			OSApp.Language._( "NTP Sync" ) + "</label>";
-	}
-
-	if ( typeof OSApp.currentSession.controller.options.ar !== "undefined" ) {
-		list += "<label for='o14'><input data-mini='true' id='o14' type='checkbox' " + ( ( OSApp.currentSession.controller.options.ar === 1 ) ? "checked='checked'" : "" ) + ">" +
-			OSApp.Language._( "Auto Reconnect" ) + "</label>";
 	}
 
 	if ( typeof OSApp.currentSession.controller.options.ipas !== "undefined" ) {
