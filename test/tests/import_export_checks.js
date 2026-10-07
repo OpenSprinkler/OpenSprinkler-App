@@ -245,6 +245,45 @@ describe("Import/Export Checks", function () {
 		} catch (error) { OSApp.currentSession.controller = controller; sandbox.restore(); throw error; }
 	});
 
+	[
+		{target: "old", backup: "Garden-Controller", expected: "garden-controller"},
+		{target: "old", backup: "", expected: ""},
+		{target: "old", backup: undefined},
+		{target: undefined, backup: "Garden-Controller"}
+	].forEach(function (example) {
+		it("imports hostname only when both backup and target support it: " + JSON.stringify(example), function () {
+			var sandbox = sinon.createSandbox(), controller = installImportHarness(sandbox, []), commands = [];
+			try {
+				if (example.target !== undefined) OSApp.currentSession.controller.settings.hname = example.target;
+				sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (command) {
+					commands.push(command); return resolved({result: 1});
+				});
+				var backup = baseBackup();
+				if (example.backup !== undefined) backup.settings.hname = example.backup;
+				return cleanupAfter(asNative(OSApp.ImportExport.importConfig(backup)).then(function () {
+					var command = commands.find(function (command) { return command.indexOf("/co?") === 0; });
+					var params = new URL("http://controller" + command).searchParams;
+					assert.equal(params.has("hname"), example.expected !== undefined);
+					if (example.expected !== undefined) assert.equal(params.get("hname"), example.expected);
+				}), sandbox, controller);
+			} catch (error) { OSApp.currentSession.controller = controller; sandbox.restore(); throw error; }
+		});
+	});
+
+	it("exports the saved hostname and rejects invalid imports before writes", function () {
+		var sandbox = sinon.createSandbox(), controller = installImportHarness(sandbox, []);
+		try {
+			OSApp.currentSession.controller.settings.hname = "garden";
+			assert.equal(JSON.parse(OSApp.ImportExport.serializeConfig()).settings.hname, "garden");
+			var send = sandbox.stub(OSApp.Firmware, "sendToOS");
+			sandbox.stub(OSApp.Errors, "showError");
+			var backup = baseBackup(); backup.settings.hname = "invalid name";
+			OSApp.ImportExport.importConfig(backup);
+			assert.isFalse(send.called);
+			assert.isTrue(OSApp.Errors.showError.calledWith(OSApp.Options.hostnameError()));
+		} finally { OSApp.currentSession.controller = controller; sandbox.restore(); }
+	});
+
 	it("preserves cycle policies when importing a backup without cycle metadata", function () {
 		var sandbox = sinon.createSandbox(), controller = installImportHarness(sandbox, []), commands = [];
 		try {

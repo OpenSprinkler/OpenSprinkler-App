@@ -17,6 +17,16 @@
 var OSApp = OSApp || {};
 OSApp.Options = OSApp.Options || {};
 
+OSApp.Options.isValidHostname = function( value ) {
+	return typeof value === "string" && ( value === "" ||
+		( value.length <= 32 && !/[^a-z0-9-]/i.test( value ) &&
+			value[ 0 ] !== "-" && value[ value.length - 1 ] !== "-" && !/^\d+$/.test( value ) ) );
+};
+
+OSApp.Options.hostnameError = function() {
+	return OSApp.Language._( "Use up to 32 ASCII letters, numbers or hyphens. The hostname cannot begin or end with a hyphen or contain only numbers. Leave empty to restore the device default." );
+};
+
 OSApp.Options.getNotificationEvents = function( options ) {
 	options = options || {};
 	var events = [
@@ -146,6 +156,18 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 				// FIXME: please refactor these values to constants
 				switch ( id ) {
+					case "hname":
+						if ( typeof OSApp.currentSession.controller.settings.hname === "undefined" ) { return true; }
+						if ( !OSApp.Options.isValidHostname( data ) ) {
+							$item.closest( "[data-role='collapsible']" ).collapsible( "expand" );
+							$item.trigger( "focus" );
+							OSApp.Errors.showError( OSApp.Options.hostnameError() );
+							invalid = true;
+							return false;
+						}
+						data = data.toLowerCase();
+						if ( data === OSApp.currentSession.controller.settings.hname ) { return true; }
+						break;
 					case "o1":
 						var tz = data.split( ":" );
 						tz[ 0 ] = parseInt( tz[ 0 ], 10 );
@@ -565,6 +587,8 @@ OSApp.Options.showOptions = function( expandItem ) {
 						message = OSApp.Language._( "Check device password and try again." );
 					} else if ( error?.status === 404 ) {
 						message = OSApp.Language._( "Please check input and try again." );
+					} else if ( error?.result === 17 && error?.item === "hname" ) {
+						message = OSApp.Options.hostnameError();
 					}
 					reconcileRejectedOptions( message );
 				} );
@@ -1023,6 +1047,15 @@ OSApp.Options.showOptions = function( expandItem ) {
 		list += "<div class='ui-field-contain'><label for='o12'>" + OSApp.Language._( "HTTP Port (restart required)" ) + "</label>" +
 			"<input data-mini='true' type='number' pattern='[0-9]*' id='o12' value='" + ( OSApp.currentSession.controller.options.hp1 * 256 + OSApp.currentSession.controller.options.hp0 ) + "'>" +
 			"</div>";
+	}
+
+	if ( typeof OSApp.currentSession.controller.settings.hname !== "undefined" ) {
+		list += "<div class='ui-field-contain'><label for='hname'>" + OSApp.Language._( "Hostname (restart required)" ) +
+			"<button data-helptext='" + OSApp.Utils.htmlEscape( OSApp.Language._( "Network name advertised to your router when using DHCP. Leave empty to restore the device default. Use up to 32 letters, numbers or hyphens. This is separate from Device Name." ) ) +
+			"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label>" +
+			"<input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='hname' maxlength='32' placeholder='" +
+			OSApp.Utils.htmlEscape( OSApp.Language._( "Default" ) ) + "' value='" +
+			OSApp.Utils.htmlEscape( OSApp.currentSession.controller.settings.hname ) + "'></div>";
 	}
 
 	if ( typeof OSApp.currentSession.controller.options.devid !== "undefined" ) {

@@ -2774,3 +2774,15 @@ msgstr ""
 
 msgid "This controller is using a default or empty device password. Change it to protect access."
 msgstr ""
+
+msgid "Hostname (restart required)"
+msgstr ""
+
+msgid "Default"
+msgstr ""
+
+msgid "Network name advertised to your router when using DHCP. Leave empty to restore the device default. Use up to 32 letters, numbers or hyphens. This is separate from Device Name."
+msgstr ""
+
+msgid "Use up to 32 ASCII letters, numbers or hyphens. The hostname cannot begin or end with a hyphen or contain only numbers. Leave empty to restore the device default."
+msgstr ""

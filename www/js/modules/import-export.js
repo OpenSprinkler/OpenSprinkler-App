@@ -584,6 +584,11 @@ OSApp.ImportExport.importConfig = function( data ) {
 			return hasOwn( activeSensorUUIDs, key ) ? Number( uuid ) : 0;
 		},
 		i, sensorKey;
+	if ( typeof importController.settings?.hname !== "undefined" && typeof data.settings.hname !== "undefined" &&
+		!OSApp.Options.isValidHostname( data.settings.hname ) ) {
+		OSApp.Errors.showError( OSApp.Options.hostnameError() );
+		return;
+	}
 	if ( data.stations.cs !== undefined && ( !Array.isArray( data.stations.cs ) ||
 		data.stations.cs.length !== sourceStationCount || !data.stations.cs.every( OSApp.CycleSoak.validPolicy ) ) ) {
 		OSApp.Errors.showError( OSApp.Language._( "Invalid cycle and soak configuration" ) );
@@ -858,6 +863,9 @@ OSApp.ImportExport.importConfig = function( data ) {
 		// Import device name, if available
 		if ( typeof data.settings.dname === "string" && OSApp.Firmware.checkOSVersion( 2191 ) ) {
 			co += "&dname=" + encodeURIComponent( data.settings.dname );
+		}
+		if ( typeof importController.settings?.hname !== "undefined" && typeof data.settings.hname === "string" ) {
+			co += "&hname=" + encodeURIComponent( data.settings.hname.toLowerCase() );
 		}
 
 		// Import mqtt options, if available
