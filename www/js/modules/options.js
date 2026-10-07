@@ -1402,7 +1402,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 						"<label class='center'>" + OSApp.Language._( "of rain is forecasted in the next:" ) + "</label>" +
 						"<div class='input_with_buttons'>" +
 							"<button id='decr2' class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
-							"<input id='rainDays' type='text' value='" + options.rainDays + " days'>" +
+							"<input id='rainDays' type='text' value='" + options.rainDays + " " + OSApp.Language._( "days" ) + "'>" +
 							"<button id='incr2' class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
 							"<p class='pad-top rain-desc center smaller'>" + OSApp.Language._("Set either to 0 to disable.") +
 						"</div><hr>" +
@@ -1441,14 +1441,14 @@ OSApp.Options.showOptions = function( expandItem ) {
 			const input = popup.find( "#rainDays" );
 			const value = parseInt( input.val().match( /\d+/g )[0] ) + 1;
 			if ( value > 10 ) return;
-			input.val( value + " days");
+			input.val( value + " " + OSApp.Language._( "days" ) );
 			return false;
 		} );
 		OSApp.UIDom.holdButton( popup.find( "#decr2" ), function() {
 			const input = popup.find( "#rainDays" );
 			const value = parseInt( input.val().match( /\d+/g )[0] ) - 1;
 			if ( value < 0 ) return;
-			input.val( value + " days");
+			input.val( value + " " + OSApp.Language._( "days" ) );
 			return false;
 		} );
 

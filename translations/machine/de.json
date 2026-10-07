@@ -1,0 +1,175 @@
+{
+	"messages": {
+		"Apply Cycle and Soak": {
+			"text": "Zyklische Bewässerung mit Sickerpausen anwenden",
+			"sourceHash": "aebdc9118ff3dbfb38cc9baa70d95c0e22027280cade649d32fc50589d6c219c",
+			"contextHash": "089d08776f6f39521fba37db6965244177b77aa2d0c64c609fa598243f13d261",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "a6f617eed46add99cace95e8b43f77667b0651525998bcc0102e899bd0f7b121",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Bundle Member": {
+			"text": "Bündelmitglied",
+			"sourceHash": "273ce7ff8cbcc5976fabbb2a7e547e0440381fde2306a4cac0e0c04fb64e0086",
+			"contextHash": "d57e7715650878f01cc62e9c79d7ec167506f8dceecd579434c6720438096290",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "17b5177800d223f17f1960807c9f45e4d53423b58d7255681fb3fb7132086ed0",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Bundle Station": {
+			"text": "Bündel-Bewässerungskreis",
+			"sourceHash": "72f4b397fbbab3c7e7122842551e145efb86321f4535ba9bde602309247622cf",
+			"contextHash": "3cae7a4a50fa78da67ce7528c397ce5520a9075594ded5377b523fc9cfb23397",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "257c722dd3e7732a15a5f43a122c90a94b21b5682f984de43af8571446f00370",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Cycle and Soak": {
+			"text": "Zyklische Bewässerung mit Sickerpausen",
+			"sourceHash": "e534cf43c3e925f9e5f4d482a09bd8ffead76a0a754035307c99f58dd0336db6",
+			"contextHash": "beee43ac2b24990782dc3dcecd71a4fefae6d8d30e8574141a91a9e2a998bb8b",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "04082327e577fb67f7ac27389620c74ee2bcc207c22824ee94342b37203e279e",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Cycle and soak times must be between 1 and 240 minutes.": {
+			"text": "Bewässerungszyklen und Sickerpausen müssen zwischen 1 und 240 Minuten dauern.",
+			"sourceHash": "1cfb6958acb3d34c4e7a7fb6a6c055b1809ccc10b0b5485cc128842ce27c18e1",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "b4b3bbe5fd72937058dc6d15185eeae2e0463845bdb01fe82a2fd3790c5c5124",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Default": {
+			"text": "Standard",
+			"sourceHash": "4ca0e0e73229540cc109b407b56d325b34def70f33f84982ed53de640d81ef49",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "d998c212030bc7c274bae23d7d354b3a35ddee152bc378c63c3125776478d504",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Default Provider": {
+			"text": "Standardanbieter",
+			"sourceHash": "25e62519cec370ae7162077c581fb2ff798f71ed6b25b9b03c8f4d1e87514bdd",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "ef78a3ad4328625119d4afb9bb9340fe6a8af76a421791049838b0ee72f2d14c",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Enable Cycle and Soak": {
+			"text": "Zyklische Bewässerung mit Sickerpausen aktivieren",
+			"sourceHash": "767d0437f0e0465c18c556da63b2e2e2c079cd7693516914eaaf780d63618056",
+			"contextHash": "5fc4b9d7a45df2c4b138774135fdbb03a332756d2ace5d7b1f568cb53de5702a",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "4df7373212ce899a01b5d139fb446267f5d718572e9f28f948c0f9ff1d64b9a1",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Hostname (restart required)": {
+			"text": "Hostname (Neustart erforderlich)",
+			"sourceHash": "c2641e22b5c81ce5d36d48293d19c77402fe57c772891fce79a729bc8720273f",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "f592bd57bef16d841e34f3dadbd44a0891b4091feb2630b3f8981c2e69a61911",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Invalid cycle and soak configuration": {
+			"text": "Ungültige Einstellungen für Bewässerungszyklen und Sickerpausen",
+			"sourceHash": "64d344b2fb34fee239154c210b3a374730e7d6f1999b276d7deea4c66452b7ac",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "44e967cfb62fb583c757daa34631d4c0e49abbfa2c8916f5389f1db0f7fc3e43",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Masters": {
+			"text": "Hauptbewässerungskreise",
+			"sourceHash": "899503bfffdc5916366e03b643ded9dac1fb9eac2636c76699e21908ed8ab878",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "1d6002fa772e68093127689f2311bf7c276aabf59ff974b11fc4c6e709a92bb3",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Maximum cycle (minutes)": {
+			"text": "Maximale Zyklusdauer (Minuten)",
+			"sourceHash": "9d216740c9563af0fa5676eba2acbccde68ed0f238101f81baee4625975bccd8",
+			"contextHash": "beee43ac2b24990782dc3dcecd71a4fefae6d8d30e8574141a91a9e2a998bb8b",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "535069d697fa74ea9036b250c69e4e7eb0ed3183dcf682583aec3866080d9059",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Minimum soak (minutes)": {
+			"text": "Minimale Sickerpause (Minuten)",
+			"sourceHash": "eeef86c45983bdc022d68232e9fd44324aa1c12d7600126a5ac5dbd103a8eeb0",
+			"contextHash": "beee43ac2b24990782dc3dcecd71a4fefae6d8d30e8574141a91a9e2a998bb8b",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "2149d26fd9ee82588969fd60308f590b0f35ec67ac60a25367c39e5484f3aa8d",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Network": {
+			"text": "Netzwerk",
+			"sourceHash": "23e10e8157dfc823353460900388acf5fb1f168e868693b8737ab3ba720b94f7",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "2c4a7abb818c974f0ba416e809409afbde1fb5c8fab903d81007e66975af4926",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Output": {
+			"text": "Ausgang",
+			"sourceHash": "0cd3518a3335a3aacc9f795a34d4c39df8aa5d744dfa24ded751735edef44387",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "c916985a42e7df257e2fde7ed51cbb455aee6226e39eb04ef3310107d9023d26",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Reset Zoom": {
+			"text": "Zoom zurücksetzen",
+			"sourceHash": "ae8b7c08d579971e5f317c5716ce6cbe90bc889635764f9071abbd4aefd89a7a",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "679ce8af048757e4a78605bf72aeb2f1561766d9f874c5a85d5539554cdabe30",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Selected": {
+			"text": "Ausgewählt",
+			"sourceHash": "386ef3ac98752a065804161574cd35f36edfb30d97932520dbfa74401c059d39",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "50d6a33b0b1b8bdd3db6a2e28100f3042e458361227e0a852dc20ac2c29ce509",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Show Inactive": {
+			"text": "Inaktive anzeigen",
+			"sourceHash": "e3efd192e0a17fa622709678b5ef7ea469fb8af11a3a0cf9e687608cb18b2182",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "1922a513ec467790a74628b9726f43e9b1adee3c2bd32280e4e0effcdf0b7620",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Watering": {
+			"text": "Bewässerung",
+			"sourceHash": "f9618bcf3511f67653f76e614ece52f5c879baff7282ef8ba1ac3d624d585c5b",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "255fa657947cad0c173536d145b16a8349a3be7395700c9eae54673be6a36bbe",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		}
+	}
+}

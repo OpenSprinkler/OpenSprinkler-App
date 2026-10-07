@@ -1,0 +1,175 @@
+{
+	"messages": {
+		"Apply Cycle and Soak": {
+			"text": "சுழற்சி நீர்ப்பாசனத்தையும் ஊறல் இடைவெளியையும் பயன்படுத்து",
+			"sourceHash": "aebdc9118ff3dbfb38cc9baa70d95c0e22027280cade649d32fc50589d6c219c",
+			"contextHash": "089d08776f6f39521fba37db6965244177b77aa2d0c64c609fa598243f13d261",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "ec479b9e3035a7742832bbea049ed4495f588a4eeddef983cd1eb83002ccdb25",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Bundle Member": {
+			"text": "தொகுப்பு உறுப்பு",
+			"sourceHash": "273ce7ff8cbcc5976fabbb2a7e547e0440381fde2306a4cac0e0c04fb64e0086",
+			"contextHash": "d57e7715650878f01cc62e9c79d7ec167506f8dceecd579434c6720438096290",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "6184767410e3b6ebfb6b0a8a6247df62a30b2767b075aa95f8d0b1dba2410efc",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Bundle Station": {
+			"text": "தொகுப்பு நிலையம்",
+			"sourceHash": "72f4b397fbbab3c7e7122842551e145efb86321f4535ba9bde602309247622cf",
+			"contextHash": "3cae7a4a50fa78da67ce7528c397ce5520a9075594ded5377b523fc9cfb23397",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "88f729c2247b6620e90cbf4c9eb7052919b35cc324c7cd2afa6d47d69a55d0ce",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Cycle and Soak": {
+			"text": "சுழற்சி நீர்ப்பாசனமும் ஊறல் இடைவெளியும்",
+			"sourceHash": "e534cf43c3e925f9e5f4d482a09bd8ffead76a0a754035307c99f58dd0336db6",
+			"contextHash": "beee43ac2b24990782dc3dcecd71a4fefae6d8d30e8574141a91a9e2a998bb8b",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "821478aedb76e12e1a922358dc0ecd6054065cc78f512f874fe18cefca1f71ae",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Cycle and soak times must be between 1 and 240 minutes.": {
+			"text": "சுழற்சி மற்றும் ஊறல் நேரங்கள் 1 முதல் 240 நிமிடங்களுக்குள் இருக்க வேண்டும்.",
+			"sourceHash": "1cfb6958acb3d34c4e7a7fb6a6c055b1809ccc10b0b5485cc128842ce27c18e1",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "785c9a84d521ae5a6f26cc655c22de76090bbbc8b9023e3fa3d2df2a33f0a872",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Default": {
+			"text": "இயல்புநிலை",
+			"sourceHash": "4ca0e0e73229540cc109b407b56d325b34def70f33f84982ed53de640d81ef49",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "556495391cb908b375cefc49a450a58d57ef949f140e2c67d4e8072630cf56e7",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Default Provider": {
+			"text": "இயல்புநிலை வழங்குநர்",
+			"sourceHash": "25e62519cec370ae7162077c581fb2ff798f71ed6b25b9b03c8f4d1e87514bdd",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "a23d06b4403d03dd176860bb669a378ec2ad299b9d011f93d52615eda4cae995",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Enable Cycle and Soak": {
+			"text": "சுழற்சி நீர்ப்பாசனத்தையும் ஊறல் இடைவெளியையும் இயக்கு",
+			"sourceHash": "767d0437f0e0465c18c556da63b2e2e2c079cd7693516914eaaf780d63618056",
+			"contextHash": "5fc4b9d7a45df2c4b138774135fdbb03a332756d2ace5d7b1f568cb53de5702a",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "f7b5060bae5198e0d3c90c3ac49ab49f2c9ea24447d89d5850d9ab5bfe9f73a0",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Hostname (restart required)": {
+			"text": "புரவலன் பெயர் (மறுதொடக்கம் தேவை)",
+			"sourceHash": "c2641e22b5c81ce5d36d48293d19c77402fe57c772891fce79a729bc8720273f",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "a63d8bad598c7b76f0cd54b782828399973d092d63959d64c66467c603f4c204",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Invalid cycle and soak configuration": {
+			"text": "சுழற்சி நீர்ப்பாசனம் மற்றும் ஊறல் அமைப்பு செல்லுபடியாகாது",
+			"sourceHash": "64d344b2fb34fee239154c210b3a374730e7d6f1999b276d7deea4c66452b7ac",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "a0ee3feecf1e81d94b85279df05f1043cb8ce70de63535f748188b4f5d952c1e",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Masters": {
+			"text": "முதன்மை நிலையங்கள்",
+			"sourceHash": "899503bfffdc5916366e03b643ded9dac1fb9eac2636c76699e21908ed8ab878",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "0f2370e0e83cb0e794c2956db6686bfdfeb587d373756f5a2fdcb1fdad950738",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Maximum cycle (minutes)": {
+			"text": "அதிகபட்ச சுழற்சி நேரம் (நிமிடங்கள்)",
+			"sourceHash": "9d216740c9563af0fa5676eba2acbccde68ed0f238101f81baee4625975bccd8",
+			"contextHash": "beee43ac2b24990782dc3dcecd71a4fefae6d8d30e8574141a91a9e2a998bb8b",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "5abed5b72b4040c00c052d919de8fc0772a9aa36029281dc2bcb9b16ad5e8866",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Minimum soak (minutes)": {
+			"text": "குறைந்தபட்ச ஊறல் நேரம் (நிமிடங்கள்)",
+			"sourceHash": "eeef86c45983bdc022d68232e9fd44324aa1c12d7600126a5ac5dbd103a8eeb0",
+			"contextHash": "beee43ac2b24990782dc3dcecd71a4fefae6d8d30e8574141a91a9e2a998bb8b",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "a929f4f9cd93e46df54b4bd261c7f06eb8a0d393496b7c331c1341c0c1061933",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Network": {
+			"text": "பிணையம்",
+			"sourceHash": "23e10e8157dfc823353460900388acf5fb1f168e868693b8737ab3ba720b94f7",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "cf3ababb42bf54b1469064d12104e50563c6aa861ba998395bd8a5aa5ba4dc63",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Output": {
+			"text": "வெளியீடு",
+			"sourceHash": "0cd3518a3335a3aacc9f795a34d4c39df8aa5d744dfa24ded751735edef44387",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "b61fd868674b3d6814e75c7fc4f22ebedc08d5be3e7f2842fdcfeba4de6ce45a",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Reset Zoom": {
+			"text": "பெரிதாக்கலை மீட்டமை",
+			"sourceHash": "ae8b7c08d579971e5f317c5716ce6cbe90bc889635764f9071abbd4aefd89a7a",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "39deadbf6de17e8550794951d36e27c0dcd743ce793ce768ba21b1c143ecd6de",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Selected": {
+			"text": "தேர்ந்தெடுக்கப்பட்டவை",
+			"sourceHash": "386ef3ac98752a065804161574cd35f36edfb30d97932520dbfa74401c059d39",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "caa99761ef975de2e4900445a8ee00178280052e803d3a82f3dcb70aff81db70",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Show Inactive": {
+			"text": "செயலற்றவற்றைக் காட்டு",
+			"sourceHash": "e3efd192e0a17fa622709678b5ef7ea469fb8af11a3a0cf9e687608cb18b2182",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "cc799875492c03d3e6adfbbb61f2b812190fa41b871b982baa6b9779d007738a",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Watering": {
+			"text": "நீர்ப்பாசனம்",
+			"sourceHash": "f9618bcf3511f67653f76e614ece52f5c879baff7282ef8ba1ac3d624d585c5b",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "f166f74bab225705ea14097d200c8ff041bf551b8b4018dc35a4f272c7e1170a",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		}
+	}
+}

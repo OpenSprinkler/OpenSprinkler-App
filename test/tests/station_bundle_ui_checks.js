@@ -298,6 +298,20 @@ describe("Dashboard Bundle Station Checks", function () {
 		assert.isFalse(showDurationBox.called);
 	});
 
+	it("translates the running-station group warning", function () {
+		sandbox.stub(OSApp.Firmware, "sendToOS")
+			.returns($.Deferred().resolve({ result: 1 }).promise());
+		sandbox.stub(OSApp.Sites, "updateController");
+		var translate = OSApp.Language._;
+		sandbox.stub(OSApp.Language, "_").callsFake(function (text) {
+			return text === "Changing group designation is prohibited while station is running" ?
+				"Localized group warning" : translate(text);
+		});
+		OSApp.Dashboard.displayPage();
+		$("#attrib-0").trigger("click");
+		assert.equal($("#stn_attrib #prohibit-change").text(), "Localized group warning");
+	});
+
 	it("keeps edits across Basic, Watering and Output and submits them together", function () {
 		sandbox.stub(OSApp.CycleSoak, "supported").returns(true);
 		sandbox.stub(OSApp.Sites, "updateController");

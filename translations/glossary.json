@@ -1,0 +1,76 @@
+{
+	"version": 1,
+	"context": "OpenSprinkler is an irrigation controller. Translate UI labels concisely and warnings accurately. A station controls a valve, not a transport station. Preserve placeholders and technical identifiers. Never infer controller data.",
+	"doNotTranslate": ["OpenSprinkler", "OpenSprinklerASB", "MQTT", "NTP", "DHCP", "HTTP", "HTTPS", "GPIO", "ADS1115", "OTC"],
+	"terms": {
+		"Station": "An irrigation output controlling a valve or a special target.",
+		"Master Station": "An output for a shared master valve or pump, operated with associated irrigation stations.",
+		"Sequential Group": "Stations in the same group normally run one after another.",
+		"Bundle Station": "A leader station that operates a configured set of member outputs together.",
+		"Cycle and Soak": "Divide watering into shorter cycles separated by time for water to soak into soil.",
+		"Weather Adjustment": "Adjust watering duration using weather conditions.",
+		"Water Level": "A watering-duration percentage, not the depth of water in a tank.",
+		"Run-Once": "A manually initiated watering schedule.",
+		"Rain Delay": "Temporarily suspend watering for a specified period.",
+		"Hostname": "A device network name, distinct from its display name."
+	},
+	"terminologyChecks": {
+		"zh": [
+			{"sourceTerms": ["station", "stations"], "avoid": ["站点", "浇水战"], "preferredTerm": "Station", "exceptions": []},
+			{"sourceTerms": ["master", "masters"], "avoid": ["主站"], "preferredTerm": "Master", "exceptions": []},
+			{"sourceTerms": ["rain delay"], "avoid": ["雨延迟", "雨停止"], "preferredTerm": "Rain Delay", "exceptions": []},
+			{"sourceTerms": ["flow"], "avoid": ["水流"], "preferredTerm": "Flow", "exceptions": []}
+		]
+	},
+	"languages": {
+		"zh": {
+			"Station": "浇水站",
+			"Zone": "浇水站",
+			"Master": "主阀门",
+			"Master Station": "主阀门",
+			"Sequential": "顺序运行",
+			"Sequential Group": "顺序组",
+			"Parallel": "并行运行",
+			"Bundle Station": "组合浇水站",
+			"Bundle Member": "组合成员",
+			"Station Type": "浇水站类型",
+			"Station Delay": "站间延迟",
+			"Remote Station": "远程浇水站",
+			"Program": "程序",
+			"Run-Once": "一次性程序",
+			"Runtime": "运行时间",
+			"Disabled": "禁用",
+			"Cycle and Soak": "分段与渗透",
+			"Maximum cycle (minutes)": "每段最长浇水时间（分钟）",
+			"Minimum soak (minutes)": "最短渗透间隔（分钟）",
+			"Sensor": "传感器",
+			"Rain Sensor": "雨传感器",
+			"Soil Sensor": "土壤湿度传感器",
+			"Flow Sensor": "流量传感器",
+			"Flow": "流量",
+			"Program Switch": "程序启动开关",
+			"Weather Sensor": "天气传感器",
+			"Aggregate Sensor": "汇总传感器",
+			"Normally Open": "常开",
+			"Normally Closed": "常闭",
+			"Water Level": "浇水百分比",
+			"Watering Level": "浇水百分比",
+			"Use Weather Adjustment": "使用天气调整",
+			"Sensor Adjustment": "传感器调整",
+			"Custom Adjustment": "自定义调整",
+			"Weather Data Provider": "天气数据提供商",
+			"Default Provider": "默认提供商",
+			"Rain Delay": "雨天延迟",
+			"Change Rain Delay": "更改雨天延迟"
+		},
+		"he": {
+			"Bundle": {
+				"preferred": "מקבץ",
+				"review": "unreviewed",
+				"note": "A collection of irrigation outputs operated together, not a society or association. Provisional terminology awaiting native-speaker approval; avoid אגודה."
+			},
+			"Bundle Station": "תחנת מקבץ",
+			"Bundle Member": "חבר במקבץ"
+		}
+	}
+}

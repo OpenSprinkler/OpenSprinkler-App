@@ -2548,7 +2548,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
 
     function setLogProgress(progress, label, options) {
         options = options || {};
-        const progressLabel = OSApp.Language._(label || "Retrieving sensor logs");
+        const progressLabel = OSApp.Language._(label || /* i18n-extract */ "Retrieving sensor logs");
         const $track = $progress.find(".sensor-log-progress-track");
         $progress.prop("hidden", false);
         $progress.toggleClass("sensor-log-progress-indeterminate", !!options.indeterminate);
@@ -2572,7 +2572,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
     }
 
     function setLoadingBanner(label) {
-        setLogProgress(0, label || "Loading sensor data", { indeterminate: true });
+        setLogProgress(0, label || /* i18n-extract */ "Loading sensor data", { indeterminate: true });
     }
 
     function hideLogProgress() {
@@ -2593,12 +2593,12 @@ OSApp.Sensors.displayLogs = function (_callback) {
         if (remaining < 60 * 1000) return OSApp.Language._("Less than a minute remaining");
 
         const minutes = Math.ceil(remaining / (60 * 1000));
-        const message = minutes === 1 ? "About %d minute remaining" : "About %d minutes remaining";
+        const message = minutes === 1 ? /* i18n-extract */ "About %d minute remaining" : /* i18n-extract */ "About %d minutes remaining";
         return OSApp.Language._(message).replace("%d", minutes);
     }
 
     function setDeletionProgress(progress) {
-        setLogProgress(progress.percent / 100, "Deleting sensor log", {
+        setLogProgress(progress.percent / 100, /* i18n-extract */ "Deleting sensor log", {
             showStop: true,
             detail: formatDeletionEstimate(progress)
         });
@@ -2615,12 +2615,12 @@ OSApp.Sensors.displayLogs = function (_callback) {
         if (remaining < 60 * 1000) return OSApp.Language._("Less than a minute remaining");
 
         const minutes = Math.ceil(remaining / (60 * 1000));
-        const message = minutes === 1 ? "About %d minute remaining" : "About %d minutes remaining";
+        const message = minutes === 1 ? /* i18n-extract */ "About %d minute remaining" : /* i18n-extract */ "About %d minutes remaining";
         return OSApp.Language._(message).replace("%d", minutes);
     }
 
     function setLoadingProgress(progress, processed, showStop) {
-        setLogProgress(progress, "Loading log data", {
+        setLogProgress(progress, /* i18n-extract */ "Loading log data", {
             processed: processed,
             showStop: !!showStop,
             detail: formatLoadingEstimate(progress)
@@ -2928,7 +2928,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
                     OSApp.UIDom.areYouSure(
                         OSApp.Language._("Delete the entire log of") + " " + OSApp.Utils.htmlEscape(deleteName) + "?",
                         warningDetail(
-                            "This may take several minutes. Deleting a sensor's log does not free log capacity; use this only when you need to reset this sensor's recorded history."
+                            /* i18n-extract */ "This may take several minutes. Deleting a sensor's log does not free log capacity; use this only when you need to reset this sensor's recorded history."
                         ),
                         () => { deleteLogs(key); }
                     );
@@ -3156,7 +3156,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
         $filterDiv.find("input.sensor-log-download-btn").on("click", () => {
             OSApp.UIDom.areYouSure(
                 OSApp.Language._("Are you sure you want to download all log data?"),
-                warningDetail("This action can take a while depending on the number of log records."),
+                warningDetail(/* i18n-extract */ "This action can take a while depending on the number of log records."),
                 downloadAllLogs
             );
         });

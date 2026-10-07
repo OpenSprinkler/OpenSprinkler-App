@@ -42,7 +42,7 @@ OSApp.CycleSoak.runtimeText = function( sid ) {
 	var rows = ( OSApp.currentSession.controller.settings.cs || [] ).filter( function( row ) { return row[ 0 ] === sid; } );
 	if ( !rows.length ) { return ""; }
 	var state = rows.some( function( row ) { return row[ 2 ] === 1; } ) ? 1 : rows[ 0 ][ 2 ],
-		labels = [ "Cycle queued", "Cycle running", "Soaking", "Cycle paused", "Master finishing" ],
+		labels = /* i18n-extract */ [ "Cycle queued", "Cycle running", "Soaking", "Cycle paused", "Master finishing" ],
 		remaining = rows.reduce( function( total, row ) { return total + row[ 3 ]; }, 0 );
 	return OSApp.Language._( labels[ state ] ) + ( remaining ? " · " + OSApp.Dates.sec2hms( remaining ) + " " +
 		OSApp.Language._( "total watering remaining" ) : "" );

@@ -20,7 +20,7 @@ OSApp.Weather = OSApp.Weather || {};
 OSApp.Weather.Constants = {
 
 	// Do NOT use Language._ to translate these here during definition. Do it when rendering!
-	adjustmentMethods: [
+	adjustmentMethods: /* i18n-extract */ [
         { name: "Manual", id: 0 },
         { name: "Zimmerman", id: 1 },
         { name: "Auto Rain Delay", id: 2, minVersion: 216 },
@@ -845,7 +845,7 @@ OSApp.Weather.makeForecast = function() {
 		sunset = OSApp.currentSession.controller.settings.sunset ? OSApp.currentSession.controller.settings.sunset : OSApp.Weather.getSunTimes()[ 1 ],
 		i, date, times;
 
-	var weekdays = [ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" ];
+	var weekdays = /* i18n-extract */ [ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" ];
 
 	list += "<li data-icon='false' class='center'>" +
 		"<div>" + OSApp.Language._( "Now" ) + "</div><br>" +

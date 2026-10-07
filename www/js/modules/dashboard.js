@@ -817,7 +817,7 @@ OSApp.Dashboard.displayPage = function() {
 					select +=
 						"<div class='ui-bar-a ui-bar seq-container'>" + OSApp.Language._( "Sequential Group" ) + ":</div>" +
 						"<select id='gid' class='seqgrp' data-mini='true'></select>" +
-						"<div><p id='prohibit-change' class='center hidden' style='color: #ff0033;'>Changing group designation is prohibited while station is running</p></div>";
+						"<div><p id='prohibit-change' class='center hidden' style='color: #ff0033;'>" + OSApp.Language._( "Changing group designation is prohibited while station is running" ) + "</p></div>";
 				}
 
 				if ( OSApp.CycleSoak.supported() && !OSApp.Stations.isMaster( sid ) ) {

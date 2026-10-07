@@ -2195,11 +2195,10 @@ OSApp.Programs.makeAllPrograms = function() {
 	}
 
 	if ( numDisabledPrograms ) {
-		var pluralProgram = 'program';
-		if ( numDisabledPrograms > 1 ) {
-			pluralProgram = 'programs';
-		}
-		list += "<p class='center disabled-programs-note'>" + numDisabledPrograms + " " + OSApp.Language._( `disabled ${pluralProgram} hidden. Tap 'Show Disabled' in the footer menu to view` ) + "</p>";
+		var disabledMessage = numDisabledPrograms > 1 ?
+			OSApp.Language._( "disabled programs hidden. Tap 'Show Disabled' in the footer menu to view" ) :
+			OSApp.Language._( "disabled program hidden. Tap 'Show Disabled' in the footer menu to view" );
+		list += "<p class='center disabled-programs-note'>" + numDisabledPrograms + " " + disabledMessage + "</p>";
 	}
 
 	return list + "</div>";

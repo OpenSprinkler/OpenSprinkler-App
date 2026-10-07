@@ -1,0 +1,2812 @@
+{
+	"messages": {
+		" when opening Station ": {
+			"text": "，发生于开启浇水站 ",
+			"sourceHash": "174fa264c69244ca66530dffb37bab7e1ce4b37ec9fd06921bdb18f6a94129fc",
+			"contextHash": "24268d641ff4b0ddc2a2b4f790932aa8a8745a4678cec55b6e960fce82a02865",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "23626333d283ab35b11a6da4c8fe9db71a0e26488a928c28707de647c3ae1060",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"A custom name for this device": {
+			"text": "此设备的自定义名称",
+			"sourceHash": "71ee0c048321ee47a22e656f431c20e2a2a2f6f2533ab46bfdd2c3450a0f1470",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "b45aba67d8cea087cf9bb301525486e226d086e5364a452ce3ac044aa2b4141e",
+			"generator": "Codex assisted translation / Chinese network and security batch 5 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"A value is out of range.": {
+			"text": "某个数值超出允许范围。",
+			"sourceHash": "10ba126ecb676d71e23ebbadcaa06e7e0e649efa733093fbab5a5093cf6cc0d8",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "5a150b40daee9a87935820a4ddd63b09413c460122c90ac847eef85f2c42eac8",
+			"generator": "Codex assisted translation / Chinese backup and errors batch 6 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"API Tool": {
+			"text": "API工具",
+			"sourceHash": "1fcb2f75478223ce61424a15b091ac924e3594a26c9c9ce72b1431f64ec6ef23",
+			"contextHash": "c96142810cae25a6be338023ee7e843ffef4fa958c8a49064ffebb18fca63320",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "a6d4457a68dbe4e13aed28af021d4bca3a21388c9e546db92674c05ce2af28db",
+			"generator": "Codex assisted translation / Chinese network and security batch 5 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"ASB firmware detected": {
+			"text": "检测到ASB固件",
+			"sourceHash": "72183e69522d527f8848594173bbc047e7c89215a311ffeda7de8d149da36ca3",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "ae755020d3cebb9e7d91126c478950d34cc809b0d9dd23f755ce685b87494521",
+			"generator": "Codex assisted translation / Chinese network and security batch 5 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"About %d minute remaining": {
+			"text": "约剩余%d分钟",
+			"sourceHash": "727db5b876a7943f13d4b0b10edf365fbd518e26cc32f1a6d91609742537ea2e",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "75c2fa525f87915846080a2d1f1807b1635199ff745302810dd83f28c076941e",
+			"generator": "Codex assisted translation / Chinese logs batch 3 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"About %d minutes remaining": {
+			"text": "约剩余%d分钟",
+			"sourceHash": "13fb8e6e1ebd2ec82479275b43a8ec39610a611f7b4d907381b0d905e5d100d0",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "75c2fa525f87915846080a2d1f1807b1635199ff745302810dd83f28c076941e",
+			"generator": "Codex assisted translation / Chinese logs batch 3 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Activated": {
+			"text": "已触发",
+			"sourceHash": "60a7b879d02b645bf29f30aac8dc0b0e72ba58efdeb57ec92c58a83d71dc656a",
+			"contextHash": "24268d641ff4b0ddc2a2b4f790932aa8a8745a4678cec55b6e960fce82a02865",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "95df0ae1983ca258fb09848c7168038bd041d761a4163896c8ed102762ebad46",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Active via Bundle Station": {
+			"text": "由组合浇水站联动运行",
+			"sourceHash": "4c28a8b20afdd046d24c9225daf2b47fe8ae273b6444faa8276b7fd84e231a2b",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "0968864cd8bf284589beeaec8db5cceb05f6963f208aa51eaa064000a9326365",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Actual": {
+			"text": "实际值",
+			"sourceHash": "516a5bec7439b0b2387fdffcec10b783297a05cc8ea659e0a01873d570cd8058",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "aa449d6c0a1c66b7b108b8063c6186a951010f8f044651f9119d22977f9e79b8",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Add Sensor": {
+			"text": "添加传感器",
+			"sourceHash": "58a883a3a10707228f2687fc462f5dcfa82b8e0e47d5af336220d5405b5ce04d",
+			"contextHash": "66c195089fdff67dae0c97d4e60eac89d294c386d913e4932ff0333bbbfb1733",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "0e0d006601ae7064baa4d02c3cff595ffcc0358c319f90a34740c16a4532dc23",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Add a Point": {
+			"text": "添加采样点",
+			"sourceHash": "14face39117075bf43ad20029db2a501cf0c25b222e8b902b4b308fc52164ea2",
+			"contextHash": "a291fea46d121ca2d96d75818a621f34fad62852c7de9e583470d4fcf69573f0",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "35b41811af262cd8bf5bb3eca990f49ce02dece0198d574abffc3325124a5b9f",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Add a Sensor": {
+			"text": "添加传感器",
+			"sourceHash": "30f8931fc11154926ffe23fb06cfb8694eaecc8d0151d58ba9b7a7df8bc6e3cd",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "0e0d006601ae7064baa4d02c3cff595ffcc0358c319f90a34740c16a4532dc23",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Add program adjustment": {
+			"text": "添加程序调整",
+			"sourceHash": "2d4545952402094ef237084f47d6af3d0b4208dd1548a5b42bc536065c3692a8",
+			"contextHash": "66c195089fdff67dae0c97d4e60eac89d294c386d913e4932ff0333bbbfb1733",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "c7355689304d7aff70933e5d2fb3c181f29c06aeb559dcbfb8c0bd9367ac5228",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Adjustment Method": {
+			"text": "调整方法",
+			"sourceHash": "d5ffef9dea3ff9fa0f69335d8a068a0d40e71ac55c091e35101c706419eb70a8",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "3c811115b5d54142b5ee3681f1391a813c1e6e4ba1e7a1e1853ee319505a5abc",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Adjustment Option": {
+			"text": "调整选项",
+			"sourceHash": "ba64f464969b1d7f4d2bd5a5d491af07d3b05f342e636ee7ba6840c08b4393fe",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "3debcc87bea2710015c84f1e008476806144ff07cd592e3085f36a0f35795145",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Afrikaans": {
+			"text": "南非荷兰语",
+			"sourceHash": "c9988f40e4b47cd086255fc3ec81afaaf663320b5ac684aa5994a04ae98a50d4",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "c71a2947ae18b9ba0dc7002b018174c3eb0216f00c32809679bc8ee4e619f056",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"All": {
+			"text": "全部",
+			"sourceHash": "663175a9c461a96d6f0252fc22dbb8ed4951e7a6fc0e31546823bcc69d6021d1",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "75c6a84eb51b7c067a9bfa59feb3eb92bd8c5403e11caf88ac8465ef1d687a67",
+			"generator": "Codex assisted translation / Chinese logs batch 3 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Amharic": {
+			"text": "阿姆哈拉语",
+			"sourceHash": "24c7eb06f59c0af1e1d9809b7263c1836782f8a72a01890c30ed53e18ce205da",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "64b6a2d537d57de172e8ff6500fa6707ac994072561f1614bf67992693b02a68",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"An IP address, URL, or token is required to continue.": {
+			"text": "请提供IP地址、URL或令牌以继续。",
+			"sourceHash": "c32f6972e7616e3e3fd56f02cd225f612394c8b7e7d4946e701b502221d09a40",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "fd71721cf678c76b58352156bf4aec884e180da8b8a853d7a421dcedba519219",
+			"generator": "Codex assisted translation / Chinese network and security batch 5 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"App Settings": {
+			"text": "应用设置",
+			"sourceHash": "6e4fc3aafcc7253ba4b199c2d1c582dbe28f3b0b278a580d8d748f2efd526cf0",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "b85184f353ccf39a93b34ad83b30addf9f47530e79d42dd9fdc8fe7b600415e0",
+			"generator": "Codex assisted translation / Chinese network and security batch 5 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Apply Current Weather Adjustment": {
+			"text": "应用当前天气调整",
+			"sourceHash": "24b1196f25d7b6967d2860a52ebaf5e422c3139be226c56e00078e60e85c9fee",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "8147615fdc64dc0f86eaf2688742ec6956b0a5fc33d9e6162340af386e3dcb74",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Apply Custom Adjustment": {
+			"text": "应用自定义调整",
+			"sourceHash": "fecdacde2537d8056da7215f20be38a43624cb2f8ecd86a60867bd2842918d54",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "cbbdf98575f9b28ec7b0f5e5dfdd4f80909bcc160339a8eb626f296f9f68dc86",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Apply Cycle and Soak": {
+			"text": "应用分段与渗透",
+			"sourceHash": "aebdc9118ff3dbfb38cc9baa70d95c0e22027280cade649d32fc50589d6c219c",
+			"contextHash": "089d08776f6f39521fba37db6965244177b77aa2d0c64c609fa598243f13d261",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "68a5435f62b603e4b39f92a1dd949722671ac63aa53289378924eaa97c8da16c",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Apply Sensor Adjustment": {
+			"text": "应用传感器调整",
+			"sourceHash": "889a033d962f7a6095aab2b5b1284023f163ad101d632bc2e2d4a9dff12e729a",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "4d0b3b464b2b7f70b67fdfaf70b9ede4317b2e95c9aa3320a2c4128298e1e813",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Apply Weather Adjustment": {
+			"text": "应用天气调整",
+			"sourceHash": "704d33771b139593c58cc3f1c5cd3d2c7564a33ae0716e20ec6c46c84f7799f3",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "2031a3d741d976efb4258c6b4ea397f68bfbc4cb499c64fcb7d601ef6c947516",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Are you sure you want to clear the sensor log?": {
+			"text": "确定要清空传感器日志吗？",
+			"sourceHash": "fec2786cec0eef618a7b88be30e88c08c3f46c3e117516ae06c4740361454c97",
+			"contextHash": "66c195089fdff67dae0c97d4e60eac89d294c386d913e4932ff0333bbbfb1733",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "32e5fd100acc69524afbe6df3d50133a251a880104c1d1956fd914ea32496dc2",
+			"generator": "Codex assisted translation / Chinese logs batch 3 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Are you sure you want to delete all sensor logs?": {
+			"text": "确定要删除所有传感器的日志吗？",
+			"sourceHash": "df8a85f8f6f68c8a804d0e8e54c9d092fbaa68b8c91b7527a4768d7232860331",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "f4ed1818100337bb3fdb8494edd663ce6e9c31051eb783791a7a15a3902f03ef",
+			"generator": "Codex assisted translation / Chinese logs batch 3 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Are you sure you want to delete the sensor?": {
+			"text": "确定要删除此传感器吗？",
+			"sourceHash": "89b4017c8c8e31c7ea3a3a032e8ae94e02433dac8109c019eb89f81c891cb16f",
+			"contextHash": "66c195089fdff67dae0c97d4e60eac89d294c386d913e4932ff0333bbbfb1733",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "f9fa4893102f76b9d5281764a26f276743a13762230611cfcbd115ef0f375435",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Are you sure you want to delete this program adjustment?": {
+			"text": "确定要删除此程序调整吗？",
+			"sourceHash": "58328d6dacd40e53ae2e32e95b0ef49d0b37b2a6434d237c7691f8e5f8d230f4",
+			"contextHash": "66c195089fdff67dae0c97d4e60eac89d294c386d913e4932ff0333bbbfb1733",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "2dd37ee026a641c7586cc0e7b0d10fd598dde1b284a3e91fd77c38dcd776ef6c",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Are you sure you want to delete this sensor?": {
+			"text": "确定要删除此传感器吗？",
+			"sourceHash": "cee9da5c3b9052aaaa658f8187554537f52f723fd7aa4fe461bcc699e2479326",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "f9fa4893102f76b9d5281764a26f276743a13762230611cfcbd115ef0f375435",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Are you sure you want to download all log data?": {
+			"text": "确定要下载全部日志数据吗？",
+			"sourceHash": "15bca914d529934f0bc2f790891fe6690aa2a6ff401bdd7fbe0e09f14030c18f",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "7ac13dcda318b2005867696bfeaaba31e94fbd1cb1b47f2988446b9ebb411d72",
+			"generator": "Codex assisted translation / Chinese logs batch 3 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Auto Rain Delay": {
+			"text": "自动雨天延迟",
+			"sourceHash": "2ce9efcf14fdf89176d4d1d19f1f4e06ec73567d79933b58ce8cfa73ede67773",
+			"contextHash": "27986029b3df9ad00dbc67ce579607a8420c959ffa16c15c9f227eb82afac172",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "af862a63a287c7039ef7deb02493775af5573a5dc0486f554b987e2ee648b34d",
+			"generator": "Codex assisted translation / Chinese weather and scheduling batch 4 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Built-in Sensors": {
+			"text": "内置传感器",
+			"sourceHash": "e1e7e9b4ccbfa1f68dcae48a1958e6e3557d7fa8afe0a742c7b1f0cff3e86f9d",
+			"contextHash": "002c0311001743f7641da2dc83ceee3458889794565c3fdc449308b0ecd3f22f",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "5128483f7c3f581ce33036732026b78b088aea55f132d53f2909cfaebdf0e7d8",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Bulgarian": {
+			"text": "保加利亚语",
+			"sourceHash": "a10b72553c916a8fbb31cdc80ee5a406d8d00cff321105cea20e43624e863d95",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "6211bc4d845e2db2bb834effec27b87f096eebc74dc78fbd3104fc7dd52c88ba",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Bundle Member": {
+			"text": "组合成员",
+			"sourceHash": "273ce7ff8cbcc5976fabbb2a7e547e0440381fde2306a4cac0e0c04fb64e0086",
+			"contextHash": "d57e7715650878f01cc62e9c79d7ec167506f8dceecd579434c6720438096290",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "0c70a1682dddd6465c3bec109582c4be0fc7c5c6cccae80d92c7fdad3653efe4",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Bundle Station": {
+			"text": "组合浇水站",
+			"sourceHash": "72f4b397fbbab3c7e7122842551e145efb86321f4535ba9bde602309247622cf",
+			"contextHash": "3cae7a4a50fa78da67ce7528c397ce5520a9075594ded5377b523fc9cfb23397",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "088ff2259d03d9c0701118bf23bf81a97ffcc1e1882a45e5c8f2b5a21042f9ed",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Bundle Station configuration was rejected. Station settings have been refreshed.": {
+			"text": "组合浇水站设置未被接受。浇水站设置已刷新。",
+			"sourceHash": "f414e78ac784b98e352dcb42ff3daf9525c0f1934fa84f05a25916f07cfb6cb7",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "04f079a98b0e710f694b8e3b46ba1b457b84c12ad5592de88dc97d8c08c63446",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Bundle Station members changed. Review the selection and try again.": {
+			"text": "组合浇水站的成员已变更。请检查所选成员后重试。",
+			"sourceHash": "070316e67f26dc1e05a8203504c8c8dd9900f6a1d4ab06cc1d4d62b30ad7700e",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "14883433a8b4ac06001fe09958ada8e865ac78dec6b3733ceb779d7aa2dbeef6",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Bundle member of": {
+			"text": "所属组合浇水站",
+			"sourceHash": "978dd967317e7ca8e7bde4a71e964202fd6dc10f600d867f3f2438df592bd50a",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "adb8e03de1b347e138331077aaf0594a77b99e29a3d2cf012f19edeb56ca1c4e",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Change IP/URL": {
+			"text": "更改IP地址/URL",
+			"sourceHash": "22ae184c4c086f0425e8cfc39928f28cd5900ee43cd7aa55ad2885c668b70fdd",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "ba582afefa73cc66cbbf02ecfd5a07f6bcef2439208df77e96fa11714c829ad6",
+			"generator": "Codex assisted translation / Chinese network and security batch 5 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Check IP/URL/Port and try again.": {
+			"text": "请检查IP地址、URL或端口后重试。",
+			"sourceHash": "6b86cdf5f6decd8a739c0cc375c4fd2321989ac71a51c2e0b41ac9bd924b9135",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "a5155863c4aa9fa90a68068fac15b2dea282e93d2260fc6fc3b645bb55362d7d",
+			"generator": "Codex assisted translation / Chinese network and security batch 5 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Chinese": {
+			"text": "中文",
+			"sourceHash": "1bf274ce62a1b34761dac43e5c864e8188a32dd23e0dbff219429730dd128c53",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "ae5501d6922ab917c22d22b489ec065bd1ac48244a124277f858fba6f722efd5",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Clear this alert": {
+			"text": "清除此警告",
+			"sourceHash": "e1e662f0fd7d2c50eb894d4baaf8ec47d35f7c555dc03a6d4f64e338ca84fa7d",
+			"contextHash": "24268d641ff4b0ddc2a2b4f790932aa8a8745a4678cec55b6e960fce82a02865",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "8fc4f2c0f9714f565e4bbcf2c0a4a1ac85cd64e1680912069209d8ff3b98e6f7",
+			"generator": "Codex assisted translation / Chinese electrical and sensor batch 7 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Click below to expand/edit. Be sure to save changes.": {
+			"text": "点击下方展开或编辑。请记得保存更改。",
+			"sourceHash": "055665d968e1c5ef40c6498857b613541e330877cba0cb8b2fb794442cb90173",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "26922bdadd025a4982e5b2da877153f0dafbf70940f962b3e6cedf8bcc28f0e4",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Clock Update": {
+			"text": "时钟更新",
+			"sourceHash": "1033bf948129cd01c97b4249248286c40c130d70dd7379cfb33ce08c2b54946a",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "6739248e31d7ad6774f9787a136f7a2ecb991b560df823d54cddc5f40caafe5a",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Configuration": {
+			"text": "配置",
+			"sourceHash": "a9af6c753b7d22be15845ddec95421d0a7d66227ec1d4c777590caa8654c3277",
+			"contextHash": "089d08776f6f39521fba37db6965244177b77aa2d0c64c609fa598243f13d261",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "b8c66c9e1b8f62c5e5567f89bbd743a3ac9436da773de6b5a67349ccb0a90a60",
+			"generator": "Codex assisted translation / Chinese backup and errors batch 6 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Configure Child Sensor": {
+			"text": "配置子传感器",
+			"sourceHash": "d54dc188b0db2294d11075aa073a84316b76d2a344095418151eeb1eaf8cdb76",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "fe02757df5a58b0ff45d9f7dada2114c75e502d8da83f8a06c337c36e5a57543",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Controller rejected one or more invalid options. Review and try again.": {
+			"text": "控制器拒绝了一个或多个无效选项。请检查后重试。",
+			"sourceHash": "f66465f9bc93128bab83c9d2cb5504522dcfeafb107cd4578fce4c581219ead2",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "a7aeb8abbff94ec46aa772f2d300b16c9335096afcbac32d5867544bfac30cff",
+			"generator": "Codex assisted translation / Chinese backup and errors batch 6 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Corrupted Response": {
+			"text": "响应数据损坏",
+			"sourceHash": "3e2367edff66d22931a7051ab50e2bfb953fc3f86277804a004266d62b0a52a5",
+			"contextHash": "c96142810cae25a6be338023ee7e843ffef4fa958c8a49064ffebb18fca63320",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "c9118fea4624c64b3fc1e6600b8391dbd3ce4d43a9917cb9efc70aa7cc623a66",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Croatian": {
+			"text": "克罗地亚语",
+			"sourceHash": "0576c4b1c182ea7e26f7266e60ea218cc45db04d13951797da61f6382301cf97",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "f89a919e7ccaea4a6786e46c2b76b378994a18e5c9b2d9055c1b24b4e9799dbf",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Current Sensor Value": {
+			"text": "当前传感器读数",
+			"sourceHash": "20b500b983190ae5b054e45846c35700d601285e715a4201540feaa32efd79b5",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "b4c22ef64facc41b68dbbaa67f2109a6c901d03d7e1243ffa2e9cd88be78aed8",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Current Value": {
+			"text": "当前读数",
+			"sourceHash": "de8bd48518e1fd535c40a0286e99bcbfd369e1ed9cbc671796db0713e111bce5",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "a0388679983459db9e8d279604786c04a55597bfcb5ce7fe3fc62e76670b01fb",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Cycle and Soak": {
+			"text": "分段浇水与渗透",
+			"sourceHash": "e534cf43c3e925f9e5f4d482a09bd8ffead76a0a754035307c99f58dd0336db6",
+			"contextHash": "beee43ac2b24990782dc3dcecd71a4fefae6d8d30e8574141a91a9e2a998bb8b",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "68e3868303c1c76ff037714ab2bb9eafa52c75bd64ee14e52e55f1e242c80bd0",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Cycle and soak settings could not be read. Affected stations water without cycling.": {
+			"text": "无法读取分段与渗透设置。受影响的浇水站将连续浇水，不进行分段。",
+			"sourceHash": "9f0b9d1ef5c3d30fe44179d3c3acd0b92d104984c4b7709d711a3cdd14108af5",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "1e10fcf34b14817a7bb965720c38e8d650cfcbf5ca2f69f1b2d712d412ea6482",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Cycle and soak times must be between 1 and 240 minutes.": {
+			"text": "每段浇水时间和渗透间隔必须在1到240分钟之间。",
+			"sourceHash": "1cfb6958acb3d34c4e7a7fb6a6c055b1809ccc10b0b5485cc128842ce27c18e1",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "54b4d8d6443392d116a246d7720a6f016c940daf48fdc7be08a3fedb368ffd4e",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Cycle queued": {
+			"text": "分段浇水等待中",
+			"sourceHash": "100c33110e66976fdf3b1e73df16c21b2a87a1f1b06010fb423dce1dce11f078",
+			"contextHash": "5fc4b9d7a45df2c4b138774135fdbb03a332756d2ace5d7b1f568cb53de5702a",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "861fa76d8ed7360d9d1450551a9e2a20b2782665ce83e7fcd107f03cedf7928d",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Cycle running": {
+			"text": "分段浇水中",
+			"sourceHash": "bac503974f1a17261dbbc859702ee1141db94793b42f3a43de8b8c09899d0290",
+			"contextHash": "5fc4b9d7a45df2c4b138774135fdbb03a332756d2ace5d7b1f568cb53de5702a",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "cb21fb376ede3a7f57a0b419fdb079905880edae9eba56e4fba2b492acf969cf",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Czech": {
+			"text": "捷克语",
+			"sourceHash": "6a30554ac99199abc65296eaefc1a2e0fd5ac8c1ffc7a486e5a9c22e2eb57cfb",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "ac5b0f2c8b6b3974dc3f65d171d79c611fc37b165305d443414be7ff81948951",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Default": {
+			"text": "默认",
+			"sourceHash": "4ca0e0e73229540cc109b407b56d325b34def70f33f84982ed53de640d81ef49",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "8045fb0d4066abc66c19200a5bd0b168859721ef803d5afb1460c7aac3024f2e",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Default Provider": {
+			"text": "默认提供商",
+			"sourceHash": "25e62519cec370ae7162077c581fb2ff798f71ed6b25b9b03c8f4d1e87514bdd",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "cdbb4be6d982fbb4ac417671e171f2b87ab93f71b1a5b9a6008ed611975ab415",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Delete Sensor": {
+			"text": "删除传感器",
+			"sourceHash": "03727720ca755596c0e33cc4a87d9ada6f71b0e1ab06ee4222f7ac8a4a18216e",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "9d6285dd304cf3cd53f721dddf9db746e3b50400f43dd6d737bb586b8004cf54",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Delete the entire log of": {
+			"text": "删除以下传感器的全部日志：",
+			"sourceHash": "1e6059e86bd0e33c5fd2381402e32b2e7c304b1853fb7161d1429fd50a43186a",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "0d361bcf2db629ac68d5af425f2708316ebcc5b9cc3f8282b4a37f87d810f120",
+			"generator": "Codex assisted translation / Chinese logs batch 3 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Deleting sensor log": {
+			"text": "正在删除传感器日志",
+			"sourceHash": "265d39421464cb18574acc152686700df7829ed2fda92b8f743b800eae5a947a",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "0c6696c851b3fd8bb54c8496a6eff64952b32b5845f75de94b3d1fa8605dfd02",
+			"generator": "Codex assisted translation / Chinese logs batch 3 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Device Address:": {
+			"text": "设备地址：",
+			"sourceHash": "0425db08a70b157151c0e9a54ce0f44a6aef0249e64ddd950f7079c99e54e315",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "a72c909b158ff29e35b18619760e16e2a78105b97727d9f4c46c9f1f5bfcce77",
+			"generator": "Codex assisted translation / Chinese network and security batch 5 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Device Name:": {
+			"text": "设备名称：",
+			"sourceHash": "3e7e658e9b4532db4dacb72998fec87cd1dbde328a9779c57246f445b5395628",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "82e88aa2852505618ed322357aaafb1356e3b4a27658449aa6ddb5a796abcdce",
+			"generator": "Codex assisted translation / Chinese network and security batch 5 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Device Password:": {
+			"text": "设备密码：",
+			"sourceHash": "2e9c5b10020f9a70bd07ab54abb72b480d894709b65a6db0e7953fa432d3fc59",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "dc63a44fd16d10ed57fbb6284cdef8fbb30e88d218186465c0f40a27bab3d29a",
+			"generator": "Codex assisted translation / Chinese network and security batch 5 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Device password is not secure": {
+			"text": "设备密码不安全",
+			"sourceHash": "9c7be9d5a940a7a732e5b04fe607b09ce4d23ad04ab4ba2cc193a1dd5f97f678",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "d36971176dc95ba1312d7175138305ac217988e2c7604af130925a1f594ef52d",
+			"generator": "Codex assisted translation / Chinese network and security batch 5 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Disallow watering if the current\ntemperature is below:": {
+			"text": "当前温度低于以下值时\n禁止浇水：",
+			"sourceHash": "5302c2275a19ac5d81f4d51bcfcabc4a67215433966839c2e99f308919b8b164",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "ca24e66c5e7cbaa8632651409b6ff57957dc8e6f574b1850b32bed07cc11366e",
+			"generator": "Codex assisted translation / Chinese weather and scheduling batch 4 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Disallow watering if:": {
+			"text": "满足以下条件时禁止浇水：",
+			"sourceHash": "1ed27c526bc86bb2c60a783b6784244f5a8213d981814b366a2e6ea8b0a622f1",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "eeda4c4a0f6061ddfedca382631640464938536a52616ede2b140c84b6a5c94d",
+			"generator": "Codex assisted translation / Chinese weather and scheduling batch 4 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Divider": {
+			"text": "除数",
+			"sourceHash": "c53c3307e2a2a32a8e862e8928f9531cd02494a8bc53deda3d798d2a8d33af28",
+			"contextHash": "66c195089fdff67dae0c97d4e60eac89d294c386d913e4932ff0333bbbfb1733",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "0563f26569c83f9b2ab00738b1ccb62902f4ddc4ff7a5e28dca0ff12c5abd7f2",
+			"generator": "Codex assisted translation / Chinese electrical and sensor batch 7 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Download": {
+			"text": "下载",
+			"sourceHash": "41533734a5a7b89d7d71651a377cbd7d509b922413ca059b398b85324940c0d7",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "62c1206ada3cfab9509ba65025bdfb5ad79e543ba76fb5748f22ecd6e528ff04",
+			"generator": "Codex assisted translation / Chinese logs batch 3 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Dutch": {
+			"text": "荷兰语",
+			"sourceHash": "6949d667043bee0b3956062215f13454c6877f7bada74c9cee264e7035f428c2",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "a5f5d9d934e0c2b06b3bc1599e740804c50a91220d3fd21ace6539e0e72021ce",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Edit": {
+			"text": "编辑",
+			"sourceHash": "f7e6729d30cf78fbec257e2b5bc327d3013393419143eb9d38dd3534a1d5b105",
+			"contextHash": "66c195089fdff67dae0c97d4e60eac89d294c386d913e4932ff0333bbbfb1733",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "bcedf2dfebae66f89d601b29c3c70d061ed4bc0eee04485bcbf4f9adba8ad523",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Edit Sensor": {
+			"text": "编辑传感器",
+			"sourceHash": "937bce511fb7d1fbb662444192caf9aeafa687d688b2d1f517158bd42178f059",
+			"contextHash": "66c195089fdff67dae0c97d4e60eac89d294c386d913e4932ff0333bbbfb1733",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "1a3c4620b2577397d1a4d1cf7ca60330fc04ee479b8ff0460bb3c6015a4d2341",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Edit Sensor Configuration. ": {
+			"text": "编辑传感器配置。",
+			"sourceHash": "64a5f1c9bfaaf661440c51bfaf72645e3eb03d298e65cfffc8c5693d4f8ebdd4",
+			"contextHash": "66c195089fdff67dae0c97d4e60eac89d294c386d913e4932ff0333bbbfb1733",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "3af904415dd3164ae177a93ac9cc091f75047b69fa05a71de52135598ec5021c",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Edit Sensors": {
+			"text": "编辑传感器",
+			"sourceHash": "d9b6787ec983a3c55b89b50fa95c88f361c749f50ec3f6cc6d84919251b70128",
+			"contextHash": "e478d376fecc82d351cb3ea75bd24ab24adb0e27adbebca368b5ba68b420d72d",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "1a3c4620b2577397d1a4d1cf7ca60330fc04ee479b8ff0460bb3c6015a4d2341",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Enable California Restriction": {
+			"text": "启用加州浇水限制",
+			"sourceHash": "5822d5b04638fe7a56a528776d88d4981d13bdc984d4e0ddba90dd9d523f95f6",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "ec18bc86b733a89d148c03b7fe46c4abb4e9e0d034fa1fa8579f92378074fc14",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Enable Cycle and Soak": {
+			"text": "启用分段与渗透",
+			"sourceHash": "767d0437f0e0465c18c556da63b2e2e2c079cd7693516914eaaf780d63618056",
+			"contextHash": "5fc4b9d7a45df2c4b138774135fdbb03a332756d2ace5d7b1f568cb53de5702a",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "d43950184e6315b6a1aa0febf25840146c33d3189a0d02c71f831d1ac7b4042a",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Enable Data Logging": {
+			"text": "启用数据记录",
+			"sourceHash": "1758508560b215aca8789a990bba9aa21893a3e139e7ed18166197f8d640ef91",
+			"contextHash": "66c195089fdff67dae0c97d4e60eac89d294c386d913e4932ff0333bbbfb1733",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "2c2f1cbea05ccbe27a32f65a31ba4ea020fe4c02222a0fe427b2b8955fa81919",
+			"generator": "Codex assisted translation / Chinese logs batch 3 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"English": {
+			"text": "英语",
+			"sourceHash": "32889a931b08ba01dadfc309df2ec6bd7b8234aa9a8db49ffd49818f3b3aa1c6",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "97e76cc3fc584e0be47cde90560900103ae1b2213879a1f63fe81d1c32deb439",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Error: Add at least one sensor adjustment point.": {
+			"text": "错误：请至少添加一个传感器调整采样点。",
+			"sourceHash": "6fcd1ba08783a8c0cd599392c7818a7965c4bfabf5503853596d987baf02761f",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "360c753d30b2d9786d6f4c844c6ee5e028b23953262c60b9a868122be525b29f",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Error: Complete or remove every sensor adjustment point.": {
+			"text": "错误：请补全或移除所有未填写完整的传感器调整采样点。",
+			"sourceHash": "f905641d6694fec4b167579ad00d78f506b14d245ab05c0d008270433010ad09",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "a1870c59c7d3746248dbe15d89a7fee210599cb5f8993a6ef15c38ccd6a28cfe",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Error: Select a sensor before enabling sensor adjustment.": {
+			"text": "错误：请先选择传感器，再启用传感器调整。",
+			"sourceHash": "b21d087efd817d9d492b04b6bfb2a1b26235b918adf79a47752c89fcb954a832",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "4ce2497ff20d7af7132a8f841b88a93d01bc3cb56a72ed8f8268e588dc66921d",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Error: Watering percentages cannot be negative.": {
+			"text": "错误：浇水百分比不能为负数。",
+			"sourceHash": "f6c2b25274e5e09545f409fd6726bd2a08dbb64dd07048b42079a9a7cb93939d",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "3385b7e4c938bbd09780d4aafbaa41bfddc3decb87ccb2c15f354fe80de42ff4",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Estonian": {
+			"text": "爱沙尼亚语",
+			"sourceHash": "459035c643e1cfe4a6cf83684836971224751c3c73c6212200569586f318b9e0",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "0aec0203e411517f4e46b2366b7e255fa3f7d87d4f4d73eee8722249b987b6b2",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Factor": {
+			"text": "系数",
+			"sourceHash": "0bc8f995abe95256fe2d8d9139f0b4645ca73e13737a498d12fa0616d1ff65fa",
+			"contextHash": "66c195089fdff67dae0c97d4e60eac89d294c386d913e4932ff0333bbbfb1733",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "ac4534daa3591810d29929fe6e7b5b908e613784eac99c68505c2a93759635d9",
+			"generator": "Codex assisted translation / Chinese electrical and sensor batch 7 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Factor 1 (adjustment for min)": {
+			"text": "系数1（最小值调整）",
+			"sourceHash": "9f63f084cbb3b2b44f78e5cf83d44202d23b834ac583c284198d9318bef3868a",
+			"contextHash": "66c195089fdff67dae0c97d4e60eac89d294c386d913e4932ff0333bbbfb1733",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "2c99a617ed69be2a59b7af14c2a04181658dd43155e51508de3fc3301e9dd4c9",
+			"generator": "Codex assisted translation / Chinese electrical and sensor batch 7 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Factor 2 (adjustment for max)": {
+			"text": "系数2（最大值调整）",
+			"sourceHash": "3febae87511bf37c1ff1817c42e578f642efd933850f6d460237a8ae54c8bd78",
+			"contextHash": "66c195089fdff67dae0c97d4e60eac89d294c386d913e4932ff0333bbbfb1733",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "1aedb012fecf561d7b8e76074d36dbaf7f166a872bd90dc3e9b13deda6c8af75",
+			"generator": "Codex assisted translation / Chinese electrical and sensor batch 7 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Factory Reset": {
+			"text": "恢复出厂设置",
+			"sourceHash": "16d5e106b7e55b95641097b3bff4b727ec143b0c902e132060f1b8f6464a155e",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "1664b83a8df6b8f2d6287c3aa9ce179b9dc3a3344339b569eb28398b1dd4dfc4",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Failed to delete sensor logs": {
+			"text": "删除传感器日志失败",
+			"sourceHash": "a4a96bf737544d632a60ccf42dfdcb57acb66258caf1fa77cc3106ae77401684",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "bbb8ff1fc0787613bc781cf21a32a9265d3642a207be33c3fb049d9058bf02cd",
+			"generator": "Codex assisted translation / Chinese logs batch 3 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Failed to download sensor logs": {
+			"text": "下载传感器日志失败",
+			"sourceHash": "3193489791a9a8e233ecfb2fae81058640e85842abb2e16136430eccd6e2a5c4",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "5453b6697898f1d4bcece7a8be595dba8d85a059a01066c78324838287d87342",
+			"generator": "Codex assisted translation / Chinese logs batch 3 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Failed to load sensor logs": {
+			"text": "加载传感器日志失败",
+			"sourceHash": "1a6b0fc8734d76cc258a6eab74d7874577c50240840bcb281582d150f41d3d91",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "ba83e2e0d99caddf0bbef7edfea8be039ecb397a465704533a4f5d23a681b5c1",
+			"generator": "Codex assisted translation / Chinese logs batch 3 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Farsi": {
+			"text": "波斯语",
+			"sourceHash": "b3c4bbf2d31b8fc014110826abfcada07774f38ce68febd94e1f0ecac153e94c",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "038c046193aa037536e369cb3e1dbed0affa4348166d2e74cb0b3e6a020fbe95",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Filter stations": {
+			"text": "筛选浇水站",
+			"sourceHash": "0c5841c34a21f0ccd1b746d9f7eb5d60cb27fac1929dfb820d1dec20142bb12c",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "d62026719d01fa87615ca2a561fa3af7bbc0dfa24eb7423563fbcb4e8a745b21",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Firmware Update": {
+			"text": "固件更新",
+			"sourceHash": "c2fff85dc3ae73e5d57c434143b5738faa26395cd2166d9dec16c71ca5d78c0a",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "e4dd4435f9c2e1ffa85b8715dc4a41f2f985df69da5648adb52d1734bf9c5100",
+			"generator": "Codex assisted translation / Chinese network and security batch 5 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Firmware update requires a local network connection to the controller.": {
+			"text": "更新固件需要通过本地网络连接控制器。",
+			"sourceHash": "2b54c2a5630719c34b09438f177c83bb9d8f0314eab725c759b42a657498d768",
+			"contextHash": "89f775062299865aed268f39cdaa86d10d0a6538b4bf8c52e106acdef9833507",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "d80183281b00e68b1d0fb4720633846c44e900ae43dbed42ca52b9bd231b89f2",
+			"generator": "Codex assisted translation / Chinese network and security batch 5 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Flow Rate": {
+			"text": "流量",
+			"sourceHash": "8aa7f948d14eb781167743083a42180120fea401df4ff36488def9ed147bdea7",
+			"contextHash": "ad224f56f33ab31fcb268e8aeade118cb7348585fdbe6c3b03f613ec7340f086",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "727f962c3536d0cfff80178d15a54d1f36914a2ddf98583d26bd8b9ad5f04538",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Forecasted Rain": {
+			"text": "预报降雨量",
+			"sourceHash": "7b172431a314bbb18a376e1f1fd19a038974673926bab358db87ca9587edb6f0",
+			"contextHash": "27986029b3df9ad00dbc67ce579607a8420c959ffa16c15c9f227eb82afac172",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "c8dc24e503397183c2e791a99af4cd351920d4a43832528a3ef4806e552d0dc2",
+			"generator": "Codex assisted translation / Chinese weather and scheduling batch 4 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"French": {
+			"text": "法语",
+			"sourceHash": "092033938ca2debb340be95266c500b7ee4739facaf97f9a059b190a19cee0f5",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "1b91557f99e098d92d4e4bef2ebd9afce019ef57a02c3d82ce493c1d5a5e4f4a",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"German": {
+			"text": "德语",
+			"sourceHash": "ae4d849ad5c154f541d7168edf7878b994d27b800aba40c436c7f275ccd2a2c0",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "f618fca0a76b0233d9d82200c2e736b8d84bee96f3c8378764f03f970987ded9",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Greek": {
+			"text": "希腊语",
+			"sourceHash": "e315f6f286b54d75f099dcb09d74f06bb3c5f27ec5df727e1f9c80d0b1fa947a",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "535ae08234fb963373f033c509ea5dac404c315ea388281c52792a65b8724bdf",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Group": {
+			"text": "组",
+			"sourceHash": "b0e7e3b47dfb5a0b2d2160b7ad1c7602c9efad3ddfb102cac799fc9537982346",
+			"contextHash": "66c195089fdff67dae0c97d4e60eac89d294c386d913e4932ff0333bbbfb1733",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "6e9cf6518d9ab6fd0aa3dab82275793d63d4790ad73ce477248888449acedfef",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Hebrew": {
+			"text": "希伯来语",
+			"sourceHash": "ac6a4cef231bf45007d6ba8afe35d7c934964f9eb14a325f034da9b839d2142d",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "2d2891a2f56cb8f8648bfe795daed97c082ed883f600b65d6404d9f966f9591d",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Help": {
+			"text": "帮助",
+			"sourceHash": "4ef51407b02e0ae149f485a2cf649bb239d4bd8a033d901a30fc6ea7faf0a2c3",
+			"contextHash": "c96142810cae25a6be338023ee7e843ffef4fa958c8a49064ffebb18fca63320",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "8065d0033a609e40755429bd4657c3921b2d94100c358438906a533b5e17239e",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Hostname (restart required)": {
+			"text": "主机名（需重启）",
+			"sourceHash": "c2641e22b5c81ce5d36d48293d19c77402fe57c772891fce79a729bc8720273f",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "773cc2e2fa72d0e9166d6c1e7b9b54e052db945ebd3ad5b2da9622c6be0aedca",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Hungarian": {
+			"text": "匈牙利语",
+			"sourceHash": "a394ccf77467488c66c1a5e15cd5ab20e1d38bf0ad1d23552f3460c217129ecb",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "04ef1878dbc5dc4fc95f6ab851e9db52de27ab597d2652a85e5b7eb0785036bd",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"ID": {
+			"text": "编号",
+			"sourceHash": "81ef3a25ccb6eaf72fe6e3c5236f4c7cb3b11e1f1cb4009c93a9d176b97d68ce",
+			"contextHash": "66c195089fdff67dae0c97d4e60eac89d294c386d913e4932ff0333bbbfb1733",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "9cc924485ff5edd8701059c0654057f29c56870bd70d1e220cd72712716f201b",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Icelandic": {
+			"text": "冰岛语",
+			"sourceHash": "3e57aa2f4b8342d4d12edf6615b60d84fb2d3f183fd0a4e8906c4994d0c09ae7",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "08a48316dd296e5b1c381664a0fd4bb1275e05eeb067e31b842d093512da8781",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"If the current draw (mA) exceeds this threshold when stations are running, an overcurrent fault notification is triggered. Set to 0 to use the system default. Set to maximum (2550) to disable this feature.": {
+			"text": "浇水站运行时，如果电流（mA）超过此阈值，将触发过流故障通知。设为0使用系统默认值，设为最大值（2550）禁用此功能。",
+			"sourceHash": "531f3c794ec935bb626f73905cc16c655d024137c8f1e359e337df19476201a9",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "6fbe7fefc72cb2d567cb314fdf6e9c0ec2d1853f7364adf25ddafcc69e6f7369",
+			"generator": "Codex assisted translation / Chinese electrical and sensor batch 7 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"If the current draw (mA) falls below this threshold when a station finishes running, a low-current fault notification is triggered. The recommended value is 100. Set to 0 to disable this feature.": {
+			"text": "浇水站结束运行时，如果电流（mA）低于此阈值，将触发欠流故障通知。建议值为100。设为0禁用此功能。",
+			"sourceHash": "c5cd34b416518715f8b80303064cba3289497e8ca35c4bfd7b6714aff8fcca0c",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "cee953ac5135f812dce3c28ea1cceca0b8ae2fe704e099c21fe4629515023cfa",
+			"generator": "Codex assisted translation / Chinese electrical and sensor batch 7 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"If the current weather condition reports rain, a rain delay is automatically issued using the duration below.": {
+			"text": "如果当前天气显示下雨，将自动按以下时长启用雨天延迟。",
+			"sourceHash": "6a64e7adaef0fc7ea17e2b055d64e8f545b8f904d148078e785008df5903efb5",
+			"contextHash": "27986029b3df9ad00dbc67ce579607a8420c959ffa16c15c9f227eb82afac172",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "63c4669c5ae4a09928cb385ea2f80d079b9ad7d4dc011a7148c52334135daa6e",
+			"generator": "Codex assisted translation / Chinese weather and scheduling batch 4 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Ignore Sensor 3": {
+			"text": "忽略3号传感器",
+			"sourceHash": "cb89f4b570230d78476720a6d4cc58f3fe37f76491814b1bba4d187a728bba96",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "09dfbc5a4d24fb83c31093afbea9dd28d7499e69d1a7ff52afc05d987120bc56",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Ignore Sensor 4": {
+			"text": "忽略4号传感器",
+			"sourceHash": "ebcf587303dc0fe0530f06e775f9634d21e68316e21eca27777ae1ce2bc72f9e",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "90e7064173cfbea5067c93be8ac44aa81e83553d4054765e2d5c7d62993f4b66",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Internal firmware error.": {
+			"text": "固件内部错误。",
+			"sourceHash": "638805ae847b24cdde567998ef49a053e86ff7e8117f03bfa3045f2b86be73cb",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "417a16cfb9999d3aabdbccdd4498da2be46812a5a7daa4876e23d990cf867f00",
+			"generator": "Codex assisted translation / Chinese backup and errors batch 6 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Invalid cycle and soak configuration": {
+			"text": "分段与渗透设置无效",
+			"sourceHash": "64d344b2fb34fee239154c210b3a374730e7d6f1999b276d7deea4c66452b7ac",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "9be00a83c68a440ff345b5b30d28bdaf3ffdca1eda435037a199abd3230560ea",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Invalid new OTC token. Any other changes were made successfully.": {
+			"text": "新的OTC令牌无效。其他更改均已成功保存。",
+			"sourceHash": "bb963417afdb0814e50611a4bd93ecc496d7a4dd76dcf1019b3d894fbefa6eb3",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "6758052263cbf252b32f1dd97296e7cc2c6b28b680af0a77cf210730d278325c",
+			"generator": "Codex assisted translation / Chinese network and security batch 5 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Invalid program configuration in backup.": {
+			"text": "备份中的程序配置无效。",
+			"sourceHash": "a64ecd2e063a0f372ecd1ab674fd635ebbcbc9f04e8003179e35feedc1e470b0",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "3d7ccc2868d3e6933923b85e6e9b64cd16db4a5ef2e8d11e71e9cabd22c68867",
+			"generator": "Codex assisted translation / Chinese backup and errors batch 6 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Invalid program sensor adjustment in backup.": {
+			"text": "备份中的程序传感器调整设置无效。",
+			"sourceHash": "a8711dd4a3acb11849caefda96481e4f24ae727d5df41850efca2f772dcf72dd",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "9f2863d085a5aa3448bf1265161450ac6e14805904c50e8f59a6a16e8e8da1ac",
+			"generator": "Codex assisted translation / Chinese backup and errors batch 6 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Invalid sensor configuration in backup.": {
+			"text": "备份中的传感器配置无效。",
+			"sourceHash": "0f703bad9f6ff8714ebcc1c5e5af5672415db762eb06cda521cd8ae6561f7de6",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "c89664976979f8cbcfbfcf22884075839a09cfa766ca0d8bb5cd87afb627a44f",
+			"generator": "Codex assisted translation / Chinese backup and errors batch 6 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Italian": {
+			"text": "意大利语",
+			"sourceHash": "e5777cab81802a685de3e4c40931f39b76b9acadaa7431159f1143c2276ed320",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "0ac5229f8ad610f785e7a24cd1c4e0f3eed4e5bc1f209aedbde9ccea39145721",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Item mismatch.": {
+			"text": "项目不匹配。",
+			"sourceHash": "d99f36df5d2db20930fb477260e67953b03144bf5a708cc8efeb78a3649d4a2e",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "ec6af4f214f5d7ad4cf02bf83da95548eea7c6462475a7b43e24496db83ee40c",
+			"generator": "Codex assisted translation / Chinese backup and errors batch 6 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Latvian": {
+			"text": "拉脱维亚语",
+			"sourceHash": "44b6f68fb5d50c5207e3f45f7151551722d0e7143a5dcfbfb7c54c8c3fffc2c3",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "0e9bc3a1e27dd1baa11bc469ecf733897b4a1637917ba151dbb691a9048fd8a0",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Less than a minute remaining": {
+			"text": "剩余不到一分钟",
+			"sourceHash": "2c489af6cf9dcb4490a9f5266ae3f4615ee6afc2ac99b3584ce68d9f8b44f917",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "0805c2b76ef7cf8a7573253289a74a456dbb91d739500d59355179973fceb012",
+			"generator": "Codex assisted translation / Chinese logs batch 3 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Loading log data": {
+			"text": "正在加载日志数据",
+			"sourceHash": "a963568e037d772b2e309f0c4a2959eefe3e90ccd850b597775ee10b7890e8f5",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "c6484406867f694b0f3500eaa1c79f6ee3319432bf2141bc27dfd8222cfea79d",
+			"generator": "Codex assisted translation / Chinese logs batch 3 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Loading program adjustments…": {
+			"text": "正在加载程序调整数据…",
+			"sourceHash": "ca4fe44a82458600991842d1b4eeb105491a363247080b1bb73671e7ecc26091",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "48dcb9b20378779fa648572486de2f3537ccba75141539ad7e809d87cb277d63",
+			"generator": "Codex assisted translation / Chinese weather and scheduling batch 4 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Loading sensor data": {
+			"text": "正在加载传感器数据",
+			"sourceHash": "ce81e3ca20fdccffde291ddf4191066180ac0ecc2d8137ab270609f62aded0fc",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "ed4ef18a295593174b66f3c81a5fba83c76d462099040de654665d8859f3b23b",
+			"generator": "Codex assisted translation / Chinese logs batch 3 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Log cleared:": {
+			"text": "已清除日志：",
+			"sourceHash": "e30a13fa7de36f0f28ac9f3b8055baf038c739b28e89fd48b1e1e6a3b76dc887",
+			"contextHash": "66c195089fdff67dae0c97d4e60eac89d294c386d913e4932ff0333bbbfb1733",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "0db1d2238df22e48cb9c79c1d3f151860e629ad7b66fa62143ebf380f7ee86c5",
+			"generator": "Codex assisted translation / Chinese logs batch 3 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Manual": {
+			"text": "手动",
+			"sourceHash": "387082cd5f118bedd5031b2058570c9df3f64f0c688ab8bc2c060b973775397f",
+			"contextHash": "27986029b3df9ad00dbc67ce579607a8420c959ffa16c15c9f227eb82afac172",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "d972b1e0a864620f2fa9743c425613f7a197cb3db6cd2f5f19b8f5d658871527",
+			"generator": "Codex assisted translation / Chinese weather and scheduling batch 4 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Master finishing": {
+			"text": "主阀门延时关闭中",
+			"sourceHash": "d18d8b19b0719a7da3448a211a2dc7f7ec5e0896c38d5eafc0712ea9f2e799a0",
+			"contextHash": "5fc4b9d7a45df2c4b138774135fdbb03a332756d2ace5d7b1f568cb53de5702a",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "55edbf4c7425cb2fdecfdb3f12afe298620c54c83afd5ac4feb13530137e1009",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Masters": {
+			"text": "主阀门",
+			"sourceHash": "899503bfffdc5916366e03b643ded9dac1fb9eac2636c76699e21908ed8ab878",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "f94bffe5023d929ecc00fd0f1023e53e62d5db956c637d5d8389dd017f66824d",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Max sensor value": {
+			"text": "传感器读数最大值",
+			"sourceHash": "6370b3e18c4e008d15c8f68b830aa557cb82d1a5a7c1a4a8dd79865754876bc4",
+			"contextHash": "66c195089fdff67dae0c97d4e60eac89d294c386d913e4932ff0333bbbfb1733",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "7576f6214607da59c587f8cb56cb94d3190318d610ab4d34acf6feb3a30dfb3f",
+			"generator": "Codex assisted translation / Chinese electrical and sensor batch 7 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Maximum cycle (minutes)": {
+			"text": "单次浇水最长时间（分钟）",
+			"sourceHash": "9d216740c9563af0fa5676eba2acbccde68ed0f238101f81baee4625975bccd8",
+			"contextHash": "beee43ac2b24990782dc3dcecd71a4fefae6d8d30e8574141a91a9e2a998bb8b",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "dac7c47ba7ed1281151c01e9a05ed467158a24d7407c40689779b2a8983fdad0",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"May be an IP, URL, or OTC Token": {
+			"text": "可以是IP地址、URL或OTC令牌",
+			"sourceHash": "79f986be6fc1114da8eb103277ae6e13b120875d480a4ec49d62e7cd079ca8e7",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "741d5d147c11236c6ae0316e6bf2fb59d9399e94090cd043df920d5c8c254baa",
+			"generator": "Codex assisted translation / Chinese network and security batch 5 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Milliamperes": {
+			"text": "毫安",
+			"sourceHash": "8ae54349f5906ebf033e4ff7d8fb4b8a8a38daa13ecdf9dbd55e60381908ce30",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "bfb95a20de6753cb56238302601e1cd588977fed78e4bf097a5606db29a8f241",
+			"generator": "Codex assisted translation / Chinese electrical and sensor batch 7 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Min sensor value": {
+			"text": "传感器读数最小值",
+			"sourceHash": "0c7be7dcb30db69a458274b152c9a186905f316d386c8e2dd332d100a50b98bc",
+			"contextHash": "66c195089fdff67dae0c97d4e60eac89d294c386d913e4932ff0333bbbfb1733",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "b3c1d736e8bea9e3063aba93319e30c5c6098c18aa38d739b788433820dba1ca",
+			"generator": "Codex assisted translation / Chinese electrical and sensor batch 7 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Minimum runtime": {
+			"text": "最短运行时间",
+			"sourceHash": "806db99ac83b0003b30ed4481d20d102b928c239d50bdc9c9d38d4e0d0d52f4d",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "2c1de0ceb0610826eb4fcb3eeb7e7e2ae701b695696cac4aad6c2accb1a5df7d",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Minimum soak (minutes)": {
+			"text": "最短渗透间隔（分钟）",
+			"sourceHash": "eeef86c45983bdc022d68232e9fd44324aa1c12d7600126a5ac5dbd103a8eeb0",
+			"contextHash": "beee43ac2b24990782dc3dcecd71a4fefae6d8d30e8574141a91a9e2a998bb8b",
+			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"translationHash": "b66f3da9a0dae7fc7483d1d1a4b4a73986e21788c5818fb2630c27549a10f51e",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "unreviewed"
+		},
+		"Mongolian": {
+			"text": "蒙古语",
+			"sourceHash": "68b050dd8c76dd9e0184364671c660db4d8003e2bad7b30967cc44ef98cda530",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "49e0b06decfd08041b334e123ce478ab5a6b54cafda42b82374f27d7958d6f7a",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Move left": {
+			"text": "向左移动",
+			"sourceHash": "5bd942e0cc11bac62e774109e304af6125ae51f11c60debeeaebb6651d5c8a11",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "60e40204dc2f76ba7f66e3962214f0e1b541ced0d28e67ecf0c17e4e5e5cc09e",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Move right": {
+			"text": "向右移动",
+			"sourceHash": "59758ebbf3c1967ae1dba0525c175a502be048bbfcbae7dc8a8e3912505ac197",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "fd9b00b42c7c66606099ee8c05e6e494980bc5475016d8a780c308551eb91b5b",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Multi-Day Levels": {
+			"text": "多日浇水百分比",
+			"sourceHash": "9f07c47755d24e5735665c766e66f40a827bb36fe632738514cd20c44fe4832f",
+			"contextHash": "58f72308f87e3460306f2fe33799d1e7fdfe0071ab1ed767e3d6d14addb63e84",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "52cd8c21d61ad21098700d7c788c506964e1a81de0d14210dc2aeed64601f7b5",
+			"generator": "Codex assisted translation / Chinese weather and scheduling batch 4 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Name": {
+			"text": "名称",
+			"sourceHash": "6cc5df35f0338e230e9e633ead9991f08f62cab45a3264978daedc6747867305",
+			"contextHash": "66c195089fdff67dae0c97d4e60eac89d294c386d913e4932ff0333bbbfb1733",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "a3df4de5e9111a4d33a8f08daf17f4b1473f5a5dc227c188f20bc75e7f5125e0",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Network": {
+			"text": "网络",
+			"sourceHash": "23e10e8157dfc823353460900388acf5fb1f168e868693b8737ab3ba720b94f7",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "c2ba835da75447561a3def58addd37d2d34bde8c7c5d860789bce17dd7082cdb",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Network Failure": {
+			"text": "网络故障",
+			"sourceHash": "f018c16273404a0c6d92e0b88b12f6cac34cfe84f091cf12c5a388c8c0886798",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "7f84628f9e589ae6c86d230fc6e61392a28360347e5e762fe55ec4d71bd2a625",
+			"generator": "Codex assisted translation / Chinese network and security batch 5 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Network name advertised to your router when using DHCP. Leave empty to restore the device default. Use up to 32 letters, numbers or hyphens. This is separate from Device Name.": {
+			"text": "使用DHCP时向路由器报告的网络名称。留空可恢复设备默认值。最多使用32个字母、数字或连字符。此名称与设备名称不同。",
+			"sourceHash": "23f00335c6a35b3c13016e013cdd49178403f3eee18428b23152412e03a1a8b0",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "6e8fd139b82ae1e4c6fef67c2e887f0a6af6bbac8fdf21ab8eb13b7ea9db1e8f",
+			"generator": "Codex assisted translation / Chinese network and security batch 5 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"New OpenSprinkler Device": {
+			"text": "新OpenSprinkler设备",
+			"sourceHash": "7f31604af80e6394c723c658d39de79d9a431613288817301abd398d3cb2b62a",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "57460acbb58be475737a695d2fe941383157ea0ecd0f207efff354b8204d4dd5",
+			"generator": "Codex assisted translation / Chinese network and security batch 5 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"New Sensor": {
+			"text": "新建传感器",
+			"sourceHash": "0edab78f9803c41556e87ff16ed6d93616d5708ac01a49fe591d716fbded2398",
+			"contextHash": "e16f8dc34a1f515a4809c0274e8b1cffe0450c2ed2f80209554360c602b8bd46",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "fb340a70d5109dcebb8ff56f26b15cd5023ff0e7fc131a760fa144d9e3a99207",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"No Adjustment": {
+			"text": "不调整",
+			"sourceHash": "93d4f492eaf5d1811f39f018b359f81710f9831a892bbfc8ffe11afab04ed1ab",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "c40dbdce9bce8302c070fbaef21390966ccf7a9e1d6fe525fd89289afe7cd8f0",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"No sensor data in the selected time range. Older data may exist; choose a longer range above.": {
+			"text": "所选时间范围内没有传感器数据。可能存在更早的数据，请在上方选择更长的时间范围。",
+			"sourceHash": "dde2a4e7df333d8dc2aab87aa8b14a5cfe473956259a10c8b163c7fcad34bf91",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "b659dc1ee03d99c425b94dd8ba86840b049fd20199733d8708067d15604879f2",
+			"generator": "Codex assisted translation / Chinese logs batch 3 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"No sensor logs found.": {
+			"text": "未找到传感器日志。",
+			"sourceHash": "20810df83c0273414cd989d234391e8d7e24d2ed8ebbdeb8523607addaceeafd",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "e23e282495304c4bab40db0767b68302ed330d908aafab0f514aa756e224aa5a",
+			"generator": "Codex assisted translation / Chinese logs batch 3 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Norwegian": {
+			"text": "挪威语",
+			"sourceHash": "9a5122901cd3f5b602b85d6e5f9ba7177b019cba79b1d35922a117a9b8bebf4a",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "cc31f40957497dd45bdcd7918cf7018c978dfa8058d97eb8c0aacd7565a435f9",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Note: this page is for external (e.g. analog) and virtual sensors.": {
+			"text": "注意：此页面用于配置外部传感器（如模拟传感器）和虚拟传感器。",
+			"sourceHash": "7379af3742a4279b0f8c3ccdf9f811f98ff900e0ff2765a35e75b696d021c9c2",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "d3e9dc6848960d30cdb905e603f8badef97f82302b2faaf19f409d88424a44fa",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Number of Programs": {
+			"text": "程序数量",
+			"sourceHash": "620befb68c3716911e9c89023f38ab619ef6aaa5f5bbe8df01ccf2848a381bc2",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "d6f91288769d0f056b06f8f08f2f3bac6969998f51d73bac3329eff9f18318a6",
+			"generator": "Codex assisted translation / Chinese weather and scheduling batch 4 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Number of Sensors": {
+			"text": "传感器数量",
+			"sourceHash": "49660e957f2df687cacecaf7a9a23fa8419bbb55443eb587b40c805c300913d1",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "d93cc6500911966018f531a7db04d7a7e97e2248030b44a2d3dd1fff5b3285c6",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"OK": {
+			"text": "确定",
+			"sourceHash": "98c4922bb641c65c7a30b7bcafdf230b9b00b6693631c56146ab25b2786ee4a3",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "1245409d98536a131c2ab90c589c37843115f997302e92500466022034425de6",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Off Adj.": {
+			"text": "关闭时间调整",
+			"sourceHash": "d8ba58e0a879985b9e3ab4a49f72eac84a97947e6759c59f2a2dbfb849e7390b",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "e1f3f391b9556488628509e27caa56f8e632106e115639ec56a72c751394a8ee",
+			"generator": "Codex assisted translation / Chinese electrical and sensor batch 7 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"On Adj.": {
+			"text": "开启时间调整",
+			"sourceHash": "ebf5fb4e1da8b062adc9d1279c076eac8d17430f5709d657c3c8e8dc582a268e",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "d9607e149ff15a24937d0ef710dd30eb47c929b905921cb75147eaed5ffc961b",
+			"generator": "Codex assisted translation / Chinese electrical and sensor batch 7 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"On/Off adjustments are in 5-second increments.": {
+			"text": "开启和关闭时间以5秒为单位调整。",
+			"sourceHash": "fce8dded1f8420edfdff940fd38e5c28e29188eae5aa2d85b51f92c7d52d8cc4",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "6f43686f4e68630dd7bb313f716c55b737404507d2108647a837528cacbcbc04",
+			"generator": "Codex assisted translation / Chinese electrical and sensor batch 7 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"OpenSprinklerASB Firmware Detected": {
+			"text": "检测到OpenSprinklerASB固件",
+			"sourceHash": "014122dc70b85b691b943f39d9d31be211597eb22a551ea0052cd2a132709d04",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "092bc279403476717069aa0b84d7d2caf5bf63bb870bc064982a4c5b351fa952",
+			"generator": "Codex assisted translation / Chinese network and security batch 5 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Operation not permitted.": {
+			"text": "不允许执行此操作。",
+			"sourceHash": "0884b986a6c8c3c67d3b4e27a5d567f5e647d82b4b30dc9102699589125eab32",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "55da89e087a6d9fe95e5b2619c100fafdb3062c9de4b042a638f27dc728a0d9a",
+			"generator": "Codex assisted translation / Chinese backup and errors batch 6 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Option": {
+			"text": "选项",
+			"sourceHash": "2c31ce6df7a4958f4e9871021588eb7219593902323a0c110a456464ce1035dc",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "9e60da9a22383babbbf61e31b01fcd796047d6d5cbf78b6c222ba8856a926931",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Output": {
+			"text": "输出",
+			"sourceHash": "0cd3518a3335a3aacc9f795a34d4c39df8aa5d744dfa24ded751735edef44387",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "c9ad9f95f703f08a44853db43c4b650c558a38fcc21f3b93f8d49c69c83aad5a",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Overcurrent Fault detected": {
+			"text": "检测到过流故障",
+			"sourceHash": "68cdd8a67cdfbe6116f7e99e03293dd757dbefb0380a0123d0e17c86e674e97e",
+			"contextHash": "24268d641ff4b0ddc2a2b4f790932aa8a8745a4678cec55b6e960fce82a02865",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "cca18ade5a0a5fdfdf055bee7c2a8582c1c4944f0ee302af07b24fa464e15e6c",
+			"generator": "Codex assisted translation / Chinese electrical and sensor batch 7 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Overcurrent Limit": {
+			"text": "过流上限",
+			"sourceHash": "b995f3898a93d8c9b89a202a563c61a6dec3543b242b56091f60dc79ee6f3480",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "749cea1703fd3af1c5ed027f3ea2cf09346fe3e504f49bb4e51d8ed2a04b96d9",
+			"generator": "Codex assisted translation / Chinese electrical and sensor batch 7 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Password protection is disabled. Set a secure device password and turn off Ignore Password in Edit Options.": {
+			"text": "密码保护已禁用。请设置安全的设备密码，并在“编辑选项”中关闭“忽略密码”。",
+			"sourceHash": "0ec1fd61ede24491d962e8f0464cf9e624bd8da9204e370fc422ec9db19f401c",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "c55ee9dd4722a9b37ea7afa803c0858c4cc3781b64121259a67c11536a9c2070",
+			"generator": "Codex assisted translation / Chinese network and security batch 5 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Pause Runs": {
+			"text": "暂停运行",
+			"sourceHash": "014a9bc370a90a86f9434cd88202c407273fd79db0edd6456c9d32d68d408236",
+			"contextHash": "089d08776f6f39521fba37db6965244177b77aa2d0c64c609fa598243f13d261",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "8364be3e50bd5871eb1b142a52f20c32ff51cd084a9e5f04361976dc2f47ed3e",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Point": {
+			"text": "采样点",
+			"sourceHash": "a1880fca8372d06ffa5be27c8f5e30afff15243ec4c636118e36b060e58331df",
+			"contextHash": "a291fea46d121ca2d96d75818a621f34fad62852c7de9e583470d4fcf69573f0",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "915d0202198538a8ac0c05f9aeb81c482ccbb6f85b5cef3efee5c9a9b016cf5e",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Polish": {
+			"text": "波兰语",
+			"sourceHash": "83bdaad12c66361011b90886bfc2e1cba1a76f2914eba88af4a3db6cb3a43da0",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "1a79d84f874543f939a62b6f803485c996b55fa0adef503355f044dbaa665bc8",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Port 8080 is reserved for firmware update. Choose another HTTP port first.": {
+			"text": "端口8080专用于固件更新。请先选择其他HTTP端口。",
+			"sourceHash": "8db4d4da369af95f859badc59200cfc495f19a2961e684fdc81d6c05d3254787",
+			"contextHash": "89f775062299865aed268f39cdaa86d10d0a6538b4bf8c52e106acdef9833507",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "6305e53e86e4cab76295852a9d1c621aa524404e3e60dfe2ea5c38c67df8e9a4",
+			"generator": "Codex assisted translation / Chinese network and security batch 5 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Port 8080 is reserved for firmware update. Please choose another HTTP port.": {
+			"text": "端口8080专用于固件更新。请选择其他HTTP端口。",
+			"sourceHash": "dde9c21d5c3d10cbed4a0834904c312b1ed09fd24daa67e1c172bec0903c8f73",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "7f3a1a64a706707e23c7de2a58da8c2cad97071038e77fb671e395d704bb250a",
+			"generator": "Codex assisted translation / Chinese network and security batch 5 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Portuguese": {
+			"text": "葡萄牙语",
+			"sourceHash": "8cb4d400f787a80f2e3c60a2bb2e2194bf78ed8c69be518138535c6074aeede3",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "6e6c5c8aa52a8b1b7f84dd922a4f17cc78251d10491e7753dd08ea20edd34880",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Power On": {
+			"text": "上电",
+			"sourceHash": "7529ff6ad12732408ce106e74561bda199aed85273ff31287a54512cdd5da21a",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "e217e484a77c07b4dad180220e74958a419f5d39415cbfc150814da445c73db9",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Prevents watering when the selected restrictions are met.": {
+			"text": "满足所选限制条件时禁止浇水。",
+			"sourceHash": "a24cade8166f4e1b506008b641e12f29982c818376a2daf1b88f3453a2f7f820",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "38213bc099db4d62b7c4b98b8120ecfaf4a2760763309ac84c302513503f71ca",
+			"generator": "Codex assisted translation / Chinese weather and scheduling batch 4 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Program adjustments are unavailable.": {
+			"text": "程序调整数据不可用。",
+			"sourceHash": "79d7d34ef019800c55a4e11c5518c088f342238cb02e173fc2d9cbd7910c2ab2",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "22d65d4997eff2f16591bea4e4cd0696d795f9bb606c5fd548aece5dcb75c4c8",
+			"generator": "Codex assisted translation / Chinese weather and scheduling batch 4 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Program preview is unavailable because sensor adjustments could not be loaded.": {
+			"text": "无法加载传感器调整数据，因此无法预览程序。",
+			"sourceHash": "9f4c47aa13f87dc415d1b2159a7cbd8f024e04067d0a9006a9d104069b8793c4",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "8b62271d1f3ba1d710e7a455a517ef7c9f3c0c878c0bca85d325d218e36a90b3",
+			"generator": "Codex assisted translation / Chinese weather and scheduling batch 4 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Program sensor adjustments that reference a sensor absent from both the backup and this controller will be disabled.": {
+			"text": "如果程序的传感器调整所引用的传感器既不在备份中，也不在此控制器上，该调整将被禁用。",
+			"sourceHash": "f567fe02b7809c14855d5b2a743e2afd5439c0e0205010b2d3110d3daa83b8c7",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "14607a534770003231b4571af3638dff31b47473222c41bf09db360f6a4cb2a8",
+			"generator": "Codex assisted translation / Chinese backup and errors batch 6 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"RF code error.": {
+			"text": "RF编码错误。",
+			"sourceHash": "2ba147301ea06eb2cd6c12d51fa00f5e145e47ee10c066d9562587c22abc61ba",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "e47f3824766f2f8d2f865787530882e557f4b58a0a7edba0ce219be4c927ecca",
+			"generator": "Codex assisted translation / Chinese backup and errors batch 6 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Rain Restriction": {
+			"text": "降雨限制",
+			"sourceHash": "4663a4e3d0c70f2f4124468b8388f6b530801eea9d5a91e8ba28a31411e1b9a1",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "28d93d30c0a81632d22037157ad0097835279460c120fa480c48082bff266b54",
+			"generator": "Codex assisted translation / Chinese weather and scheduling batch 4 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Read Interval (s)": {
+			"text": "读取间隔（秒）",
+			"sourceHash": "8190e0d21dbe649a98e918ba778187a00146e15fff2e2dc9739570b88bc1baf6",
+			"contextHash": "66c195089fdff67dae0c97d4e60eac89d294c386d913e4932ff0333bbbfb1733",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "304287f1b37590e2085d0dd7444d319b360d9a085191d7502c87d74184958c1f",
+			"generator": "Codex assisted translation / Chinese electrical and sensor batch 7 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Refresh Sensor data": {
+			"text": "刷新传感器数据",
+			"sourceHash": "9522b8b0a0364ab8ad83887d3db11010eaeb6a29aaab9c3eb9ff18672f24b809",
+			"contextHash": "66c195089fdff67dae0c97d4e60eac89d294c386d913e4932ff0333bbbfb1733",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "9613758e7f679687c2ae7f259c29818fd91f7544501670264c5df050d7174a7e",
+			"generator": "Codex assisted translation / Chinese electrical and sensor batch 7 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Remove this station from its Bundle Station before changing its type.": {
+			"text": "更改类型前，请先将此浇水站从所属组合浇水站中移除。",
+			"sourceHash": "a02673f473fdd42685212628af52137deccb556ae1e348241ad8080668f05cc9",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "416f8c2ee3c8bd9b93a17734fbf37cf1f24c32a9306b62c10c72698f9b7ae1fe",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Remove unavailable members before saving.": {
+			"text": "请先移除不可用的成员再保存。",
+			"sourceHash": "f78cec615cb6ca0a7f55dd5efd26b8cb7c1018030db40ae36d1548144b8dc971",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "bb02f7a7f82e454a8f2bbfe53a3df75fcaf89e3eef599d9c6679505624df72f7",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Requests declined because the queue was full": {
+			"text": "队列已满，请求被拒绝",
+			"sourceHash": "a8678f842f81a9dd367d04badb4167842d371f207a6627571c0583c9152acbd5",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "f1320f3c78e5464c2fbcf67745e76737c5e632a1099d87548957b925b48160a5",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Reset Button": {
+			"text": "复位按钮",
+			"sourceHash": "7f99a01d35d52d25a07d46d00140836d0f1c51bdad4de7efaba3220be7b9d463",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "adedfbe73b8e531e92293f0eec8c91e0b2937f5b2a66c47e69ae10e4a44c76ef",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Reset Zoom": {
+			"text": "重置缩放",
+			"sourceHash": "ae8b7c08d579971e5f317c5716ce6cbe90bc889635764f9071abbd4aefd89a7a",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "a9a3d58fc278c64edf97bfacdf643912fd64e5a5d93e6cf3f02146cc77f37c4a",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Reset cycle and soak settings": {
+			"text": "重置分段与渗透设置",
+			"sourceHash": "f706498384c0d6db0993a99c7c333e9150b15c0ac72fb15a3b2c1ad4259f0da7",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "0f24e8d1490cb9828a18770b92cb530f3594521ea421cb05df23e1c996e396d4",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Reset cycle and soak settings for all stations?": {
+			"text": "重置所有浇水站的分段与渗透设置？",
+			"sourceHash": "3ed890ca5afa35837fec13356a3c5b9a3c3d072b0acd568e7836dcd3c66fc86b",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "2ee856e620368ff919898a6b6bb63fac6ae9543bd443c3d284a6e780aba06a94",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Restored sensor definitions did not pass verification. The restore was stopped before programs were changed.": {
+			"text": "恢复后的传感器配置未通过验证。恢复操作已停止，程序尚未更改。",
+			"sourceHash": "2ea68d12d93b808a8ef2c27d3c7b72340f40c65d8407472a4c3f1424b8e526e0",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "bcdbce16df8f6563897c5c94404e1ab5888a7db9dbbe980f7c2f79912fd1c515",
+			"generator": "Codex assisted translation / Chinese backup and errors batch 6 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Retrieving sensor logs": {
+			"text": "正在获取传感器日志",
+			"sourceHash": "dee05ab56bb4d7171e61f3113c6afc8ce439d996f86638bf3fdf5cff26fc476c",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "27def8bef7a40505823ce8f7600d2b7212c2fd8be66d2adad181fbdf307db27b",
+			"generator": "Codex assisted translation / Chinese logs batch 3 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Romanian": {
+			"text": "罗马尼亚语",
+			"sourceHash": "e4762a60d2c00a3aeb135bbbd5a956fa8f6d1cd6db580e7643d3a8c38c5ec841",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "4b14782c2e849116659d6cdca97c2a0f4c266b848b52559d3ee7bbb71fb573c6",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Run After Others": {
+			"text": "在其他任务完成后运行",
+			"sourceHash": "4ee18587861ec7735d4db1bf42bd665370015249befea299cc9d2e4de3e86e2f",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "7274695f5c6ecb1a5f236a48718902aba8344482271af39110bcdf49a0dbfd63",
+			"generator": "Codex assisted translation / Chinese weather and scheduling batch 4 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Run Now and Cancel Others": {
+			"text": "立即运行并取消其他任务",
+			"sourceHash": "64509bc315a5ad220870c633dc596c81b9f1d2c8285ab85610c42d22734f2b83",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "f4b6697c59d34224ffa25019c6c9f540ba14dd388ff687dba056a3017196be28",
+			"generator": "Codex assisted translation / Chinese weather and scheduling batch 4 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Run Now and Cancel Others (Replace)": {
+			"text": "立即运行并取消其他任务（替换队列）",
+			"sourceHash": "243df9465a1b91f33487df426df03752464b445f286533f54601e8f37c21cb46",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "67456dc20d87b3ad715f06b6001b7adacac1ad5882c4d3aebdcea4e7e88c527d",
+			"generator": "Codex assisted translation / Chinese weather and scheduling batch 4 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Run Now and Pause Others": {
+			"text": "立即运行并暂停其他任务",
+			"sourceHash": "1db1f0a406ded66030b56c8fc4c228dfac0201b9c6e60c3d878b1d4ff3847a75",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "1ae3b7ae77a70bc0e9f648d325a2b639791af84a51bac2b4f17e8e76abf4e47d",
+			"generator": "Codex assisted translation / Chinese weather and scheduling batch 4 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Run Now and Pause Others (Insert to front)": {
+			"text": "立即运行并暂停其他任务（插入队首）",
+			"sourceHash": "10ee6f68340d006e7d00c76e79de85f45a451e778f20cf9b683a237e152a3263",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "3cb1202d8e6885b16148dff8c6f22ae1c302489b2036f2c4df10cdf2ef05fa06",
+			"generator": "Codex assisted translation / Chinese weather and scheduling batch 4 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Run Time": {
+			"text": "运行时间",
+			"sourceHash": "2e5df8b5ada838fdc85e4f9c6ee51128316a7700bbdb0a3259d77a68e365138f",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "fd9d2621c6d1e2d29cc73e9ad87e95fdf6fa8b69b20a5bc978944d76419e07b7",
+			"generator": "Codex assisted translation / Chinese weather and scheduling batch 4 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Run this program?": {
+			"text": "运行此程序？",
+			"sourceHash": "108a1e18a3f1d13b59367f43842a8d51c8ada620d45d34f9f02993bc95fae8ba",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "fe0dd37e4abc403c0a511e38f414e9018b19c4176974a2544b21c91996c09de0",
+			"generator": "Codex assisted translation / Chinese weather and scheduling batch 4 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Running Bundle Station": {
+			"text": "正在运行的组合浇水站",
+			"sourceHash": "e1ea5d2c61712c2615852f5c0d65ed33566029670bf4d59f4fb7e3bcd1e6cf81",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "9a63ad4b0d0e329e5b62d7e40b78ea4cbf1d193eee70be888c8f86a31ace2687",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Russian": {
+			"text": "俄语",
+			"sourceHash": "07bb3c3f5a38af2d0deea379cfb2d7e4f592fd2d553fc2daf7fd14aaf22ede3e",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "2c990bd377fe857c850ce062e87d8a9004d193d23aef2f7946a555cffe9a3101",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"SMT100 id assigned!": {
+			"text": "SMT100编号已设置！",
+			"sourceHash": "2c7221f6f8fa5827c4ba98d9e2816b8b11dc4065f4bd31ac34c256ba93f0e7d3",
+			"contextHash": "66c195089fdff67dae0c97d4e60eac89d294c386d913e4932ff0333bbbfb1733",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "de07e37193778fd797d9efe601442d61cdfd302d9dfa97a4b004261ca8bf8414",
+			"generator": "Codex assisted translation / Chinese electrical and sensor batch 7 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Scheduling Option": {
+			"text": "调度选项",
+			"sourceHash": "dc910cfd63c1ba39276a7da075bf603da5a50f8e81a54ec31da2422bbdf954f8",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "74236f1d92c5cdd03be46aa518b05682fa2df389f4cac1feea70cdb1c8be0925",
+			"generator": "Codex assisted translation / Chinese weather and scheduling batch 4 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Select Sensor": {
+			"text": "选择传感器",
+			"sourceHash": "71305be90d69183027f09082f84ef12284918626c57499168b26ab6684639fe8",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "425cd5c207a7917f9e3f7262adfa3ea0ba0acc764b6d0c3643a7627841885024",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Selected": {
+			"text": "已选择",
+			"sourceHash": "386ef3ac98752a065804161574cd35f36edfb30d97932520dbfa74401c059d39",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "737137a4a2910fd7feda2aa5e3d845f2177880e626fbb7cdece778b0c1432c00",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Sensor 3 Update": {
+			"text": "3号传感器更新",
+			"sourceHash": "5d3e68105689b0a5ff3384f5608a7fde9edd867e29ffc62db7e1347bc64b4867",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "8e88614a74d4d07a96d56e75b8988e573fbb3eeadc79b693a6f541b3a5a0ad88",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Sensor 4 Update": {
+			"text": "4号传感器更新",
+			"sourceHash": "0442f2920d03c2708f550eab425f08497dfa0b44bc2a04fecf10e96c33fc9519",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "a85f6addd357cf82ea9c1bcc28114dab4b03d0b8ba42f8cda5628bed5a25855b",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Sensor Enabled": {
+			"text": "启用传感器",
+			"sourceHash": "ccd3cec967a0f4f2e5025ded2d9b9ddfcf8736ac0ca83f8dc482eeca195c332f",
+			"contextHash": "66c195089fdff67dae0c97d4e60eac89d294c386d913e4932ff0333bbbfb1733",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "be268d96727c7ded73204124c77f5b3fc63ee36176662f51652038c6e875223f",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Sensor Logs": {
+			"text": "传感器日志",
+			"sourceHash": "21f08299b225e4f4ce33d1f50c8d2ea9107eb164bc55c0f27fa173b427422e18",
+			"contextHash": "e478d376fecc82d351cb3ea75bd24ab24adb0e27adbebca368b5ba68b420d72d",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "70db838af716b4c05a1ecae311596a65c55ca3efbad8ff9d1385d72882cb51a4",
+			"generator": "Codex assisted translation / Chinese logs batch 3 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Sensor Value": {
+			"text": "传感器读数",
+			"sourceHash": "13e56ce48b83e21d5c274190b56983b4c16ab93152b61786d6f492bd7bdf9115",
+			"contextHash": "a291fea46d121ca2d96d75818a621f34fad62852c7de9e583470d4fcf69573f0",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "c5121930c963576ba70e0ae2b507af1188946b1fd43e3146b404140f998a3708",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Sensor added successfully": {
+			"text": "传感器添加成功",
+			"sourceHash": "4268713adf94fea888ce61e55e32e645a64db1cca0d08033c148f644207d3fe0",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "c1f73729586054636c3cfa92da348b20d9d8e2ca321cd0969039738349c95504",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Sensor adjustment is unavailable; using 100%.": {
+			"text": "传感器调整不可用；使用100%。",
+			"sourceHash": "11e6d23cad61fae20bfd7776fcf4ff61df228710cee2c3ef77222fcebd698df2",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "241e47af5d9e4d3d3b51beab662582313ae403ed3ce23f697e1f19e4b387de48",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Sensor definitions in this backup reference unavailable child sensors.": {
+			"text": "此备份中的传感器配置引用了不可用的子传感器。",
+			"sourceHash": "f7b3e6a970cffb0e824ac8c7dacdb5978bf18e31f6a924168bb5cc157b6b29d2",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "8ebd7fd66d864612ba1085f93ff47d65e5378c19ea573c9dcf0935e65bce823b",
+			"generator": "Codex assisted translation / Chinese backup and errors batch 6 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Sensor deleted successfully": {
+			"text": "传感器删除成功",
+			"sourceHash": "b613792445b5707966256493863279e3f7e78739a79c6f8aa4a4eb31fa70e7b6",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "1fc4b82d51070497f9824929f4d3b7a49470388c98755d753640a66bc69a140b",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Sensor log progress": {
+			"text": "传感器日志处理进度",
+			"sourceHash": "5e5ab2977d0d2952f4f56c29fef2d7c766ff475ba59d551789583cc87fccc8c4",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "af7c0f5b55f51c95b253b9d2c59682dd3188bd7c30b19d258729227c5c20dbdb",
+			"generator": "Codex assisted translation / Chinese logs batch 3 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Sensor number exists!": {
+			"text": "传感器编号已存在！",
+			"sourceHash": "7658a049d4a5a6cde83c1b42bb3521d15ba4fd208bf26598fb646c512563f9b3",
+			"contextHash": "66c195089fdff67dae0c97d4e60eac89d294c386d913e4932ff0333bbbfb1733",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "510cbe59d5c729de4c5ccc90d683fdf35f2e486b85d68865d1db542111b19337",
+			"generator": "Codex assisted translation / Chinese electrical and sensor batch 7 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Sensor updated successfully": {
+			"text": "传感器更新成功",
+			"sourceHash": "d697f679435714a29d67c598d23a59b6e0f2d130fe4a700c2d10c0ba0f22bfb3",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "4fd3ec391edb1974bb1fb2bd9b82e05008c2cf70550064871652ed543c5d8d05",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Sensor-Nr": {
+			"text": "传感器编号",
+			"sourceHash": "52b6b742dcd3d64fbb1082a93fbd8efb21e565c039ab546fc1950838aeae365d",
+			"contextHash": "66c195089fdff67dae0c97d4e60eac89d294c386d913e4932ff0333bbbfb1733",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "de94dd8e7ec9a9ba60f6efe7908b9cd227067422528ac0ed3ddbde74648f6bd1",
+			"generator": "Codex assisted translation / Chinese electrical and sensor batch 7 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Sensors": {
+			"text": "传感器",
+			"sourceHash": "3bc80eb469b2c2caed852ffa3d3418664e8b48fc02ec99fe8aea11ae37228501",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "6ae5df758fb63d8666694b0d6c329fca28e54ae9ffb86bb056064946ce0ba6a6",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Set SMT100 Modbus ID": {
+			"text": "设置SMT100 Modbus编号",
+			"sourceHash": "d8d1503d392cb0894718e2c9732ed108cb8989a52f4658bc0d7e4551d6af5b2a",
+			"contextHash": "66c195089fdff67dae0c97d4e60eac89d294c386d913e4932ff0333bbbfb1733",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "3f63ce37d4b9dd033a8b56d6bebd84aa1fcbfd59aa2cf3dcebcced86d8908ea0",
+			"generator": "Codex assisted translation / Chinese electrical and sensor batch 7 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Set either to 0 to disable.": {
+			"text": "任一项设为0即可禁用。",
+			"sourceHash": "ddabfe3c428a3664e5cadec594a167cded11453304a5f4c077a52645fd28cdcd",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "8a40e2c41a2c05225b47966b181c0defd7668e79e14d54c9f89aa506ae7e2f65",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Set to -40 (either °F or °C) to disable.": {
+			"text": "设为-40即可禁用（°F或°C均适用）。",
+			"sourceHash": "5ebb212effe7e3b7b5da74f69fc9b578c734d796d29894271a2b07442ab7c161",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "9b72dc51c96dd09de6ed2ae0f1d37c993ed18120262a043f75cf9abc0c656ba2",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Settings were saved, but an invalid master station was ignored.": {
+			"text": "设置已保存，但一个无效的主阀门设置被忽略。",
+			"sourceHash": "f2da7e4f03eb721e0f235b7727f010cb0320834c2d143315b7ecddbecf118dc4",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "1ff4dfa447092ff85e55377d615457b3c889671a96a9d0cdd9ce2923245adc65",
+			"generator": "Codex assisted translation / Chinese backup and errors batch 6 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Show Station Number": {
+			"text": "显示浇水站编号",
+			"sourceHash": "87834d3949b0f8beb9308470843171e8e8d96400e6c2bd694301957b2c000f5d",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "b68616a6b68382bf898cf3dbd7e7764c26b1046261ea714ece883b7920cdfe5b",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Show on Mainpage": {
+			"text": "在主页显示",
+			"sourceHash": "abd0602119531a72a450ba69d82b34ce23341e2e492b83bc871e51c43d292f23",
+			"contextHash": "66c195089fdff67dae0c97d4e60eac89d294c386d913e4932ff0333bbbfb1733",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "17e0d334b78b10d1e48d2b0d56581b36cb94901368333f4fd8754c1ce56f90e0",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Site Name": {
+			"text": "站点名称",
+			"sourceHash": "8966f21038eab50b081e16492cd23684fd63399ee3da3acae16153093193aaef",
+			"contextHash": "c96142810cae25a6be338023ee7e843ffef4fa958c8a49064ffebb18fca63320",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "8a7f0308a609ad1ba32750730b229ddf5fe0732532d7cf9acf55822835086738",
+			"generator": "Codex assisted translation / Chinese network and security batch 5 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Slovak": {
+			"text": "斯洛伐克语",
+			"sourceHash": "19deefc7ade0d0c9726bdf9856e77828462873e7b6a6568f54a2c416c4a02786",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "e51be9eaceb49fca60bb04a89871c80b7c5fa38150ef3fbb444ab6e94750c2ac",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Slovenian": {
+			"text": "斯洛文尼亚语",
+			"sourceHash": "2dd9e145662c75c286d0cfeed9f0a7ec89d6e3986026336316d1743475ead49a",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "774ac19b055b3b2a30ddb0526d0652b24704e1b67dfd36a27ce0b5026cbc5690",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Soaking": {
+			"text": "渗透中",
+			"sourceHash": "6d4e22b65ce968efbf9dc714129edbdb07f182b3cb3e9eb513202f7a4d8bc93b",
+			"contextHash": "5fc4b9d7a45df2c4b138774135fdbb03a332756d2ace5d7b1f568cb53de5702a",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "57181f57ec8f4aaa5403ff213b1122d0fe22bfbff44847fed3cb5ba754c918ea",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Some program starts exceed the queue capacity and are not shown.": {
+			"text": "部分程序启动任务超出队列容量，未予显示。",
+			"sourceHash": "f136ecca097bf9ddb4a3189b31d1c612cff2ebf689aba4e0248ee0b1229a0bce",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "c1ae20c2d011bfe3b65a605d44284351400630c5a02602385da53063f5ef3cec",
+			"generator": "Codex assisted translation / Chinese weather and scheduling batch 4 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Spanish": {
+			"text": "西班牙语",
+			"sourceHash": "f67d489c628b745caa4180e0cfb5bfbd5a9226172706845b497ba33869e135e8",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "f45b4378b75ae25824bca9e29ca580e8ccec72221e059e379773cf2504d1353c",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Special Station": {
+			"text": "特殊浇水站",
+			"sourceHash": "710827368f8908c34ed0a126228aa1aa4a251bee85beca8e72e56d24b79d7c50",
+			"contextHash": "4c83d908eedbc859813fe4ad20bc8d9bdc735826318f0c74fa448007a66c3144",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "78a04aba4ae831f9b7ffb20898e3f35c222ad7430c6826bcbb2ebee98a4fd167",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Sprinkler Logs": {
+			"text": "浇水日志",
+			"sourceHash": "20f505a75ec6c31ac84cb84b6e8743d4558ca0d42655821594d13eeadd672faf",
+			"contextHash": "089d08776f6f39521fba37db6965244177b77aa2d0c64c609fa598243f13d261",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "07e0a07cad69b0e52a7b07c83426c69a2ee439930a8cb7a0b04721d1aaa5f600",
+			"generator": "Codex assisted translation / Chinese logs batch 3 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Stop": {
+			"text": "停止",
+			"sourceHash": "4a784e3e95a08715513ca46cee31eccacff2cae8533a976da4e173138d137776",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "636104acd09c971914031d379158791fff1e3bdeea33e63f1bf6b4918602eebf",
+			"generator": "Codex assisted translation / Chinese logs batch 3 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Stopping": {
+			"text": "正在停止",
+			"sourceHash": "24a54b7783c68b9d52dc3c119daeac39e570d3bee5575b8a4cf55ada95399702",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "c05c59be3ccfd898aa4ae8ab10a630da42e3175a66d04d054f9618773a988313",
+			"generator": "Codex assisted translation / Chinese logs batch 3 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Stopping after the current page": {
+			"text": "将在当前批次处理完成后停止",
+			"sourceHash": "148b41bf95239bd414c04079d5bcbc4257465fb107bbf46ce9fb58c067bda0a1",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "3786ba3eb8f30af4274ed1910a93753cfa71e7376a90115e85c06c29dacf11e9",
+			"generator": "Codex assisted translation / Chinese logs batch 3 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Swedish": {
+			"text": "瑞典语",
+			"sourceHash": "b200b4c4c280d618053081bbb82aa6a190d77dad8538b26ef46d5522ef7bd204",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "3c9f9d08d66c432d98381958ab2531a21c2e930e062b370100d895ba61744ed0",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Tamil": {
+			"text": "泰米尔语",
+			"sourceHash": "3c35aec40ce5edabb151fe74179c069e4051457bd20880bf243903914566ed68",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "2c2ff404189b033f972294dc264b276ef1f5597245989cb01b2d3ccef4edbfcc",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Tap to Configure Master": {
+			"text": "点击配置主阀门",
+			"sourceHash": "035dc8c624c68483a1c5a1fbc59ad62b04705e3552407e3a0fe91ba544e7be19",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "0a3126436556ec4c6c209162f6b2f449b2539632d29a2a44d0064070efee40a2",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Target PD Voltage": {
+			"text": "目标PD电压",
+			"sourceHash": "2245b2d2364e005d7e9542c61ef57f416253935addf724f91ffe0cad56082403",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "b82614f20bdb0f662e766e9f67a864368c5a4278d1214d850e11c8ebeb28419b",
+			"generator": "Codex assisted translation / Chinese electrical and sensor batch 7 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Temperature Restriction": {
+			"text": "温度限制",
+			"sourceHash": "6bc86887c37e9862d966e5ed27bcd33d548deaf814f526ce885d434fbc809f53",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "1e29b08db5337fed231e20e59134a175b0c794b66e48380fde9d15960ca857b0",
+			"generator": "Codex assisted translation / Chinese weather and scheduling batch 4 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Thai": {
+			"text": "泰语",
+			"sourceHash": "93006fd1e9b767f306e9bb14f8406fcbb10528b2508159ddd4ba10e320e5cad3",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "8b432858fd2a9488162ef0ae56ae9eb3b9be9ed70d733a444fa06ab0d6e4b864",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"The OpenSprinkler controller sent unexpected data, likely due to outdated firmware.": {
+			"text": "OpenSprinkler控制器返回了异常数据，可能是固件版本过旧所致。",
+			"sourceHash": "a43b36673fdaf42c219b6043ad9689c3edca14bc9c6eabc8cfd1891647192387",
+			"contextHash": "c96142810cae25a6be338023ee7e843ffef4fa958c8a49064ffebb18fca63320",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "a0c6cf62fffd7702eb48a43930286eb220bbe703b033a4aef7f5dc2bf45bf672",
+			"generator": "Codex assisted translation / Chinese network and security batch 5 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"The active controller changed. Please restart the restore.": {
+			"text": "当前控制器已切换。请重新开始恢复操作。",
+			"sourceHash": "d5140bb26a4f4b51adf94415ca19568a64027b93d2dec789eb42526c7969f241",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "90a0ff67098c265aaf6d6efd093f845aa6c7af39411076874b4a94001f34c1cf",
+			"generator": "Codex assisted translation / Chinese backup and errors batch 6 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"The active controller changed. The restore finished without refreshing the new controller.": {
+			"text": "当前控制器已切换。恢复操作已完成，未刷新新切换到的控制器。",
+			"sourceHash": "d82b6f970e71e8ddc6d5b1d0ed6d6c374ad81f1cf30ecdcd96ca0f200443d4d3",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "a8b33dc7982084ab4482c91f80ce5a8cd2e289ed5709a994aab566637cf368a9",
+			"generator": "Codex assisted translation / Chinese backup and errors batch 6 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"The active controller changed. The restore was stopped before completion.": {
+			"text": "当前控制器已切换。恢复操作尚未完成，现已停止。",
+			"sourceHash": "036aef8272e8372eaae3da3f245e4890a324f438f24b2df4445cc984f2d5b0de",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "1802806d364d1e4ad6ed93e44b2a3aa9e5ff4b2670c635ed48ec1f37251ee656",
+			"generator": "Codex assisted translation / Chinese backup and errors batch 6 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"The controller detected one or more zones drawing too much current, exceeding the limit. Please check your wiring and perform a <b>solenoid resistance test</b>. After fixing, you can clear the alert here. For more instructions, visit our support site": {
+			"text": "控制器检测到一个或多个浇水站的电流超过上限。请检查接线并进行<b>电磁阀线圈电阻测试</b>。解决问题后，可在此清除警告。更多说明请访问我们的支持网站",
+			"sourceHash": "95120a2328c5808ddc746bbb12117219401709231ba8eca6b2f6e27c9454f28f",
+			"contextHash": "24268d641ff4b0ddc2a2b4f790932aa8a8745a4678cec55b6e960fce82a02865",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "0270af4c8264d824ceab06eadbf6396adf93a0db0510697a65fee31fe85821e4",
+			"generator": "Codex assisted translation / Chinese electrical and sensor batch 7 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"The controller is at its sensor limit. Restoring this backup will delete sensor definitions that exist only on this controller.": {
+			"text": "控制器的传感器数量已达上限。恢复此备份将删除仅存在于此控制器上、而不在备份中的传感器配置。",
+			"sourceHash": "c0f2524fc98842b8822bf9922fc8e8594dabb51fa558f9020b2d1ae1ab51fffd",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "f9cb76cfc706e9b449dfe3d6a3806e6a7b67989f9039b657325beb9ec4e3cae6",
+			"generator": "Codex assisted translation / Chinese backup and errors batch 6 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"The holding current of your solenoid multiplied by its coil resistance (e.g. 0.25A×30Ω=7.5V). Set to 0 to use system default.": {
+			"text": "电磁阀保持电流乘以线圈电阻（例如0.25A×30Ω=7.5V）。设为0使用系统默认值。",
+			"sourceHash": "7d5a341e308a96e38aa6935287225e1f79feae261058a464a0370606a67ae9f9",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "2a509ac4d8e8d6c4db8019744a9b0527ad7fe09226f1f0b1182e0177b6030f9e",
+			"generator": "Codex assisted translation / Chinese electrical and sensor batch 7 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"The required hardware for this type was not detected.": {
+			"text": "未检测到此类型所需的硬件。",
+			"sourceHash": "9f8b2798c03b988fd075a2a30d12ab4b60691afd6ff19dd29428f2e697137afb",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "2f77e724616bd7c187faf6b7ccc005ccb2999a4d93780bbbfa6c3b3a5f93d10d",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"These settings are stored locally with the application and do not affect the controller. Changes are saved automatically.": {
+			"text": "这些设置保存在应用本地，不会影响控制器。更改会自动保存。",
+			"sourceHash": "246510fd3d614473e80b35c5ba8987d4bca85501107b895a0efc763bec9b7e30",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "08280d5c86d8a7f5842170ba66bd0f523a9cb6350fcfc3083ad6bd9be0ffcd37",
+			"generator": "Codex assisted translation / Chinese network and security batch 5 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"This UI has limited support for ASB firmware.": {
+			"text": "此界面对ASB固件的支持有限。",
+			"sourceHash": "3cbba9db2ea68074906106674b0ec4d25ba1a92786fafe53a6235c12f35bc1cf",
+			"contextHash": "a63997a2bfc75d9365ba4cc920d2bfbdbfca0ae88b7b7057671ec2d0aed37880",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "9dc541ee68cf5e0b7ff3c3a4c6ffb10c12c30d7831435660b2a50391a96c5aa7",
+			"generator": "Codex assisted translation / Chinese network and security batch 5 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"This UI has limited support for it. Switch to OpenSprinklerASB app/UI.": {
+			"text": "此界面对该固件的支持有限。请改用OpenSprinklerASB应用或界面。",
+			"sourceHash": "b0a189b8ce24a148b42b80da021c9a55f99e8c5896d73bc52ea56a3cfa6437c3",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "2f89874a8245859722d78840b1cfb01c4873d010163465d9630f44fbae03be9a",
+			"generator": "Codex assisted translation / Chinese network and security batch 5 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"This action can take a while depending on the number of log records.": {
+			"text": "此操作可能需要一些时间，具体取决于日志记录数量。",
+			"sourceHash": "b16721428f532df1913915c2f64c0fd470c09d3968f59444893286a00014186c",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "a2c13787def643418a51dcd0ed7c1a08aad6c41fb6dd6366a9556b76261e75f0",
+			"generator": "Codex assisted translation / Chinese logs batch 3 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"This backup cannot be restored without removing sensors referenced by its aggregate definitions.": {
+			"text": "恢复此备份需要删除备份中的汇总传感器所引用的传感器，因此无法恢复。",
+			"sourceHash": "837b2500b512c9758914e1ded4f8593236d5201ee7fb5dbd1e344a44000635b1",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "af6517d92e804abf3c521afa0d9fa5e00d5edd5d3c481a5c8ac69e5ec4d2a330",
+			"generator": "Codex assisted translation / Chinese backup and errors batch 6 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"This backup contains Bundle Station assignments that are not supported by this controller.": {
+			"text": "此备份包含此控制器不支持的组合浇水站成员设置。",
+			"sourceHash": "212e504171957df8e3aefe7db42b6f87385610cc115ff9bda90111d90b33b869",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "ac243e5511ca4468b0d35effe4e2b987e52c93bfeda2def047c0e6693ea7202a",
+			"generator": "Codex assisted translation / Chinese backup and errors batch 6 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"This backup contains an incomplete Bundle Station definition.": {
+			"text": "此备份包含不完整的组合浇水站配置。",
+			"sourceHash": "bea0f8a093814eeb0a11a96456a45eb3d9ffc7892846b9e28f4213076dcd535f",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "673fd71211827e3ae903fddce1b47c9ea362a12fdb630779bbcd4937df84cfc0",
+			"generator": "Codex assisted translation / Chinese backup and errors batch 6 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"This backup contains more sensor definitions than this controller supports.": {
+			"text": "此备份中的传感器配置数量超过此控制器支持的上限。",
+			"sourceHash": "c3f7f1deafd294ad38d8fc024dc126c5252c9bcf355fba1c496d208871c801a8",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "6cf7f8e3a3a11fe418b1dbdb6dc2694ad47dd3c5debe62e5f60de22ec77e2918",
+			"generator": "Codex assisted translation / Chinese backup and errors batch 6 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"This backup contains sensor definitions that are not supported by this controller.": {
+			"text": "此备份包含此控制器不支持的传感器配置。",
+			"sourceHash": "dde62496504a02a198dd6ff51ff8822192c550f4b679701d352b5c8483895719",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "12ff300ada2e003ccbbe81079988499355181c618f66042ca46f38e1132c19b8",
+			"generator": "Codex assisted translation / Chinese backup and errors batch 6 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"This backup contains sensor definitions that this controller does not support.": {
+			"text": "此备份包含此控制器不支持的传感器配置。",
+			"sourceHash": "d50ff7853fab4ad9b6c689e4c33f2b39095c2622c3b0ef97259b7b7b62699a2a",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "12ff300ada2e003ccbbe81079988499355181c618f66042ca46f38e1132c19b8",
+			"generator": "Codex assisted translation / Chinese backup and errors batch 6 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"This function sets the Modbus ID for one SMT100 sensor. Disconnect all other sensors on this Modbus port. Please confirm.": {
+			"text": "此功能用于设置一个SMT100传感器的Modbus编号。请断开此Modbus端口上的所有其他传感器。请确认。",
+			"sourceHash": "68215809340dac5e9dc596316572db844ae814a32b58e8404c913f548494d211",
+			"contextHash": "66c195089fdff67dae0c97d4e60eac89d294c386d913e4932ff0333bbbfb1733",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "019bf372d50b3d22831b4f69e334fb3d71c25af033ab29982872201f94e67ba3",
+			"generator": "Codex assisted translation / Chinese electrical and sensor batch 7 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"This may take several minutes. Deleting a sensor's log does not free log capacity; use this only when you need to reset this sensor's recorded history.": {
+			"text": "此操作可能需要几分钟。删除传感器日志不会释放日志存储容量；仅在需要清空此传感器的历史记录时使用。",
+			"sourceHash": "b59c596f72bb8f50d67d54104b3ed46c33f00e315ade8e564316955711da486f",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "49025fe8f4490557cc34467a7db7131672db738ea9825bde9642026bad6c5d81",
+			"generator": "Codex assisted translation / Chinese logs batch 3 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"This station is a bundle member of": {
+			"text": "此浇水站属于以下组合浇水站",
+			"sourceHash": "22c82f11cfbad506b975eb62b8c9e94a1ea69810429af946dd479e3a88d5b7ca",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "58095af283d1d0bff81f2efa2c98eb8047cfb4cb397f9a1d6a4a0cca9d98e7ce",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"This station is active through a running Bundle Station.": {
+			"text": "此浇水站正由组合浇水站联动运行。",
+			"sourceHash": "d1d0165bcc666e4683352a1f353ad69af6fba348a5c10edd2c4b2ecc05c8c865",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "33e7af254ca3dfee26b447a713c5c4c492f82eb4587c949e8bf04ac8715eeef0",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"This station is no longer part of a Bundle Station.": {
+			"text": "此浇水站已不属于任何组合浇水站。",
+			"sourceHash": "95653d75f900ac87653a2fc765b5948f474ee43f01b485625f5671cf6e95d71a",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "1e5c6287c46ca68a17653758cac53ba6066729d1ad20a12f922b2b6b23028b73",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"To fix this, please update your firmware. Remember to use the \"API Tool\" to save your current settings beforehand!": {
+			"text": "请更新固件以解决此问题。更新前请务必使用“API工具”保存当前设置！",
+			"sourceHash": "09d98c4c1395e9808c305eeaf0ebdd12d68f80c128fa71da1c394a60137ca790",
+			"contextHash": "c96142810cae25a6be338023ee7e843ffef4fa958c8a49064ffebb18fca63320",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "3acabd08fa571ecb60172532b2410cb67384337a05153f61bfaeb42cf93151d7",
+			"generator": "Codex assisted translation / Chinese network and security batch 5 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Turkish": {
+			"text": "土耳其语",
+			"sourceHash": "a0866ff0656c1b6c9c3bfeb31abed2ba558fcd1d19779bc6443cca5b0559b1e9",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "4b75b7500837fbf89b2c9b05b4bc6a520ccdb18f946705ee98d340ea3b820510",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Unable to determine the UUID assigned to a restored sensor. The restore was stopped.": {
+			"text": "无法确定恢复的传感器所获分配的UUID。恢复操作已停止。",
+			"sourceHash": "e3d4e7072f6ce79c25a880b4fcbf29929cd9a99c7a0516d15f9cb4bf12738e34",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "71a3b19f85ee339554b9b9429aa01931e97438084b51c60ef2dd1e5b76535092",
+			"generator": "Codex assisted translation / Chinese backup and errors batch 6 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Unable to import configuration. The restore stopped before completion; review the controller before retrying.": {
+			"text": "无法导入配置。恢复操作尚未完成便已停止；请检查控制器当前配置后再重试。",
+			"sourceHash": "4f910338009951b486daeb763eeccf78430fecdb9fd856548d2220650db6dff1",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "b2a12d189a90d37bae98d540570776af29bd7a39bece4c83c18337c8f12b3666",
+			"generator": "Codex assisted translation / Chinese backup and errors batch 6 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Unable to load Bundle Station configuration.": {
+			"text": "无法加载组合浇水站设置。",
+			"sourceHash": "40cc515c40fc7185cff7cf6117210ce2321b88f4d73c9c8671add36abe91a5b6",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "0bcf8b8b54de479585afb55c46fea37c316a27ce9befd4c156d670be99a55e30",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Unable to load program adjustments. Try again.": {
+			"text": "无法加载程序调整数据。请重试。",
+			"sourceHash": "2c7cc166d6b58aeecf4bbce555064e15bf339d5e5fea7cebb150c90c265e9bbc",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "79a258c67f604f4c5c63a23b6a18f59399a2a6979e1d38f9513e1789bc7e79ec",
+			"generator": "Codex assisted translation / Chinese weather and scheduling batch 4 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Unable to load station configuration.": {
+			"text": "无法加载浇水站设置。",
+			"sourceHash": "5587998d5f9fe3588dcb0ec16c3c67a8fdac4191f1825bfe18c6bc316c616850",
+			"contextHash": "c3b5d2067f4880c8f6db4872b35733a7ab5e2cc430af76e7ecd37826dac97da4",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "7df5ae8a55c18ed85de67d76d915fd834e1655da439a5b6f279fa2205cc462ac",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Unable to map an aggregate sensor during import. The restore was stopped.": {
+			"text": "导入时无法建立汇总传感器的对应关系。恢复操作已停止。",
+			"sourceHash": "2e47cf5a575789ccab7d027007e385720da180c5bb1e331d54c416005acab0a7",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "a07b0b5de518bf177e111626b493026ca7f3481674905fbb64a34034fc65d043",
+			"generator": "Codex assisted translation / Chinese backup and errors batch 6 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Unable to save settings. Controller settings were refreshed; review and try again.": {
+			"text": "无法保存设置。控制器设置已刷新，请检查后重试。",
+			"sourceHash": "4bedd09a336eff9560ceac8e2970608df74a512d0b8f2b8639a3ace803b2c8f7",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "2d99d896e6cd1394cb4f5a4f6f46ab7e202840ac79c62b4f18d0a8a98db67f22",
+			"generator": "Codex assisted translation / Chinese backup and errors batch 6 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Unable to validate sensor definitions on this controller. No configuration changes were made.": {
+			"text": "无法验证此控制器上的传感器配置。未更改任何配置。",
+			"sourceHash": "4c27527cd3eec4c1d6771d799ace91fe6b16201681d21a8f3cfd62169c564079",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "8cb4ea4de7e987ba12fab0b0bc2c4b1795ea8ae2d932ace062c08e220c58ae38",
+			"generator": "Codex assisted translation / Chinese backup and errors batch 6 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Unable to verify sensor definitions during import. The restore was stopped.": {
+			"text": "导入时无法验证传感器配置。恢复操作已停止。",
+			"sourceHash": "643395b62511a4ebd2cc5ec7840c4891d2a638bc434929a2828a9ce96249f57f",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "e0f7cd405e880f9f6e78a378ee7f0193b4204d3f5311f5bbeadc88e354c8e23a",
+			"generator": "Codex assisted translation / Chinese backup and errors batch 6 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Under/Overcurrent Fault": {
+			"text": "欠流/过流故障",
+			"sourceHash": "6e0017232f1e78929190b927844a0ecbcd8c8d6b791a5f9f18f6ffe6204de696",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "090fb9c30232002c62d8a6d2e777fca055677a2e41c919c7f6b37db6caaf5807",
+			"generator": "Codex assisted translation / Chinese electrical and sensor batch 7 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Undercurrent Threshold": {
+			"text": "欠流阈值",
+			"sourceHash": "169ac8f9d0c0497bc55ce3c95903909afe6157cbd4930adac37431ee0fc48ca2",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "1a3c20155e6d70b6ef5c87d981bfaba057a87fc407f10657ecbfe087f8880f21",
+			"generator": "Codex assisted translation / Chinese electrical and sensor batch 7 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Unit": {
+			"text": "单位",
+			"sourceHash": "062cc0f1afef0c52771d196dfd7734fd5a6c58f9d8a3114e0fa8b48832095adc",
+			"contextHash": "66c195089fdff67dae0c97d4e60eac89d294c386d913e4932ff0333bbbfb1733",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "1a27368584263831dae4628356b72d277ad84912e9fd3b86c70949cc09bf9389",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Unknown": {
+			"text": "未知",
+			"sourceHash": "14c4849191d018fc8b00b02dc1e49d9f8b36a152066023b3b4c609b2f62ba328",
+			"contextHash": "9587acb74689c58bc77486152ff4aae16e89cf041aade12c2c9238443c3e1d60",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "ca797a7ffd25c8abad471f537944bce76db5af1c56703b821432e8811cede241",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Update Firmware": {
+			"text": "更新固件",
+			"sourceHash": "03c34ade202c54cc3bf99dbf86a979276e6885a96b8b2d72a0ed4e7585af3d91",
+			"contextHash": "1c7415f53055b2cb38320cbed8c292ae52f8f23481a7cb5e34f7d3b3b5b518e6",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "15f6e6088d1e32e0172e90dbea01ca7635fedf32573ed869422148860a4624fb",
+			"generator": "Codex assisted translation / Chinese network and security batch 5 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Update Sensor": {
+			"text": "更新传感器",
+			"sourceHash": "78394f3eb30d912159a36767a76ad5f1f16568a889904de7095b714d1326af1f",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "3180964d1a78627435fafac6e3693e1a97aa750a1fb2a07d65e0ab9808566842",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Upload failed.": {
+			"text": "上传失败。",
+			"sourceHash": "da0a85ac4ebfce1192ed7a9075def00115c610be79861ab3d8c11887cbfadf4f",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "01dbc958168c1994a417fcf81379f018258e4b01297f44a6d0d700e3cc44e4a6",
+			"generator": "Codex assisted translation / Chinese network and security batch 5 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Use Sensor Adjustment": {
+			"text": "使用传感器调整",
+			"sourceHash": "143043e4fd4568fefe5dc81406977a08b38962be68062128f964fa144bbd04bd",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "4ae243bd4fc7cdeb225ebcc0826edc5936559617dec785cd92ee6aaa98bc5146",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Use up to 32 ASCII letters, numbers or hyphens. The hostname cannot begin or end with a hyphen or contain only numbers. Leave empty to restore the device default.": {
+			"text": "最多使用32个ASCII字母、数字或连字符。主机名不能以连字符开头或结尾，也不能仅包含数字。留空可恢复设备默认值。",
+			"sourceHash": "26d90acd18771d0cc044c4444f5f552bc02aa458b707edad87bebaddd3e42c12",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "e0ae031cdb93c8a1ecaba9045f287f0a94cd60d17d8a876b14c6b70f8760f909",
+			"generator": "Codex assisted translation / Chinese network and security batch 5 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Uses the provider configured on the custom weather server.": {
+			"text": "使用自定义天气服务器所配置的数据提供商。",
+			"sourceHash": "b987ed572bdc18fd3c1c9ce2afc79e3e8428afd9ccd867ee91c5db19bec20b49",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "24d0b7616f1c5ef7314fcf63b6ccc6c97d35a43257550c148731b14983634550",
+			"generator": "Codex assisted translation / Chinese weather and scheduling batch 4 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Warning": {
+			"text": "警告",
+			"sourceHash": "5128de8b5a61833952b4c66c4166ff4ebd3ad034e8fe094c4330253af8ec1add",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "f06dbc633bcf8addb650b0f6bee22a34210421ccef29e9f767987641c4e44ffe",
+			"generator": "Codex assisted translation / Chinese logs batch 3 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Watering": {
+			"text": "浇水",
+			"sourceHash": "f9618bcf3511f67653f76e614ece52f5c879baff7282ef8ba1ac3d624d585c5b",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "06ad30350cedc27bc916fdebb4f1d8aa84f3a760f14f2a593713b24c24c55102",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Watering %": {
+			"text": "浇水百分比",
+			"sourceHash": "73454e04893d9c8c9f9522ba67cf5410e1a6346039e9b4fb19870deb6de6eaaf",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "d781a527ec06bead8e35430c8cf79b4bce26482623bd20176f986abcf0d662d4",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Weather Adjustment": {
+			"text": "天气调整",
+			"sourceHash": "d0099f7842d95d8834a9982d6816150261f0e9b86723258f8b87691f96a8f856",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "e6fdca396983b11acc76cf66b56a3a86b3de4000ae7b05f58eb67f7cd7818b25",
+			"generator": "Codex assisted translation / Chinese sensor batch 2 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Weather Failure": {
+			"text": "天气数据获取失败",
+			"sourceHash": "f91c25cfec276a734e39d48ca2b506acb8efc21868bc8d60027793e2478126fa",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "64c8c1000e5e0d8e51995996bbdecf6085196ccfabef7ea4f1bdc6b5d41c7d3b",
+			"generator": "Codex assisted translation / Chinese weather and scheduling batch 4 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Weather Restri.": {
+			"text": "天气限制",
+			"sourceHash": "04076e57ccf0c018caf958ef2cd3899cff6b3288ff686031d3f149dd97b60ba7",
+			"contextHash": "58f72308f87e3460306f2fe33799d1e7fdfe0071ab1ed767e3d6d14addb63e84",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "e248f0502972db5c00689fa0f1316c35d46fc4ed32f42bfced14fe5d3621211f",
+			"generator": "Codex assisted translation / Chinese weather and scheduling batch 4 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Weather Restriction Active": {
+			"text": "天气限制已生效",
+			"sourceHash": "0fb799fd8cbbe14fc4aa5a83e75c9dbd7a7dd8c5d81b0b07628945b6792b368b",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "9c748a820bdb350ef43ce3e24d451a86ff94a5a8764433be069a46082e2dff73",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Weather Restriction Options": {
+			"text": "天气限制选项",
+			"sourceHash": "8c44acca2611b3382011b092f05e2394a852afb13eaff2e6a7720347de8e1fcb",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "58e520d11e22527853d17196160401c49b49a0dfe02ad091735edc9231adcccb",
+			"generator": "Codex assisted translation / Chinese weather and scheduling batch 4 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Weather Restrictions": {
+			"text": "天气限制",
+			"sourceHash": "6a38c52feb1c5a622c6fa27079a1db6e1a77aa8ea22b24e201818e4bce8b3015",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "e248f0502972db5c00689fa0f1316c35d46fc4ed32f42bfced14fe5d3621211f",
+			"generator": "Codex assisted translation / Chinese weather and scheduling batch 4 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Web Request": {
+			"text": "网页请求",
+			"sourceHash": "4af373c7de6a66c7f13402025ff6a646eb232725587ab6c47b6e4b40b5fe271f",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "b816d5d4e56c671426f98aaea4ed450ff1b3d68d9e24f6dcf2f28b912d4ac2db",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"When using program switch, a switch is connected to the sensor port to trigger Program 3 every time the switch is pressed for at least 1 second.": {
+			"text": "使用程序启动开关时，将开关连接到传感器端口。每次按住开关至少1秒，即可触发程序3。",
+			"sourceHash": "9e75e6f42a8ab65b5b335ab40c3efee956e52dacfbd83b78e40e3a812de0429e",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "01cd968447e2083ffa92250e0ad4fabb3a2e2009366e01416f06de0d2cafbb06",
+			"generator": "Codex assisted translation / Chinese electrical and sensor batch 7 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"When using program switch, a switch is connected to the sensor port to trigger Program 4 every time the switch is pressed for at least 1 second.": {
+			"text": "使用程序启动开关时，将开关连接到传感器端口。每次按住开关至少1秒，即可触发程序4。",
+			"sourceHash": "8b83fee3105b648f618ebe39a4b737d8c0b8d7a12e2b7801ea537b7b5c3e2793",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "1c781bf59b2ddb4dfc87abe24fd1a68b160334b32d79e494944281eec2e0f032",
+			"generator": "Codex assisted translation / Chinese electrical and sensor batch 7 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"WiFi Change": {
+			"text": "WiFi变更",
+			"sourceHash": "01f27359cceb9a49244ebb804ff65fc0f3dc6f4e132e7416f9c27f09541595ed",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "7f29635b5d9b570151ea4dcd3b8ff5c4b603102713f5511eef09f709c6525881",
+			"generator": "Codex assisted translation / Chinese network and security batch 5 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"WiFi Configure": {
+			"text": "WiFi配置",
+			"sourceHash": "1c4b081076d84b77aa0bf09c74d800b1a96287ea4ed161ca889b05df90b383b9",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "e9b4b3524d187f163c377f6483317d218496c53fdbbff9f5dfe64ecd9727abee",
+			"generator": "Codex assisted translation / Chinese network and security batch 5 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Your device runs the OpenSprinklerASB firmware. This UI has limited support for it. Please switch to the OpenSprinklerASB mobile app/UI for full support.": {
+			"text": "您的设备运行的是OpenSprinklerASB固件。此界面对该固件的支持有限。请改用OpenSprinklerASB移动应用或界面，以获得完整支持。",
+			"sourceHash": "1882678ea202da384c7b66a28a0fa5c8a4c3379bc4ba3a38c1bdbeb890137226",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "018b06b67bc6b6df8cf5004fa5f711ee1c809c0f515b603ce39c9cfe22499fc8",
+			"generator": "Codex assisted translation / Chinese network and security batch 5 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Zimmerman": {
+			"text": "Zimmerman",
+			"sourceHash": "8c1c7a5cd80bc5664395d7849494097af307b4340e4b39d913faa75600192426",
+			"contextHash": "27986029b3df9ad00dbc67ce579607a8420c959ffa16c15c9f227eb82afac172",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "8c1c7a5cd80bc5664395d7849494097af307b4340e4b39d913faa75600192426",
+			"generator": "Codex assisted translation / Chinese weather and scheduling batch 4 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Zoom in": {
+			"text": "放大",
+			"sourceHash": "d17804412f8dd0818e0c3b2ee85c1e51f19aa61ef44183639d9e709327a43b13",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "c5cfd170e3c22807a5684c37b2817ca86642356d3521dd556cb4bc2e2658123c",
+			"generator": "Codex assisted translation / Chinese logs batch 3 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Zoom out": {
+			"text": "缩小",
+			"sourceHash": "23b012a283b2c14a72940b9ac0ef3ba8617c4e8acdb61b34a8a0f74d879b80bf",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "4810fff39577bc71ee08c92ea2af6de9bde90a2f4a9c12f6607e22c77b3b46e9",
+			"generator": "Codex assisted translation / Chinese logs batch 3 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"also active via Bundle Station": {
+			"text": "同时由组合浇水站联动运行",
+			"sourceHash": "ec983cb4288b3550a174293b7c42fcffee49d857a5fac50fd15a9f8effa1a2e4",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "2f76ab97878e479df274531994e6c65b5c9d04cd0128e89afb4d39ee8064ac14",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"disabled": {
+			"text": "禁用",
+			"sourceHash": "f693b9deb860600fb93d749df324c55991afe7eba6300113ab381339b23d12d5",
+			"contextHash": "ab9242f7e5d7774c9a98bf9fe71d92c5afc5f29932e2c25cca974cd295a61622",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "8fb4534d283b6e0a36d940d9df0392fc5f0d297c8057995fb6be85a801ead3b4",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"disabled program hidden. Tap 'Show Disabled' in the footer menu to view": {
+			"text": "个禁用的程序已隐藏。点击页脚菜单中的“显示禁用项”查看",
+			"sourceHash": "ef619d3b6aff3ed18526179557cec64dce54ab64a6a46fa85c1a3f7952848607",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "a5c1a4a61737d7e182856a3d3891eee262abb29fab7a154f0a1178e9523bb488",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"disabled programs hidden. Tap 'Show Disabled' in the footer menu to view": {
+			"text": "个禁用的程序已隐藏。点击页脚菜单中的“显示禁用项”查看",
+			"sourceHash": "4e5825c79adaa35a185bf91c2a2e3a73d22e5e7574edbed90b8f49e6666971c9",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "a5c1a4a61737d7e182856a3d3891eee262abb29fab7a154f0a1178e9523bb488",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"master": {
+			"text": "主阀门",
+			"sourceHash": "fb0c284bf3e3ce017b395ae5f36004dd07e5fd7ab990e8dea222fecea35952cb",
+			"contextHash": "ab9242f7e5d7774c9a98bf9fe71d92c5afc5f29932e2c25cca974cd295a61622",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "f94bffe5023d929ecc00fd0f1023e53e62d5db956c637d5d8389dd017f66824d",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"of rain is forecasted in the next:": {
+			"text": "的降雨量，预报时段为未来：",
+			"sourceHash": "2d7788676cbbb35ffbcf1a9991f4ccdb09f1a3520beb03358a275758f09d62a2",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "bdc153badb3b5556842290f2575533a0dcafbe8ec9b45ed1ad8045f743e39420",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"records": {
+			"text": "条记录",
+			"sourceHash": "e220d4d06cb9cefa9cd5320f256e286fb0b401c2ab63ed762a8dfdb2500c5b41",
+			"contextHash": "66c195089fdff67dae0c97d4e60eac89d294c386d913e4932ff0333bbbfb1733",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "b515186ef6ddde2d9877e0925e8ed163a7aae9dc5064c1a59d271da4af147360",
+			"generator": "Codex assisted translation / Chinese logs batch 3 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"this station": {
+			"text": "此浇水站",
+			"sourceHash": "f999ee9077f51afda466089515364aa64a5d7b1a9108f89a11e8018c4c0ae944",
+			"contextHash": "ab9242f7e5d7774c9a98bf9fe71d92c5afc5f29932e2c25cca974cd295a61622",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "c2546c01a78b18ee514d9c345187560f129e4fbe290f615193a8b65147134dbc",
+			"generator": "Codex assisted translation / Chinese general and languages batch 8 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"total watering remaining": {
+			"text": "剩余总浇水时间",
+			"sourceHash": "0b96e80c139474b43a8455d1d718fd45bf970aafc7783f76271501307fb24ee0",
+			"contextHash": "5fc4b9d7a45df2c4b138774135fdbb03a332756d2ace5d7b1f568cb53de5702a",
+			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
+			"translationHash": "402d7216753ee5feb437065c20754d11fa91debbb16b29f028fa3dac43fa88ac",
+			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
+			"review": "reviewed"
+		}
+	}
+}
