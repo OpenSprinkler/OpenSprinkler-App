@@ -260,7 +260,7 @@
 		},
 		"An Aggregate Sensor references an unsupported analog reading. Resolve its dependencies before restoring.": {
 			"references": [
-				"www/js/modules/import-export.js:592"
+				"www/js/modules/import-export.js:601"
 			],
 			"notes": []
 		},
@@ -306,7 +306,7 @@
 		},
 		"App Password": {
 			"references": [
-				"www/js/modules/options.js:2432"
+				"www/js/modules/options.js:2433"
 			],
 			"notes": []
 		},
@@ -476,7 +476,7 @@
 		},
 		"Are you sure you want to restore the configuration?": {
 			"references": [
-				"www/js/modules/import-export.js:918"
+				"www/js/modules/import-export.js:927"
 			],
 			"notes": []
 		},
@@ -488,7 +488,7 @@
 		},
 		"Attempting to retrieve your current location": {
 			"references": [
-				"www/js/modules/options.js:2714"
+				"www/js/modules/options.js:2715"
 			],
 			"notes": []
 		},
@@ -551,7 +551,7 @@
 		},
 		"Backup restored to your device": {
 			"references": [
-				"www/js/modules/import-export.js:1369"
+				"www/js/modules/import-export.js:1378"
 			],
 			"notes": []
 		},
@@ -608,7 +608,7 @@
 		},
 		"Broker/Server": {
 			"references": [
-				"www/js/modules/options.js:2287"
+				"www/js/modules/options.js:2288"
 			],
 			"notes": []
 		},
@@ -853,7 +853,7 @@
 		},
 		"Close": {
 			"references": [
-				"www/js/modules/options.js:2683"
+				"www/js/modules/options.js:2684"
 			],
 			"notes": []
 		},
@@ -1102,13 +1102,13 @@
 		},
 		"Delayed Off Time": {
 			"references": [
-				"www/js/modules/options.js:2055"
+				"www/js/modules/options.js:2056"
 			],
 			"notes": []
 		},
 		"Delayed On Time": {
 			"references": [
-				"www/js/modules/options.js:2051"
+				"www/js/modules/options.js:2052"
 			],
 			"notes": []
 		},
@@ -1439,7 +1439,7 @@
 		},
 		"Edit Sensors": {
 			"references": [
-				"www/js/modules/options.js:2060",
+				"www/js/modules/options.js:2061",
 				"www/js/modules/sensors.js:2271",
 				"www/js/modules/ui-dom.js:329"
 			],
@@ -1471,15 +1471,15 @@
 		},
 		"Email Settings": {
 			"references": [
-				"www/js/modules/options.js:2402"
+				"www/js/modules/options.js:2403"
 			],
 			"notes": []
 		},
 		"Enable": {
 			"references": [
-				"www/js/modules/options.js:2281",
-				"www/js/modules/options.js:2405",
-				"www/js/modules/options.js:2506",
+				"www/js/modules/options.js:2282",
+				"www/js/modules/options.js:2406",
+				"www/js/modules/options.js:2507",
 				"www/js/modules/programs.js:2642",
 				"www/js/modules/ui-dom.js:616",
 				"www/js/modules/ui-dom.js:731"
@@ -1830,7 +1830,7 @@
 		},
 		"Flow Pulse Rate": {
 			"references": [
-				"www/js/modules/options.js:2008"
+				"www/js/modules/options.js:2009"
 			],
 			"notes": []
 		},
@@ -2197,13 +2197,13 @@
 		},
 		"Invalid configuration": {
 			"references": [
-				"www/js/modules/import-export.js:619"
+				"www/js/modules/import-export.js:628"
 			],
 			"notes": []
 		},
 		"Invalid cycle and soak configuration": {
 			"references": [
-				"www/js/modules/import-export.js:710"
+				"www/js/modules/import-export.js:719"
 			],
 			"notes": []
 		},
@@ -2215,20 +2215,20 @@
 		},
 		"Invalid program configuration in backup.": {
 			"references": [
-				"www/js/modules/import-export.js:719"
+				"www/js/modules/import-export.js:728"
 			],
 			"notes": []
 		},
 		"Invalid program sensor adjustment in backup.": {
 			"references": [
-				"www/js/modules/import-export.js:760"
+				"www/js/modules/import-export.js:769"
 			],
 			"notes": []
 		},
 		"Invalid sensor configuration in backup.": {
 			"references": [
 				"www/js/modules/import-export.js:560",
-				"www/js/modules/import-export.js:772"
+				"www/js/modules/import-export.js:781"
 			],
 			"notes": []
 		},
@@ -2444,7 +2444,7 @@
 		},
 		"MQTT Settings": {
 			"references": [
-				"www/js/modules/options.js:2278"
+				"www/js/modules/options.js:2279"
 			],
 			"notes": []
 		},
@@ -2530,7 +2530,7 @@
 				"www/js/modules/dashboard.js:1403",
 				"www/js/modules/dashboard.js:1404",
 				"www/js/modules/dashboard.js:179",
-				"www/js/modules/options.js:2185"
+				"www/js/modules/options.js:2186"
 			],
 			"notes": []
 		},
@@ -2854,7 +2854,7 @@
 		},
 		"Normally Open": {
 			"references": [
-				"www/js/modules/options.js:2047"
+				"www/js/modules/options.js:2048"
 			],
 			"notes": []
 		},
@@ -2969,7 +2969,7 @@
 		},
 		"Off Adj.": {
 			"references": [
-				"www/js/modules/options.js:2197"
+				"www/js/modules/options.js:2198"
 			],
 			"notes": []
 		},
@@ -2993,7 +2993,7 @@
 		},
 		"On Adj.": {
 			"references": [
-				"www/js/modules/options.js:2193"
+				"www/js/modules/options.js:2194"
 			],
 			"notes": []
 		},
@@ -3005,7 +3005,7 @@
 		},
 		"On/Off adjustments are in 5-second increments.": {
 			"references": [
-				"www/js/modules/options.js:2200"
+				"www/js/modules/options.js:2201"
 			],
 			"notes": []
 		},
@@ -3061,7 +3061,7 @@
 		},
 		"OpenThings Cloud (OTC) Settings": {
 			"references": [
-				"www/js/modules/options.js:2503"
+				"www/js/modules/options.js:2504"
 			],
 			"notes": []
 		},
@@ -3073,7 +3073,7 @@
 		},
 		"OpenThings Token must be 32 characters long.": {
 			"references": [
-				"www/js/modules/options.js:2547",
+				"www/js/modules/options.js:2548",
 				"www/js/modules/sites.js:796"
 			],
 			"notes": []
@@ -3092,7 +3092,7 @@
 		},
 		"Option": {
 			"references": [
-				"www/js/modules/options.js:2044"
+				"www/js/modules/options.js:2045"
 			],
 			"notes": []
 		},
@@ -3144,7 +3144,7 @@
 		"Password": {
 			"references": [
 				"www/js/modules/network.js:685",
-				"www/js/modules/options.js:2308"
+				"www/js/modules/options.js:2309"
 			],
 			"notes": []
 		},
@@ -3275,9 +3275,9 @@
 		"Port": {
 			"references": [
 				"www/js/modules/analog.js:359",
-				"www/js/modules/options.js:2294",
-				"www/js/modules/options.js:2418",
-				"www/js/modules/options.js:2526"
+				"www/js/modules/options.js:2295",
+				"www/js/modules/options.js:2419",
+				"www/js/modules/options.js:2527"
 			],
 			"notes": []
 		},
@@ -3380,7 +3380,7 @@
 		},
 		"Program": {
 			"references": [
-				"www/js/modules/import-export.js:1182",
+				"www/js/modules/import-export.js:1191",
 				"www/js/modules/programs.js:2136",
 				"www/js/modules/programs.js:2181",
 				"www/js/modules/programs.js:2433",
@@ -3442,7 +3442,7 @@
 		},
 		"Program data is newer than the device firmware and cannot be imported": {
 			"references": [
-				"www/js/modules/import-export.js:876"
+				"www/js/modules/import-export.js:885"
 			],
 			"notes": []
 		},
@@ -3461,7 +3461,7 @@
 		},
 		"Program sensor adjustments that reference a sensor absent from both the backup and this controller will be disabled.": {
 			"references": [
-				"www/js/modules/import-export.js:907"
+				"www/js/modules/import-export.js:916"
 			],
 			"notes": []
 		},
@@ -3485,7 +3485,7 @@
 		},
 		"Publish Topic": {
 			"references": [
-				"www/js/modules/options.js:2316"
+				"www/js/modules/options.js:2317"
 			],
 			"notes": []
 		},
@@ -3597,7 +3597,7 @@
 		},
 		"Recipient Email": {
 			"references": [
-				"www/js/modules/options.js:2439"
+				"www/js/modules/options.js:2440"
 			],
 			"notes": []
 		},
@@ -3788,7 +3788,7 @@
 		},
 		"Restored sensor definitions did not pass verification. The restore was stopped before programs were changed.": {
 			"references": [
-				"www/js/modules/import-export.js:1342"
+				"www/js/modules/import-export.js:1351"
 			],
 			"notes": []
 		},
@@ -3930,7 +3930,7 @@
 		},
 		"SMTP Server": {
 			"references": [
-				"www/js/modules/options.js:2411"
+				"www/js/modules/options.js:2412"
 			],
 			"notes": []
 		},
@@ -4111,14 +4111,14 @@
 		},
 		"Sender Email": {
 			"references": [
-				"www/js/modules/options.js:2425"
+				"www/js/modules/options.js:2426"
 			],
 			"notes": []
 		},
 		"Sensor": {
 			"references": [
 				"www/js/modules/analog.js:182",
-				"www/js/modules/options.js:2036",
+				"www/js/modules/options.js:2037",
 				"www/js/modules/options.js:957",
 				"www/js/modules/sensors.js:103"
 			],
@@ -4185,7 +4185,7 @@
 		},
 		"Sensor definitions in this backup reference unavailable child sensors.": {
 			"references": [
-				"www/js/modules/import-export.js:868"
+				"www/js/modules/import-export.js:877"
 			],
 			"notes": []
 		},
@@ -4209,7 +4209,7 @@
 		},
 		"Sensor readings conflict with the restored built-in port modes.": {
 			"references": [
-				"www/js/modules/import-export.js:604"
+				"www/js/modules/import-export.js:613"
 			],
 			"notes": []
 		},
@@ -4255,7 +4255,7 @@
 		},
 		"Server": {
 			"references": [
-				"www/js/modules/options.js:2519"
+				"www/js/modules/options.js:2520"
 			],
 			"notes": []
 		},
@@ -4655,11 +4655,11 @@
 				"www/js/modules/options.js:1250",
 				"www/js/modules/options.js:1444",
 				"www/js/modules/options.js:1884",
-				"www/js/modules/options.js:2062",
-				"www/js/modules/options.js:2201",
-				"www/js/modules/options.js:2335",
-				"www/js/modules/options.js:2447",
-				"www/js/modules/options.js:2534",
+				"www/js/modules/options.js:2063",
+				"www/js/modules/options.js:2202",
+				"www/js/modules/options.js:2336",
+				"www/js/modules/options.js:2448",
+				"www/js/modules/options.js:2535",
 				"www/js/modules/options.js:632",
 				"www/js/modules/programs.js:3238",
 				"www/js/modules/programs.js:580",
@@ -4688,7 +4688,7 @@
 		},
 		"Subscribe Topic": {
 			"references": [
-				"www/js/modules/options.js:2324"
+				"www/js/modules/options.js:2325"
 			],
 			"notes": []
 		},
@@ -4790,7 +4790,7 @@
 			"references": [
 				"www/js/modules/options.js:1000",
 				"www/js/modules/options.js:1014",
-				"www/js/modules/options.js:2131",
+				"www/js/modules/options.js:2132",
 				"www/js/modules/options.js:819",
 				"www/js/modules/options.js:833",
 				"www/js/modules/options.js:955",
@@ -4861,19 +4861,19 @@
 		},
 		"The active controller changed. Please restart the restore.": {
 			"references": [
-				"www/js/modules/import-export.js:920"
+				"www/js/modules/import-export.js:929"
 			],
 			"notes": []
 		},
 		"The active controller changed. The restore finished without refreshing the new controller.": {
 			"references": [
-				"www/js/modules/import-export.js:1363"
+				"www/js/modules/import-export.js:1372"
 			],
 			"notes": []
 		},
 		"The active controller changed. The restore was stopped before completion.": {
 			"references": [
-				"www/js/modules/import-export.js:1213"
+				"www/js/modules/import-export.js:1222"
 			],
 			"notes": []
 		},
@@ -4885,7 +4885,7 @@
 		},
 		"The controller is at its sensor limit. Restoring this backup will delete sensor definitions that exist only on this controller.": {
 			"references": [
-				"www/js/modules/import-export.js:902"
+				"www/js/modules/import-export.js:911"
 			],
 			"notes": []
 		},
@@ -4963,7 +4963,7 @@
 		},
 		"This backup cannot be restored without removing sensors referenced by its aggregate definitions.": {
 			"references": [
-				"www/js/modules/import-export.js:848"
+				"www/js/modules/import-export.js:857"
 			],
 			"notes": []
 		},
@@ -4982,20 +4982,20 @@
 		},
 		"This backup contains more sensor definitions than this controller supports.": {
 			"references": [
-				"www/js/modules/import-export.js:782"
+				"www/js/modules/import-export.js:791"
 			],
 			"notes": []
 		},
 		"This backup contains sensor definitions that are not supported by this controller.": {
 			"references": [
-				"www/js/modules/import-export.js:1259",
-				"www/js/modules/import-export.js:1270"
+				"www/js/modules/import-export.js:1268",
+				"www/js/modules/import-export.js:1279"
 			],
 			"notes": []
 		},
 		"This backup contains sensor definitions that this controller does not support.": {
 			"references": [
-				"www/js/modules/import-export.js:765"
+				"www/js/modules/import-export.js:774"
 			],
 			"notes": []
 		},
@@ -5137,7 +5137,7 @@
 		},
 		"Token": {
 			"references": [
-				"www/js/modules/options.js:2512"
+				"www/js/modules/options.js:2513"
 			],
 			"notes": []
 		},
@@ -5192,7 +5192,7 @@
 			"references": [
 				"www/js/modules/analog.js:170",
 				"www/js/modules/analog.js:331",
-				"www/js/modules/options.js:2040"
+				"www/js/modules/options.js:2041"
 			],
 			"notes": []
 		},
@@ -5210,13 +5210,13 @@
 		},
 		"Unable to determine the UUID assigned to a restored sensor. The restore was stopped.": {
 			"references": [
-				"www/js/modules/import-export.js:1307"
+				"www/js/modules/import-export.js:1316"
 			],
 			"notes": []
 		},
 		"Unable to import configuration. The restore stopped before completion; review the controller before retrying.": {
 			"references": [
-				"www/js/modules/import-export.js:932"
+				"www/js/modules/import-export.js:941"
 			],
 			"notes": []
 		},
@@ -5234,18 +5234,12 @@
 			],
 			"notes": []
 		},
-		"Unable to load sensor descriptions. Please try again.": {
-			"references": [
-				"www/js/modules/options.js:1992"
-			],
-			"notes": []
-		},
 		"Unable to load station configuration.": {
 			"references": [
 				"www/js/modules/dashboard.js:656",
 				"www/js/modules/dashboard.js:665",
-				"www/js/modules/options.js:2166",
-				"www/js/modules/options.js:2175",
+				"www/js/modules/options.js:2167",
+				"www/js/modules/options.js:2176",
 				"www/js/modules/ui-dom.js:655",
 				"www/js/modules/ui-dom.js:661"
 			],
@@ -5253,7 +5247,7 @@
 		},
 		"Unable to map an aggregate sensor during import. The restore was stopped.": {
 			"references": [
-				"www/js/modules/import-export.js:1323"
+				"www/js/modules/import-export.js:1332"
 			],
 			"notes": []
 		},
@@ -5278,7 +5272,7 @@
 		},
 		"Unable to retrieve your current location": {
 			"references": [
-				"www/js/modules/options.js:2704"
+				"www/js/modules/options.js:2705"
 			],
 			"notes": []
 		},
@@ -5290,17 +5284,17 @@
 		},
 		"Unable to validate sensor definitions on this controller. No configuration changes were made.": {
 			"references": [
-				"www/js/modules/import-export.js:1263",
-				"www/js/modules/import-export.js:650",
-				"www/js/modules/import-export.js:657",
-				"www/js/modules/import-export.js:666"
+				"www/js/modules/import-export.js:1272",
+				"www/js/modules/import-export.js:659",
+				"www/js/modules/import-export.js:666",
+				"www/js/modules/import-export.js:675"
 			],
 			"notes": []
 		},
 		"Unable to verify sensor definitions during import. The restore was stopped.": {
 			"references": [
-				"www/js/modules/import-export.js:1233",
-				"www/js/modules/import-export.js:1246"
+				"www/js/modules/import-export.js:1242",
+				"www/js/modules/import-export.js:1255"
 			],
 			"notes": []
 		},
@@ -5370,7 +5364,7 @@
 		},
 		"Unsupported onboard analog readings will be skipped. Unsupported Analog port modes will be set to None.": {
 			"references": [
-				"www/js/modules/import-export.js:912"
+				"www/js/modules/import-export.js:921"
 			],
 			"notes": []
 		},
@@ -5516,7 +5510,7 @@
 		},
 		"Username": {
 			"references": [
-				"www/js/modules/options.js:2301"
+				"www/js/modules/options.js:2302"
 			],
 			"notes": []
 		},
@@ -5580,7 +5574,7 @@
 		},
 		"Warning: Network changes will be made and the device may no longer be accessible from this address.": {
 			"references": [
-				"www/js/modules/import-export.js:890"
+				"www/js/modules/import-export.js:899"
 			],
 			"notes": []
 		},
@@ -5750,25 +5744,25 @@
 		},
 		"When using program switch, a switch is connected to the sensor port to trigger Program 1 every time the switch is pressed for at least 1 second.": {
 			"references": [
-				"www/js/modules/options.js:2025"
+				"www/js/modules/options.js:2026"
 			],
 			"notes": []
 		},
 		"When using program switch, a switch is connected to the sensor port to trigger Program 2 every time the switch is pressed for at least 1 second.": {
 			"references": [
-				"www/js/modules/options.js:2027"
+				"www/js/modules/options.js:2028"
 			],
 			"notes": []
 		},
 		"When using program switch, a switch is connected to the sensor port to trigger Program 3 every time the switch is pressed for at least 1 second.": {
 			"references": [
-				"www/js/modules/options.js:2029"
+				"www/js/modules/options.js:2030"
 			],
 			"notes": []
 		},
 		"When using program switch, a switch is connected to the sensor port to trigger Program 4 every time the switch is pressed for at least 1 second.": {
 			"references": [
-				"www/js/modules/options.js:2031"
+				"www/js/modules/options.js:2032"
 			],
 			"notes": []
 		},
@@ -5849,7 +5843,7 @@
 		},
 		"Zone": {
 			"references": [
-				"www/js/modules/options.js:2189"
+				"www/js/modules/options.js:2190"
 			],
 			"notes": []
 		},
@@ -5886,7 +5880,7 @@
 		},
 		"app password": {
 			"references": [
-				"www/js/modules/options.js:2436"
+				"www/js/modules/options.js:2437"
 			],
 			"notes": []
 		},
@@ -5898,7 +5892,7 @@
 		},
 		"broker": {
 			"references": [
-				"www/js/modules/options.js:2291"
+				"www/js/modules/options.js:2292"
 			],
 			"notes": []
 		},
@@ -6068,8 +6062,8 @@
 		"minutes": {
 			"references": [
 				"www/js/modules/dates.js:148",
-				"www/js/modules/options.js:2051",
-				"www/js/modules/options.js:2055"
+				"www/js/modules/options.js:2052",
+				"www/js/modules/options.js:2056"
 			],
 			"notes": []
 		},
@@ -6105,13 +6099,13 @@
 		},
 		"password (optional)": {
 			"references": [
-				"www/js/modules/options.js:2312"
+				"www/js/modules/options.js:2313"
 			],
 			"notes": []
 		},
 		"publish topic": {
 			"references": [
-				"www/js/modules/options.js:2320"
+				"www/js/modules/options.js:2321"
 			],
 			"notes": []
 		},
@@ -6167,20 +6161,20 @@
 		"seconds": {
 			"references": [
 				"www/js/modules/dates.js:151",
-				"www/js/modules/options.js:2193",
-				"www/js/modules/options.js:2197"
+				"www/js/modules/options.js:2194",
+				"www/js/modules/options.js:2198"
 			],
 			"notes": []
 		},
 		"server": {
 			"references": [
-				"www/js/modules/options.js:2523"
+				"www/js/modules/options.js:2524"
 			],
 			"notes": []
 		},
 		"smtp.gmail.com": {
 			"references": [
-				"www/js/modules/options.js:2415"
+				"www/js/modules/options.js:2416"
 			],
 			"notes": []
 		},
@@ -6193,7 +6187,7 @@
 		},
 		"subscribe topic": {
 			"references": [
-				"www/js/modules/options.js:2328"
+				"www/js/modules/options.js:2329"
 			],
 			"notes": []
 		},
@@ -6205,7 +6199,7 @@
 		},
 		"token": {
 			"references": [
-				"www/js/modules/options.js:2516"
+				"www/js/modules/options.js:2517"
 			],
 			"notes": []
 		},
@@ -6217,14 +6211,14 @@
 		},
 		"user@gmail.com": {
 			"references": [
-				"www/js/modules/options.js:2429",
-				"www/js/modules/options.js:2443"
+				"www/js/modules/options.js:2430",
+				"www/js/modules/options.js:2444"
 			],
 			"notes": []
 		},
 		"username (optional)": {
 			"references": [
-				"www/js/modules/options.js:2305"
+				"www/js/modules/options.js:2306"
 			],
 			"notes": []
 		},
@@ -6599,37 +6593,37 @@
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/import-export.js",
-			"line": 592,
+			"line": 601,
 			"key": "An Aggregate Sensor references an unsupported analog reading. Resolve its dependencies before restoring."
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/import-export.js",
-			"line": 604,
+			"line": 613,
 			"key": "Sensor readings conflict with the restored built-in port modes."
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/import-export.js",
-			"line": 902,
+			"line": 911,
 			"key": "The controller is at its sensor limit. Restoring this backup will delete sensor definitions that exist only on this controller."
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/import-export.js",
-			"line": 907,
+			"line": 916,
 			"key": "Program sensor adjustments that reference a sensor absent from both the backup and this controller will be disabled."
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/import-export.js",
-			"line": 912,
+			"line": 921,
 			"key": "Unsupported onboard analog readings will be skipped. Unsupported Analog port modes will be set to None."
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/import-export.js",
-			"line": 1182,
+			"line": 1191,
 			"key": "Program"
 		},
 		{
@@ -6797,127 +6791,127 @@
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2036,
+			"line": 2037,
 			"key": "Sensor"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2051,
+			"line": 2052,
 			"key": "Delayed On Time"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2051,
+			"line": 2052,
 			"key": "minutes"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2055,
+			"line": 2056,
 			"key": "Delayed Off Time"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2055,
+			"line": 2056,
 			"key": "minutes"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2185,
+			"line": 2186,
 			"key": "Master Station"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2193,
+			"line": 2194,
 			"key": "On Adj."
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2193,
+			"line": 2194,
 			"key": "seconds"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2197,
+			"line": 2198,
 			"key": "Off Adj."
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2197,
+			"line": 2198,
 			"key": "seconds"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2291,
+			"line": 2292,
 			"key": "broker"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2305,
+			"line": 2306,
 			"key": "username (optional)"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2312,
+			"line": 2313,
 			"key": "password (optional)"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2320,
+			"line": 2321,
 			"key": "publish topic"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2328,
+			"line": 2329,
 			"key": "subscribe topic"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2415,
+			"line": 2416,
 			"key": "smtp.gmail.com"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2429,
+			"line": 2430,
 			"key": "user@gmail.com"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2436,
+			"line": 2437,
 			"key": "app password"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2443,
+			"line": 2444,
 			"key": "user@gmail.com"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2516,
+			"line": 2517,
 			"key": "token"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2523,
+			"line": 2524,
 			"key": "server"
 		},
 		{

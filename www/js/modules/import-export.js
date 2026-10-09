@@ -567,11 +567,11 @@ OSApp.ImportExport.prepareOnboardSensorImport = function( source, options, recor
 		backup = data.sensors?.sn || [];
 	for ( var input = 0; input < 4; input++ ) {
 		var key = "sn" + ( input + 1 ) + "t";
-		if ( options[ key ] === undefined ) { continue; }
 		if ( Number( data.options?.[ key ] ) === 4 && inputs.indexOf( input ) === -1 ) {
 			data.options[ key ] = 0;
-			resetPorts.push( "SN" + ( input + 1 ) );
+			if ( options[ key ] !== undefined ) { resetPorts.push( "SN" + ( input + 1 ) ); }
 		}
+		if ( options[ key ] === undefined ) { continue; }
 		if ( data.options?.[ key ] !== undefined ) { modes[ key ] = data.options[ key ]; }
 	}
 	backup = backup.filter( function( sensor ) {
@@ -585,12 +585,21 @@ OSApp.ImportExport.prepareOnboardSensorImport = function( source, options, recor
 		data.sensors.sn = backup;
 		data.sensors.count = backup.length;
 	}
-	var skippedUUIDs = new Set( skipped.map( function( sensor ) { return Number( sensor.uuid ); } ) );
-	if ( backup.some( function( sensor ) {
-		return sensor.type === 0 && sensor.extra?.children?.some( function( child ) { return skippedUUIDs.has( Number( child.uuid ) ); } );
-	} ) ) {
+	var missingDependencies = [];
+	backup.forEach( function( sensor ) {
+		if ( sensor.type !== 0 ) { return; }
+		var missing = skipped.filter( function( reading ) {
+			return sensor.extra?.children?.some( function( child ) { return Number( child.uuid ) === Number( reading.uuid ); } );
+		} );
+		if ( missing.length ) {
+			missingDependencies.push( sensor.name + ": " + missing.map( function( reading ) {
+				return reading.name + " (SN" + ( reading.extra.input + 1 ) + ")";
+			} ).join( ", " ) );
+		}
+	} );
+	if ( missingDependencies.length ) {
 		return { error: OSApp.Language._( "An Aggregate Sensor references an unsupported analog reading. Resolve its dependencies before restoring." ) + " " +
-			skipped.map( function( sensor ) { return sensor.name + " (SN" + ( sensor.extra.input + 1 ) + ")"; } ).join( ", " ) };
+			missingDependencies.join( "; " ) };
 	}
 	// /co precedes all /csn and /dsn writes, even for records replaced later.
 	var conflict = OSApp.Sensors.portModeConflict( modes, options, records );

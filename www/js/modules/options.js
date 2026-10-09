@@ -1989,7 +1989,8 @@ OSApp.Options.showOptions = function( expandItem ) {
 			} ).fail( function() {
 				if ( OSApp.currentSession !== context.session || OSApp.currentSession.controller !== context.controller ) { return; }
 				$.mobile.loading( "hide" );
-				OSApp.Errors.showError( OSApp.Language._( "Unable to load sensor descriptions. Please try again." ) );
+				// Standard modes remain editable without optional Analog metadata.
+				$( source ).trigger( "click", [ true ] );
 			} );
 			return;
 		}

@@ -166,6 +166,15 @@ describe("Onboard analog sensors", function() {
 		var plan = prepare(backup([reading(21, 0), aggregate], {sn1t: 4}), null);
 		assert.include(plan.error, "Aggregate Sensor");
 	});
+	it("identifies each affected aggregate and only its missing children", function() {
+		var first = reading(30, 0, 0), second = reading(31, 0, 0);
+		first.extra = {action: 0, children: [{uuid: 21, scale: 1, offset: 0}]};
+		second.extra = {action: 0, children: [{uuid: 22, scale: 1, offset: 0}]};
+		var plan = prepare(backup([reading(21, 2), reading(22, 3), reading(23, 0), first, second], {}), null);
+		assert.include(plan.error, "Reading 30: Reading 21 (SN3)");
+		assert.include(plan.error, "Reading 31: Reading 22 (SN4)");
+		assert.notInclude(plan.error, "Reading 23");
+	});
 	it("refuses mode transitions blocked by controller-only or later-updated readings", function() {
 		controller.sensors.sn = [reading(21, 0, 5, 0)];
 		assert.include(prepare(backup([], {sn1t: 1})).error, "Reading 21");
@@ -187,6 +196,31 @@ describe("Onboard analog sensors", function() {
 			OSApp.Options.showOptions("sensors");
 		});
 	}
+	[1, 4].forEach(function(mode) {
+		it("opens built-in settings after metadata failure and preserves stored mode " + mode, function() {
+			controller.options.sn1t = mode;
+			controller.sensor_desc = null;
+			var request = sandbox.stub(OSApp.Sites, "updateControllerSensorDescription")
+				.returns($.Deferred().reject({status: 503}).promise());
+			return loadOptionsPage().then(function() {
+				$("#sensor1").trigger("click");
+				assert.isTrue(request.calledOnce);
+				var popup = $("#sensorSettings"), analog = popup.find("option[value='4']");
+				assert.lengthOf(popup, 1);
+				assert.isTrue($.mobile.loading.calledWith("hide"));
+				if (mode === 4) {
+					assert.isTrue(analog.prop("disabled"));
+					assert.isTrue(analog.prop("selected"));
+				} else {
+					assert.lengthOf(analog, 0);
+					popup.find("#sn-type").val("3").trigger("change");
+				}
+				popup.find(".submit").trigger("click");
+				assert.equal(OSApp.Utils.unescapeJSON($("#sensor1").val()).type, mode === 4 ? 4 : 3);
+				assert.isFalse(OSApp.Errors.showError.called);
+			});
+		});
+	});
 	it("offers Analog only on advertised built-in ports and hides digital-only controls", function() {
 		controller.sensor_desc = description([0]);
 		return loadOptionsPage().then(function() {
@@ -293,6 +327,33 @@ describe("Onboard analog sensors", function() {
 		});
 		return commands;
 	}
+	[32, 64].forEach(function(hardware) {
+		it("restores all four Analog modes to a two-port target " + hardware, function() {
+			Object.assign(controller.options, {hwv: hardware, sn1t: 1, sn2t: 0});
+			delete controller.options.sn3t;
+			delete controller.options.sn4t;
+			controller.sensor_desc = description(null);
+			var source = backup([reading(21, 2), reading(22, 3, 5, 0)], {sn1t: 4, sn2t: 4, sn3t: 4, sn4t: 4});
+			var plan = prepare(source, null);
+			assert.isUndefined(plan.error);
+			assert.deepEqual(plan.resetPorts, ["SN1", "SN2"]);
+			assert.lengthOf(plan.data.sensors.sn, 0);
+			var commands = restoreHarness(description(null), []);
+			return Promise.resolve(OSApp.ImportExport.importConfig(source)).then(function() {
+				var co = commands.find(url => url.startsWith("/co?"));
+				assert.isString(co);
+				var params = new URL("http://test" + co).searchParams;
+				["sn1t", "sn2t", "sn3t", "sn4t"].forEach(key => {
+					assert.equal(params.get(key), "0", key);
+					assert.equal(source.options[key], 4, "backup is unchanged");
+				});
+				assert.include(OSApp.UIDom.areYouSure.firstCall.args[1], "Reading 21 (SN3)");
+				assert.include(OSApp.UIDom.areYouSure.firstCall.args[1], "Reading 22 (SN4)");
+				assert.isFalse(commands.some(url => /^\/(csn|dsn)\?/.test(url)));
+				assert.isFalse(OSApp.Errors.showError.called);
+			});
+		});
+	});
 	it("reads capabilities and ownership before writing options, then restores analog readings", function() {
 		controller.options.sn1t = 0;
 		var commands = restoreHarness(description(), []);
