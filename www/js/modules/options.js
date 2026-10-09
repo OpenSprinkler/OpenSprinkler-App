@@ -589,13 +589,35 @@ OSApp.Options.showOptions = function( expandItem ) {
 						message = OSApp.Language._( "Please check input and try again." );
 					} else if ( error?.result === 17 && error?.item === "hname" ) {
 						message = OSApp.Options.hostnameError();
+					} else if ( error?.result === 48 && /^sn[1-4]t$/.test( error?.item ) ) {
+						message = OSApp.Language._( "This port has a conflicting sensor configuration. Remove it in Edit Sensors first." );
+					} else if ( error?.result === 80 && error?.item === "sensors" ) {
+						message = OSApp.Language._( "Unable to verify sensor port ownership. No settings were changed." );
 					}
 					reconcileRejectedOptions( message );
 				} );
 			};
 
 			$.mobile.loading( "show" );
-			sendOptions( opt, false );
+			var changesPortMode = Object.keys( opt ).some( function( key ) {
+				return /^sn[1-4]t$/.test( key ) && Number( opt[ key ] ) !== Number( saveContext.controller.options[ key ] );
+			} );
+			if ( changesPortMode && OSApp.Supported.sensors() ) {
+				OSApp.Sites.updateControllerSensors( undefined, saveContext ).done( function() {
+					if ( !isCurrentSave() ) { return; }
+					if ( !Array.isArray( saveContext.controller.sensors?.sn ) ) {
+						restoreSubmit( OSApp.Language._( "Unable to verify sensor port ownership. No settings were changed." ) );
+						return;
+					}
+					var conflict = OSApp.Sensors.portModeConflict( opt, saveContext.controller.options, saveContext.controller.sensors?.sn );
+					if ( conflict ) { restoreSubmit( conflict ); return; }
+					sendOptions( opt, false );
+				} ).fail( function() {
+					restoreSubmit( OSApp.Language._( "Unable to verify sensor port ownership. No settings were changed." ) );
+				} );
+			} else {
+				sendOptions( opt, false );
+			}
 		},
 		header = OSApp.UIDom.changeHeader( {
 			title: OSApp.Language._( "Edit Options" ),
@@ -892,6 +914,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 			case 1: return OSApp.Language._( "Rain" );
 			case 2: return OSApp.Language._( "Flow" );
 			case 3: return OSApp.Language._( "Soil" );
+			case 4: return OSApp.Language._( "Analog" );
 			case 240: return OSApp.Language._( "Program Switch" );
 			default: return "";
 		}
@@ -1946,10 +1969,30 @@ OSApp.Options.showOptions = function( expandItem ) {
 		if ( OSApp.Firmware.checkOSVersion( 217 ) ) {
 			html += "<option value='240'" + ( current === 240 ? " selected" : "" ) + ">" + OSApp.Language._( "Program Switch" ) + "</option>";
 		}
+		if ( OSApp.Sensors.onboardAnalogInputs( OSApp.currentSession.controller.sensor_desc ).indexOf( num - 1 ) !== -1 ) {
+			html += "<option value='4'" + ( current === 4 ? " selected" : "" ) + ">" + OSApp.Language._( "Analog" ) + "</option>";
+		} else if ( current === 4 ) {
+			// Preserve a stored mode even when metadata could not be loaded.
+			html += "<option value='4' selected disabled>" + OSApp.Language._( "Analog" ) + "</option>";
+		}
 		return html;
 	};
 
-	page.find( "#sensor1, #sensor2, #sensor3, #sensor4" ).on( "click", function() {
+	page.find( "#sensor1, #sensor2, #sensor3, #sensor4" ).on( "click", function( _event, metadataReady ) {
+		if ( OSApp.Supported.sensors() && !OSApp.currentSession.controller.sensor_desc && !metadataReady ) {
+			var source = this, context = { session: OSApp.currentSession, controller: OSApp.currentSession.controller };
+			$.mobile.loading( "show" );
+			OSApp.Sites.updateControllerSensorDescription( undefined, context ).done( function() {
+				if ( OSApp.currentSession !== context.session || OSApp.currentSession.controller !== context.controller ) { return; }
+				$.mobile.loading( "hide" );
+				$( source ).trigger( "click", [ true ] );
+			} ).fail( function() {
+				if ( OSApp.currentSession !== context.session || OSApp.currentSession.controller !== context.controller ) { return; }
+				$.mobile.loading( "hide" );
+				OSApp.Errors.showError( OSApp.Language._( "Unable to load sensor descriptions. Please try again." ) );
+			} );
+			return;
+		}
 		var button = this, curr = button.value,
 			conf = $.extend( {}, { type: 0, no: 0, on: 0, off: 0, fpr: 0, fprUnit: "liter" }, OSApp.Utils.unescapeJSON( curr ) ),
 			num = parseInt( button.id.substring( 6 ) ),
@@ -2014,12 +2057,18 @@ OSApp.Options.showOptions = function( expandItem ) {
 					"</div>" +
 					fprRow +
 					"<p class='sn-prg-hint smaller'>" + prgHint + "</p>" +
+					"<a href='#sensors' class='sn-analog-link'>" + OSApp.Language._( "Edit Sensors" ) + "</a>" +
+					"<p class='sn-port-conflict sensor-hw-missing'></p>" +
 					"<button class='submit' data-theme='b'>" + OSApp.Language._( "Submit" ) + "</button>" +
 				"</div>" +
 			"</div>" );
 
+		var showPortConflict = function( conflict ) {
+			popup.find( ".sn-port-conflict" ).text( conflict ).toggle( !!conflict );
+			popup.find( ".submit" ).prop( "disabled", !!conflict ).toggleClass( "ui-state-disabled", !!conflict );
+		};
 		var refreshFields = function() {
-			var t = parseInt( popup.find( "#sn-type" ).val() ) || 0;
+			var t = Number( popup.find( "#sn-type" ).val() ?? currentType );
 			// Normally Open: rain (1) / soil (3) / program switch (240)
 			popup.find( ".sn-no" ).toggle( t === 1 || t === 3 || t === 240 );
 			// On/Off delays: rain (1) / soil (3)
@@ -2028,17 +2077,33 @@ OSApp.Options.showOptions = function( expandItem ) {
 			popup.find( ".sn-fpr" ).toggle( t === 2 );
 			// Program switch hint: program switch (240)
 			popup.find( ".sn-prg-hint" ).toggle( t === 240 );
+			// Only link to readings once the port mode has actually been saved.
+			popup.find( ".sn-analog-link" ).toggle( t === 4 && Number( OSApp.currentSession.controller.options[ "sn" + num + "t" ] ) === 4 );
+			var proposed = {};
+			proposed[ "sn" + num + "t" ] = t;
+			var conflict = OSApp.Sensors.portModeConflict( proposed, OSApp.currentSession.controller.options,
+				OSApp.currentSession.controller.sensors?.sn );
+			showPortConflict( conflict );
 		};
 		popup.find( "#sn-type" ).on( "change", refreshFields );
+		popup.find( ".sn-analog-link" ).on( "click", function() { popup.popup( "close" ); } );
 
 		popup.find( ".submit" ).on( "click", function() {
 			var onInput = popup.find( "#sn-on" ),
 				offInput = popup.find( "#sn-off" ),
-				type = parseInt( popup.find( "#sn-type" ).val() ) || 0,
+				type = Number( popup.find( "#sn-type" ).val() ?? currentType ),
 				usesDelays = type === 1 || type === 3,
 				fprValue = parseFloat( popup.find( "#sn-fpr" ).val() ),
 				fprUnit = popup.find( "#sn-fpr-unit" ).val(),
 				fprLiters = fprUnit === "gallon" ? fprValue * 3.78541 : fprValue;
+			var proposed = {};
+			proposed[ "sn" + num + "t" ] = type;
+			var conflict = OSApp.Sensors.portModeConflict( proposed, OSApp.currentSession.controller.options,
+				OSApp.currentSession.controller.sensors?.sn );
+			if ( conflict ) {
+				showPortConflict( conflict );
+				return;
+			}
 			if ( usesDelays && ( !onInput[ 0 ].checkValidity() || !offInput[ 0 ].checkValidity() ) ) {
 				showPopupInputError();
 				return;

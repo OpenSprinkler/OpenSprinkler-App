@@ -97,6 +97,7 @@ OSApp.Sensors.getBuiltInSensorTypeName = function( type, shortName ) {
 		1: [ OSApp.Language._( "Rain" ), OSApp.Language._( "Rain Sensor" ) ],
 		2: [ OSApp.Language._( "Flow" ), OSApp.Language._( "Flow Sensor" ) ],
 		3: [ OSApp.Language._( "Soil" ), OSApp.Language._( "Soil Sensor" ) ],
+		4: [ OSApp.Language._( "Analog" ), OSApp.Language._( "Analog Sensor" ) ],
 		240: [ OSApp.Language._( "Program Switch" ), OSApp.Language._( "Program Switch" ) ]
 	};
 	var name = names[ type ] || [ OSApp.Language._( "Sensor" ), OSApp.Language._( "Sensor" ) ];
@@ -122,6 +123,50 @@ OSApp.Sensors.getBuiltInSensors = function( options ) {
 	} ).sort( function( a, b ) {
 		return a.number - b.number;
 	} );
+};
+
+// Capability comes from the target's metadata, not its hardware/version number.
+OSApp.Sensors.onboardAnalogInputs = function( description ) {
+	var type = description?.sensors?.[ 5 ];
+	if ( !type || type.disabled ) { return []; }
+	var input = ( type.args || [] ).find( function( arg ) { return arg.arg === "input"; } );
+	return ( input?.options || [] ).map( function( option ) { return Number( option.id ); } )
+		.filter( function( index ) { return Number.isInteger( index ) && index >= 0 && index < 4; } );
+};
+
+OSApp.Sensors.portModeConflict = function( proposed, current, records ) {
+	var conflicts = [];
+	for ( var input = 0; input < 4; input++ ) {
+		var key = "sn" + ( input + 1 ) + "t";
+		if ( proposed[ key ] === undefined || current[ key ] === undefined ||
+			Number( proposed[ key ] ) === Number( current[ key ] ) ) { continue; }
+		var analog = Number( proposed[ key ] ) === 4;
+		var references = ( records || [] ).filter( function( record ) {
+			return Number( record.extra?.input ) === input && Number( record.type ) === ( analog ? 4 : 5 );
+		} );
+		if ( references.length ) {
+			conflicts.push( "SN" + ( input + 1 ) + ": " + references.map( function( record ) { return record.name; } ).join( ", " ) );
+		}
+	}
+	return conflicts.length ? OSApp.Language._( "Conflicting sensor configuration: %s. Remove it in Edit Sensors first." )
+		.replace( "%s", function() { return conflicts.join( "; " ); } ) : "";
+};
+
+OSApp.Sensors.onboardInputError = function( type, input, options, description ) {
+	type = Number( type );
+	if ( type !== 4 && type !== 5 ) { return ""; }
+	input = Number( input );
+	var mode = options?.[ "sn" + ( input + 1 ) + "t" ];
+	if ( type === 5 && OSApp.Sensors.onboardAnalogInputs( description ).indexOf( input ) === -1 ) {
+		return OSApp.Language._( "This input does not support onboard analog readings." );
+	}
+	if ( type === 5 && Number( mode ) !== 4 ) {
+		return OSApp.Language._( "Set this port to Analog in Built-in Sensors before adding an analog reading." );
+	}
+	if ( type === 4 && Number( mode ) === 4 ) {
+		return OSApp.Language._( "This port is configured as Analog and cannot provide a digital reading." );
+	}
+	return "";
 };
 
 // Format a sensor reading for display. Returns text + a CSS class name driven
@@ -621,8 +666,8 @@ OSApp.Sensors.normalizeJsd = function (raw) {
     }
 
     return {
-        sensors: (raw.sensors || []).map((s) => {
-            const out = { name: s.n, args: (s.as || []).map(normArg) };
+        sensors: (raw.sensors || []).map((s, index) => {
+            const out = { name: s.n || (index === 5 ? OSApp.Language._("Onboard Analog") : ""), args: (s.as || []).map(normArg) };
             // Optional firmware-detection flag: when hwd is present and 0,
             // the underlying hardware (e.g. ADS1115) wasn't found at boot.
             if ("hwd" in s) out.hardware_detected = !!s.hwd;
@@ -738,11 +783,34 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
 
         $select.selectmenu();
 
+        let previousUnit = $select.val();
+        $select.on("change", function() {
+            const nextUnit = $select.val();
+            const from = data.units.find(unit => String(unit.value) === String(previousUnit))?.name;
+            const to = data.units.find(unit => String(unit.value) === String(nextUnit))?.name;
+            const temperatureUnits = ["Celsius", "Fahrenheit", "Kelvin"];
+            if (from !== to && temperatureUnits.includes(from) && temperatureUnits.includes(to)) {
+                ["min", "max"].forEach(function(key) {
+                    const field = globalArgs.get(key);
+                    const params = new URLSearchParams();
+                    field?.add(params);
+                    const raw = params.get(key);
+                    if (raw === null || raw.trim() === "" || !Number.isFinite(Number(raw))) return;
+                    const value = Number(raw);
+                    const celsius = from === "Fahrenheit" ? (value - 32) * 5 / 9 : from === "Kelvin" ? value - 273.15 : value;
+                    const converted = to === "Fahrenheit" ? celsius * 9 / 5 + 32 : to === "Kelvin" ? celsius + 273.15 : celsius;
+                    field.update(String(Number(converted.toFixed(6))));
+                });
+            }
+            previousUnit = nextUnit;
+        });
+
         return {
             get: () => coerceVal($select.val()),
             set: (val) => {
                 $select.val(val);
                 $select.selectmenu('refresh');
+                previousUnit = $select.val();
             },
             validate: () => /** @type {HTMLSelectElement} */ ($select[0]).checkValidity(),
             setGroup: (groupId) => {
@@ -770,6 +838,7 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
                     }
                 }
                 $select.selectmenu("refresh");
+                previousUnit = $select.val();
             },
             getGroup: () => valueToGroup.get(parseInt(String($select.val()))),
         };
@@ -1068,6 +1137,37 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
         });
         $select.selectmenu();
 
+        const onboardType = argument.arg === "input" && /sensor-sen-([45])-/.exec(id);
+        let $portWarning;
+        function updatePortChoices() {
+            if (!onboardType) return "";
+            const options = OSApp.currentSession.controller.options;
+            $select.find("option").each(function() {
+                $(this).prop("disabled", !!OSApp.Sensors.onboardInputError(onboardType[1], this.value, options, data));
+            });
+            const selected = $select.find("option:selected").val();
+            let error = selected === undefined ? OSApp.Language._("Select a compatible built-in sensor port.") :
+                OSApp.Sensors.onboardInputError(onboardType[1], selected, options, data);
+            if (error && selected !== undefined) {
+                const references = (OSApp.currentSession.controller.sensors?.sn || []).filter(record =>
+                    Number(record.extra?.input) === Number(selected) && Number(record.type) === (Number(onboardType[1]) === 5 ? 4 : 5));
+                if (references.length) error += " " + references.map(record => record.name).join(", ");
+            }
+            $portWarning.find(".sensor-port-message").text(error);
+            $portWarning.toggle(!!error);
+            $select.selectmenu("refresh");
+            return error;
+        }
+        if (onboardType) {
+            $portWarning = $('<div class="sensor-port-warning"><p class="sensor-port-message sensor-hw-missing"></p></div>');
+            $('<a href="#"></a>').text(OSApp.Language._("Built-in Sensors")).on("click", function() {
+                OSApp.Options.showOptions("sensors");
+                $.mobile.changePage("#os-options");
+                return false;
+            }).appendTo($portWarning);
+            parent.append($portWarning);
+        }
+
         const localArgs = (ctx && ctx.local) || new Map();
         const globalArgs = (ctx && ctx.global) || localArgs;
 
@@ -1083,12 +1183,15 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
             // args in opt.dfl are also applied. Common args not in
             // typeCorrelated are sticky.
             if (applyDefaults) {
-                const optDefaults = opt.defaults || {};
+                // Input defaults describe this port's raw range; subtype defaults
+                // override it for named conversions, otherwise Linear keeps it.
+                const optDefaults = Object.assign({}, argument.arg !== "input" ?
+                    localArgs.get("input")?._optionDefaults?.() : {}, opt.defaults || {});
                 const toProcess = new Set();
                 for (const a of COMMON_ARGS) if (typeCorrelated.has(a)) toProcess.add(a);
                 for (const a of Object.keys(optDefaults)) toProcess.add(a);
                 for (const argName of toProcess) {
-                    const sib = globalArgs.get(argName);
+                    const sib = localArgs.get(argName) || globalArgs.get(argName);
                     if (!sib) continue;
                     if (Object.prototype.hasOwnProperty.call(optDefaults, argName)) {
                         if (typeof sib.update === "function") {
@@ -1117,7 +1220,7 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
             const newLocked = new Set(opt.locked || []);
             const affected = new Set([...prevLocked, ...newLocked]);
             for (const argName of affected) {
-                const sib = globalArgs.get(argName);
+                const sib = localArgs.get(argName) || globalArgs.get(argName);
                 if (sib && typeof sib.setLocked === "function") {
                     sib.setLocked(newLocked.has(argName));
                 }
@@ -1130,6 +1233,9 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
             if (unitSib && typeof unitSib.setGroup === "function") {
                 unitSib.setGroup(typeof opt.unit_group === "number" ? opt.unit_group : null);
             }
+            if (applyDefaults && argument.arg === "input") {
+                localArgs.get("subtype")?._wireOptions?.(true);
+            }
         }
 
         $select.val(argument.default);
@@ -1138,6 +1244,7 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
         $select.on("change", function() {
             const opt = findOpt($select.val());
             applySideEffects(opt, true);
+            updatePortChoices();
         });
 
         return {
@@ -1160,22 +1267,27 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
                 $select.val(val);
                 $select.selectmenu("refresh");
                 applySideEffects(findOpt(val), false);
+                updatePortChoices();
             },
-            validate: () => true,
+            validate: () => !updatePortChoices(),
             setVisible: vis.setVisible,
             setLocked: vis.setLocked,
             isVisible: vis.isVisible,
+            _optionDefaults: () => findOpt($select.find("option:selected").val())?.defaults || {},
             // Re-apply current selection's effects (called when this segment
             // becomes visible, after all globalArgs are populated). When the
             // segment is being activated by a user-initiated type change,
             // applyDefaults=true triggers the typeCorrelated reset + dfl
             // override per the firmware spec.
-            _wireOptions: (applyDefaults) => applySideEffects(findOpt($select.val()), !!applyDefaults),
+            _wireOptions: (applyDefaults) => {
+                applySideEffects(findOpt($select.val()), !!applyDefaults);
+                updatePortChoices();
+            },
             // Undo locked + unit-group state when this segment hides, so the
             // next segment's controller starts from a clean slate.
             _deactivateOptions: () => {
                 for (const argName of prevLocked) {
-                    const sib = globalArgs.get(argName);
+                    const sib = localArgs.get(argName) || globalArgs.get(argName);
                     if (sib && typeof sib.setLocked === "function") sib.setLocked(false);
                 }
                 prevLocked = new Set();

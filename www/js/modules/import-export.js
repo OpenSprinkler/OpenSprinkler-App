@@ -274,7 +274,7 @@ OSApp.ImportExport.validateSensorDefinition = function( sensor ) {
 
 	if ( !sensor || typeof sensor !== "object" || !isInteger( sensor.uuid ) || sensor.uuid < 1 || sensor.uuid > 65535 ||
 		typeof sensor.name !== "string" || sensor.name.length < 1 || sensor.name.length > 32 ||
-		!isInteger( sensor.type ) || sensor.type < 0 || sensor.type > 4 ||
+		!isInteger( sensor.type ) || sensor.type < 0 || sensor.type > 5 ||
 		!isInteger( sensor.interval ) || sensor.interval < 1 || !isInteger( sensor.unit ) || sensor.unit < 0 ||
 		!isInteger( sensor.flag ) || sensor.flag < 0 || sensor.flag > 255 || !isFiniteNumber( sensor.min ) ||
 		!isFiniteNumber( sensor.max ) || sensor.min > sensor.max || !sensor.extra || typeof sensor.extra !== "object" ) {
@@ -292,7 +292,9 @@ OSApp.ImportExport.validateSensorDefinition = function( sensor ) {
 					return [ child.uuid, child.scale, child.offset ].join( "," );
 				} ).join( ";" ).concat( ";" ).length < 320;
 		case 1:
-			if ( !isInteger( extra.pin ) || extra.pin < 1 || extra.pin > 16 || !isFiniteNumber( extra.scale ) ||
+		case 5:
+			if ( ( sensor.type === 1 ? !isInteger( extra.pin ) || extra.pin < 1 || extra.pin > 16 :
+				!isInteger( extra.input ) || extra.input < 0 || extra.input > 3 ) || !isFiniteNumber( extra.scale ) ||
 				!isFiniteNumber( extra.offset ) || !isInteger( extra.subtype ) ||
 				!( extra.subtype === 0 || extra.subtype === 1 || ( extra.subtype >= 10 && extra.subtype <= 17 ) ) ) {
 				return false;
@@ -343,7 +345,10 @@ OSApp.ImportExport.sensorDefinitionSupported = function( sensor, description, ta
 		return false;
 	}
 
-	var extraKey = [ "action", "subtype", "action", "metric", "input" ][ sensor.type ],
+	if ( sensor.type === 5 && OSApp.Sensors.onboardAnalogInputs( description ).indexOf( sensor.extra.input ) === -1 ) {
+		return false;
+	}
+	var extraKey = [ "action", "subtype", "action", "metric", "input", "subtype" ][ sensor.type ],
 		extraValue = sensor.extra[ extraKey ],
 		findArg = function( args ) {
 			var found;
@@ -476,7 +481,8 @@ OSApp.ImportExport.buildSensorImportCommand = function( sensor, targetUUID, incl
 			}
 			break;
 		case 1:
-			params.append( "pin", extra.pin );
+		case 5:
+			params.append( sensor.type === 5 ? "input" : "pin", sensor.type === 5 ? extra.input : extra.pin );
 			params.append( "scale", extra.scale );
 			params.append( "offset", extra.offset );
 			params.append( "subtype", extra.subtype );
@@ -527,7 +533,9 @@ OSApp.ImportExport.sensorDefinitionMatches = function( source, actual, remapUUID
 					Number( child.scale ) === Number( expected.scale ) && Number( child.offset ) === Number( expected.offset );
 			} );
 		case 1:
-			return Number( sourceExtra.pin ) === Number( actualExtra.pin ) && Number( sourceExtra.scale ) === Number( actualExtra.scale ) &&
+		case 5:
+			var inputKey = source.type === 5 ? "input" : "pin";
+			return Number( sourceExtra[ inputKey ] ) === Number( actualExtra[ inputKey ] ) && Number( sourceExtra.scale ) === Number( actualExtra.scale ) &&
 				Number( sourceExtra.offset ) === Number( actualExtra.offset ) && Number( sourceExtra.subtype ) === Number( actualExtra.subtype ) &&
 				( sourceExtra.subtype !== 1 || equalPoints( sourceExtra.points, actualExtra.points ) );
 		case 2:
@@ -541,7 +549,65 @@ OSApp.ImportExport.sensorDefinitionMatches = function( source, actual, remapUUID
 	}
 };
 
-OSApp.ImportExport.importConfig = function( data ) {
+// Build a private restore plan before UUID mapping, capacity checks or confirmation.
+OSApp.ImportExport.prepareOnboardSensorImport = function( source, options, records, description ) {
+	var sourceUUIDs = new Set();
+	if ( ( source.sensors?.sn || [] ).some( function( sensor ) {
+		if ( !OSApp.ImportExport.validateSensorDefinition( sensor ) || sourceUUIDs.has( sensor.uuid ) ) { return true; }
+		sourceUUIDs.add( sensor.uuid );
+		return false;
+	} ) ) {
+		return { error: OSApp.Language._( "Invalid sensor configuration in backup." ) };
+	}
+	var data = $.extend( true, {}, source ),
+		inputs = OSApp.Sensors.onboardAnalogInputs( description ),
+		skipped = [],
+		resetPorts = [],
+		modes = $.extend( {}, options ),
+		backup = data.sensors?.sn || [];
+	for ( var input = 0; input < 4; input++ ) {
+		var key = "sn" + ( input + 1 ) + "t";
+		if ( options[ key ] === undefined ) { continue; }
+		if ( Number( data.options?.[ key ] ) === 4 && inputs.indexOf( input ) === -1 ) {
+			data.options[ key ] = 0;
+			resetPorts.push( "SN" + ( input + 1 ) );
+		}
+		if ( data.options?.[ key ] !== undefined ) { modes[ key ] = data.options[ key ]; }
+	}
+	backup = backup.filter( function( sensor ) {
+		if ( sensor.type === 5 && inputs.indexOf( sensor.extra?.input ) === -1 ) {
+			skipped.push( sensor );
+			return false;
+		}
+		return true;
+	} );
+	if ( data.sensors ) {
+		data.sensors.sn = backup;
+		data.sensors.count = backup.length;
+	}
+	var skippedUUIDs = new Set( skipped.map( function( sensor ) { return Number( sensor.uuid ); } ) );
+	if ( backup.some( function( sensor ) {
+		return sensor.type === 0 && sensor.extra?.children?.some( function( child ) { return skippedUUIDs.has( Number( child.uuid ) ); } );
+	} ) ) {
+		return { error: OSApp.Language._( "An Aggregate Sensor references an unsupported analog reading. Resolve its dependencies before restoring." ) + " " +
+			skipped.map( function( sensor ) { return sensor.name + " (SN" + ( sensor.extra.input + 1 ) + ")"; } ).join( ", " ) };
+	}
+	// /co precedes all /csn and /dsn writes, even for records replaced later.
+	var conflict = OSApp.Sensors.portModeConflict( modes, options, records );
+	if ( conflict ) { return { error: conflict }; }
+	var restoredUUIDs = new Set( backup.map( function( sensor ) { return Number( sensor.uuid ); } ) );
+	var finalRecords = records.filter( function( sensor ) { return !restoredUUIDs.has( Number( sensor.uuid ) ); } ).concat( backup );
+	var incompatible = finalRecords.filter( function( sensor ) {
+		return OSApp.Sensors.onboardInputError( sensor.type, sensor.extra?.input, modes, description );
+	} );
+	if ( incompatible.length ) {
+		return { error: OSApp.Language._( "Sensor readings conflict with the restored built-in port modes." ) + " " +
+			incompatible.map( function( sensor ) { return sensor.name + " (SN" + ( Number( sensor.extra.input ) + 1 ) + ")"; } ).join( ", " ) };
+	}
+	return { data: data, skipped: skipped, resetPorts: resetPorts, records: records, description: description };
+};
+
+OSApp.ImportExport.importConfig = function( data, onboardPlan ) {
 	var warning = "",
 		hasSensorData = !!data && Object.prototype.hasOwnProperty.call( data, "sensors" );
 
@@ -552,6 +618,55 @@ OSApp.ImportExport.importConfig = function( data ) {
 				( !Number.isInteger( data.sensors.count ) || data.sensors.count !== data.sensors.sn.length ) ) ) ) ) {
 		OSApp.Errors.showError( OSApp.Language._( "Invalid configuration" ) );
 		return;
+	}
+	var controller = OSApp.currentSession.controller;
+	var needsPortPreflight = ( data.sensors?.sn || [] ).concat( controller.sensors?.sn || [] )
+		.some( function( sensor ) { return sensor?.type === 5 || ( sensor?.type === 4 && !!controller.sensor_desc?.sensors?.[ 5 ] ); } ) ||
+		Object.keys( data.options || {} ).some( function( key ) {
+			return /^sn[1-4]t$/.test( key ) && ( Number( data.options[ key ] ) === 4 ||
+				( controller.options?.[ key ] !== undefined && OSApp.Supported.sensors() ) );
+		} ) || Object.keys( controller.options || {} ).some( function( key ) {
+			return /^sn[1-4]t$/.test( key ) && Number( controller.options[ key ] ) === 4;
+		} );
+	if ( needsPortPreflight && !onboardPlan ) {
+		var session = OSApp.currentSession;
+		var current = function() { return OSApp.currentSession === session && session.controller === controller; };
+		var snapshot = {};
+		$.mobile.loading( "show" );
+		// Sequential reads keep controller load bounded and never mutate it.
+		var reads = $.Deferred().resolve().promise();
+		[ "/jsd", "/jsn", "/jo" ].forEach( function( endpoint ) {
+			reads = reads.then( function() {
+				if ( !current() ) { return $.Deferred().reject( { statusText: "stale" } ).promise(); }
+				return OSApp.Firmware.sendToOS( endpoint + "?pw=", "json" ).then( function( result ) { snapshot[ endpoint ] = result; } );
+			} );
+		} );
+		return reads.then( function() {
+			if ( !current() ) { return; }
+			$.mobile.loading( "hide" );
+			var raw = snapshot[ "/jsd" ], records = snapshot[ "/jsn" ]?.sn, options = snapshot[ "/jo" ];
+			if ( !Array.isArray( raw?.sensors ) || !raw.sensors.length || !Array.isArray( raw.units ) || !raw.units.length ||
+				!Array.isArray( records ) || !options || typeof options.fwv === "undefined" ) {
+				OSApp.Errors.showError( OSApp.Language._( "Unable to validate sensor definitions on this controller. No configuration changes were made." ) );
+				return;
+			}
+			var description = raw.sensors[ 0 ].name ? raw : OSApp.Sensors.normalizeJsd( raw );
+			if ( ( description.sensors[ 5 ] && !description.sensors[ 5 ].disabled && !OSApp.Sensors.onboardAnalogInputs( description ).length ) ||
+				( snapshot[ "/jsn" ].count !== undefined && snapshot[ "/jsn" ].count !== records.length ) ||
+				Object.keys( controller.options || {} ).some( function( key ) { return /^sn[1-4]t$/.test( key ) && options[ key ] === undefined; } ) ) {
+				OSApp.Errors.showError( OSApp.Language._( "Unable to validate sensor definitions on this controller. No configuration changes were made." ) );
+				return;
+			}
+			var plan = OSApp.ImportExport.prepareOnboardSensorImport( data, options, records, description );
+			if ( plan.error ) { OSApp.Errors.showError( plan.error, 7000 ); return; }
+			return OSApp.ImportExport.importConfig( plan.data, plan );
+		}, function( error ) {
+			if ( current() ) {
+				$.mobile.loading( "hide" );
+				OSApp.Errors.showError( OSApp.Language._( "Unable to validate sensor definitions on this controller. No configuration changes were made." ) );
+			}
+			return $.Deferred().reject( error ).promise();
+		} );
 	}
 
 	var importSession = OSApp.currentSession,
@@ -564,7 +679,7 @@ OSApp.ImportExport.importConfig = function( data ) {
 			data.settings.nbrd : Math.ceil( sourceStationCount / 8 ),
 		targetProgramLimit = importController.programs && Number.isInteger( importController.programs.mnp ) ?
 			importController.programs.mnp : null,
-		targetSensors = importController.sensors && Array.isArray( importController.sensors.sn ) ? importController.sensors.sn : [],
+		targetSensors = onboardPlan ? onboardPlan.records : ( importController.sensors?.sn || [] ),
 		backupSensorUUIDs = Object.create( null ),
 		activeSensorUUIDs = Object.create( null ),
 		sensorUUIDMap = Object.create( null ),
@@ -575,6 +690,7 @@ OSApp.ImportExport.importConfig = function( data ) {
 		},
 		resolveSensorUUID = function( uuid ) {
 			var key = String( uuid );
+			if ( onboardPlan?.skipped.some( function( sensor ) { return Number( sensor.uuid ) === Number( uuid ); } ) ) { return 0; }
 			if ( !/^\d+$/.test( key ) || Number( uuid ) < 1 || Number( uuid ) > 65535 ) {
 				return 0;
 			}
@@ -778,7 +894,8 @@ OSApp.ImportExport.importConfig = function( data ) {
 			var adjustment = prog[ 7 ];
 			return adjustment && typeof adjustment === "object" && String( adjustment.uuid || 0 ) !== "0" &&
 				!hasOwn( backupSensorUUIDs, String( adjustment.uuid ) ) &&
-				( !hasOwn( activeSensorUUIDs, String( adjustment.uuid ) ) || hasOwn( plannedDeletedSensorUUIDs, String( adjustment.uuid ) ) );
+				( !hasOwn( activeSensorUUIDs, String( adjustment.uuid ) ) || hasOwn( plannedDeletedSensorUUIDs, String( adjustment.uuid ) ) ||
+					resolveSensorUUID( adjustment.uuid ) === 0 );
 		} );
 
 	if ( sensorsToDelete.length > 0 ) {
@@ -790,6 +907,12 @@ OSApp.ImportExport.importConfig = function( data ) {
 		warning += ( warning ? "<br><br>" : "" ) + OSApp.Language._(
 			"Program sensor adjustments that reference a sensor absent from both the backup and this controller will be disabled."
 		);
+	}
+	if ( onboardPlan && ( onboardPlan.skipped.length || onboardPlan.resetPorts.length ) ) {
+		warning += ( warning ? "<br><br>" : "" ) + OSApp.Language._( "Unsupported onboard analog readings will be skipped. Unsupported Analog port modes will be set to None." ) + "<br>" +
+			onboardPlan.skipped.map( function( sensor ) {
+				return OSApp.Utils.htmlEscape( sensor.name + " (SN" + ( sensor.extra.input + 1 ) + ")" );
+			} ).concat( onboardPlan.resetPorts ).join( "<br>" );
 	}
 
 	return OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to restore the configuration?" ), warning, function() {
@@ -1128,6 +1251,12 @@ OSApp.ImportExport.importConfig = function( data ) {
 			preflightSensors = function() {
 				if ( backupSensors.length === 0 ) {
 					return $.Deferred().resolve().promise();
+				}
+				if ( onboardPlan ) {
+					return backupSensors.every( function( sensor ) {
+						return OSApp.ImportExport.sensorDefinitionSupported( sensor, onboardPlan.description, targetSensors );
+					} ) ? $.Deferred().resolve().promise() : rejectImport(
+						OSApp.Language._( "This backup contains sensor definitions that are not supported by this controller." ) );
 				}
 				return sendImportRequest( "/jsd?pw=", "json" ).then( function( rawDescription ) {
 					if ( !rawDescription || typeof rawDescription !== "object" ) {
