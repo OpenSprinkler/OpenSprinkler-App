@@ -1232,9 +1232,12 @@ div.running-text{
     }
 
     /* Cards use the full width on phones. Instead of narrowing them so the floating menu button
-       can't cover a card's buttons, leave room below the last card so any card can be scrolled
-       clear of the floating buttons. */
-    #os-stations-list {
+       can't cover a card's buttons, leave room at the end of the home page so the last card,
+       station or sensor, can be scrolled clear of the floating button. */
+    .card {
+        max-width: none;
+    }
+    #sprinklers .ui-content {
         padding-bottom: calc(env(safe-area-inset-bottom) + 10vh + 60px);
     }
 }
