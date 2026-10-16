@@ -1227,20 +1227,21 @@ div.running-text{
     }
 }
 @media (max-width: 640px) {
-    .card {
-        max-width: 300px;
-    }
     .info-card {
         max-width: 500px;
+    }
+
+    /* Cards use the full width on phones. Instead of narrowing them so the floating menu button
+       can't cover a card's buttons, leave room below the last card so any card can be scrolled
+       clear of the floating buttons. */
+    #os-stations-list {
+        padding-bottom: calc(env(safe-area-inset-bottom) + 10vh + 60px);
     }
 }
 @media (max-width: 320px) {
 	.has-images .station-name {
 		width: 45%;
 	}
-    .card {
-        max-width: 220px;
-    }
     .wicon {
         margin:-55px -40px -45px -40px;
     }
