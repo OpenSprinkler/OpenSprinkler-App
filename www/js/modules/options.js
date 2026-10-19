@@ -413,7 +413,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 							// Flow pulse rate: only meaningful when type=Flow; pack into o41/o42.
 							if ( typeof optsRef.fpr0 !== "undefined" && parseInt( sconf.type ) === 2 ) {
 								var fpr = parseFloat( sconf.fpr ) || 0;
-								if ( sconf.fprUnit === "gallon" ) { fpr = fpr * 3.78541; }
+								if ( sconf.fprUnit === "gallon" ) { fpr = fpr * OSApp.Utils.LITERS_PER_GALLON; }
 								opt.o41 = Math.round( fpr * 100 ) & 0xff;
 								opt.o42 = ( Math.round( fpr * 100 ) >> 8 ) & 0xff;
 							}
@@ -935,7 +935,8 @@ OSApp.Options.showOptions = function( expandItem ) {
 			};
 			if ( typeof opts.fpr0 !== "undefined" ) {
 				conf.fpr = ( ( opts.fpr1 * 256 + opts.fpr0 ) / 100 );
-				conf.fprUnit = "liter";
+				conf.fprUnit = OSApp.currentDevice.isMetric ? "liter" : "gallon";
+				if ( conf.fprUnit === "gallon" ) { conf.fpr = Number( ( conf.fpr / OSApp.Utils.LITERS_PER_GALLON ).toFixed( 4 ) ); }
 			}
 		} else {
 			// Sensor 2/3/4 share the same shape (sn{N}t / sn{N}o / sn{N}on /
@@ -2005,6 +2006,11 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 		var fprRow = "";
 		if ( hasFlow ) {
+			var preferredUnit = OSApp.currentDevice.isMetric ? "liter" : "gallon";
+			if ( conf.fprUnit !== preferredUnit ) {
+				conf.fpr = Number( ( conf.fpr * ( preferredUnit === "liter" ? OSApp.Utils.LITERS_PER_GALLON : 1 / OSApp.Utils.LITERS_PER_GALLON ) ).toFixed( 4 ) );
+				conf.fprUnit = preferredUnit;
+			}
 			fprRow = "<div class='ui-field-contain sn-fpr'>" +
 					"<label for='sn-fpr'>" + OSApp.Language._( "Flow Pulse Rate" ) + "</label>" +
 					"<table style='width:100%'><tr style='vertical-align:top'>" +
@@ -2096,7 +2102,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 				usesDelays = type === 1 || type === 3,
 				fprValue = parseFloat( popup.find( "#sn-fpr" ).val() ),
 				fprUnit = popup.find( "#sn-fpr-unit" ).val(),
-				fprLiters = fprUnit === "gallon" ? fprValue * 3.78541 : fprValue;
+				fprLiters = fprUnit === "gallon" ? fprValue * OSApp.Utils.LITERS_PER_GALLON : fprValue;
 			var proposed = {};
 			proposed[ "sn" + num + "t" ] = type;
 			var conflict = OSApp.Sensors.portModeConflict( proposed, OSApp.currentSession.controller.options,

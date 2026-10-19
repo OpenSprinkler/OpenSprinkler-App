@@ -69,7 +69,8 @@ OSApp.Status.changeStatus = function( seconds, color, line, onclick ) {
 		typeof OSApp.currentSession.controller.settings.flcrt !== "undefined" &&
 		typeof OSApp.currentSession.controller.settings.flwrt !== "undefined"
 	) {
-		html += "<span style='padding-left:5px'>" + OSApp.Language._( "Flow" ) + ": " + ( OSApp.Utils.flowCountToVolume( OSApp.currentSession.controller.settings.flcrt ) / ( OSApp.currentSession.controller.settings.flwrt / 60 ) ).toFixed( 2 ) + " L/min</span>";
+		html += "<span style='padding-left:5px'>" + OSApp.Language._( "Flow" ) + ": " + OSApp.Utils.formatFlowRate(
+			OSApp.Utils.flowCountToVolume( OSApp.currentSession.controller.settings.flcrt ) / ( OSApp.currentSession.controller.settings.flwrt / 60 ) ) + "</span>";
 	}
 
 	if ( html !== "" ) {

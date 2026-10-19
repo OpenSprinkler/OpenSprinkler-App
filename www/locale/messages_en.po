@@ -5,13 +5,17 @@ msgstr ""
 "Language: en\n"
 "Content-Type: text/plain;\n"
 
-#: www/js/modules/status.js:199
+#: www/js/modules/status.js:200
 msgid " when opening Station "
 msgstr ""
 
-#: www/js/modules/options.js:1781
+#: www/js/modules/options.js:1782
 #: www/js/modules/options.js:899
 msgid "% Watering"
+msgstr ""
+
+#: www/js/modules/logs.js:486
+msgid "%s saved"
 msgstr ""
 
 #: www/js/modules/sites.js:564
@@ -78,7 +82,7 @@ msgstr ""
 msgid "Activate Relay"
 msgstr ""
 
-#: www/js/modules/status.js:265
+#: www/js/modules/status.js:266
 msgid "Activated"
 msgstr ""
 
@@ -93,7 +97,7 @@ msgstr ""
 msgid "Active via Bundle Station"
 msgstr ""
 
-#: www/js/modules/options.js:1160
+#: www/js/modules/options.js:1161
 msgid "Actual"
 msgstr ""
 
@@ -156,7 +160,7 @@ msgid "Adjustment-Nr"
 msgstr ""
 
 #: www/index.html:104
-#: www/js/modules/options.js:1136
+#: www/js/modules/options.js:1137
 #: www/js/modules/sites.js:141
 #: www/js/modules/sites.js:584
 msgid "Advanced"
@@ -196,8 +200,8 @@ msgstr ""
 msgid "An invalid API key has been detected."
 msgstr ""
 
-#: www/js/modules/options.js:1973
-#: www/js/modules/options.js:1976
+#: www/js/modules/options.js:1974
+#: www/js/modules/options.js:1977
 #: www/js/modules/options.js:917
 #: www/js/modules/sensors.js:100
 msgid "Analog"
@@ -216,7 +220,7 @@ msgstr ""
 msgid "Analog Sensor Log"
 msgstr ""
 
-#: www/js/modules/options.js:2433
+#: www/js/modules/options.js:2439
 msgid "App Password"
 msgstr ""
 
@@ -262,11 +266,11 @@ msgstr ""
 msgid "Are you sure you want to "
 msgstr ""
 
-#: www/js/modules/logs.js:657
+#: www/js/modules/logs.js:658
 msgid "Are you sure you want to clear ALL your log data?"
 msgstr ""
 
-#: www/js/modules/options.js:1274
+#: www/js/modules/options.js:1275
 msgid "Are you sure you want to clear the current location?"
 msgstr ""
 
@@ -324,11 +328,11 @@ msgstr ""
 msgid "Are you sure you want to reboot OpenSprinkler?"
 msgstr ""
 
-#: www/js/modules/options.js:1643
+#: www/js/modules/options.js:1644
 msgid "Are you sure you want to reset station attributes?"
 msgstr ""
 
-#: www/js/modules/options.js:1649
+#: www/js/modules/options.js:1650
 msgid "Are you sure you want to reset the wireless settings?"
 msgstr ""
 
@@ -340,7 +344,7 @@ msgstr ""
 msgid "Are you sure you want to stop all stations?"
 msgstr ""
 
-#: www/js/modules/options.js:2715
+#: www/js/modules/options.js:2721
 msgid "Attempting to retrieve your current location"
 msgstr ""
 
@@ -358,7 +362,7 @@ msgstr ""
 msgid "Auto Rain Delay"
 msgstr ""
 
-#: www/js/modules/options.js:1086
+#: www/js/modules/options.js:1087
 msgid "Auto Reconnect"
 msgstr ""
 
@@ -372,7 +376,7 @@ msgstr ""
 #: www/js/modules/analog.js:828
 #: www/js/modules/firmware.js:747
 #: www/js/modules/language.js:88
-#: www/js/modules/logs.js:637
+#: www/js/modules/logs.js:638
 #: www/js/modules/network.js:290
 #: www/js/modules/options.js:626
 #: www/js/modules/programs.js:1955
@@ -418,25 +422,25 @@ msgid ""
 "restoration."
 msgstr ""
 
-#: www/js/modules/options.js:1147
+#: www/js/modules/options.js:1148
 msgid "Boost Time"
 msgstr ""
 
-#: www/js/modules/options.js:1149
+#: www/js/modules/options.js:1150
 msgid ""
 "Boost time changes how long the boost converter is activated with a range "
 "from 0 to 1000 milliseconds."
 msgstr ""
 
-#: www/js/modules/options.js:1056
+#: www/js/modules/options.js:1057
 msgid "Brightness"
 msgstr ""
 
-#: www/js/modules/options.js:2288
+#: www/js/modules/options.js:2294
 msgid "Broker/Server"
 msgstr ""
 
-#: www/js/modules/options.js:968
+#: www/js/modules/options.js:969
 #: www/js/modules/sensors.js:1163
 #: www/js/modules/sensors.js:2215
 msgid "Built-in Sensors"
@@ -447,14 +451,14 @@ msgid "Bulgarian"
 msgstr ""
 
 #: www/js/modules/dashboard.js:147
-#: www/js/modules/options.js:1949
+#: www/js/modules/options.js:1950
 msgid "Bundle Member"
 msgstr ""
 
 #: www/js/modules/dashboard.js:800
-#: www/js/modules/options.js:1948
+#: www/js/modules/options.js:1949
 #: www/js/modules/stations.js:184
-#: www/js/modules/status.js:161
+#: www/js/modules/status.js:162
 msgid "Bundle Station"
 msgstr ""
 
@@ -555,7 +559,7 @@ msgstr ""
 msgid "Clear Log"
 msgstr ""
 
-#: www/js/modules/options.js:1212
+#: www/js/modules/options.js:1213
 msgid "Clear Log Data"
 msgstr ""
 
@@ -563,7 +567,7 @@ msgstr ""
 msgid "Clear Logs"
 msgstr ""
 
-#: www/js/modules/status.js:213
+#: www/js/modules/status.js:214
 msgid "Clear this alert"
 msgstr ""
 
@@ -603,7 +607,7 @@ msgstr ""
 msgid "Clock Update"
 msgstr ""
 
-#: www/js/modules/options.js:2684
+#: www/js/modules/options.js:2690
 msgid "Close"
 msgstr ""
 
@@ -615,7 +619,7 @@ msgstr ""
 msgid "Configure Child Sensor"
 msgstr ""
 
-#: www/js/modules/options.js:1033
+#: www/js/modules/options.js:1034
 msgid "Configure Events"
 msgstr ""
 
@@ -623,7 +627,7 @@ msgstr ""
 msgid "Configure Master"
 msgstr ""
 
-#: www/js/modules/status.js:95
+#: www/js/modules/status.js:96
 msgid "Configured as Extender"
 msgstr ""
 
@@ -656,7 +660,7 @@ msgstr ""
 msgid "Continue"
 msgstr ""
 
-#: www/js/modules/options.js:1051
+#: www/js/modules/options.js:1052
 msgid "Contrast"
 msgstr ""
 
@@ -735,7 +739,7 @@ msgstr ""
 msgid "Czech"
 msgstr ""
 
-#: www/js/modules/options.js:1110
+#: www/js/modules/options.js:1111
 msgid "DNS Address"
 msgstr ""
 
@@ -762,7 +766,7 @@ msgstr ""
 msgid "Dec"
 msgstr ""
 
-#: www/js/modules/options.js:1080
+#: www/js/modules/options.js:1081
 msgid "Default"
 msgstr ""
 
@@ -774,11 +778,11 @@ msgstr ""
 msgid "Delay Duration (hours)"
 msgstr ""
 
-#: www/js/modules/options.js:2056
+#: www/js/modules/options.js:2062
 msgid "Delayed Off Time"
 msgstr ""
 
-#: www/js/modules/options.js:2052
+#: www/js/modules/options.js:2058
 msgid "Delayed On Time"
 msgstr ""
 
@@ -796,7 +800,7 @@ msgstr ""
 msgid "Delete All"
 msgstr ""
 
-#: www/js/modules/options.js:1214
+#: www/js/modules/options.js:1215
 msgid "Delete All Programs"
 msgstr ""
 
@@ -824,15 +828,15 @@ msgstr ""
 msgid "Device Address:"
 msgstr ""
 
-#: www/js/modules/options.js:1127
+#: www/js/modules/options.js:1128
 msgid "Device ID (restart required)"
 msgstr ""
 
-#: www/js/modules/options.js:1129
+#: www/js/modules/options.js:1130
 msgid "Device ID modifies the last byte of the MAC address."
 msgstr ""
 
-#: www/js/modules/options.js:1037
+#: www/js/modules/options.js:1038
 msgid "Device Name"
 msgstr ""
 
@@ -848,7 +852,7 @@ msgstr ""
 msgid "Device Time"
 msgstr ""
 
-#: www/js/modules/options.js:1039
+#: www/js/modules/options.js:1040
 msgid ""
 "Device name is attached to all IFTTT and email notifications to help "
 "distinguish multiple devices"
@@ -869,13 +873,13 @@ msgstr ""
 msgid "Disabled"
 msgstr ""
 
-#: www/js/modules/options.js:1433
+#: www/js/modules/options.js:1434
 msgid ""
 "Disallow watering if the current\n"
 "temperature is below:"
 msgstr ""
 
-#: www/js/modules/options.js:1419
+#: www/js/modules/options.js:1420
 msgid "Disallow watering if:"
 msgstr ""
 
@@ -901,7 +905,7 @@ msgstr ""
 msgid "Do you want to delete the current image?"
 msgstr ""
 
-#: www/js/modules/status.js:109
+#: www/js/modules/status.js:110
 msgid "Do you want to re-enable system operation?"
 msgstr ""
 
@@ -923,11 +927,11 @@ msgstr ""
 msgid "Do you want to stop the selected station?"
 msgstr ""
 
-#: www/js/modules/status.js:285
+#: www/js/modules/status.js:286
 msgid "Do you want to turn off manual mode?"
 msgstr ""
 
-#: www/js/modules/status.js:247
+#: www/js/modules/status.js:248
 msgid "Do you want to turn off rain delay?"
 msgstr ""
 
@@ -939,7 +943,7 @@ msgstr ""
 msgid "Do you wish to add this location to your cloud synced site list?"
 msgstr ""
 
-#: www/js/modules/status.js:96
+#: www/js/modules/status.js:97
 msgid "Do you wish to disable extender mode?"
 msgstr ""
 
@@ -1009,7 +1013,7 @@ msgstr ""
 msgid "Edit Sensor Configuration. "
 msgstr ""
 
-#: www/js/modules/options.js:2061
+#: www/js/modules/options.js:2067
 #: www/js/modules/sensors.js:2271
 #: www/js/modules/ui-dom.js:329
 msgid "Edit Sensors"
@@ -1027,24 +1031,24 @@ msgstr ""
 msgid "Email (copy/paste)"
 msgstr ""
 
-#: www/js/modules/options.js:1007
+#: www/js/modules/options.js:1008
 msgid "Email Notifications"
 msgstr ""
 
-#: www/js/modules/options.js:2403
+#: www/js/modules/options.js:2409
 msgid "Email Settings"
 msgstr ""
 
-#: www/js/modules/options.js:2282
-#: www/js/modules/options.js:2406
-#: www/js/modules/options.js:2507
+#: www/js/modules/options.js:2288
+#: www/js/modules/options.js:2412
+#: www/js/modules/options.js:2513
 #: www/js/modules/programs.js:2642
 #: www/js/modules/ui-dom.js:616
 #: www/js/modules/ui-dom.js:731
 msgid "Enable"
 msgstr ""
 
-#: www/js/modules/options.js:1440
+#: www/js/modules/options.js:1441
 msgid "Enable California Restriction"
 msgstr ""
 
@@ -1092,8 +1096,8 @@ msgstr ""
 msgid "Enter Date/Time"
 msgstr ""
 
-#: www/js/modules/options.js:1243
-#: www/js/modules/options.js:1248
+#: www/js/modules/options.js:1244
+#: www/js/modules/options.js:1249
 msgid "Enter GPS Coordinates"
 msgstr ""
 
@@ -1109,7 +1113,7 @@ msgstr ""
 msgid "Error"
 msgstr ""
 
-#: www/js/modules/logs.js:500
+#: www/js/modules/logs.js:501
 msgid "Error retrieving log data. Please refresh to try again."
 msgstr ""
 
@@ -1269,7 +1273,7 @@ msgstr ""
 msgid "Fixed"
 msgstr ""
 
-#: www/js/modules/options.js:1964
+#: www/js/modules/options.js:1965
 #: www/js/modules/options.js:915
 #: www/js/modules/sensors.js:98
 #: www/js/modules/status.js:72
@@ -1280,7 +1284,7 @@ msgstr ""
 msgid "Flow Alert"
 msgstr ""
 
-#: www/js/modules/options.js:2009
+#: www/js/modules/options.js:2015
 msgid "Flow Pulse Rate"
 msgstr ""
 
@@ -1338,7 +1342,7 @@ msgstr ""
 msgid "GPIO Pin"
 msgstr ""
 
-#: www/js/modules/options.js:1105
+#: www/js/modules/options.js:1106
 msgid "Gateway Address"
 msgstr ""
 
@@ -1371,7 +1375,7 @@ msgstr ""
 msgid "HTTP"
 msgstr ""
 
-#: www/js/modules/options.js:1070
+#: www/js/modules/options.js:1071
 msgid "HTTP Port (restart required)"
 msgstr ""
 
@@ -1404,7 +1408,7 @@ msgstr ""
 msgid "High"
 msgstr ""
 
-#: www/js/modules/options.js:1076
+#: www/js/modules/options.js:1077
 msgid "Hostname (restart required)"
 msgstr ""
 
@@ -1425,12 +1429,12 @@ msgstr ""
 msgid "ID"
 msgstr ""
 
-#: www/js/modules/options.js:1020
+#: www/js/modules/options.js:1021
 msgid "IFTTT Notifications"
 msgstr ""
 
 #: www/js/modules/analog.js:354
-#: www/js/modules/options.js:1097
+#: www/js/modules/options.js:1098
 msgid "IP Address"
 msgstr ""
 
@@ -1438,18 +1442,18 @@ msgstr ""
 msgid "Icelandic"
 msgstr ""
 
-#: www/js/modules/options.js:1061
+#: www/js/modules/options.js:1062
 msgid "Idle Brightness"
 msgstr ""
 
-#: www/js/modules/options.js:1177
+#: www/js/modules/options.js:1178
 msgid ""
 "If the current draw (mA) exceeds this threshold when stations are running, "
 "an overcurrent fault notification is triggered. Set to 0 to use the system "
 "default. Set to maximum (2550) to disable this feature."
 msgstr ""
 
-#: www/js/modules/options.js:1169
+#: www/js/modules/options.js:1170
 msgid ""
 "If the current draw (mA) falls below this threshold when a station finishes "
 "running, a low-current fault notification is triggered. The recommended "
@@ -1462,7 +1466,7 @@ msgid ""
 "automatically issued using the duration below."
 msgstr ""
 
-#: www/js/modules/options.js:1200
+#: www/js/modules/options.js:1201
 msgid "Ignore Password"
 msgstr ""
 
@@ -1516,7 +1520,7 @@ msgstr ""
 msgid "Input Monthly Watering Percentage Values"
 msgstr ""
 
-#: www/js/modules/options.js:975
+#: www/js/modules/options.js:976
 msgid "Integrations"
 msgstr ""
 
@@ -1598,7 +1602,7 @@ msgstr ""
 msgid "Just Now"
 msgstr ""
 
-#: www/js/modules/options.js:1048
+#: www/js/modules/options.js:1049
 msgid "LCD Screen"
 msgstr ""
 
@@ -1630,11 +1634,11 @@ msgstr ""
 msgid "Last Used Program"
 msgstr ""
 
-#: www/js/modules/options.js:1191
+#: www/js/modules/options.js:1192
 msgid "Latch Off Voltage"
 msgstr ""
 
-#: www/js/modules/options.js:1183
+#: www/js/modules/options.js:1184
 msgid "Latch On Voltage"
 msgstr ""
 
@@ -1692,11 +1696,11 @@ msgstr ""
 msgid "Logout"
 msgstr ""
 
-#: www/js/modules/logs.js:634
+#: www/js/modules/logs.js:635
 msgid "Logs"
 msgstr ""
 
-#: www/js/modules/logs.js:664
+#: www/js/modules/logs.js:665
 msgid "Logs have been cleared"
 msgstr ""
 
@@ -1704,11 +1708,11 @@ msgstr ""
 msgid "Low"
 msgstr ""
 
-#: www/js/modules/options.js:993
+#: www/js/modules/options.js:994
 msgid "MQTT"
 msgstr ""
 
-#: www/js/modules/options.js:2279
+#: www/js/modules/options.js:2285
 msgid "MQTT Settings"
 msgstr ""
 
@@ -1731,7 +1735,7 @@ msgstr ""
 msgid "Manual Mode"
 msgstr ""
 
-#: www/js/modules/status.js:284
+#: www/js/modules/status.js:285
 msgid "Manual mode enabled"
 msgstr ""
 
@@ -1772,7 +1776,7 @@ msgstr ""
 #: www/js/modules/dashboard.js:1403
 #: www/js/modules/dashboard.js:1404
 #: www/js/modules/dashboard.js:179
-#: www/js/modules/options.js:2186
+#: www/js/modules/options.js:2192
 msgid "Master Station"
 msgstr ""
 
@@ -1801,8 +1805,8 @@ msgstr ""
 msgid "Maximum cycle (minutes)"
 msgstr ""
 
-#: www/js/modules/options.js:1185
-#: www/js/modules/options.js:1193
+#: www/js/modules/options.js:1186
+#: www/js/modules/options.js:1194
 msgid "Maximum is 24V. Set to 0 for default."
 msgstr ""
 
@@ -1840,11 +1844,11 @@ msgstr ""
 msgid "Method"
 msgstr ""
 
-#: www/js/modules/options.js:1820
+#: www/js/modules/options.js:1821
 msgid "Milliamperes"
 msgstr ""
 
-#: www/js/modules/options.js:1770
+#: www/js/modules/options.js:1771
 msgid "Milliseconds"
 msgstr ""
 
@@ -1906,11 +1910,11 @@ msgstr ""
 msgid "Multi-Day Levels"
 msgstr ""
 
-#: www/js/modules/options.js:1123
+#: www/js/modules/options.js:1124
 msgid "NTP IP Address"
 msgstr ""
 
-#: www/js/modules/options.js:1117
+#: www/js/modules/options.js:1118
 msgid "NTP Sync"
 msgstr ""
 
@@ -1918,7 +1922,7 @@ msgstr ""
 msgid "Name"
 msgstr ""
 
-#: www/js/modules/options.js:1067
+#: www/js/modules/options.js:1068
 msgid "Network"
 msgstr ""
 
@@ -1931,7 +1935,7 @@ msgstr ""
 msgid "Network Failure"
 msgstr ""
 
-#: www/js/modules/options.js:1077
+#: www/js/modules/options.js:1078
 msgid ""
 "Network name advertised to your router when using DHCP. Leave empty to "
 "restore the device default. Use up to 32 letters, numbers or hyphens. This "
@@ -1967,7 +1971,7 @@ msgstr ""
 msgid "No Adjustment"
 msgstr ""
 
-#: www/js/modules/logs.js:494
+#: www/js/modules/logs.js:495
 msgid "No entries found in the selected date range"
 msgstr ""
 
@@ -1990,8 +1994,8 @@ msgid "No stations set to run on this day."
 msgstr ""
 
 #: www/js/modules/firmware.js:25
-#: www/js/modules/options.js:1940
-#: www/js/modules/options.js:1961
+#: www/js/modules/options.js:1941
+#: www/js/modules/options.js:1962
 #: www/js/modules/programs.js:2255
 #: www/js/modules/programs.js:2578
 #: www/js/modules/sensors.js:689
@@ -1999,7 +2003,7 @@ msgstr ""
 msgid "None"
 msgstr ""
 
-#: www/js/modules/options.js:2048
+#: www/js/modules/options.js:2054
 msgid "Normally Open"
 msgstr ""
 
@@ -2011,8 +2015,8 @@ msgstr ""
 msgid "Not Enabled"
 msgstr ""
 
-#: www/js/modules/options.js:1249
-#: www/js/modules/options.js:1275
+#: www/js/modules/options.js:1250
+#: www/js/modules/options.js:1276
 #: www/js/modules/options.js:679
 msgid "Not specified"
 msgstr ""
@@ -2031,7 +2035,7 @@ msgstr ""
 msgid "Notice: If you want to combine multiple sensors, then build a sensor group. "
 msgstr ""
 
-#: www/js/modules/options.js:1029
+#: www/js/modules/options.js:1030
 msgid "Notification Events"
 msgstr ""
 
@@ -2065,7 +2069,7 @@ msgstr ""
 msgid "OK"
 msgstr ""
 
-#: www/js/modules/options.js:979
+#: www/js/modules/options.js:980
 msgid "OTC"
 msgstr ""
 
@@ -2080,7 +2084,7 @@ msgstr ""
 msgid "Odd Days Only"
 msgstr ""
 
-#: www/js/modules/options.js:2198
+#: www/js/modules/options.js:2204
 msgid "Off Adj."
 msgstr ""
 
@@ -2096,7 +2100,7 @@ msgstr ""
 msgid "Offset (minutes)"
 msgstr ""
 
-#: www/js/modules/options.js:2194
+#: www/js/modules/options.js:2200
 msgid "On Adj."
 msgstr ""
 
@@ -2104,7 +2108,7 @@ msgstr ""
 msgid "On Command"
 msgstr ""
 
-#: www/js/modules/options.js:2201
+#: www/js/modules/options.js:2207
 msgid "On/Off adjustments are in 5-second increments."
 msgstr ""
 
@@ -2120,7 +2124,7 @@ msgstr ""
 msgid "Open source attributions"
 msgstr ""
 
-#: www/js/modules/options.js:1009
+#: www/js/modules/options.js:1010
 msgid ""
 "OpenSprinkler can send notifications to a specified email address using a "
 "given email and SMTP server."
@@ -2144,15 +2148,15 @@ msgstr ""
 msgid "OpenSprinklerASB Firmware Detected"
 msgstr ""
 
-#: www/js/modules/options.js:2504
+#: www/js/modules/options.js:2510
 msgid "OpenThings Cloud (OTC) Settings"
 msgstr ""
 
-#: www/js/modules/options.js:981
+#: www/js/modules/options.js:982
 msgid "OpenThings Cloud (OTC) allows remote access using OTC Token ."
 msgstr ""
 
-#: www/js/modules/options.js:2548
+#: www/js/modules/options.js:2554
 #: www/js/modules/sites.js:796
 msgid "OpenThings Token must be 32 characters long."
 msgstr ""
@@ -2165,7 +2169,7 @@ msgstr ""
 msgid "Operation not permitted."
 msgstr ""
 
-#: www/js/modules/options.js:2045
+#: www/js/modules/options.js:2051
 msgid "Option"
 msgstr ""
 
@@ -2187,11 +2191,11 @@ msgstr ""
 msgid "Output"
 msgstr ""
 
-#: www/js/modules/status.js:198
+#: www/js/modules/status.js:199
 msgid "Overcurrent Fault detected"
 msgstr ""
 
-#: www/js/modules/options.js:1175
+#: www/js/modules/options.js:1176
 msgid "Overcurrent Limit"
 msgstr ""
 
@@ -2201,7 +2205,7 @@ msgid "PM"
 msgstr ""
 
 #: www/js/modules/network.js:685
-#: www/js/modules/options.js:2309
+#: www/js/modules/options.js:2315
 msgid "Password"
 msgstr ""
 
@@ -2250,7 +2254,7 @@ msgstr ""
 
 #: www/js/modules/firmware.js:141
 #: www/js/modules/firmware.js:171
-#: www/js/modules/options.js:1930
+#: www/js/modules/options.js:1931
 #: www/js/modules/options.js:589
 msgid "Please check input and try again."
 msgstr ""
@@ -2301,9 +2305,9 @@ msgid "Poor"
 msgstr ""
 
 #: www/js/modules/analog.js:359
-#: www/js/modules/options.js:2295
-#: www/js/modules/options.js:2419
-#: www/js/modules/options.js:2527
+#: www/js/modules/options.js:2301
+#: www/js/modules/options.js:2425
+#: www/js/modules/options.js:2533
 msgid "Port"
 msgstr ""
 
@@ -2397,7 +2401,7 @@ msgstr ""
 msgid "Program Start"
 msgstr ""
 
-#: www/js/modules/options.js:1970
+#: www/js/modules/options.js:1971
 #: www/js/modules/options.js:918
 #: www/js/modules/sensors.js:101
 msgid "Program Switch"
@@ -2449,7 +2453,7 @@ msgstr ""
 msgid "Programs have been deleted"
 msgstr ""
 
-#: www/js/modules/options.js:2317
+#: www/js/modules/options.js:2323
 msgid "Publish Topic"
 msgstr ""
 
@@ -2476,14 +2480,14 @@ msgstr ""
 
 #: www/js/modules/analog.js:915
 #: www/js/modules/analog.js:919
-#: www/js/modules/options.js:1962
+#: www/js/modules/options.js:1963
 #: www/js/modules/options.js:914
 #: www/js/modules/sensors.js:97
 #: www/js/modules/weather.js:107
 msgid "Rain"
 msgstr ""
 
-#: www/js/modules/logs.js:622
+#: www/js/modules/logs.js:623
 #: www/js/modules/ui-dom.js:321
 msgid "Rain Delay"
 msgstr ""
@@ -2492,12 +2496,12 @@ msgstr ""
 msgid "Rain Delay Update"
 msgstr ""
 
-#: www/js/modules/options.js:1418
+#: www/js/modules/options.js:1419
 msgid "Rain Restriction"
 msgstr ""
 
-#: www/js/modules/logs.js:617
-#: www/js/modules/logs.js:620
+#: www/js/modules/logs.js:618
+#: www/js/modules/logs.js:621
 #: www/js/modules/sensors.js:97
 msgid "Rain Sensor"
 msgstr ""
@@ -2506,7 +2510,7 @@ msgstr ""
 msgid "Rain delay has been successfully set"
 msgstr ""
 
-#: www/js/modules/status.js:245
+#: www/js/modules/status.js:246
 msgid "Rain delay until"
 msgstr ""
 
@@ -2527,11 +2531,11 @@ msgstr ""
 msgid "Reboot Reason"
 msgstr ""
 
-#: www/js/modules/options.js:2440
+#: www/js/modules/options.js:2446
 msgid "Recipient Email"
 msgstr ""
 
-#: www/js/modules/logs.js:643
+#: www/js/modules/logs.js:644
 #: www/js/modules/sensors.js:3242
 #: www/js/modules/weather.js:812
 msgid "Refresh"
@@ -2545,11 +2549,11 @@ msgstr ""
 msgid "Register here"
 msgstr ""
 
-#: www/js/modules/options.js:1140
+#: www/js/modules/options.js:1141
 msgid "Relay Pulse"
 msgstr ""
 
-#: www/js/modules/options.js:1142
+#: www/js/modules/options.js:1143
 msgid ""
 "Relay pulsing is used for special situations where rapid pulsing is needed "
 "in the output with a range from 1 to 2000 milliseconds. A zero value "
@@ -2629,12 +2633,12 @@ msgstr ""
 msgid "Requests declined because the queue was full"
 msgstr ""
 
-#: www/js/modules/options.js:1210
+#: www/js/modules/options.js:1211
 #: www/js/modules/programs.js:581
 msgid "Reset"
 msgstr ""
 
-#: www/js/modules/options.js:1213
+#: www/js/modules/options.js:1214
 #: www/js/modules/sites.js:1662
 msgid "Reset All Options"
 msgstr ""
@@ -2643,11 +2647,11 @@ msgstr ""
 msgid "Reset Button"
 msgstr ""
 
-#: www/js/modules/options.js:1215
+#: www/js/modules/options.js:1216
 msgid "Reset Station Attributes"
 msgstr ""
 
-#: www/js/modules/options.js:1218
+#: www/js/modules/options.js:1219
 msgid "Reset Wireless Settings"
 msgstr ""
 
@@ -2761,7 +2765,7 @@ msgstr ""
 msgid "SMT100 id assigned!"
 msgstr ""
 
-#: www/js/modules/options.js:2412
+#: www/js/modules/options.js:2418
 msgid "SMTP Server"
 msgstr ""
 
@@ -2827,7 +2831,7 @@ msgstr ""
 msgid "Scheduling Option"
 msgstr ""
 
-#: www/js/modules/options.js:1805
+#: www/js/modules/options.js:1806
 #: www/js/modules/ui-dom.js:1576
 msgid "Seconds"
 msgstr ""
@@ -2849,7 +2853,7 @@ msgstr ""
 msgid "Select Merge Method"
 msgstr ""
 
-#: www/js/modules/options.js:1882
+#: www/js/modules/options.js:1883
 msgid "Select Notification Events"
 msgstr ""
 
@@ -2865,7 +2869,7 @@ msgstr ""
 msgid "Select a compatible built-in sensor port."
 msgstr ""
 
-#: www/js/modules/options.js:1031
+#: www/js/modules/options.js:1032
 msgid ""
 "Select notification events. Applicable to all of MQTT, Email, and IFTTT. "
 "<b>NOTE</b>: enabling too many events or notification methods may cause "
@@ -2878,7 +2882,7 @@ msgid ""
 "station properties."
 msgstr ""
 
-#: www/js/modules/options.js:1727
+#: www/js/modules/options.js:1728
 #: www/js/modules/options.js:858
 msgid "Select your preferred weather service provider."
 msgstr ""
@@ -2887,19 +2891,19 @@ msgstr ""
 msgid "Selected"
 msgstr ""
 
-#: www/js/modules/options.js:995
+#: www/js/modules/options.js:996
 msgid ""
 "Send notifications to an MQTT broker and/or receive command message from "
 "the broker."
 msgstr ""
 
-#: www/js/modules/options.js:2426
+#: www/js/modules/options.js:2432
 msgid "Sender Email"
 msgstr ""
 
 #: www/js/modules/analog.js:182
-#: www/js/modules/options.js:2037
-#: www/js/modules/options.js:957
+#: www/js/modules/options.js:2043
+#: www/js/modules/options.js:958
 #: www/js/modules/sensors.js:103
 msgid "Sensor"
 msgstr ""
@@ -2993,7 +2997,7 @@ msgstr ""
 msgid "Sequential Group"
 msgstr ""
 
-#: www/js/modules/options.js:2520
+#: www/js/modules/options.js:2526
 msgid "Server"
 msgstr ""
 
@@ -3009,7 +3013,7 @@ msgstr ""
 msgid "Set SMT100 Modbus ID"
 msgstr ""
 
-#: www/js/modules/options.js:1430
+#: www/js/modules/options.js:1431
 msgid "Set either to 0 to disable."
 msgstr ""
 
@@ -3033,11 +3037,11 @@ msgstr ""
 msgid "Set this port to Analog in Built-in Sensors before adding an analog reading."
 msgstr ""
 
-#: www/js/modules/options.js:1438
+#: www/js/modules/options.js:1439
 msgid "Set to -40 (either °F or °C) to disable."
 msgstr ""
 
-#: www/js/modules/options.js:1550
+#: www/js/modules/options.js:1551
 #: www/js/modules/options.js:547
 #: www/js/modules/sites.js:1681
 msgid "Settings have been saved"
@@ -3104,7 +3108,7 @@ msgstr ""
 msgid "Soaking"
 msgstr ""
 
-#: www/js/modules/options.js:1967
+#: www/js/modules/options.js:1968
 #: www/js/modules/options.js:916
 #: www/js/modules/sensors.js:99
 msgid "Soil"
@@ -3132,7 +3136,7 @@ msgstr ""
 msgid "Special Station"
 msgstr ""
 
-#: www/js/modules/options.js:1205
+#: www/js/modules/options.js:1206
 msgid "Special Station Auto-Refresh"
 msgstr ""
 
@@ -3161,7 +3165,7 @@ msgstr ""
 msgid "Start Time"
 msgstr ""
 
-#: www/js/modules/logs.js:519
+#: www/js/modules/logs.js:520
 msgid "Start time cannot be greater than end time"
 msgstr ""
 
@@ -3233,7 +3237,7 @@ msgstr ""
 msgid "Stations"
 msgstr ""
 
-#: www/js/modules/status.js:121
+#: www/js/modules/status.js:122
 msgid "Stations Currently Paused"
 msgstr ""
 
@@ -3272,14 +3276,14 @@ msgstr ""
 #: www/js/modules/network.js:375
 #: www/js/modules/network.js:686
 #: www/js/modules/network.js:747
-#: www/js/modules/options.js:1250
-#: www/js/modules/options.js:1444
-#: www/js/modules/options.js:1884
-#: www/js/modules/options.js:2063
-#: www/js/modules/options.js:2202
-#: www/js/modules/options.js:2336
-#: www/js/modules/options.js:2448
-#: www/js/modules/options.js:2535
+#: www/js/modules/options.js:1251
+#: www/js/modules/options.js:1445
+#: www/js/modules/options.js:1885
+#: www/js/modules/options.js:2069
+#: www/js/modules/options.js:2208
+#: www/js/modules/options.js:2342
+#: www/js/modules/options.js:2454
+#: www/js/modules/options.js:2541
 #: www/js/modules/options.js:632
 #: www/js/modules/programs.js:3238
 #: www/js/modules/programs.js:580
@@ -3300,11 +3304,11 @@ msgstr ""
 msgid "Submit"
 msgstr ""
 
-#: www/js/modules/options.js:1101
+#: www/js/modules/options.js:1102
 msgid "Subnet Mask"
 msgstr ""
 
-#: www/js/modules/options.js:2325
+#: www/js/modules/options.js:2331
 msgid "Subscribe Topic"
 msgstr ""
 
@@ -3358,11 +3362,11 @@ msgstr ""
 msgid "System Diagnostics"
 msgstr ""
 
-#: www/js/modules/status.js:108
+#: www/js/modules/status.js:109
 msgid "System Disabled"
 msgstr ""
 
-#: www/js/modules/status.js:319
+#: www/js/modules/status.js:320
 msgid "System Idle"
 msgstr ""
 
@@ -3374,13 +3378,13 @@ msgstr ""
 msgid "Tamil"
 msgstr ""
 
-#: www/js/modules/options.js:1000
-#: www/js/modules/options.js:1014
-#: www/js/modules/options.js:2132
+#: www/js/modules/options.js:1001
+#: www/js/modules/options.js:1015
+#: www/js/modules/options.js:2138
 #: www/js/modules/options.js:819
 #: www/js/modules/options.js:833
-#: www/js/modules/options.js:955
-#: www/js/modules/options.js:986
+#: www/js/modules/options.js:956
+#: www/js/modules/options.js:987
 msgid "Tap to Configure"
 msgstr ""
 
@@ -3388,7 +3392,7 @@ msgstr ""
 msgid "Tap to Configure Master"
 msgstr ""
 
-#: www/js/modules/options.js:1155
+#: www/js/modules/options.js:1156
 msgid "Target PD Voltage"
 msgstr ""
 
@@ -3401,7 +3405,7 @@ msgstr ""
 msgid "Temperature"
 msgstr ""
 
-#: www/js/modules/options.js:1432
+#: www/js/modules/options.js:1433
 msgid "Temperature Restriction"
 msgstr ""
 
@@ -3445,7 +3449,7 @@ msgstr ""
 msgid "The active controller changed. The restore was stopped before completion."
 msgstr ""
 
-#: www/js/modules/status.js:201
+#: www/js/modules/status.js:202
 msgid ""
 "The controller detected one or more zones drawing too much current, "
 "exceeding the limit. Please check your wiring and perform a <b>solenoid "
@@ -3459,7 +3463,7 @@ msgid ""
 "sensor definitions that exist only on this controller."
 msgstr ""
 
-#: www/js/modules/options.js:1157
+#: www/js/modules/options.js:1158
 msgid ""
 "The holding current of your solenoid multiplied by its coil resistance "
 "(e.g. 0.25A×30Ω=7.5V). Set to 0 to use system default."
@@ -3469,7 +3473,7 @@ msgstr ""
 msgid "The passwords don't match. Please try again."
 msgstr ""
 
-#: www/js/modules/logs.js:527
+#: www/js/modules/logs.js:528
 msgid "The requested time span exceeds the maximum of 1 year and has been adjusted"
 msgstr ""
 
@@ -3604,13 +3608,13 @@ msgstr ""
 msgid "This station is no longer part of a Bundle Station."
 msgstr ""
 
-#: www/js/modules/options.js:1650
+#: www/js/modules/options.js:1651
 msgid ""
 "This will delete the stored SSID/password for your wireless network and "
 "return the device to access point mode"
 msgstr ""
 
-#: www/js/modules/options.js:1643
+#: www/js/modules/options.js:1644
 msgid "This will reset all station attributes"
 msgstr ""
 
@@ -3648,7 +3652,7 @@ msgid ""
 "Options."
 msgstr ""
 
-#: www/js/modules/options.js:1022
+#: www/js/modules/options.js:1023
 msgid ""
 "To enable IFTTT, a Webhooks key is required which can be obtained from "
 "https://ifttt.com"
@@ -3660,7 +3664,7 @@ msgid ""
 "to save your current settings beforehand!"
 msgstr ""
 
-#: www/js/modules/options.js:2513
+#: www/js/modules/options.js:2519
 msgid "Token"
 msgstr ""
 
@@ -3699,7 +3703,7 @@ msgstr ""
 
 #: www/js/modules/analog.js:170
 #: www/js/modules/analog.js:331
-#: www/js/modules/options.js:2041
+#: www/js/modules/options.js:2047
 msgid "Type"
 msgstr ""
 
@@ -3735,8 +3739,8 @@ msgstr ""
 
 #: www/js/modules/dashboard.js:656
 #: www/js/modules/dashboard.js:665
-#: www/js/modules/options.js:2167
-#: www/js/modules/options.js:2176
+#: www/js/modules/options.js:2173
+#: www/js/modules/options.js:2182
 #: www/js/modules/ui-dom.js:655
 #: www/js/modules/ui-dom.js:661
 msgid "Unable to load station configuration."
@@ -3759,7 +3763,7 @@ msgstr ""
 msgid "Unable to read the configuration file. Please check the file and try again."
 msgstr ""
 
-#: www/js/modules/options.js:2705
+#: www/js/modules/options.js:2711
 msgid "Unable to retrieve your current location"
 msgstr ""
 
@@ -3797,7 +3801,7 @@ msgstr ""
 msgid "Under/Overcurrent Fault"
 msgstr ""
 
-#: www/js/modules/options.js:1167
+#: www/js/modules/options.js:1168
 msgid "Undercurrent Threshold"
 msgstr ""
 
@@ -3883,7 +3887,7 @@ msgstr ""
 msgid "Use Auth"
 msgstr ""
 
-#: www/js/modules/options.js:1091
+#: www/js/modules/options.js:1092
 msgid "Use DHCP (restart required)"
 msgstr ""
 
@@ -3936,7 +3940,7 @@ msgstr ""
 msgid "User manual for OpenSprinkler is available at"
 msgstr ""
 
-#: www/js/modules/options.js:2302
+#: www/js/modules/options.js:2308
 msgid "Username"
 msgstr ""
 
@@ -3952,7 +3956,7 @@ msgid ""
 "watering percentage for programs that run on a regular interval."
 msgstr ""
 
-#: www/js/modules/options.js:1726
+#: www/js/modules/options.js:1727
 #: www/js/modules/options.js:858
 msgid "Uses the provider configured on the custom weather server."
 msgstr ""
@@ -4058,7 +4062,7 @@ msgstr ""
 msgid "Weather Restriction Active"
 msgstr ""
 
-#: www/js/modules/options.js:1414
+#: www/js/modules/options.js:1415
 msgid "Weather Restriction Options"
 msgstr ""
 
@@ -4109,25 +4113,25 @@ msgid ""
 "network."
 msgstr ""
 
-#: www/js/modules/options.js:2026
+#: www/js/modules/options.js:2032
 msgid ""
 "When using program switch, a switch is connected to the sensor port to "
 "trigger Program 1 every time the switch is pressed for at least 1 second."
 msgstr ""
 
-#: www/js/modules/options.js:2028
+#: www/js/modules/options.js:2034
 msgid ""
 "When using program switch, a switch is connected to the sensor port to "
 "trigger Program 2 every time the switch is pressed for at least 1 second."
 msgstr ""
 
-#: www/js/modules/options.js:2030
+#: www/js/modules/options.js:2036
 msgid ""
 "When using program switch, a switch is connected to the sensor port to "
 "trigger Program 3 every time the switch is pressed for at least 1 second."
 msgstr ""
 
-#: www/js/modules/options.js:2032
+#: www/js/modules/options.js:2038
 msgid ""
 "When using program switch, a switch is connected to the sensor port to "
 "trigger Program 4 every time the switch is pressed for at least 1 second."
@@ -4152,7 +4156,7 @@ msgstr ""
 msgid "Wind"
 msgstr ""
 
-#: www/js/modules/options.js:1653
+#: www/js/modules/options.js:1654
 msgid ""
 "Wireless settings have been reset. Please follow the OpenSprinkler user "
 "manual on restoring connectivity."
@@ -4193,7 +4197,7 @@ msgstr ""
 msgid "Zimmerman"
 msgstr ""
 
-#: www/js/modules/options.js:2190
+#: www/js/modules/options.js:2196
 msgid "Zone"
 msgstr ""
 
@@ -4218,7 +4222,7 @@ msgstr ""
 msgid "and 128."
 msgstr ""
 
-#: www/js/modules/options.js:2437
+#: www/js/modules/options.js:2443
 msgid "app password"
 msgstr ""
 
@@ -4226,7 +4230,7 @@ msgstr ""
 msgid "available"
 msgstr ""
 
-#: www/js/modules/options.js:2292
+#: www/js/modules/options.js:2298
 msgid "broker"
 msgstr ""
 
@@ -4247,9 +4251,9 @@ msgid "day"
 msgstr ""
 
 #: www/js/modules/dates.js:140
-#: www/js/modules/options.js:1428
-#: www/js/modules/options.js:1467
-#: www/js/modules/options.js:1474
+#: www/js/modules/options.js:1429
+#: www/js/modules/options.js:1468
+#: www/js/modules/options.js:1475
 msgid "days"
 msgstr ""
 
@@ -4285,7 +4289,7 @@ msgstr ""
 
 #: www/js/modules/dashboard.js:1453
 #: www/js/modules/dashboard.js:230
-#: www/js/modules/status.js:314
+#: www/js/modules/status.js:315
 msgid "for"
 msgstr ""
 
@@ -4305,11 +4309,11 @@ msgstr ""
 msgid "is less than the program run time"
 msgstr ""
 
-#: www/js/modules/status.js:164
+#: www/js/modules/status.js:165
 msgid "is running on"
 msgstr ""
 
-#: www/js/modules/status.js:181
+#: www/js/modules/status.js:182
 msgid "is running on station"
 msgstr ""
 
@@ -4321,7 +4325,7 @@ msgstr ""
 msgid "last months"
 msgstr ""
 
-#: www/js/modules/status.js:313
+#: www/js/modules/status.js:314
 msgid "last ran station"
 msgstr ""
 
@@ -4342,8 +4346,8 @@ msgid "minute"
 msgstr ""
 
 #: www/js/modules/dates.js:148
-#: www/js/modules/options.js:2052
-#: www/js/modules/options.js:2056
+#: www/js/modules/options.js:2058
+#: www/js/modules/options.js:2062
 msgid "minutes"
 msgstr ""
 
@@ -4355,11 +4359,11 @@ msgstr ""
 msgid "months"
 msgstr ""
 
-#: www/js/modules/options.js:1425
+#: www/js/modules/options.js:1426
 msgid "of rain is forecasted in the next:"
 msgstr ""
 
-#: www/js/modules/status.js:315
+#: www/js/modules/status.js:316
 msgid "on"
 msgstr ""
 
@@ -4367,11 +4371,11 @@ msgstr ""
 msgid "operation?"
 msgstr ""
 
-#: www/js/modules/options.js:2313
+#: www/js/modules/options.js:2319
 msgid "password (optional)"
 msgstr ""
 
-#: www/js/modules/options.js:2321
+#: www/js/modules/options.js:2327
 msgid "publish topic"
 msgstr ""
 
@@ -4382,9 +4386,9 @@ msgstr ""
 #: www/js/modules/dashboard.js:1457
 #: www/js/modules/dashboard.js:154
 #: www/js/modules/dashboard.js:235
-#: www/js/modules/status.js:124
-#: www/js/modules/status.js:166
-#: www/js/modules/status.js:184
+#: www/js/modules/status.js:125
+#: www/js/modules/status.js:167
+#: www/js/modules/status.js:185
 #: www/js/modules/status.js:57
 msgid "remaining"
 msgstr ""
@@ -4411,25 +4415,25 @@ msgid "second"
 msgstr ""
 
 #: www/js/modules/dates.js:151
-#: www/js/modules/options.js:2194
-#: www/js/modules/options.js:2198
+#: www/js/modules/options.js:2200
+#: www/js/modules/options.js:2204
 msgid "seconds"
 msgstr ""
 
-#: www/js/modules/options.js:2524
+#: www/js/modules/options.js:2530
 msgid "server"
 msgstr ""
 
-#: www/js/modules/options.js:2416
+#: www/js/modules/options.js:2422
 msgid "smtp.gmail.com"
 msgstr ""
 
 #: www/js/modules/options.js:767
-#: www/js/modules/status.js:164
+#: www/js/modules/status.js:165
 msgid "stations"
 msgstr ""
 
-#: www/js/modules/options.js:2329
+#: www/js/modules/options.js:2335
 msgid "subscribe topic"
 msgstr ""
 
@@ -4437,7 +4441,7 @@ msgstr ""
 msgid "this station"
 msgstr ""
 
-#: www/js/modules/options.js:2517
+#: www/js/modules/options.js:2523
 msgid "token"
 msgstr ""
 
@@ -4445,12 +4449,12 @@ msgstr ""
 msgid "total watering remaining"
 msgstr ""
 
-#: www/js/modules/options.js:2430
-#: www/js/modules/options.js:2444
+#: www/js/modules/options.js:2436
+#: www/js/modules/options.js:2450
 msgid "user@gmail.com"
 msgstr ""
 
-#: www/js/modules/options.js:2306
+#: www/js/modules/options.js:2312
 msgid "username (optional)"
 msgstr ""
 
