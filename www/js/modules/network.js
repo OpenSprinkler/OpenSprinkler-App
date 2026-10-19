@@ -739,9 +739,9 @@ OSApp.Network.changePassword = function( opt ) {
 							opt.name + ". " + OSApp.Language._( "Please re-enter password to try again." ) + "</p>" : "" ) +
 						"<form method='post' novalidate>" +
 							"<label for='npw'>" + ( opt.fixIncorrect === true ? OSApp.Language._( "Password:" ) : OSApp.Language._( "New Password" ) + ":" ) + "</label>" +
-							"<input type='password' name='npw' id='npw' value=''" + ( isPi ? "" : " maxlength='32'" ) + ">" +
+							"<input type='password' name='npw' id='npw' value=''>" +
 							( opt.fixIncorrect === true ? "" : "<label for='cpw'>" + OSApp.Language._( "Confirm New Password" ) + ":</label>" +
-							"<input type='password' name='cpw' id='cpw' value=''" + ( isPi ? "" : " maxlength='32'" ) + ">" ) +
+							"<input type='password' name='cpw' id='cpw' value=''>" ) +
 							( opt.fixIncorrect === true ? "<label for='save_pw'>" + OSApp.Language._( "Save Password" ) + "</label>" +
 							"<input type='checkbox' data-wrapper-class='save_pw' name='save_pw' id='save_pw' data-mini='true'>" : "" ) +
 							"<input type='submit' value='" + OSApp.Language._( "Submit" ) + "'>" +
@@ -752,7 +752,8 @@ OSApp.Network.changePassword = function( opt ) {
 
 	popup.find( "form" ).on( "submit", function() {
 		var npw = popup.find( "#npw" ).val(),
-			cpw = popup.find( "#cpw" ).val();
+			cpw = popup.find( "#cpw" ).val(),
+			hashPassword;
 
 		if ( opt.fixIncorrect === true ) {
 			didSubmit = true;
@@ -789,11 +790,14 @@ OSApp.Network.changePassword = function( opt ) {
 			return false;
 		}
 
-		if ( !isPi && npw.length > 32 ) {
+		// Only legacy controllers receive plaintext; modern firmware receives a fixed-length hash.
+		hashPassword = OSApp.Firmware.checkOSVersion( 213 );
+		if ( !isPi && !hashPassword && npw.length > 32 ) {
 			OSApp.Errors.showError( OSApp.Language._( "Password cannot be longer than 32 characters" ) );
+			return false;
 		}
 
-		if ( OSApp.Firmware.checkOSVersion( 213 ) ) {
+		if ( hashPassword ) {
 			npw = md5( npw );
 			cpw = md5( cpw );
 		}

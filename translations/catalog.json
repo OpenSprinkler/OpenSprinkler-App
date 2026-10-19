@@ -452,7 +452,7 @@
 		},
 		"Are you sure you want to logout?": {
 			"references": [
-				"www/js/modules/network.js:931"
+				"www/js/modules/network.js:935"
 			],
 			"notes": []
 		},
@@ -1681,7 +1681,7 @@
 		},
 		"Excellent": {
 			"references": [
-				"www/js/modules/network.js:910"
+				"www/js/modules/network.js:914"
 			],
 			"notes": []
 		},
@@ -1749,7 +1749,7 @@
 		},
 		"Fair": {
 			"references": [
-				"www/js/modules/network.js:906"
+				"www/js/modules/network.js:910"
 			],
 			"notes": []
 		},
@@ -1924,7 +1924,7 @@
 		},
 		"Good": {
 			"references": [
-				"www/js/modules/network.js:908"
+				"www/js/modules/network.js:912"
 			],
 			"notes": []
 		},
@@ -2751,7 +2751,7 @@
 		"Network Error": {
 			"references": [
 				"www/js/modules/firmware.js:285",
-				"www/js/modules/network.js:917"
+				"www/js/modules/network.js:921"
 			],
 			"notes": []
 		},
@@ -3150,19 +3150,19 @@
 		},
 		"Password cannot be empty": {
 			"references": [
-				"www/js/modules/network.js:788"
+				"www/js/modules/network.js:789"
 			],
 			"notes": []
 		},
 		"Password cannot be longer than 32 characters": {
 			"references": [
-				"www/js/modules/network.js:793"
+				"www/js/modules/network.js:796"
 			],
 			"notes": []
 		},
 		"Password changed successfully": {
 			"references": [
-				"www/js/modules/network.js:822"
+				"www/js/modules/network.js:826"
 			],
 			"notes": []
 		},
@@ -3216,7 +3216,7 @@
 		},
 		"Please check the current device password is correct then try again": {
 			"references": [
-				"www/js/modules/network.js:807"
+				"www/js/modules/network.js:811"
 			],
 			"notes": []
 		},
@@ -3268,7 +3268,7 @@
 		},
 		"Poor": {
 			"references": [
-				"www/js/modules/network.js:904"
+				"www/js/modules/network.js:908"
 			],
 			"notes": []
 		},
@@ -4897,7 +4897,7 @@
 		},
 		"The passwords don't match. Please try again.": {
 			"references": [
-				"www/js/modules/network.js:783"
+				"www/js/modules/network.js:784"
 			],
 			"notes": []
 		},
@@ -5198,7 +5198,7 @@
 		},
 		"Unable to change password. Please try again.": {
 			"references": [
-				"www/js/modules/network.js:809"
+				"www/js/modules/network.js:813"
 			],
 			"notes": []
 		},
@@ -5370,7 +5370,7 @@
 		},
 		"Unusable": {
 			"references": [
-				"www/js/modules/network.js:902"
+				"www/js/modules/network.js:906"
 			],
 			"notes": []
 		},

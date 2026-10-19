@@ -316,7 +316,7 @@ msgstr ""
 msgid "Are you sure you want to download all log data?"
 msgstr ""
 
-#: www/js/modules/network.js:931
+#: www/js/modules/network.js:935
 msgid "Are you sure you want to logout?"
 msgstr ""
 
@@ -1177,7 +1177,7 @@ msgstr ""
 msgid "Even Days Only"
 msgstr ""
 
-#: www/js/modules/network.js:910
+#: www/js/modules/network.js:914
 msgid "Excellent"
 msgstr ""
 
@@ -1223,7 +1223,7 @@ msgstr ""
 msgid "Failed to load sensor logs"
 msgstr ""
 
-#: www/js/modules/network.js:906
+#: www/js/modules/network.js:910
 msgid "Fair"
 msgstr ""
 
@@ -1346,7 +1346,7 @@ msgstr ""
 msgid "German"
 msgstr ""
 
-#: www/js/modules/network.js:908
+#: www/js/modules/network.js:912
 msgid "Good"
 msgstr ""
 
@@ -1923,7 +1923,7 @@ msgid "Network"
 msgstr ""
 
 #: www/js/modules/firmware.js:285
-#: www/js/modules/network.js:917
+#: www/js/modules/network.js:921
 msgid "Network Error"
 msgstr ""
 
@@ -2205,15 +2205,15 @@ msgstr ""
 msgid "Password"
 msgstr ""
 
-#: www/js/modules/network.js:788
+#: www/js/modules/network.js:789
 msgid "Password cannot be empty"
 msgstr ""
 
-#: www/js/modules/network.js:793
+#: www/js/modules/network.js:796
 msgid "Password cannot be longer than 32 characters"
 msgstr ""
 
-#: www/js/modules/network.js:822
+#: www/js/modules/network.js:826
 msgid "Password changed successfully"
 msgstr ""
 
@@ -2255,7 +2255,7 @@ msgstr ""
 msgid "Please check input and try again."
 msgstr ""
 
-#: www/js/modules/network.js:807
+#: www/js/modules/network.js:811
 msgid "Please check the current device password is correct then try again"
 msgstr ""
 
@@ -2296,7 +2296,7 @@ msgstr ""
 msgid "Polish"
 msgstr ""
 
-#: www/js/modules/network.js:904
+#: www/js/modules/network.js:908
 msgid "Poor"
 msgstr ""
 
@@ -3465,7 +3465,7 @@ msgid ""
 "(e.g. 0.25A×30Ω=7.5V). Set to 0 to use system default."
 msgstr ""
 
-#: www/js/modules/network.js:783
+#: www/js/modules/network.js:784
 msgid "The passwords don't match. Please try again."
 msgstr ""
 
@@ -3703,7 +3703,7 @@ msgstr ""
 msgid "Type"
 msgstr ""
 
-#: www/js/modules/network.js:809
+#: www/js/modules/network.js:813
 msgid "Unable to change password. Please try again."
 msgstr ""
 
@@ -3835,7 +3835,7 @@ msgid ""
 "port modes will be set to None."
 msgstr ""
 
-#: www/js/modules/network.js:902
+#: www/js/modules/network.js:906
 msgid "Unusable"
 msgstr ""
 
