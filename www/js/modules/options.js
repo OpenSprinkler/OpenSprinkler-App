@@ -95,14 +95,39 @@ OSApp.Options.removeInvalidBundleMasterOptions = function( options ) {
 };
 
 OSApp.Options.resetStationAttributes = function( attributes ) {
-	var operation = $.Deferred();
+	var operation = $.Deferred(),
+		session = OSApp.currentSession,
+		controller = session.controller,
+		resetCycles = OSApp.CycleSoak.supported(),
+		attributesReset = false;
+	var isCurrent = function() {
+		return OSApp.currentSession === session && OSApp.currentSession.controller === controller;
+	};
+	var guard = function() {
+		if ( isCurrent() ) { return true; }
+		operation.reject( { statusText: "stale" } );
+		return false;
+	};
+	var fail = function( error ) {
+		if ( isCurrent() && attributesReset ) {
+			OSApp.Errors.showError( OSApp.Language._( "Unable to reset all station attributes. Some changes may already have been applied. Review the controller before retrying." ) );
+			OSApp.Sites.updateController();
+		}
+		operation.reject( error );
+	};
+	operation.always( function() {
+		if ( isCurrent() ) { $.mobile.loading( "hide" ); }
+	} );
 
 	$.mobile.loading( "show" );
 	OSApp.Storage.get( "current_site", function( data ) {
+		if ( !guard() ) { return; }
 		var targetSite = data.current_site;
 
-		OSApp.Firmware.sendToOS( "/cs?pw=&" + attributes ).done( function( result ) {
+		var finish = function( result ) {
+			if ( !guard() ) { return; }
 			OSApp.Storage.get( "sites", function( latestData ) {
+				if ( !guard() ) { return; }
 				var sites = OSApp.Sites.parseSites( latestData.sites );
 
 				if ( sites[ targetSite ] ) {
@@ -115,9 +140,17 @@ OSApp.Options.resetStationAttributes = function( attributes ) {
 				OSApp.Sites.updateController();
 				operation.resolve( result );
 			} );
-		} ).fail( function( error ) {
-			operation.reject( error );
-		} );
+		};
+		OSApp.Firmware.sendToOS( "/cs?pw=&" + attributes ).done( function( result ) {
+			if ( !guard() ) { return; }
+			attributesReset = true;
+			// csreset returns early in firmware, so it must be a separate request.
+			if ( resetCycles ) {
+				OSApp.Firmware.sendToOS( "/cs?pw=&csreset=1" ).done( finish ).fail( fail );
+			} else {
+				finish( result );
+			}
+		} ).fail( fail );
 	} );
 
 	return operation.promise();

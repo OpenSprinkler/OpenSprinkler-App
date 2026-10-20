@@ -14,6 +14,7 @@ describe("Mutation Failure Checks", function () {
 	var sandbox;
 	var request;
 	var latestSites;
+	var controller;
 
 	function resetStationAttributes() {
 		return OSApp.Options.resetStationAttributes("m0=255&");
@@ -21,6 +22,8 @@ describe("Mutation Failure Checks", function () {
 
 	beforeEach(function () {
 		sandbox = sinon.createSandbox();
+		controller = OSApp.currentSession.controller;
+		OSApp.currentSession.controller = {options: {}, stations: {}};
 		request = $.Deferred();
 		latestSites = {
 			Yard: {
@@ -49,6 +52,7 @@ describe("Mutation Failure Checks", function () {
 
 	afterEach(function () {
 		sandbox.restore();
+		OSApp.currentSession.controller = controller;
 	});
 
 	it("should preserve local station metadata when the firmware reset fails", function () {
@@ -65,6 +69,7 @@ describe("Mutation Failure Checks", function () {
 		assert.isTrue(OSApp.Errors.showError.notCalled);
 		assert.deepEqual(latestSites.Yard.images, { 0: "station.jpg" });
 		assert.deepEqual(latestSites.Yard.lastRunTime, { 0: 1234 });
+		assert.isTrue($.mobile.loading.calledWith("hide"));
 	});
 
 	it("should clear only the target site's station metadata after firmware success", function () {
@@ -83,5 +88,70 @@ describe("Mutation Failure Checks", function () {
 		assert.deepEqual(storedSites.Other, { untouched: "other site" });
 		assert.isTrue(OSApp.Errors.showError.calledOnceWith("Stations have been updated"));
 		assert.isTrue(OSApp.Sites.updateController.calledOnce);
+		assert.isTrue(OSApp.Firmware.sendToOS.calledOnce, "older firmware needs only the legacy reset");
+		assert.isTrue($.mobile.loading.calledWith("hide"));
+	});
+	it("resets cycle policies with a separate sequential request before declaring success", function () {
+		OSApp.currentSession.controller.stations.csver = 1;
+		var cycles = $.Deferred();
+		OSApp.Firmware.sendToOS.onSecondCall().returns(cycles.promise());
+		var operation = resetStationAttributes();
+		assert.isTrue(OSApp.Firmware.sendToOS.calledOnce);
+		assert.equal(OSApp.Firmware.sendToOS.firstCall.args[0], "/cs?pw=&m0=255&");
+		request.resolve({result: 1});
+		assert.equal(OSApp.Firmware.sendToOS.secondCall.args[0], "/cs?pw=&csreset=1");
+		assert.equal(operation.state(), "pending");
+		assert.isFalse(OSApp.Storage.set.called);
+		assert.isFalse(OSApp.Errors.showError.called);
+		cycles.resolve({result: 1});
+		assert.equal(operation.state(), "resolved");
+		assert.isTrue(OSApp.Storage.set.calledOnce);
+		assert.isTrue(OSApp.Sites.updateController.calledOnce);
+		assert.isTrue(OSApp.Errors.showError.calledOnceWith("Stations have been updated"));
+		assert.isTrue($.mobile.loading.calledWith("hide"));
+	});
+	it("preserves local metadata and reports a partial reset when the cycle reset fails", function () {
+		OSApp.currentSession.controller.stations.csver = 1;
+		var cycles = $.Deferred();
+		OSApp.Firmware.sendToOS.onSecondCall().returns(cycles.promise());
+		var operation = resetStationAttributes();
+		request.resolve({result: 1});
+		cycles.reject({result: 80});
+		assert.equal(operation.state(), "rejected");
+		assert.isFalse(OSApp.Storage.set.called);
+		assert.isTrue(OSApp.Sites.updateController.calledOnce);
+		assert.include(OSApp.Errors.showError.lastCall.args[0], "Some changes may already have been applied");
+		assert.isFalse(OSApp.Errors.showError.calledWith("Stations have been updated"));
+		assert.isTrue($.mobile.loading.calledWith("hide"));
+	});
+	it("does not send a cycle reset after the legacy reset fails", function () {
+		OSApp.currentSession.controller.stations.csver = 1;
+		var operation = resetStationAttributes();
+		request.reject({result: 17});
+		assert.equal(operation.state(), "rejected");
+		assert.isTrue(OSApp.Firmware.sendToOS.calledOnce);
+		assert.isFalse(OSApp.Storage.set.called);
+	});
+	it("does not send the second reset to a newly selected controller", function () {
+		OSApp.currentSession.controller.stations.csver = 1;
+		var operation = resetStationAttributes();
+		OSApp.currentSession.controller = {options: {}, stations: {csver: 1}};
+		request.resolve({result: 1});
+		assert.equal(operation.state(), "rejected");
+		assert.isTrue(OSApp.Firmware.sendToOS.calledOnce);
+		assert.isFalse(OSApp.Storage.set.called);
+		assert.isFalse(OSApp.Sites.updateController.called);
+	});
+	it("ignores a late cycle reset completion after switching controllers", function () {
+		OSApp.currentSession.controller.stations.csver = 1;
+		var cycles = $.Deferred();
+		OSApp.Firmware.sendToOS.onSecondCall().returns(cycles.promise());
+		var operation = resetStationAttributes();
+		request.resolve({result: 1});
+		OSApp.currentSession.controller = {options: {}, stations: {}};
+		cycles.resolve({result: 1});
+		assert.equal(operation.state(), "rejected");
+		assert.isFalse(OSApp.Storage.set.called);
+		assert.isFalse(OSApp.Errors.showError.called);
 	});
 });

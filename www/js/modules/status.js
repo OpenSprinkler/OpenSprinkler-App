@@ -82,6 +82,20 @@ OSApp.Status.changeStatus = function( seconds, color, line, onclick ) {
 	footer.removeClass().addClass( color ).html( html ).off( "click" ).on( "click", onclick );
 };
 
+OSApp.Status.disableRemoteExtension = function() {
+	var session = OSApp.currentSession, controller = session.controller;
+	var isCurrent = function() { return OSApp.currentSession === session && OSApp.currentSession.controller === controller; };
+	OSApp.UIDom.areYouSure( OSApp.Language._( "Do you wish to disable extender mode?" ), "", function() {
+		if ( !isCurrent() || Number( controller.options?.re ) !== 1 ) { return; }
+		$.mobile.loading( "show" );
+		OSApp.Firmware.sendToOS( "/cv?pw=&re=0" ).done( function() {
+			if ( isCurrent() ) { OSApp.Sites.updateController(); }
+		} ).always( function() {
+			if ( isCurrent() ) { $.mobile.loading( "hide" ); }
+		} );
+	} );
+};
+
 // Update status bar based on device status
 OSApp.Status.checkStatus = function() {
 	var open, ptotal, sample, pid, pname, line, match, tmp, i;
@@ -91,15 +105,12 @@ OSApp.Status.checkStatus = function() {
 		return;
 	}
 
+	OSApp.Sites.updateRemoteExtensionNotification();
+
 	// Handle controller configured as extender
 	if ( OSApp.currentSession.controller.options.re === 1 ) {
 		OSApp.Status.changeStatus( 0, "blue", "<p class='running-text center pointer'>" + OSApp.Language._( "Configured as Extender" ) + "</p>", function() {
-			OSApp.UIDom.areYouSure( OSApp.Language._( "Do you wish to disable extender mode?" ), "", function() {
-				OSApp.UIDom.showLoading( "#footer-running" );
-				OSApp.Firmware.sendToOS( "/cv?pw=&re=0" ).done( function() {
-					OSApp.Sites.updateController();
-				} );
-			} );
+			OSApp.Status.disableRemoteExtension();
 		} );
 		return;
 	}
