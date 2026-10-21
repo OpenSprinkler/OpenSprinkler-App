@@ -81,6 +81,15 @@ Approved and applied:
 - Third-party accessibility strings such as jQuery Mobile's "click to collapse
   contents" remain English. These are outside the current extracted catalog.
 
+## Approved Follow-up (2026-10-21)
+
+- Approved 18 additional messages for onboard Analog configuration and restore,
+  Remote Extension notifications, station reset failures, and water savings.
+- Use 添加模拟传感器之前 rather than 添加模拟传感器读数前 in the Analog
+  port setup instruction, and 关闭远程扩展模式 for Disable Remote Extension.
+- These entries are pinned in the approved override layer. All 973 current
+  catalog messages now have Chinese translations; runtime gaps above remain deferred.
+
 ## Remaining Manual Checks
 
 - Actual iOS/Android devices, narrow/landscape viewports, keyboard open.
