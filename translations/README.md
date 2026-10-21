@@ -57,7 +57,20 @@ npm run translations:check
 
 Import validates the entire batch before writing it. Unknown keys, empty text, damaged placeholders/markup, changed numeric values or protected identifiers, stale request hashes, and replacement of an existing machine translation are rejected. Reimporting identical results is safe. Human-translated entries are skipped. A failed batch leaves the machine file unchanged.
 
-German now has complete catalog coverage: eight local overrides, 693 human translations and 272 machine entries (including its 19 initial trial entries). Following Claude's independent LLM review and wording corrections, 263 machine entries are marked reviewed; nine naming Cycle and Soak await native-speaker confirmation. See `de-review.md` for review attribution and terminology. Hebrew and Tamil each have 19 initial trial messages awaiting native review. Chinese has also completed the catalog, with 390 locally approved entries pinned in `overrides/zh.json` and the remaining 583 supplied by existing human translations. This is catalog coverage, not a claim that all runtime text is localized; `/jsd` labels remain deferred. See `zh-review.md`.
+German now has complete catalog coverage: eight local overrides, 693 human translations and 272 machine entries (including its 19 initial trial entries). Following Claude's independent LLM review and wording corrections, 263 machine entries are marked reviewed; nine naming Cycle and Soak await native-speaker confirmation. See `de-review.md` for review attribution and terminology. Tamil retains 19 initial trial messages awaiting native review. Chinese has also completed the catalog, with 390 locally approved entries pinned in `overrides/zh.json` and the remaining 583 supplied by existing human translations. This is catalog coverage, not a claim that all runtime text is localized; `/jsd` labels remain deferred. See `zh-review.md`.
+
+Czech and Slovak now have complete coverage too: respectively 701/700 human and
+272/273 machine entries. After Claude's LLM review, 248 Czech and 246 Slovak
+entries are reviewed; 24/27 await native terminology confirmation. See
+`cs-sk-review.md`.
+
+Hebrew has six overrides, 398 human and 569 machine entries (19 preserved trial
+texts plus 550 new drafts), covering all 973 catalog strings. After Claude's LLM
+review, 539 machine entries are reviewed; 30 await native terminology confirmation.
+See `he-review.md` for corrections and RTL-layout limitations. Native review is
+still needed before treating Hebrew as fully accepted.
+This closes the selected language-completion work for this release. Additional
+languages remain deferred pending user feedback.
 
 ## Reviewing and Correcting
 
