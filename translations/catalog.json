@@ -9,8 +9,8 @@
 		},
 		"% Watering": {
 			"references": [
-				"www/js/modules/options.js:1815",
-				"www/js/modules/options.js:932"
+				"www/js/modules/options.js:1833",
+				"www/js/modules/options.js:950"
 			],
 			"notes": []
 		},
@@ -40,25 +40,25 @@
 		},
 		"A valid DNS address is required when DHCP is not used": {
 			"references": [
-				"www/js/modules/options.js:271"
+				"www/js/modules/options.js:289"
 			],
 			"notes": []
 		},
 		"A valid IP address is required when DHCP is not used": {
 			"references": [
-				"www/js/modules/options.js:226"
+				"www/js/modules/options.js:244"
 			],
 			"notes": []
 		},
 		"A valid gateway address is required when DHCP is not used": {
 			"references": [
-				"www/js/modules/options.js:256"
+				"www/js/modules/options.js:274"
 			],
 			"notes": []
 		},
 		"A valid subnet address is required when DHCP is not used": {
 			"references": [
-				"www/js/modules/options.js:241"
+				"www/js/modules/options.js:259"
 			],
 			"notes": []
 		},
@@ -137,7 +137,7 @@
 		},
 		"Actual": {
 			"references": [
-				"www/js/modules/options.js:1194"
+				"www/js/modules/options.js:1212"
 			],
 			"notes": []
 		},
@@ -197,19 +197,19 @@
 		},
 		"Adjust Interval Programs Using Multiple Days of Weather Data": {
 			"references": [
-				"www/js/modules/options.js:848"
+				"www/js/modules/options.js:866"
 			],
 			"notes": []
 		},
 		"Adjustment Method": {
 			"references": [
-				"www/js/modules/options.js:824"
+				"www/js/modules/options.js:842"
 			],
 			"notes": []
 		},
 		"Adjustment Method Options": {
 			"references": [
-				"www/js/modules/options.js:850"
+				"www/js/modules/options.js:868"
 			],
 			"notes": []
 		},
@@ -228,7 +228,7 @@
 		"Advanced": {
 			"references": [
 				"www/index.html:104",
-				"www/js/modules/options.js:1170",
+				"www/js/modules/options.js:1188",
 				"www/js/modules/sites.js:141",
 				"www/js/modules/sites.js:584"
 			],
@@ -278,15 +278,15 @@
 		},
 		"An invalid API key has been detected.": {
 			"references": [
-				"www/js/modules/options.js:921"
+				"www/js/modules/options.js:939"
 			],
 			"notes": []
 		},
 		"Analog": {
 			"references": [
-				"www/js/modules/options.js:2007",
-				"www/js/modules/options.js:2010",
-				"www/js/modules/options.js:950",
+				"www/js/modules/options.js:2025",
+				"www/js/modules/options.js:2028",
+				"www/js/modules/options.js:968",
 				"www/js/modules/sensors.js:100"
 			],
 			"notes": []
@@ -312,13 +312,13 @@
 		},
 		"App Password": {
 			"references": [
-				"www/js/modules/options.js:2472"
+				"www/js/modules/options.js:2490"
 			],
 			"notes": []
 		},
 		"App Settings": {
 			"references": [
-				"www/js/modules/options.js:728"
+				"www/js/modules/options.js:746"
 			],
 			"notes": []
 		},
@@ -386,7 +386,7 @@
 		},
 		"Are you sure you want to clear the current location?": {
 			"references": [
-				"www/js/modules/options.js:1308"
+				"www/js/modules/options.js:1326"
 			],
 			"notes": []
 		},
@@ -470,13 +470,13 @@
 		},
 		"Are you sure you want to reset station attributes?": {
 			"references": [
-				"www/js/modules/options.js:1677"
+				"www/js/modules/options.js:1695"
 			],
 			"notes": []
 		},
 		"Are you sure you want to reset the wireless settings?": {
 			"references": [
-				"www/js/modules/options.js:1683"
+				"www/js/modules/options.js:1701"
 			],
 			"notes": []
 		},
@@ -494,7 +494,7 @@
 		},
 		"Attempting to retrieve your current location": {
 			"references": [
-				"www/js/modules/options.js:2754"
+				"www/js/modules/options.js:2772"
 			],
 			"notes": []
 		},
@@ -520,7 +520,7 @@
 		},
 		"Auto Reconnect": {
 			"references": [
-				"www/js/modules/options.js:1120"
+				"www/js/modules/options.js:1138"
 			],
 			"notes": []
 		},
@@ -546,7 +546,7 @@
 				"www/js/modules/language.js:88",
 				"www/js/modules/logs.js:638",
 				"www/js/modules/network.js:290",
-				"www/js/modules/options.js:659",
+				"www/js/modules/options.js:677",
 				"www/js/modules/programs.js:1955",
 				"www/js/modules/programs.js:228",
 				"www/js/modules/programs.js:3232",
@@ -602,31 +602,31 @@
 		},
 		"Boost Time": {
 			"references": [
-				"www/js/modules/options.js:1181"
+				"www/js/modules/options.js:1199"
 			],
 			"notes": []
 		},
 		"Boost time changes how long the boost converter is activated with a range from 0 to 1000 milliseconds.": {
 			"references": [
-				"www/js/modules/options.js:1183"
+				"www/js/modules/options.js:1201"
 			],
 			"notes": []
 		},
 		"Brightness": {
 			"references": [
-				"www/js/modules/options.js:1090"
+				"www/js/modules/options.js:1108"
 			],
 			"notes": []
 		},
 		"Broker/Server": {
 			"references": [
-				"www/js/modules/options.js:2327"
+				"www/js/modules/options.js:2345"
 			],
 			"notes": []
 		},
 		"Built-in Sensors": {
 			"references": [
-				"www/js/modules/options.js:1002",
+				"www/js/modules/options.js:1020",
 				"www/js/modules/sensors.js:1163",
 				"www/js/modules/sensors.js:2215"
 			],
@@ -641,14 +641,14 @@
 		"Bundle Member": {
 			"references": [
 				"www/js/modules/dashboard.js:147",
-				"www/js/modules/options.js:1983"
+				"www/js/modules/options.js:2001"
 			],
 			"notes": []
 		},
 		"Bundle Station": {
 			"references": [
 				"www/js/modules/dashboard.js:800",
-				"www/js/modules/options.js:1982",
+				"www/js/modules/options.js:2000",
 				"www/js/modules/stations.js:184",
 				"www/js/modules/status.js:173"
 			],
@@ -762,7 +762,7 @@
 			"references": [
 				"www/js/modules/firmware.js:132",
 				"www/js/modules/firmware.js:281",
-				"www/js/modules/options.js:620"
+				"www/js/modules/options.js:638"
 			],
 			"notes": []
 		},
@@ -793,7 +793,7 @@
 		},
 		"Clear Log Data": {
 			"references": [
-				"www/js/modules/options.js:1246"
+				"www/js/modules/options.js:1264"
 			],
 			"notes": []
 		},
@@ -865,7 +865,7 @@
 		},
 		"Close": {
 			"references": [
-				"www/js/modules/options.js:2723"
+				"www/js/modules/options.js:2741"
 			],
 			"notes": []
 		},
@@ -883,13 +883,13 @@
 		},
 		"Configure Events": {
 			"references": [
-				"www/js/modules/options.js:1067"
+				"www/js/modules/options.js:1085"
 			],
 			"notes": []
 		},
 		"Configure Master": {
 			"references": [
-				"www/js/modules/options.js:761"
+				"www/js/modules/options.js:779"
 			],
 			"notes": []
 		},
@@ -944,7 +944,7 @@
 		},
 		"Contrast": {
 			"references": [
-				"www/js/modules/options.js:1085"
+				"www/js/modules/options.js:1103"
 			],
 			"notes": []
 		},
@@ -956,11 +956,11 @@
 		},
 		"Controller rejected one or more invalid options. Review and try again.": {
 			"references": [
-				"www/js/modules/options.js:595",
-				"www/js/modules/options.js:600",
-				"www/js/modules/options.js:609",
-				"www/js/modules/options.js:612",
-				"www/js/modules/options.js:617"
+				"www/js/modules/options.js:613",
+				"www/js/modules/options.js:618",
+				"www/js/modules/options.js:627",
+				"www/js/modules/options.js:630",
+				"www/js/modules/options.js:635"
 			],
 			"notes": []
 		},
@@ -1057,7 +1057,7 @@
 		},
 		"DNS Address": {
 			"references": [
-				"www/js/modules/options.js:1144"
+				"www/js/modules/options.js:1162"
 			],
 			"notes": []
 		},
@@ -1096,13 +1096,13 @@
 		},
 		"Default": {
 			"references": [
-				"www/js/modules/options.js:1114"
+				"www/js/modules/options.js:1132"
 			],
 			"notes": []
 		},
 		"Default Provider": {
 			"references": [
-				"www/js/modules/options.js:900"
+				"www/js/modules/options.js:918"
 			],
 			"notes": []
 		},
@@ -1114,13 +1114,13 @@
 		},
 		"Delayed Off Time": {
 			"references": [
-				"www/js/modules/options.js:2095"
+				"www/js/modules/options.js:2113"
 			],
 			"notes": []
 		},
 		"Delayed On Time": {
 			"references": [
-				"www/js/modules/options.js:2091"
+				"www/js/modules/options.js:2109"
 			],
 			"notes": []
 		},
@@ -1144,7 +1144,7 @@
 		},
 		"Delete All Programs": {
 			"references": [
-				"www/js/modules/options.js:1248"
+				"www/js/modules/options.js:1266"
 			],
 			"notes": []
 		},
@@ -1186,19 +1186,19 @@
 		},
 		"Device ID (restart required)": {
 			"references": [
-				"www/js/modules/options.js:1161"
+				"www/js/modules/options.js:1179"
 			],
 			"notes": []
 		},
 		"Device ID modifies the last byte of the MAC address.": {
 			"references": [
-				"www/js/modules/options.js:1163"
+				"www/js/modules/options.js:1181"
 			],
 			"notes": []
 		},
 		"Device Name": {
 			"references": [
-				"www/js/modules/options.js:1071"
+				"www/js/modules/options.js:1089"
 			],
 			"notes": []
 		},
@@ -1216,13 +1216,13 @@
 		},
 		"Device Time": {
 			"references": [
-				"www/js/modules/options.js:687"
+				"www/js/modules/options.js:705"
 			],
 			"notes": []
 		},
 		"Device name is attached to all IFTTT and email notifications to help distinguish multiple devices": {
 			"references": [
-				"www/js/modules/options.js:1073"
+				"www/js/modules/options.js:1091"
 			],
 			"notes": []
 		},
@@ -1255,13 +1255,13 @@
 		},
 		"Disallow watering if the current\ntemperature is below:": {
 			"references": [
-				"www/js/modules/options.js:1467"
+				"www/js/modules/options.js:1485"
 			],
 			"notes": []
 		},
 		"Disallow watering if:": {
 			"references": [
-				"www/js/modules/options.js:1453"
+				"www/js/modules/options.js:1471"
 			],
 			"notes": []
 		},
@@ -1426,7 +1426,7 @@
 		},
 		"Edit Options": {
 			"references": [
-				"www/js/modules/options.js:656",
+				"www/js/modules/options.js:674",
 				"www/js/modules/ui-dom.js:327"
 			],
 			"notes": []
@@ -1457,7 +1457,7 @@
 		},
 		"Edit Sensors": {
 			"references": [
-				"www/js/modules/options.js:2100",
+				"www/js/modules/options.js:2118",
 				"www/js/modules/sensors.js:2271",
 				"www/js/modules/ui-dom.js:329"
 			],
@@ -1483,21 +1483,21 @@
 		},
 		"Email Notifications": {
 			"references": [
-				"www/js/modules/options.js:1041"
+				"www/js/modules/options.js:1059"
 			],
 			"notes": []
 		},
 		"Email Settings": {
 			"references": [
-				"www/js/modules/options.js:2442"
+				"www/js/modules/options.js:2460"
 			],
 			"notes": []
 		},
 		"Enable": {
 			"references": [
-				"www/js/modules/options.js:2321",
-				"www/js/modules/options.js:2445",
-				"www/js/modules/options.js:2546",
+				"www/js/modules/options.js:2339",
+				"www/js/modules/options.js:2463",
+				"www/js/modules/options.js:2564",
 				"www/js/modules/programs.js:2642",
 				"www/js/modules/ui-dom.js:616",
 				"www/js/modules/ui-dom.js:731"
@@ -1506,7 +1506,7 @@
 		},
 		"Enable California Restriction": {
 			"references": [
-				"www/js/modules/options.js:1474"
+				"www/js/modules/options.js:1492"
 			],
 			"notes": []
 		},
@@ -1530,7 +1530,7 @@
 		},
 		"Enable Logging": {
 			"references": [
-				"www/js/modules/options.js:721"
+				"www/js/modules/options.js:739"
 			],
 			"notes": []
 		},
@@ -1574,8 +1574,8 @@
 		},
 		"Enter GPS Coordinates": {
 			"references": [
-				"www/js/modules/options.js:1277",
-				"www/js/modules/options.js:1282"
+				"www/js/modules/options.js:1295",
+				"www/js/modules/options.js:1300"
 			],
 			"notes": []
 		},
@@ -1833,8 +1833,8 @@
 		},
 		"Flow": {
 			"references": [
-				"www/js/modules/options.js:1998",
-				"www/js/modules/options.js:948",
+				"www/js/modules/options.js:2016",
+				"www/js/modules/options.js:966",
 				"www/js/modules/sensors.js:98",
 				"www/js/modules/status.js:72"
 			],
@@ -1848,7 +1848,7 @@
 		},
 		"Flow Pulse Rate": {
 			"references": [
-				"www/js/modules/options.js:2048"
+				"www/js/modules/options.js:2066"
 			],
 			"notes": []
 		},
@@ -1930,7 +1930,7 @@
 		},
 		"Gateway Address": {
 			"references": [
-				"www/js/modules/options.js:1139"
+				"www/js/modules/options.js:1157"
 			],
 			"notes": []
 		},
@@ -1979,7 +1979,7 @@
 		},
 		"HTTP Port (restart required)": {
 			"references": [
-				"www/js/modules/options.js:1104"
+				"www/js/modules/options.js:1122"
 			],
 			"notes": []
 		},
@@ -2028,7 +2028,7 @@
 		},
 		"Hostname (restart required)": {
 			"references": [
-				"www/js/modules/options.js:1110"
+				"www/js/modules/options.js:1128"
 			],
 			"notes": []
 		},
@@ -2059,14 +2059,14 @@
 		},
 		"IFTTT Notifications": {
 			"references": [
-				"www/js/modules/options.js:1054"
+				"www/js/modules/options.js:1072"
 			],
 			"notes": []
 		},
 		"IP Address": {
 			"references": [
 				"www/js/modules/analog.js:354",
-				"www/js/modules/options.js:1131"
+				"www/js/modules/options.js:1149"
 			],
 			"notes": []
 		},
@@ -2078,19 +2078,19 @@
 		},
 		"Idle Brightness": {
 			"references": [
-				"www/js/modules/options.js:1095"
+				"www/js/modules/options.js:1113"
 			],
 			"notes": []
 		},
 		"If the current draw (mA) exceeds this threshold when stations are running, an overcurrent fault notification is triggered. Set to 0 to use the system default. Set to maximum (2550) to disable this feature.": {
 			"references": [
-				"www/js/modules/options.js:1211"
+				"www/js/modules/options.js:1229"
 			],
 			"notes": []
 		},
 		"If the current draw (mA) falls below this threshold when a station finishes running, a low-current fault notification is triggered. The recommended value is 100. Set to 0 to disable this feature.": {
 			"references": [
-				"www/js/modules/options.js:1203"
+				"www/js/modules/options.js:1221"
 			],
 			"notes": []
 		},
@@ -2102,7 +2102,7 @@
 		},
 		"Ignore Password": {
 			"references": [
-				"www/js/modules/options.js:1234"
+				"www/js/modules/options.js:1252"
 			],
 			"notes": []
 		},
@@ -2182,7 +2182,7 @@
 		},
 		"Integrations": {
 			"references": [
-				"www/js/modules/options.js:1009"
+				"www/js/modules/options.js:1027"
 			],
 			"notes": []
 		},
@@ -2300,7 +2300,7 @@
 		},
 		"LCD Screen": {
 			"references": [
-				"www/js/modules/options.js:1082"
+				"www/js/modules/options.js:1100"
 			],
 			"notes": []
 		},
@@ -2348,13 +2348,13 @@
 		},
 		"Latch Off Voltage": {
 			"references": [
-				"www/js/modules/options.js:1225"
+				"www/js/modules/options.js:1243"
 			],
 			"notes": []
 		},
 		"Latch On Voltage": {
 			"references": [
-				"www/js/modules/options.js:1217"
+				"www/js/modules/options.js:1235"
 			],
 			"notes": []
 		},
@@ -2418,7 +2418,7 @@
 		},
 		"Location": {
 			"references": [
-				"www/js/modules/options.js:711"
+				"www/js/modules/options.js:729"
 			],
 			"notes": []
 		},
@@ -2456,13 +2456,13 @@
 		},
 		"MQTT": {
 			"references": [
-				"www/js/modules/options.js:1027"
+				"www/js/modules/options.js:1045"
 			],
 			"notes": []
 		},
 		"MQTT Settings": {
 			"references": [
-				"www/js/modules/options.js:2318"
+				"www/js/modules/options.js:2336"
 			],
 			"notes": []
 		},
@@ -2548,7 +2548,7 @@
 				"www/js/modules/dashboard.js:1403",
 				"www/js/modules/dashboard.js:1404",
 				"www/js/modules/dashboard.js:179",
-				"www/js/modules/options.js:2225"
+				"www/js/modules/options.js:2243"
 			],
 			"notes": []
 		},
@@ -2591,8 +2591,8 @@
 		},
 		"Maximum is 24V. Set to 0 for default.": {
 			"references": [
-				"www/js/modules/options.js:1219",
-				"www/js/modules/options.js:1227"
+				"www/js/modules/options.js:1237",
+				"www/js/modules/options.js:1245"
 			],
 			"notes": []
 		},
@@ -2648,13 +2648,13 @@
 		},
 		"Milliamperes": {
 			"references": [
-				"www/js/modules/options.js:1854"
+				"www/js/modules/options.js:1872"
 			],
 			"notes": []
 		},
 		"Milliseconds": {
 			"references": [
-				"www/js/modules/options.js:1804"
+				"www/js/modules/options.js:1822"
 			],
 			"notes": []
 		},
@@ -2744,13 +2744,13 @@
 		},
 		"NTP IP Address": {
 			"references": [
-				"www/js/modules/options.js:1157"
+				"www/js/modules/options.js:1175"
 			],
 			"notes": []
 		},
 		"NTP Sync": {
 			"references": [
-				"www/js/modules/options.js:1151"
+				"www/js/modules/options.js:1169"
 			],
 			"notes": []
 		},
@@ -2762,7 +2762,7 @@
 		},
 		"Network": {
 			"references": [
-				"www/js/modules/options.js:1101"
+				"www/js/modules/options.js:1119"
 			],
 			"notes": []
 		},
@@ -2781,7 +2781,7 @@
 		},
 		"Network name advertised to your router when using DHCP. Leave empty to restore the device default. Use up to 32 letters, numbers or hyphens. This is separate from Device Name.": {
 			"references": [
-				"www/js/modules/options.js:1111"
+				"www/js/modules/options.js:1129"
 			],
 			"notes": []
 		},
@@ -2861,8 +2861,8 @@
 		"None": {
 			"references": [
 				"www/js/modules/firmware.js:25",
-				"www/js/modules/options.js:1974",
-				"www/js/modules/options.js:1995",
+				"www/js/modules/options.js:1992",
+				"www/js/modules/options.js:2013",
 				"www/js/modules/programs.js:2255",
 				"www/js/modules/programs.js:2578",
 				"www/js/modules/sensors.js:689",
@@ -2872,7 +2872,7 @@
 		},
 		"Normally Open": {
 			"references": [
-				"www/js/modules/options.js:2087"
+				"www/js/modules/options.js:2105"
 			],
 			"notes": []
 		},
@@ -2890,9 +2890,9 @@
 		},
 		"Not specified": {
 			"references": [
-				"www/js/modules/options.js:1283",
-				"www/js/modules/options.js:1309",
-				"www/js/modules/options.js:712"
+				"www/js/modules/options.js:1301",
+				"www/js/modules/options.js:1327",
+				"www/js/modules/options.js:730"
 			],
 			"notes": []
 		},
@@ -2916,7 +2916,7 @@
 		},
 		"Notification Events": {
 			"references": [
-				"www/js/modules/options.js:1063"
+				"www/js/modules/options.js:1081"
 			],
 			"notes": []
 		},
@@ -2954,7 +2954,7 @@
 		},
 		"Number of Stations": {
 			"references": [
-				"www/js/modules/options.js:794"
+				"www/js/modules/options.js:812"
 			],
 			"notes": []
 		},
@@ -2966,7 +2966,7 @@
 		},
 		"OTC": {
 			"references": [
-				"www/js/modules/options.js:1013"
+				"www/js/modules/options.js:1031"
 			],
 			"notes": []
 		},
@@ -2987,7 +2987,7 @@
 		},
 		"Off Adj.": {
 			"references": [
-				"www/js/modules/options.js:2237"
+				"www/js/modules/options.js:2255"
 			],
 			"notes": []
 		},
@@ -3011,7 +3011,7 @@
 		},
 		"On Adj.": {
 			"references": [
-				"www/js/modules/options.js:2233"
+				"www/js/modules/options.js:2251"
 			],
 			"notes": []
 		},
@@ -3023,7 +3023,7 @@
 		},
 		"On/Off adjustments are in 5-second increments.": {
 			"references": [
-				"www/js/modules/options.js:2240"
+				"www/js/modules/options.js:2258"
 			],
 			"notes": []
 		},
@@ -3047,7 +3047,7 @@
 		},
 		"OpenSprinkler can send notifications to a specified email address using a given email and SMTP server.": {
 			"references": [
-				"www/js/modules/options.js:1043"
+				"www/js/modules/options.js:1061"
 			],
 			"notes": []
 		},
@@ -3079,19 +3079,19 @@
 		},
 		"OpenThings Cloud (OTC) Settings": {
 			"references": [
-				"www/js/modules/options.js:2543"
+				"www/js/modules/options.js:2561"
 			],
 			"notes": []
 		},
 		"OpenThings Cloud (OTC) allows remote access using OTC Token .": {
 			"references": [
-				"www/js/modules/options.js:1015"
+				"www/js/modules/options.js:1033"
 			],
 			"notes": []
 		},
 		"OpenThings Token must be 32 characters long.": {
 			"references": [
-				"www/js/modules/options.js:2587",
+				"www/js/modules/options.js:2605",
 				"www/js/modules/sites.js:796"
 			],
 			"notes": []
@@ -3110,7 +3110,7 @@
 		},
 		"Option": {
 			"references": [
-				"www/js/modules/options.js:2084"
+				"www/js/modules/options.js:2102"
 			],
 			"notes": []
 		},
@@ -3124,13 +3124,13 @@
 		},
 		"Order Stations by Groups": {
 			"references": [
-				"www/js/modules/options.js:746"
+				"www/js/modules/options.js:764"
 			],
 			"notes": []
 		},
 		"Order Stations by Name": {
 			"references": [
-				"www/js/modules/options.js:750"
+				"www/js/modules/options.js:768"
 			],
 			"notes": []
 		},
@@ -3148,7 +3148,7 @@
 		},
 		"Overcurrent Limit": {
 			"references": [
-				"www/js/modules/options.js:1209"
+				"www/js/modules/options.js:1227"
 			],
 			"notes": []
 		},
@@ -3162,7 +3162,7 @@
 		"Password": {
 			"references": [
 				"www/js/modules/network.js:685",
-				"www/js/modules/options.js:2348"
+				"www/js/modules/options.js:2366"
 			],
 			"notes": []
 		},
@@ -3227,8 +3227,8 @@
 			"references": [
 				"www/js/modules/firmware.js:141",
 				"www/js/modules/firmware.js:171",
-				"www/js/modules/options.js:1964",
-				"www/js/modules/options.js:622"
+				"www/js/modules/options.js:1982",
+				"www/js/modules/options.js:640"
 			],
 			"notes": []
 		},
@@ -3240,7 +3240,7 @@
 		},
 		"Please enter an API key for your selected weather provider.": {
 			"references": [
-				"www/js/modules/options.js:910"
+				"www/js/modules/options.js:928"
 			],
 			"notes": []
 		},
@@ -3293,9 +3293,9 @@
 		"Port": {
 			"references": [
 				"www/js/modules/analog.js:359",
-				"www/js/modules/options.js:2334",
-				"www/js/modules/options.js:2458",
-				"www/js/modules/options.js:2566"
+				"www/js/modules/options.js:2352",
+				"www/js/modules/options.js:2476",
+				"www/js/modules/options.js:2584"
 			],
 			"notes": []
 		},
@@ -3308,7 +3308,7 @@
 		},
 		"Port 8080 is reserved for firmware update. Please choose another HTTP port.": {
 			"references": [
-				"www/js/modules/options.js:342"
+				"www/js/modules/options.js:360"
 			],
 			"notes": []
 		},
@@ -3380,13 +3380,13 @@
 		},
 		"Prevents watering when the selected restriction is met.": {
 			"references": [
-				"www/js/modules/options.js:870"
+				"www/js/modules/options.js:888"
 			],
 			"notes": []
 		},
 		"Prevents watering when the selected restrictions are met.": {
 			"references": [
-				"www/js/modules/options.js:860"
+				"www/js/modules/options.js:878"
 			],
 			"notes": []
 		},
@@ -3433,8 +3433,8 @@
 		},
 		"Program Switch": {
 			"references": [
-				"www/js/modules/options.js:2004",
-				"www/js/modules/options.js:951",
+				"www/js/modules/options.js:2022",
+				"www/js/modules/options.js:969",
 				"www/js/modules/sensors.js:101"
 			],
 			"notes": []
@@ -3503,7 +3503,7 @@
 		},
 		"Publish Topic": {
 			"references": [
-				"www/js/modules/options.js:2356"
+				"www/js/modules/options.js:2374"
 			],
 			"notes": []
 		},
@@ -3542,8 +3542,8 @@
 			"references": [
 				"www/js/modules/analog.js:915",
 				"www/js/modules/analog.js:919",
-				"www/js/modules/options.js:1996",
-				"www/js/modules/options.js:947",
+				"www/js/modules/options.js:2014",
+				"www/js/modules/options.js:965",
 				"www/js/modules/sensors.js:97",
 				"www/js/modules/weather.js:107"
 			],
@@ -3564,7 +3564,7 @@
 		},
 		"Rain Restriction": {
 			"references": [
-				"www/js/modules/options.js:1452"
+				"www/js/modules/options.js:1470"
 			],
 			"notes": []
 		},
@@ -3615,7 +3615,7 @@
 		},
 		"Recipient Email": {
 			"references": [
-				"www/js/modules/options.js:2479"
+				"www/js/modules/options.js:2497"
 			],
 			"notes": []
 		},
@@ -3641,13 +3641,13 @@
 		},
 		"Relay Pulse": {
 			"references": [
-				"www/js/modules/options.js:1174"
+				"www/js/modules/options.js:1192"
 			],
 			"notes": []
 		},
 		"Relay pulsing is used for special situations where rapid pulsing is needed in the output with a range from 1 to 2000 milliseconds. A zero value disables the pulsing option.": {
 			"references": [
-				"www/js/modules/options.js:1176"
+				"www/js/modules/options.js:1194"
 			],
 			"notes": []
 		},
@@ -3762,14 +3762,14 @@
 		},
 		"Reset": {
 			"references": [
-				"www/js/modules/options.js:1244",
+				"www/js/modules/options.js:1262",
 				"www/js/modules/programs.js:581"
 			],
 			"notes": []
 		},
 		"Reset All Options": {
 			"references": [
-				"www/js/modules/options.js:1247",
+				"www/js/modules/options.js:1265",
 				"www/js/modules/sites.js:1687"
 			],
 			"notes": []
@@ -3782,13 +3782,13 @@
 		},
 		"Reset Station Attributes": {
 			"references": [
-				"www/js/modules/options.js:1249"
+				"www/js/modules/options.js:1267"
 			],
 			"notes": []
 		},
 		"Reset Wireless Settings": {
 			"references": [
-				"www/js/modules/options.js:1252"
+				"www/js/modules/options.js:1270"
 			],
 			"notes": []
 		},
@@ -3954,7 +3954,7 @@
 		},
 		"SMTP Server": {
 			"references": [
-				"www/js/modules/options.js:2451"
+				"www/js/modules/options.js:2469"
 			],
 			"notes": []
 		},
@@ -4048,7 +4048,7 @@
 		},
 		"Seconds": {
 			"references": [
-				"www/js/modules/options.js:1839",
+				"www/js/modules/options.js:1857",
 				"www/js/modules/ui-dom.js:1576"
 			],
 			"notes": []
@@ -4080,7 +4080,7 @@
 		},
 		"Select Notification Events": {
 			"references": [
-				"www/js/modules/options.js:1916"
+				"www/js/modules/options.js:1934"
 			],
 			"notes": []
 		},
@@ -4104,7 +4104,7 @@
 		},
 		"Select notification events. Applicable to all of MQTT, Email, and IFTTT. <b>NOTE</b>: enabling too many events or notification methods may cause delays, missed responses, or skipped short watering events.": {
 			"references": [
-				"www/js/modules/options.js:1065"
+				"www/js/modules/options.js:1083"
 			],
 			"notes": []
 		},
@@ -4116,8 +4116,8 @@
 		},
 		"Select your preferred weather service provider.": {
 			"references": [
-				"www/js/modules/options.js:1761",
-				"www/js/modules/options.js:891"
+				"www/js/modules/options.js:1779",
+				"www/js/modules/options.js:909"
 			],
 			"notes": []
 		},
@@ -4129,21 +4129,21 @@
 		},
 		"Send notifications to an MQTT broker and/or receive command message from the broker.": {
 			"references": [
-				"www/js/modules/options.js:1029"
+				"www/js/modules/options.js:1047"
 			],
 			"notes": []
 		},
 		"Sender Email": {
 			"references": [
-				"www/js/modules/options.js:2465"
+				"www/js/modules/options.js:2483"
 			],
 			"notes": []
 		},
 		"Sensor": {
 			"references": [
 				"www/js/modules/analog.js:182",
-				"www/js/modules/options.js:2076",
-				"www/js/modules/options.js:991",
+				"www/js/modules/options.js:1009",
+				"www/js/modules/options.js:2094",
 				"www/js/modules/sensors.js:103"
 			],
 			"notes": []
@@ -4266,7 +4266,7 @@
 		"Sequential": {
 			"references": [
 				"www/js/modules/dashboard.js:812",
-				"www/js/modules/options.js:816"
+				"www/js/modules/options.js:834"
 			],
 			"notes": []
 		},
@@ -4279,7 +4279,7 @@
 		},
 		"Server": {
 			"references": [
-				"www/js/modules/options.js:2559"
+				"www/js/modules/options.js:2577"
 			],
 			"notes": []
 		},
@@ -4303,7 +4303,7 @@
 		},
 		"Set either to 0 to disable.": {
 			"references": [
-				"www/js/modules/options.js:1464"
+				"www/js/modules/options.js:1482"
 			],
 			"notes": []
 		},
@@ -4333,22 +4333,22 @@
 		},
 		"Set to -40 (either °F or °C) to disable.": {
 			"references": [
-				"www/js/modules/options.js:1472"
+				"www/js/modules/options.js:1490"
 			],
 			"notes": []
 		},
 		"Settings have been saved": {
 			"references": [
-				"www/js/modules/options.js:1584",
-				"www/js/modules/options.js:580",
+				"www/js/modules/options.js:1602",
+				"www/js/modules/options.js:598",
 				"www/js/modules/sites.js:1706"
 			],
 			"notes": []
 		},
 		"Settings were saved, but an invalid master station was ignored.": {
 			"references": [
-				"www/js/modules/options.js:579",
-				"www/js/modules/options.js:604"
+				"www/js/modules/options.js:597",
+				"www/js/modules/options.js:622"
 			],
 			"notes": []
 		},
@@ -4360,7 +4360,7 @@
 		},
 		"Show Disabled": {
 			"references": [
-				"www/js/modules/options.js:753"
+				"www/js/modules/options.js:771"
 			],
 			"notes": []
 		},
@@ -4384,7 +4384,7 @@
 		},
 		"Show Station Number": {
 			"references": [
-				"www/js/modules/options.js:756"
+				"www/js/modules/options.js:774"
 			],
 			"notes": []
 		},
@@ -4438,8 +4438,8 @@
 		},
 		"Soil": {
 			"references": [
-				"www/js/modules/options.js:2001",
-				"www/js/modules/options.js:949",
+				"www/js/modules/options.js:2019",
+				"www/js/modules/options.js:967",
 				"www/js/modules/sensors.js:99"
 			],
 			"notes": []
@@ -4478,7 +4478,7 @@
 		},
 		"Special Station Auto-Refresh": {
 			"references": [
-				"www/js/modules/options.js:1239"
+				"www/js/modules/options.js:1257"
 			],
 			"notes": []
 		},
@@ -4545,7 +4545,7 @@
 		},
 		"Station Delay": {
 			"references": [
-				"www/js/modules/options.js:807"
+				"www/js/modules/options.js:825"
 			],
 			"notes": []
 		},
@@ -4563,7 +4563,7 @@
 		},
 		"Station Handling": {
 			"references": [
-				"www/js/modules/options.js:790"
+				"www/js/modules/options.js:808"
 			],
 			"notes": []
 		},
@@ -4630,7 +4630,7 @@
 		"Stations have been updated": {
 			"references": [
 				"www/js/modules/dashboard.js:1128",
-				"www/js/modules/options.js:139"
+				"www/js/modules/options.js:148"
 			],
 			"notes": []
 		},
@@ -4676,15 +4676,15 @@
 				"www/js/modules/network.js:375",
 				"www/js/modules/network.js:686",
 				"www/js/modules/network.js:747",
-				"www/js/modules/options.js:1284",
-				"www/js/modules/options.js:1478",
-				"www/js/modules/options.js:1918",
-				"www/js/modules/options.js:2102",
-				"www/js/modules/options.js:2241",
-				"www/js/modules/options.js:2375",
-				"www/js/modules/options.js:2487",
-				"www/js/modules/options.js:2574",
-				"www/js/modules/options.js:665",
+				"www/js/modules/options.js:1302",
+				"www/js/modules/options.js:1496",
+				"www/js/modules/options.js:1936",
+				"www/js/modules/options.js:2120",
+				"www/js/modules/options.js:2259",
+				"www/js/modules/options.js:2393",
+				"www/js/modules/options.js:2505",
+				"www/js/modules/options.js:2592",
+				"www/js/modules/options.js:683",
 				"www/js/modules/programs.js:3238",
 				"www/js/modules/programs.js:580",
 				"www/js/modules/programs.js:768",
@@ -4706,13 +4706,13 @@
 		},
 		"Subnet Mask": {
 			"references": [
-				"www/js/modules/options.js:1135"
+				"www/js/modules/options.js:1153"
 			],
 			"notes": []
 		},
 		"Subscribe Topic": {
 			"references": [
-				"www/js/modules/options.js:2364"
+				"www/js/modules/options.js:2382"
 			],
 			"notes": []
 		},
@@ -4776,7 +4776,7 @@
 		},
 		"System": {
 			"references": [
-				"www/js/modules/options.js:684"
+				"www/js/modules/options.js:702"
 			],
 			"notes": []
 		},
@@ -4812,25 +4812,25 @@
 		},
 		"Tap to Configure": {
 			"references": [
-				"www/js/modules/options.js:1020",
-				"www/js/modules/options.js:1034",
-				"www/js/modules/options.js:1048",
-				"www/js/modules/options.js:2171",
-				"www/js/modules/options.js:852",
-				"www/js/modules/options.js:866",
-				"www/js/modules/options.js:989"
+				"www/js/modules/options.js:1007",
+				"www/js/modules/options.js:1038",
+				"www/js/modules/options.js:1052",
+				"www/js/modules/options.js:1066",
+				"www/js/modules/options.js:2189",
+				"www/js/modules/options.js:870",
+				"www/js/modules/options.js:884"
 			],
 			"notes": []
 		},
 		"Tap to Configure Master": {
 			"references": [
-				"www/js/modules/options.js:778"
+				"www/js/modules/options.js:796"
 			],
 			"notes": []
 		},
 		"Target PD Voltage": {
 			"references": [
-				"www/js/modules/options.js:1189"
+				"www/js/modules/options.js:1207"
 			],
 			"notes": []
 		},
@@ -4849,7 +4849,7 @@
 		},
 		"Temperature Restriction": {
 			"references": [
-				"www/js/modules/options.js:1466"
+				"www/js/modules/options.js:1484"
 			],
 			"notes": []
 		},
@@ -4915,7 +4915,7 @@
 		},
 		"The holding current of your solenoid multiplied by its coil resistance (e.g. 0.25A×30Ω=7.5V). Set to 0 to use system default.": {
 			"references": [
-				"www/js/modules/options.js:1191"
+				"www/js/modules/options.js:1209"
 			],
 			"notes": []
 		},
@@ -4945,7 +4945,7 @@
 		},
 		"The watering percentage scales station run times by the set value.": {
 			"references": [
-				"www/js/modules/options.js:934"
+				"www/js/modules/options.js:952"
 			],
 			"notes": []
 		},
@@ -4957,7 +4957,7 @@
 		},
 		"These settings are stored locally with the application and do not affect the controller. Changes are saved automatically.": {
 			"references": [
-				"www/js/modules/options.js:729"
+				"www/js/modules/options.js:747"
 			],
 			"notes": []
 		},
@@ -5055,7 +5055,7 @@
 		},
 		"This port has a conflicting sensor configuration. Remove it in Edit Sensors first.": {
 			"references": [
-				"www/js/modules/options.js:626"
+				"www/js/modules/options.js:644"
 			],
 			"notes": []
 		},
@@ -5091,13 +5091,13 @@
 		},
 		"This will delete the stored SSID/password for your wireless network and return the device to access point mode": {
 			"references": [
-				"www/js/modules/options.js:1684"
+				"www/js/modules/options.js:1702"
 			],
 			"notes": []
 		},
 		"This will reset all station attributes": {
 			"references": [
-				"www/js/modules/options.js:1677"
+				"www/js/modules/options.js:1695"
 			],
 			"notes": []
 		},
@@ -5131,7 +5131,7 @@
 		},
 		"Timezone": {
 			"references": [
-				"www/js/modules/options.js:701"
+				"www/js/modules/options.js:719"
 			],
 			"notes": []
 		},
@@ -5149,7 +5149,7 @@
 		},
 		"To enable IFTTT, a Webhooks key is required which can be obtained from https://ifttt.com": {
 			"references": [
-				"www/js/modules/options.js:1056"
+				"www/js/modules/options.js:1074"
 			],
 			"notes": []
 		},
@@ -5161,7 +5161,7 @@
 		},
 		"Token": {
 			"references": [
-				"www/js/modules/options.js:2552"
+				"www/js/modules/options.js:2570"
 			],
 			"notes": []
 		},
@@ -5216,7 +5216,7 @@
 			"references": [
 				"www/js/modules/analog.js:170",
 				"www/js/modules/analog.js:331",
-				"www/js/modules/options.js:2080"
+				"www/js/modules/options.js:2098"
 			],
 			"notes": []
 		},
@@ -5262,8 +5262,8 @@
 			"references": [
 				"www/js/modules/dashboard.js:656",
 				"www/js/modules/dashboard.js:665",
-				"www/js/modules/options.js:2206",
-				"www/js/modules/options.js:2215",
+				"www/js/modules/options.js:2224",
+				"www/js/modules/options.js:2233",
 				"www/js/modules/ui-dom.js:655",
 				"www/js/modules/ui-dom.js:661"
 			],
@@ -5296,19 +5296,19 @@
 		},
 		"Unable to reset all station attributes. Some changes may already have been applied. Review the controller before retrying.": {
 			"references": [
-				"www/js/modules/options.js:113"
+				"www/js/modules/options.js:122"
 			],
 			"notes": []
 		},
 		"Unable to retrieve your current location": {
 			"references": [
-				"www/js/modules/options.js:2744"
+				"www/js/modules/options.js:2762"
 			],
 			"notes": []
 		},
 		"Unable to save settings. Controller settings were refreshed; review and try again.": {
 			"references": [
-				"www/js/modules/options.js:618"
+				"www/js/modules/options.js:636"
 			],
 			"notes": []
 		},
@@ -5330,9 +5330,9 @@
 		},
 		"Unable to verify sensor port ownership. No settings were changed.": {
 			"references": [
-				"www/js/modules/options.js:628",
-				"www/js/modules/options.js:642",
-				"www/js/modules/options.js:649"
+				"www/js/modules/options.js:646",
+				"www/js/modules/options.js:660",
+				"www/js/modules/options.js:667"
 			],
 			"notes": []
 		},
@@ -5350,7 +5350,7 @@
 		},
 		"Undercurrent Threshold": {
 			"references": [
-				"www/js/modules/options.js:1201"
+				"www/js/modules/options.js:1219"
 			],
 			"notes": []
 		},
@@ -5457,7 +5457,7 @@
 		},
 		"Use 24 Hour Time": {
 			"references": [
-				"www/js/modules/options.js:742"
+				"www/js/modules/options.js:760"
 			],
 			"notes": []
 		},
@@ -5470,7 +5470,7 @@
 		},
 		"Use DHCP (restart required)": {
 			"references": [
-				"www/js/modules/options.js:1125"
+				"www/js/modules/options.js:1143"
 			],
 			"notes": []
 		},
@@ -5485,7 +5485,7 @@
 		},
 		"Use Metric": {
 			"references": [
-				"www/js/modules/options.js:739"
+				"www/js/modules/options.js:757"
 			],
 			"notes": []
 		},
@@ -5540,7 +5540,7 @@
 		},
 		"Username": {
 			"references": [
-				"www/js/modules/options.js:2341"
+				"www/js/modules/options.js:2359"
 			],
 			"notes": []
 		},
@@ -5554,14 +5554,14 @@
 		},
 		"Uses multiple days of historical weather data to calculate ETo or Zimmerman watering percentage for programs that run on a regular interval.": {
 			"references": [
-				"www/js/modules/options.js:846"
+				"www/js/modules/options.js:864"
 			],
 			"notes": []
 		},
 		"Uses the provider configured on the custom weather server.": {
 			"references": [
-				"www/js/modules/options.js:1760",
-				"www/js/modules/options.js:891"
+				"www/js/modules/options.js:1778",
+				"www/js/modules/options.js:909"
 			],
 			"notes": []
 		},
@@ -5573,7 +5573,7 @@
 		},
 		"Verify": {
 			"references": [
-				"www/js/modules/options.js:926"
+				"www/js/modules/options.js:944"
 			],
 			"notes": []
 		},
@@ -5651,13 +5651,13 @@
 		},
 		"Weather API Key": {
 			"references": [
-				"www/js/modules/options.js:908"
+				"www/js/modules/options.js:926"
 			],
 			"notes": []
 		},
 		"Weather Adjustment": {
 			"references": [
-				"www/js/modules/options.js:821"
+				"www/js/modules/options.js:839"
 			],
 			"notes": []
 		},
@@ -5678,7 +5678,7 @@
 		},
 		"Weather Data Provider": {
 			"references": [
-				"www/js/modules/options.js:889"
+				"www/js/modules/options.js:907"
 			],
 			"notes": []
 		},
@@ -5708,14 +5708,14 @@
 		},
 		"Weather Restriction Options": {
 			"references": [
-				"www/js/modules/options.js:1448"
+				"www/js/modules/options.js:1466"
 			],
 			"notes": []
 		},
 		"Weather Restrictions": {
 			"references": [
-				"www/js/modules/options.js:859",
-				"www/js/modules/options.js:869"
+				"www/js/modules/options.js:877",
+				"www/js/modules/options.js:887"
 			],
 			"notes": []
 		},
@@ -5727,7 +5727,7 @@
 		},
 		"Weather adjustment retrieves data from the chosen provider and applies the selected method to determine the watering percentage.": {
 			"references": [
-				"www/js/modules/options.js:826"
+				"www/js/modules/options.js:844"
 			],
 			"notes": []
 		},
@@ -5774,25 +5774,25 @@
 		},
 		"When using program switch, a switch is connected to the sensor port to trigger Program 1 every time the switch is pressed for at least 1 second.": {
 			"references": [
-				"www/js/modules/options.js:2065"
+				"www/js/modules/options.js:2083"
 			],
 			"notes": []
 		},
 		"When using program switch, a switch is connected to the sensor port to trigger Program 2 every time the switch is pressed for at least 1 second.": {
 			"references": [
-				"www/js/modules/options.js:2067"
+				"www/js/modules/options.js:2085"
 			],
 			"notes": []
 		},
 		"When using program switch, a switch is connected to the sensor port to trigger Program 3 every time the switch is pressed for at least 1 second.": {
 			"references": [
-				"www/js/modules/options.js:2069"
+				"www/js/modules/options.js:2087"
 			],
 			"notes": []
 		},
 		"When using program switch, a switch is connected to the sensor port to trigger Program 4 every time the switch is pressed for at least 1 second.": {
 			"references": [
-				"www/js/modules/options.js:2071"
+				"www/js/modules/options.js:2089"
 			],
 			"notes": []
 		},
@@ -5825,7 +5825,7 @@
 		},
 		"Wireless settings have been reset. Please follow the OpenSprinkler user manual on restoring connectivity.": {
 			"references": [
-				"www/js/modules/options.js:1687"
+				"www/js/modules/options.js:1705"
 			],
 			"notes": []
 		},
@@ -5849,7 +5849,7 @@
 		},
 		"You must specify a baseline ETo adjustment method option to use the ET adjustment method.": {
 			"references": [
-				"www/js/modules/options.js:356"
+				"www/js/modules/options.js:374"
 			],
 			"notes": []
 		},
@@ -5873,7 +5873,7 @@
 		},
 		"Zone": {
 			"references": [
-				"www/js/modules/options.js:2229"
+				"www/js/modules/options.js:2247"
 			],
 			"notes": []
 		},
@@ -5910,19 +5910,19 @@
 		},
 		"app password": {
 			"references": [
-				"www/js/modules/options.js:2476"
+				"www/js/modules/options.js:2494"
 			],
 			"notes": []
 		},
 		"available": {
 			"references": [
-				"www/js/modules/options.js:796"
+				"www/js/modules/options.js:814"
 			],
 			"notes": []
 		},
 		"broker": {
 			"references": [
-				"www/js/modules/options.js:2331"
+				"www/js/modules/options.js:2349"
 			],
 			"notes": []
 		},
@@ -5953,9 +5953,9 @@
 		"days": {
 			"references": [
 				"www/js/modules/dates.js:140",
-				"www/js/modules/options.js:1462",
-				"www/js/modules/options.js:1501",
-				"www/js/modules/options.js:1508"
+				"www/js/modules/options.js:1480",
+				"www/js/modules/options.js:1519",
+				"www/js/modules/options.js:1526"
 			],
 			"notes": []
 		},
@@ -6092,8 +6092,8 @@
 		"minutes": {
 			"references": [
 				"www/js/modules/dates.js:148",
-				"www/js/modules/options.js:2091",
-				"www/js/modules/options.js:2095"
+				"www/js/modules/options.js:2109",
+				"www/js/modules/options.js:2113"
 			],
 			"notes": []
 		},
@@ -6111,7 +6111,7 @@
 		},
 		"of rain is forecasted in the next:": {
 			"references": [
-				"www/js/modules/options.js:1459"
+				"www/js/modules/options.js:1477"
 			],
 			"notes": []
 		},
@@ -6129,13 +6129,13 @@
 		},
 		"password (optional)": {
 			"references": [
-				"www/js/modules/options.js:2352"
+				"www/js/modules/options.js:2370"
 			],
 			"notes": []
 		},
 		"publish topic": {
 			"references": [
-				"www/js/modules/options.js:2360"
+				"www/js/modules/options.js:2378"
 			],
 			"notes": []
 		},
@@ -6191,33 +6191,33 @@
 		"seconds": {
 			"references": [
 				"www/js/modules/dates.js:151",
-				"www/js/modules/options.js:2233",
-				"www/js/modules/options.js:2237"
+				"www/js/modules/options.js:2251",
+				"www/js/modules/options.js:2255"
 			],
 			"notes": []
 		},
 		"server": {
 			"references": [
-				"www/js/modules/options.js:2563"
+				"www/js/modules/options.js:2581"
 			],
 			"notes": []
 		},
 		"smtp.gmail.com": {
 			"references": [
-				"www/js/modules/options.js:2455"
+				"www/js/modules/options.js:2473"
 			],
 			"notes": []
 		},
 		"stations": {
 			"references": [
-				"www/js/modules/options.js:800",
+				"www/js/modules/options.js:818",
 				"www/js/modules/status.js:176"
 			],
 			"notes": []
 		},
 		"subscribe topic": {
 			"references": [
-				"www/js/modules/options.js:2368"
+				"www/js/modules/options.js:2386"
 			],
 			"notes": []
 		},
@@ -6229,7 +6229,7 @@
 		},
 		"token": {
 			"references": [
-				"www/js/modules/options.js:2556"
+				"www/js/modules/options.js:2574"
 			],
 			"notes": []
 		},
@@ -6241,14 +6241,14 @@
 		},
 		"user@gmail.com": {
 			"references": [
-				"www/js/modules/options.js:2469",
-				"www/js/modules/options.js:2483"
+				"www/js/modules/options.js:2487",
+				"www/js/modules/options.js:2501"
 			],
 			"notes": []
 		},
 		"username (optional)": {
 			"references": [
-				"www/js/modules/options.js:2345"
+				"www/js/modules/options.js:2363"
 			],
 			"notes": []
 		},
@@ -6755,193 +6755,193 @@
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 778,
+			"line": 796,
 			"key": "Tap to Configure Master"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 794,
+			"line": 812,
 			"key": "Number of Stations"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 796,
+			"line": 814,
 			"key": "available"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 800,
+			"line": 818,
 			"key": "stations"
 		},
 		{
 			"kind": "dynamic-key",
 			"source": "www/js/modules/options.js",
-			"line": 836,
+			"line": 854,
 			"expression": "OSApp.Language._(adjustmentMethod.name)"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 991,
+			"line": 1009,
 			"key": "Sensor"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 1194,
+			"line": 1212,
 			"key": "Actual"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 1282,
+			"line": 1300,
 			"key": "Enter GPS Coordinates"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 1462,
+			"line": 1480,
 			"key": "days"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 1501,
+			"line": 1519,
 			"key": "days"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 1508,
+			"line": 1526,
 			"key": "days"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2076,
+			"line": 2094,
 			"key": "Sensor"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2091,
+			"line": 2109,
 			"key": "Delayed On Time"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2091,
+			"line": 2109,
 			"key": "minutes"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2095,
+			"line": 2113,
 			"key": "Delayed Off Time"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2095,
+			"line": 2113,
 			"key": "minutes"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2225,
+			"line": 2243,
 			"key": "Master Station"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2233,
+			"line": 2251,
 			"key": "On Adj."
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2233,
+			"line": 2251,
 			"key": "seconds"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2237,
+			"line": 2255,
 			"key": "Off Adj."
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2237,
+			"line": 2255,
 			"key": "seconds"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2331,
+			"line": 2349,
 			"key": "broker"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2345,
+			"line": 2363,
 			"key": "username (optional)"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2352,
+			"line": 2370,
 			"key": "password (optional)"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2360,
+			"line": 2378,
 			"key": "publish topic"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2368,
+			"line": 2386,
 			"key": "subscribe topic"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2455,
+			"line": 2473,
 			"key": "smtp.gmail.com"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2469,
+			"line": 2487,
 			"key": "user@gmail.com"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2476,
+			"line": 2494,
 			"key": "app password"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2483,
+			"line": 2501,
 			"key": "user@gmail.com"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2556,
+			"line": 2574,
 			"key": "token"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/options.js",
-			"line": 2563,
+			"line": 2581,
 			"key": "server"
 		},
 		{

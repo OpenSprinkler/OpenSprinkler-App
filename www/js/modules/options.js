@@ -108,10 +108,19 @@ OSApp.Options.resetStationAttributes = function( attributes ) {
 		operation.reject( { statusText: "stale" } );
 		return false;
 	};
+	var refresh = function() {
+		OSApp.Sites.invalidateControllerStationSpecial();
+		OSApp.Sites.updateController( function() {
+			if ( !isCurrent() || !OSApp.Supported.special() ) { return; }
+			OSApp.Sites.ensureControllerStationSpecial( function() {
+				if ( isCurrent() ) { $( "html" ).trigger( "datarefresh" ); }
+			}, true );
+		} );
+	};
 	var fail = function( error ) {
 		if ( isCurrent() && attributesReset ) {
 			OSApp.Errors.showError( OSApp.Language._( "Unable to reset all station attributes. Some changes may already have been applied. Review the controller before retrying." ) );
-			OSApp.Sites.updateController();
+			refresh();
 		}
 		operation.reject( error );
 	};
@@ -137,20 +146,29 @@ OSApp.Options.resetStationAttributes = function( attributes ) {
 					OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
 				}
 				OSApp.Errors.showError( OSApp.Language._( "Stations have been updated" ) );
-				OSApp.Sites.updateController();
+				refresh();
 				operation.resolve( result );
 			} );
 		};
-		OSApp.Firmware.sendToOS( "/cs?pw=&" + attributes ).done( function( result ) {
-			if ( !guard() ) { return; }
-			attributesReset = true;
-			// csreset returns early in firmware, so it must be a separate request.
-			if ( resetCycles ) {
-				OSApp.Firmware.sendToOS( "/cs?pw=&csreset=1" ).done( finish ).fail( fail );
-			} else {
-				finish( result );
+		var requests = [], next = 0;
+		// Clearing pN alone cannot remove bundle leaders: firmware restores their special bit.
+		( controller.stations.snames || [] ).forEach( function( _name, sid ) {
+			if ( ( controller.stations.stn_bnd?.[ sid >> 3 ] || 0 ) & ( 1 << ( sid % 8 ) ) ) {
+				requests.push( "/cs?pw=&sid=" + sid + "&st=0&sd=0" );
 			}
-		} ).fail( fail );
+		} );
+		requests.push( "/cs?pw=&" + attributes );
+		// csreset returns early in firmware, so it must be a separate request.
+		if ( resetCycles ) { requests.push( "/cs?pw=&csreset=1" ); }
+		var sendNext = function() {
+			if ( !guard() ) { return; }
+			OSApp.Firmware.sendToOS( requests[ next++ ] ).done( function( result ) {
+				if ( !guard() ) { return; }
+				attributesReset = true;
+				if ( next < requests.length ) { sendNext(); } else { finish( result ); }
+			} ).fail( fail );
+		};
+		sendNext();
 	} );
 
 	return operation.promise();
