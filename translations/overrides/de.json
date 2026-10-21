@@ -1,6 +1,12 @@
 {
 	"messages": {
+		"From (mm/dd)": "Von (MM/TT)",
 		"OpenSprinkler.com Login Expired": "OpenSprinkler.com Login abgelaufen",
-		"Program Switch": "Programmschalter"
+		"Overcurrent Fault detected": "Überstromfehler erkannt",
+		"Program Switch": "Programmschalter",
+		"Read Interval (s)": "Leseintervall (s)",
+		"Start Date (mm/dd/yyyy)": "Startdatum (MM/TT/JJJJ)",
+		"To (mm/dd)": "Bis (MM/TT)",
+		"Warning: The use of odd/even restrictions with the selected interval day may result in the program not running at all.": "Warnung: Einschränkungen auf gerade oder ungerade Tage können zusammen mit dem gewählten Tagesintervall dazu führen, dass das Programm überhaupt nicht ausgeführt wird."
 	}
 }

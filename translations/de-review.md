@@ -14,10 +14,10 @@ native-speaker confirmation of the proposed shorter feature name.
   including the 19 earlier trial entries. Corrected text hashes and refreshed
   context/glossary hashes after review. 263 entries are marked reviewed; nine
   feature-name entries remain unreviewed.
-- The 973-message catalog now has two overrides, 699 human translations and 272
+- The 973-message catalog now has eight overrides, 693 human translations and 272
   machine translations, with no missing German strings.
 - All 722 non-empty entries in `human/de.json`, including obsolete keys retained
-  for compatibility, are unchanged in the human source. Two corrections take
+  for compatibility, are unchanged in the human source. Eight corrections take
   precedence through `overrides/de.json`; all other human text remains unchanged
   in the compiled dictionary.
 - No other language dictionary or application behavior was changed. Spanish is
@@ -67,6 +67,16 @@ placeholders were found. Applied all five requested changes:
 Optional style changes to decimal punctuation, "Bewässerung %", and "Punkt"
 remain deferred. Existing Master terminology is deliberately retained.
 
+The later Spanish cross-language review identified six additional German keys
+requiring overrides, also supplied by the user:
+
+- Date entry hints: "Startdatum (MM/TT/JJJJ)", "Von (MM/TT)", and "Bis (MM/TT)"
+  match the actual month-first field parser. Only the hints change, not parsing.
+- Overcurrent is "Überstromfehler erkannt", not overvoltage.
+- The odd/even warning now says the program may not run at all ("überhaupt nicht
+  ausgeführt wird"), and the stray apostrophe is removed.
+- Read Interval retains the seconds unit: "Leseintervall (s)".
+
 ## Review Priorities
 
 1. Read all `text` values in `machine/de.json` against their English keys. Use
@@ -108,7 +118,7 @@ intentional German names, technical terms, or labels, not untranslated gaps.
 - Translation compilation/check and 31 translation tests pass.
 - All 498 app tests and ESLint pass.
 - Existing human source files have no diff; every non-empty German human entry
-  matches the compiled output exactly except the two documented overrides.
+  matches the compiled output exactly except the eight documented overrides.
 - Fixture-only Chrome smoke checks at 320px, 390px, and 1280px passed for the
   station Basic/Output/Watering tabs, expanded bundle member picker, and Network
   section: no horizontal page overflow or browser exceptions. Screenshots are in
@@ -120,4 +130,4 @@ intentional German names, technical terms, or labels, not untranslated gaps.
 
 No Transifex upload, paid translation service, or live controller mutation was
 performed. Human contributions will supersede machine entries automatically;
-the two local overrides remain pinned until explicitly revised or removed.
+the eight local overrides remain pinned until explicitly revised or removed.

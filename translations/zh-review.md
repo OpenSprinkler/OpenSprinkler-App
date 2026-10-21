@@ -1,5 +1,13 @@
 # Chinese Translation QA
 
+Terminology update (2026-10-21): the user approved "循环渗透" as the Chinese
+feature name for Cycle and Soak. All eight feature-name occurrences in the
+approved overrides and the glossary use this wording. Phase descriptions such
+as "分段浇水中" and "渗透中" are unchanged. Earlier machine drafts remain as
+historical provenance beneath the approved overrides; they do not appear in the
+compiled UI. German/Spanish glossary hashes were refreshed for this Chinese-only
+change without changing their text or review flags.
+
 Status: 2026-10-07. All 955 catalogued messages have Chinese text. This does
 not establish full UI coverage: some runtime text bypasses localization.
 Existing human translations were not comprehensively re-reviewed.
@@ -36,7 +44,7 @@ The following 15 early trial entries have now been approved by the user:
 | Hostname (restart required) | 主机名（需重启） |
 | Ignore Sensor 3 | 忽略3号传感器 |
 | Ignore Sensor 4 | 忽略4号传感器 |
-| Invalid cycle and soak configuration | 分段与渗透设置无效 |
+| Invalid cycle and soak configuration | 循环渗透设置无效 |
 | Masters | 主阀门 |
 | Network | 网络 |
 | OK | 确定 |

@@ -67,7 +67,7 @@
 			"Run-Once": "一次性程序",
 			"Runtime": "运行时间",
 			"Disabled": "禁用",
-			"Cycle and Soak": "分段与渗透",
+			"Cycle and Soak": "循环渗透",
 			"Maximum cycle (minutes)": "每段最长浇水时间（分钟）",
 			"Minimum soak (minutes)": "最短渗透间隔（分钟）",
 			"Sensor": "传感器",

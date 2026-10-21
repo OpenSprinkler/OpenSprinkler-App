@@ -57,9 +57,15 @@ npm run translations:check
 
 Import validates the entire batch before writing it. Unknown keys, empty text, damaged placeholders/markup, changed numeric values or protected identifiers, stale request hashes, and replacement of an existing machine translation are rejected. Reimporting identical results is safe. Human-translated entries are skipped. A failed batch leaves the machine file unchanged.
 
-German now has complete catalog coverage: two local overrides, 699 human translations and 272 machine entries (including its 19 initial trial entries). Following Claude's independent LLM review and wording corrections, 263 machine entries are marked reviewed; nine naming Cycle and Soak await native-speaker confirmation. See `de-review.md` for review attribution and terminology. Hebrew and Tamil each have 19 initial trial messages awaiting native review. Chinese has also completed the catalog, with 390 locally approved entries pinned in `overrides/zh.json` and the remaining 583 supplied by existing human translations. This is catalog coverage, not a claim that all runtime text is localized; `/jsd` labels remain deferred. See `zh-review.md`.
+German now has complete catalog coverage: eight local overrides, 693 human translations and 272 machine entries (including its 19 initial trial entries). Following Claude's independent LLM review and wording corrections, 263 machine entries are marked reviewed; nine naming Cycle and Soak await native-speaker confirmation. See `de-review.md` for review attribution and terminology. Hebrew and Tamil each have 19 initial trial messages awaiting native review. Chinese has also completed the catalog, with 390 locally approved entries pinned in `overrides/zh.json` and the remaining 583 supplied by existing human translations. This is catalog coverage, not a claim that all runtime text is localized; `/jsd` labels remain deferred. See `zh-review.md`.
 
 ## Reviewing and Correcting
+
+Spanish also has complete catalog coverage: 10 overrides, 377 human translations
+and 586 machine entries. After Claude's LLM review and wording corrections, 562
+machine entries are marked reviewed; 24 naming Cycle and Soak or Bundle Station
+await native terminology confirmation. `es-review.md` records terminology, review scope,
+and corrections to human entries without changing the Transifex source layer.
 
 Use a PR to review source, translation, and context together. Mark acceptable machine entries `reviewed`; mark unsuitable entries `needs-revision` to restore English fallback. To explicitly correct a machine entry, edit its text and recompute `translationHash` using the exported `hash(text)` helper, then run the checks. Update its context/glossary hashes only after checking the new context. Avoid automatic replacement of previously reviewed wording.
 
