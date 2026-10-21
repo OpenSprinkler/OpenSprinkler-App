@@ -931,7 +931,7 @@
 		"Your device runs the OpenSprinklerASB firmware. This UI has limited support for it. Please switch to the OpenSprinklerASB mobile app/UI for full support.": "Su dispositivo utiliza el firmware OpenSprinklerASB. Esta interfaz tiene compatibilidad limitada con él. Utilice la aplicación móvil o interfaz de OpenSprinklerASB para disponer de compatibilidad completa.",
 		"Zero value excludes the station from the run-once program.": "Un valor 0 excluye la estación del programa activar una vez",
 		"Zimmerman": "Zimmerman",
-		"Zone": "Zona",
+		"Zone": "Estación",
 		"Zoom in": "Acercar",
 		"Zoom out": "Alejar",
 		"ago": "atrás",

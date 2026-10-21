@@ -4888,11 +4888,11 @@
 			"review": "reviewed"
 		},
 		"Zone": {
-			"text": "Zona",
+			"text": "Estación",
 			"sourceHash": "a107b4d76d6972e30fbce7ed4a86ddb89916ffd6677fb46b7667bfbd126abeb7",
 			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
 			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
-			"translationHash": "c14cce45f017da1da4ecc44f72053489108fd807b8938e82155f6e98c485f736",
+			"translationHash": "790d97e62e32096d3b069d343437d33edfd8072f1966365dc88307b33156854c",
 			"generator": "Codex assisted translation / Spanish completion-v1 / 2026-10-21",
 			"review": "reviewed"
 		},

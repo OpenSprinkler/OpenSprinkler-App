@@ -23,6 +23,10 @@ Station remain unreviewed pending native terminology confirmation.
 
 ## Terminology
 
+Follow-up from the Czech/Slovak review: `Zone`, used to select a master station,
+now reads `Estación` rather than `Zona`, matching the station terminology. This
+corrects the machine entry only; human translations remain untouched.
+
 Claude reviewed these choices against English, German, Chinese, and code context.
 The two feature names noted above remain provisional. Terminology is recorded
 here without changing the shared glossary or invalidating other languages' review

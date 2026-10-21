@@ -1,0 +1,2452 @@
+{
+	"messages": {
+		"%s saved": {
+			"text": "Ušetřeno %s",
+			"sourceHash": "126d88d26c3e4ce654e8aba096d57666aa3da446a3a619d49a21d96207af6ae2",
+			"contextHash": "ad224f56f33ab31fcb268e8aeade118cb7348585fdbe6c3b03f613ec7340f086",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "eeec1cb3b59f7a0e3c1d143ae7f7be2a3ed3e1158d6cda31adfc7ca62298299a",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"A field has an invalid format.": {
+			"text": "Pole má neplatný formát.",
+			"sourceHash": "d076a4bff01e2af00552c722201a2f519389e596dd9492dbfe835832d6a0573b",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "98320e9919e930ec66ba2162872f4c1b55953178c37f7d2bc5abf9efe2158d62",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"A required field is missing.": {
+			"text": "Chybí povinné pole.",
+			"sourceHash": "a78cdd6188512889c129cde629dc276f82964df2907a649db1e563efb6280c3c",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "f49e883075c81a1a3644a3684fec92602e35270fa06830e4dc3836fb9f67e0b8",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"A value is out of range.": {
+			"text": "Hodnota je mimo povolený rozsah.",
+			"sourceHash": "10ba126ecb676d71e23ebbadcaa06e7e0e649efa733093fbab5a5093cf6cc0d8",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "f1bc50801005fa8fb38b496391f7459d53a8b1b5ae032147bce9d4d1be91dc85",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"ASB firmware detected": {
+			"text": "Zjištěn firmware ASB",
+			"sourceHash": "72183e69522d527f8848594173bbc047e7c89215a311ffeda7de8d149da36ca3",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "c6aaf8a39ae3b1b01ccc6a6d90eac48308e47f8402473b9c273c17eb7a18713d",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"About %d minute remaining": {
+			"text": "Zbývá přibližně %d minuta",
+			"sourceHash": "727db5b876a7943f13d4b0b10edf365fbd518e26cc32f1a6d91609742537ea2e",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "66a51faaca863d60d865a291d475471769094e71f33fe7e7873ddfb2e0965c2b",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"About %d minutes remaining": {
+			"text": "Zbývající čas: přibližně %d min",
+			"sourceHash": "13fb8e6e1ebd2ec82479275b43a8ec39610a611f7b4d907381b0d905e5d100d0",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "b363de23c1d9fe1b2a63e99419657ca8f2b79f8df263a2096973c54e20fdb382",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Activated": {
+			"text": "Aktivován",
+			"sourceHash": "60a7b879d02b645bf29f30aac8dc0b0e72ba58efdeb57ec92c58a83d71dc656a",
+			"contextHash": "24268d641ff4b0ddc2a2b4f790932aa8a8745a4678cec55b6e960fce82a02865",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "3b54e9435da403d111ae63a37879b8766b0d41071f3c465eda29d29bc01a897c",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Active via Bundle Station": {
+			"text": "Aktivní přes sdruženou stanici",
+			"sourceHash": "4c28a8b20afdd046d24c9225daf2b47fe8ae273b6444faa8276b7fd84e231a2b",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "dd6b8c4c572db81caa1f6d06a4b6178f73d5ee769c6a66ff5ed666a9029684d0",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "unreviewed"
+		},
+		"Actual": {
+			"text": "Skutečná hodnota",
+			"sourceHash": "516a5bec7439b0b2387fdffcec10b783297a05cc8ea659e0a01873d570cd8058",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "eff937f2aff1ae3e3c63f70665e2825ecf3d33d6b9c6e3d2064b5bca6ea0f570",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Add a Point": {
+			"text": "Přidat bod",
+			"sourceHash": "14face39117075bf43ad20029db2a501cf0c25b222e8b902b4b308fc52164ea2",
+			"contextHash": "a291fea46d121ca2d96d75818a621f34fad62852c7de9e583470d4fcf69573f0",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "eef97a30a0438993569b1921f223bcf3cf0e4e8ef3b54d261f14aa75c4ee861f",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Add a Sensor": {
+			"text": "Přidat senzor",
+			"sourceHash": "30f8931fc11154926ffe23fb06cfb8694eaecc8d0151d58ba9b7a7df8bc6e3cd",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "f41c64d1276072b2b161719d1a7007241223ed96c9473794dc50317dcee7ab57",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Adjustment Option": {
+			"text": "Možnost úpravy",
+			"sourceHash": "ba64f464969b1d7f4d2bd5a5d491af07d3b05f342e636ee7ba6840c08b4393fe",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "8c8b85ac13b003976ab50845734468623ca8e788755561feac78484dad52d3b5",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Afrikaans": {
+			"text": "Afrikánština",
+			"sourceHash": "c9988f40e4b47cd086255fc3ec81afaaf663320b5ac684aa5994a04ae98a50d4",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "f31a9630ecf902fd707cef19663521af626e60543fa2238f8152cb3e50b3d673",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"All": {
+			"text": "Vše",
+			"sourceHash": "663175a9c461a96d6f0252fc22dbb8ed4951e7a6fc0e31546823bcc69d6021d1",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "240d1585dfbf55139b36743d63f9a273af07a9dd99ea0b069398ccc6b4f434ba",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Amharic": {
+			"text": "Amharština",
+			"sourceHash": "24c7eb06f59c0af1e1d9809b7263c1836782f8a72a01890c30ed53e18ce205da",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "a3671a79e6ffdcd99f7f4bdb5c440563bac568c7b8c98b5448c16ede2aa93e34",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"An Aggregate Sensor references an unsupported analog reading. Resolve its dependencies before restoring.": {
+			"text": "Agregovaný senzor odkazuje na nepodporovanou analogovou hodnotu. Před obnovením vyřešte jeho závislosti.",
+			"sourceHash": "c7188b7e96e0e198886bb980afdf3fd0fc586617dd2f77890717ce71bc7e4dd2",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "2397fbb911dfaed91ba3befe6f1eddfb36d3d7d7120893a4e7c20767215243fc",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Analog": {
+			"text": "Analogový",
+			"sourceHash": "e326bbf4b1d6572cdb8da8ba547e68dbea6d2b695788f4c691d1a7001c4ded76",
+			"contextHash": "002c0311001743f7641da2dc83ceee3458889794565c3fdc449308b0ecd3f22f",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "eccb1c4b7b6b9056045e7a45cc7b91cd4ae3d138b8bf0e6ff2f691047f3e6898",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Analog Sensor": {
+			"text": "Analogový senzor",
+			"sourceHash": "5a65f23d2a2a04f73863f34e23743af9eec9a48e82e46a93f9a3133068dbce05",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "8f474cca4f09ef392a3020a0d61f4e85c1be7bf11ad306b9c1ca48b4162c8611",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Apply Current Weather Adjustment": {
+			"text": "Použít aktuální úpravu podle počasí",
+			"sourceHash": "24b1196f25d7b6967d2860a52ebaf5e422c3139be226c56e00078e60e85c9fee",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "2837159ad79acd942c3494484d21ba9fc8894572c00373765c16c59e148a06b1",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Apply Custom Adjustment": {
+			"text": "Použít vlastní úpravu",
+			"sourceHash": "fecdacde2537d8056da7215f20be38a43624cb2f8ecd86a60867bd2842918d54",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "71abd1012030697553d617536181f184a62c2636bdfe6e05924538fd6f17a310",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Apply Cycle and Soak": {
+			"text": "Použít cykly a vsakování",
+			"sourceHash": "aebdc9118ff3dbfb38cc9baa70d95c0e22027280cade649d32fc50589d6c219c",
+			"contextHash": "089d08776f6f39521fba37db6965244177b77aa2d0c64c609fa598243f13d261",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "3373932596bfac7dc0d9abf4d448c3ff94d0e65dece9c4d9f7a148e042474fba",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "unreviewed"
+		},
+		"Apply Sensor Adjustment": {
+			"text": "Použít úpravu podle senzoru",
+			"sourceHash": "889a033d962f7a6095aab2b5b1284023f163ad101d632bc2e2d4a9dff12e729a",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "25e106d126259205dcaafe4c7b353143a2247a35a6170bc87cc90a859e7f036d",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Apply Weather Adjustment": {
+			"text": "Použít úpravu podle počasí",
+			"sourceHash": "704d33771b139593c58cc3f1c5cd3d2c7564a33ae0716e20ec6c46c84f7799f3",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "02e33d7831373e744148f2a50ba604ef534f45d3794bf8b6b321ef2b8269082a",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Are you sure you want to delete all sensor logs?": {
+			"text": "Opravdu chcete smazat všechny záznamy senzorů?",
+			"sourceHash": "df8a85f8f6f68c8a804d0e8e54c9d092fbaa68b8c91b7527a4768d7232860331",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "669688eda6c0a2eacb0cc31ecbcfd4555ec5a54019773963ea3d76c2cd6895eb",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Are you sure you want to delete this sensor?": {
+			"text": "Opravdu chcete smazat tento senzor?",
+			"sourceHash": "cee9da5c3b9052aaaa658f8187554537f52f723fd7aa4fe461bcc699e2479326",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "192c8c08874966d1079dd4bd12c69a570dc37949acb7903bce07c09a1fd83ae0",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Are you sure you want to download all log data?": {
+			"text": "Opravdu chcete stáhnout všechny záznamy?",
+			"sourceHash": "15bca914d529934f0bc2f790891fe6690aa2a6ff401bdd7fbe0e09f14030c18f",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "d0a7e045503613ece815d40c10880b9ca3b8417719eee3d910bf5092b9a94c37",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Auto Rain Delay": {
+			"text": "Automatické zpoždění při dešti",
+			"sourceHash": "2ce9efcf14fdf89176d4d1d19f1f4e06ec73567d79933b58ce8cfa73ede67773",
+			"contextHash": "27986029b3df9ad00dbc67ce579607a8420c959ffa16c15c9f227eb82afac172",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "8e2dbeb34a4765053d1375215174abcd751022cbcb88a221cb757760d5f99f77",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Automatic watering schedules, program-switch starts, weather queries and Cycle and Soak are disabled.": {
+			"text": "Automatické plány zavlažování, spouštění přepínačem programu, dotazy na počasí a cykly a vsakování jsou zakázány.",
+			"sourceHash": "01b04cdb3a71fd90194e0d8613542cc339c8ad07f7e4a6ec0a086aacb6a7934d",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "c813911706c0f351b91273427d9676bb0efe40ee30812e7c782d53a711c5fad7",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "unreviewed"
+		},
+		"Built-in Sensors": {
+			"text": "Vestavěné senzory",
+			"sourceHash": "e1e7e9b4ccbfa1f68dcae48a1958e6e3557d7fa8afe0a742c7b1f0cff3e86f9d",
+			"contextHash": "002c0311001743f7641da2dc83ceee3458889794565c3fdc449308b0ecd3f22f",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "b770b2d47c13b384e25c35d7ae5777ae6379ef4d89763948c5cbb92f15763a85",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Bulgarian": {
+			"text": "Bulharština",
+			"sourceHash": "a10b72553c916a8fbb31cdc80ee5a406d8d00cff321105cea20e43624e863d95",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "6f2c8cde3eb8fcc70e7bd3be7a97f771a83f98d612ff8d606b3f0b790cb79220",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Bundle Member": {
+			"text": "Člen sdružené stanice",
+			"sourceHash": "273ce7ff8cbcc5976fabbb2a7e547e0440381fde2306a4cac0e0c04fb64e0086",
+			"contextHash": "d57e7715650878f01cc62e9c79d7ec167506f8dceecd579434c6720438096290",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "ba17e9a0fe41da3f6a0d7ba9620c079a6c593762fb6f2e09a215eda172cc8baa",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "unreviewed"
+		},
+		"Bundle Station": {
+			"text": "Sdružená stanice",
+			"sourceHash": "72f4b397fbbab3c7e7122842551e145efb86321f4535ba9bde602309247622cf",
+			"contextHash": "3cae7a4a50fa78da67ce7528c397ce5520a9075594ded5377b523fc9cfb23397",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "5f03535f5028743d81f2021f5e975e6b527c75fb9052d3f6bdbd23477f224784",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "unreviewed"
+		},
+		"Bundle Station configuration was rejected. Station settings have been refreshed.": {
+			"text": "Konfigurace sdružené stanice byla odmítnuta. Nastavení stanic bylo znovu načteno.",
+			"sourceHash": "f414e78ac784b98e352dcb42ff3daf9525c0f1934fa84f05a25916f07cfb6cb7",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "c95d162e77fd85adbde2964633619b39249d4895a90b22dfe31e36d09e45587c",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "unreviewed"
+		},
+		"Bundle Station members changed. Review the selection and try again.": {
+			"text": "Členové sdružené stanice se změnili. Zkontrolujte výběr a zkuste to znovu.",
+			"sourceHash": "070316e67f26dc1e05a8203504c8c8dd9900f6a1d4ab06cc1d4d62b30ad7700e",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "4812f0cad85c9d37029e2e79b2e689b0c1fa9b9844fde0f3fa1fc6ec39bfdae2",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "unreviewed"
+		},
+		"Bundle member of": {
+			"text": "Člen sdružené stanice",
+			"sourceHash": "978dd967317e7ca8e7bde4a71e964202fd6dc10f600d867f3f2438df592bd50a",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "ba17e9a0fe41da3f6a0d7ba9620c079a6c593762fb6f2e09a215eda172cc8baa",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "unreviewed"
+		},
+		"Changing group designation is prohibited while station is running": {
+			"text": "Přiřazení ke skupině nelze měnit, když stanice běží",
+			"sourceHash": "9b50a4903ad8a8e926d2938477541e589d0e5fa06e20338310736c059cd16387",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "b798eb1e8f70318ea630ea559ef669d70ca91967f6c83ba228685fc94c61bcd3",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Chinese": {
+			"text": "Čínština",
+			"sourceHash": "1bf274ce62a1b34761dac43e5c864e8188a32dd23e0dbff219429730dd128c53",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "95d5ad31f7eb31bff1b86b7864971190a653a14aa3ae48594bb4325ef1c3d2f3",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Clear this alert": {
+			"text": "Smazat toto upozornění",
+			"sourceHash": "e1e662f0fd7d2c50eb894d4baaf8ec47d35f7c555dc03a6d4f64e338ca84fa7d",
+			"contextHash": "24268d641ff4b0ddc2a2b4f790932aa8a8745a4678cec55b6e960fce82a02865",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "b34d72ec166bf37dc7e8af3b69141571d9300f057b695392a93d3eff8e24bc97",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Click below to expand/edit. Be sure to save changes.": {
+			"text": "Kliknutím níže rozbalíte nebo upravíte položku. Nezapomeňte uložit změny.",
+			"sourceHash": "055665d968e1c5ef40c6498857b613541e330877cba0cb8b2fb794442cb90173",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "d39ace6617711451f16ba828462c5a906920a4770026bc87c2bd76318fd4ac27",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Clock Update": {
+			"text": "Aktualizace hodin",
+			"sourceHash": "1033bf948129cd01c97b4249248286c40c130d70dd7379cfb33ce08c2b54946a",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "384d24ffce3c3c81c1d8a7b66f5866d01b4fcc2d591f538c2038885310537d4f",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Configuration": {
+			"text": "Konfigurace",
+			"sourceHash": "a9af6c753b7d22be15845ddec95421d0a7d66227ec1d4c777590caa8654c3277",
+			"contextHash": "089d08776f6f39521fba37db6965244177b77aa2d0c64c609fa598243f13d261",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "f706a9794f859b2e3f6cf6acebc559f3e54ffbd72316b51e48f3081c02374a04",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Configure Child Sensor": {
+			"text": "Nastavit dílčí senzor",
+			"sourceHash": "d54dc188b0db2294d11075aa073a84316b76d2a344095418151eeb1eaf8cdb76",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "5292c0cec79e8c29fd1c02a541765e92aa1937e1525c1b13d0b649cb7d36e57a",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Conflicting sensor configuration: %s. Remove it in Edit Sensors first.": {
+			"text": "Konfliktní konfigurace senzoru: %s. Nejprve ji odstraňte v části „Upravit senzory“.",
+			"sourceHash": "d39e6f679ee450885841f83f5d8788fd3584ebfabd54f2f7f40e6ae80aaa7e97",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "7ea9914838299f814e347230b20bd66a7a83b7b2ddb4f0be91d04cec7f2998b3",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Controller rejected one or more invalid options. Review and try again.": {
+			"text": "Řídicí jednotka odmítla jednu nebo více neplatných voleb. Zkontrolujte nastavení a zkuste to znovu.",
+			"sourceHash": "f66465f9bc93128bab83c9d2cb5504522dcfeafb107cd4578fce4c581219ead2",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "342e441223a8b6d96d2eec3afe6d7d2fb9ec6c21a0facb9f879b41b0b2df9dad",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Create a single-run program for repeats": {
+			"text": "Vytvořit jednorázový program pro opakování",
+			"sourceHash": "9cd34f85d707008806d0e1dbc5c8b245fd27f69dfc9834693ac6d8dc1075acd7",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "4b90464c19aa29484251151e78f1fb34d23edb5e7457d591000d92f8d2015758",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Croatian": {
+			"text": "Chorvatština",
+			"sourceHash": "0576c4b1c182ea7e26f7266e60ea218cc45db04d13951797da61f6382301cf97",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "25831b5d9f4ab10ea7cde07a2340b2ffb1a40e1c8d3f04d3efc2213e1bb97a02",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Current Sensor Value": {
+			"text": "Aktuální hodnota senzoru",
+			"sourceHash": "20b500b983190ae5b054e45846c35700d601285e715a4201540feaa32efd79b5",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "35ec4000ac911e2021947dd5b9026edf8cf6b2857b5318cc046dfee166b05126",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Current Value": {
+			"text": "Aktuální hodnota",
+			"sourceHash": "de8bd48518e1fd535c40a0286e99bcbfd369e1ed9cbc671796db0713e111bce5",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "f8fe39650a95630c993b0a29e6ed82b6fdcad7de74318dfc472de50cba95f5ae",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Custom Adjustment": {
+			"text": "Vlastní úprava",
+			"sourceHash": "f5b5e9e3c47a737bdbf8b5c90256243dc7b79579e962e70f6f6e350b4fa9389b",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "a4ef5a678bee32ef42ae4126457bf20f23bc6d5a4ab73e8e35427166ce430df6",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Cycle and Soak": {
+			"text": "Cykly a vsakování",
+			"sourceHash": "e534cf43c3e925f9e5f4d482a09bd8ffead76a0a754035307c99f58dd0336db6",
+			"contextHash": "beee43ac2b24990782dc3dcecd71a4fefae6d8d30e8574141a91a9e2a998bb8b",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "1b35e80f55f91284df5431ec3dc6b40cf0338c5c0eb1852129f8783c0320b5ed",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "unreviewed"
+		},
+		"Cycle and soak settings could not be read. Affected stations water without cycling.": {
+			"text": "Nastavení cyklů a vsakování nelze načíst. Dotčené stanice zavlažují bez rozdělení do cyklů.",
+			"sourceHash": "9f0b9d1ef5c3d30fe44179d3c3acd0b92d104984c4b7709d711a3cdd14108af5",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "933059907615f9a4ccfee508e259617cc12a965c762854b55709521fd4b3504c",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "unreviewed"
+		},
+		"Cycle and soak times must be between 1 and 240 minutes.": {
+			"text": "Doba cyklu a vsakování musí být v rozmezí 1 až 240 minut.",
+			"sourceHash": "1cfb6958acb3d34c4e7a7fb6a6c055b1809ccc10b0b5485cc128842ce27c18e1",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "39ba1e81f5914274605d24b909dc17b47544b9648b4e5bf2cf0c10327ae1a7ed",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "unreviewed"
+		},
+		"Cycle paused": {
+			"text": "Cyklus pozastaven",
+			"sourceHash": "a1ff65d7c6a60675e4c4546837e447c50aa26b7007c4a5d6cadb5de5671e5be3",
+			"contextHash": "5fc4b9d7a45df2c4b138774135fdbb03a332756d2ace5d7b1f568cb53de5702a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "82a45607eafe00c3b637c1389df881efdde9d60de3635bd48c4a53dec7c0dd7f",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Cycle queued": {
+			"text": "Cyklus ve frontě",
+			"sourceHash": "100c33110e66976fdf3b1e73df16c21b2a87a1f1b06010fb423dce1dce11f078",
+			"contextHash": "5fc4b9d7a45df2c4b138774135fdbb03a332756d2ace5d7b1f568cb53de5702a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "a51c8cc8ec36be6a961a1662b21ebfabcf6527787dbecf6a7b5cb0aabc8a052a",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Cycle running": {
+			"text": "Cyklus probíhá",
+			"sourceHash": "bac503974f1a17261dbbc859702ee1141db94793b42f3a43de8b8c09899d0290",
+			"contextHash": "5fc4b9d7a45df2c4b138774135fdbb03a332756d2ace5d7b1f568cb53de5702a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "24983b5c214453a845fc330f8d3f508e2f9849ad84c3fd93128c61d11597e078",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Czech": {
+			"text": "Čeština",
+			"sourceHash": "6a30554ac99199abc65296eaefc1a2e0fd5ac8c1ffc7a486e5a9c22e2eb57cfb",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "887a9fc50191b1683ebb9b4cb924e68f4637433ac11d14791020245a5d3212c4",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Default": {
+			"text": "Výchozí",
+			"sourceHash": "4ca0e0e73229540cc109b407b56d325b34def70f33f84982ed53de640d81ef49",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "1e0cc43d9db55ee4faf20672decc3096a7d0ab270154a2c4bbaa40c469d86955",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Default Provider": {
+			"text": "Výchozí poskytovatel",
+			"sourceHash": "25e62519cec370ae7162077c581fb2ff798f71ed6b25b9b03c8f4d1e87514bdd",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "2672e60e00d17b764ba6f0730a0567c2576b4964872a811facecb65e19fb5f68",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Delayed Off Time": {
+			"text": "Zpoždění vypnutí",
+			"sourceHash": "7f9065a4c637b91bc1281b468c7070844f4ce8e5477e1bc1dcb04d76180d21b0",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "4b4b11638bb8b33b1e9ed671373304c5cb8bf8ba9e6682a10ef3d6d75bbbda33",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Delayed On Time": {
+			"text": "Zpoždění zapnutí",
+			"sourceHash": "8d29bbcb70a9fb9b1a365f2109eca99e1e108b27edea14865874709c248994b8",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "51bc0ea415d5dc92d6b249a235bfce938e21f886451bc6c5077e0282c0aa850c",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Delete All": {
+			"text": "Smazat vše",
+			"sourceHash": "5070ed6ecc4f7e6b84a2558c873289fcdd8111a4d254d9b7463606b5bfb7b5a5",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "0b84629b6e1d27591e19947b433bc3e05e7d70e27fcd26d0af543c7d110e7ce7",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Delete Sensor": {
+			"text": "Smazat senzor",
+			"sourceHash": "03727720ca755596c0e33cc4a87d9ada6f71b0e1ab06ee4222f7ac8a4a18216e",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "6da1eb97491385b37c430f1109e607b02d8a755cf2cae154b558618e0102a27c",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Delete the entire log of": {
+			"text": "Smazat celý záznam senzoru",
+			"sourceHash": "1e6059e86bd0e33c5fd2381402e32b2e7c304b1853fb7161d1429fd50a43186a",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "454a040d05d054ba2c6c86da14c6684a2777d18a8c0dcc32721807571429b33c",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Deleting sensor log": {
+			"text": "Mazání záznamu senzoru",
+			"sourceHash": "265d39421464cb18574acc152686700df7829ed2fda92b8f743b800eae5a947a",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "8f0999041c509bb2174889a9d05470e32d1a30ac411f57dcb0bfd7e8893a416d",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Device password is not secure": {
+			"text": "Heslo zařízení není bezpečné",
+			"sourceHash": "9c7be9d5a940a7a732e5b04fe607b09ce4d23ad04ab4ba2cc193a1dd5f97f678",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "35b9af0ce3631f4a00984b5871a01e0608b123771d6776be2485a713a878557c",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Disable Remote Extension": {
+			"text": "Zakázat režim vzdáleného rozšíření",
+			"sourceHash": "de04998f73a9ba6d1db6f7529939dccd8dc4543b2c81b6415a33c07eefa1ac03",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "65c68cc779313ba96c26751b3298b22316d69882e3ce54dae0b21d1aadd317c2",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Download": {
+			"text": "Stáhnout",
+			"sourceHash": "41533734a5a7b89d7d71651a377cbd7d509b922413ca059b398b85324940c0d7",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "9227d53e3f9eaa3bc8cb205c3ba7554a31a261d333e14d9a199e49ca8d74cab2",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Download All": {
+			"text": "Stáhnout vše",
+			"sourceHash": "9a162a1d67e0110792bc9781e9af77f9d1bd52852a21daa008ec4c9e6aafe3d9",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "9416589c916d224faad77cea7204eb0086e071e59c68929e94f9aa30c419be02",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Dutch": {
+			"text": "Nizozemština",
+			"sourceHash": "6949d667043bee0b3956062215f13454c6877f7bada74c9cee264e7035f428c2",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "d55db5b8bf40d8c3804eab475000e3640367478d9e1ec2aeaa2080af4bfd37ed",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Edit Sensors": {
+			"text": "Upravit senzory",
+			"sourceHash": "d9b6787ec983a3c55b89b50fa95c88f361c749f50ec3f6cc6d84919251b70128",
+			"contextHash": "59829b7ec60deaac16f47c84d202c693b4cbf4283b5981244f969747b253459a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "1b714846f9cd48fe220773c8b2eae069bbd97be08b007fc58b225876056f22ab",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Enable Cycle and Soak": {
+			"text": "Povolit cykly a vsakování",
+			"sourceHash": "767d0437f0e0465c18c556da63b2e2e2c079cd7693516914eaaf780d63618056",
+			"contextHash": "5fc4b9d7a45df2c4b138774135fdbb03a332756d2ace5d7b1f568cb53de5702a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "fc11e9afbce14886dbcb85f2af9be58d68dd2b8a235c5e011645756a43c3beff",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "unreviewed"
+		},
+		"English": {
+			"text": "Angličtina",
+			"sourceHash": "32889a931b08ba01dadfc309df2ec6bd7b8234aa9a8db49ffd49818f3b3aa1c6",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "62c1d494bb9ee04911f39b5618a594b3cd0fd689e44ba76b4617a5abbf1c5b67",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Error: Add at least one sensor adjustment point.": {
+			"text": "Chyba: Přidejte alespoň jeden bod úpravy podle senzoru.",
+			"sourceHash": "6fcd1ba08783a8c0cd599392c7818a7965c4bfabf5503853596d987baf02761f",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "e6630b589174e9420f092cdbda38fd6be3b1fc92def6b3e754d5331734a8faeb",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Error: Complete or remove every sensor adjustment point.": {
+			"text": "Chyba: Doplňte nebo odstraňte každý neúplný bod úpravy podle senzoru.",
+			"sourceHash": "f905641d6694fec4b167579ad00d78f506b14d245ab05c0d008270433010ad09",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "0afb098e7bd6cb1416ecc528c77f8fae88ce16381552764f6af6a2c5806aba2a",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Error: Select a sensor before enabling sensor adjustment.": {
+			"text": "Chyba: Před povolením úpravy podle senzoru vyberte senzor.",
+			"sourceHash": "b21d087efd817d9d492b04b6bfb2a1b26235b918adf79a47752c89fcb954a832",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "051e85933ec5015e502d958a0fb1715d4fe4633719db1bd116a4b78e7d55138d",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Error: Watering percentages cannot be negative.": {
+			"text": "Chyba: Procenta zavlažování nemohou být záporná.",
+			"sourceHash": "f6c2b25274e5e09545f409fd6726bd2a08dbb64dd07048b42079a9a7cb93939d",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "7f0e006696be26d0f97d088c276ff0bca3408e4a2d5f50c0d8f60e1693436db2",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Estonian": {
+			"text": "Estonština",
+			"sourceHash": "459035c643e1cfe4a6cf83684836971224751c3c73c6212200569586f318b9e0",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "d8bdb7f8c025b7f9a4fcbf30d1aa2692a3dddae719c29c16848d593c1d5652e4",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Factory Reset": {
+			"text": "Obnovení továrního nastavení",
+			"sourceHash": "16d5e106b7e55b95641097b3bff4b727ec143b0c902e132060f1b8f6464a155e",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "ab54ffa2f31cd5697b24faa55a0e11ebe290f43823290c3c669b304c21050acd",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Failed to delete sensor logs": {
+			"text": "Záznamy senzorů nelze smazat",
+			"sourceHash": "a4a96bf737544d632a60ccf42dfdcb57acb66258caf1fa77cc3106ae77401684",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "42858e10cf55a0526708b04e665a77b2be6f45d02882e801734fa473bbef54d1",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Failed to download sensor logs": {
+			"text": "Záznamy senzorů nelze stáhnout",
+			"sourceHash": "3193489791a9a8e233ecfb2fae81058640e85842abb2e16136430eccd6e2a5c4",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "f461988936ec779997df6ac7250aaf6d26254807182fb9df75fdbc1be656365a",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Failed to load sensor descriptions": {
+			"text": "Popisy senzorů nelze načíst",
+			"sourceHash": "b9f98b1ce27dd8e0cbe164f800040622629b4e54dce9928d20e92ab429ab05c3",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "22f521c9f848ee3728c3a8a856c754211198f61263e26c177906f5c7ea86d5ae",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Failed to load sensor logs": {
+			"text": "Záznamy senzorů nelze načíst",
+			"sourceHash": "1a6b0fc8734d76cc258a6eab74d7874577c50240840bcb281582d150f41d3d91",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "3ca00ecfaa47bd30e9db389ed15ebd164adf7d086c555d391f100e0cc012b285",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Farsi": {
+			"text": "Perština",
+			"sourceHash": "b3c4bbf2d31b8fc014110826abfcada07774f38ce68febd94e1f0ecac153e94c",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "41333b0e4356029684625f69e4c1edb24c87b54dfb7ebeb11eb891119870428a",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Filter stations": {
+			"text": "Filtrovat stanice",
+			"sourceHash": "0c5841c34a21f0ccd1b746d9f7eb5d60cb27fac1929dfb820d1dec20142bb12c",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "3361e09ce95c93966a3182037ca8d7e74da155620652946974cd40b595ab7659",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Firmware Update": {
+			"text": "Aktualizace firmwaru",
+			"sourceHash": "c2fff85dc3ae73e5d57c434143b5738faa26395cd2166d9dec16c71ca5d78c0a",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "be427f29714cc8bd88e6dd93450fd35678ed6646243b43d0078b83cdab36a233",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Firmware update requires a local network connection to the controller.": {
+			"text": "Aktualizace firmwaru vyžaduje připojení k řídicí jednotce přes místní síť.",
+			"sourceHash": "2b54c2a5630719c34b09438f177c83bb9d8f0314eab725c759b42a657498d768",
+			"contextHash": "89f775062299865aed268f39cdaa86d10d0a6538b4bf8c52e106acdef9833507",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "bcad6c19729552f55abcadcd79f4293ac606e498eb3dab2aa6e51f61027fdd99",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"French": {
+			"text": "Francouzština",
+			"sourceHash": "092033938ca2debb340be95266c500b7ee4739facaf97f9a059b190a19cee0f5",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "2eafdb9a4d5a27e13f72c2acfd0d9f9b1d3faead74f7f2bdb94e78d0042f32f0",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"German": {
+			"text": "Němčina",
+			"sourceHash": "ae4d849ad5c154f541d7168edf7878b994d27b800aba40c436c7f275ccd2a2c0",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "5ba8b0e88651e07e23d475dc25e7c4395edc4a3129cd52f76c73d182674c5e98",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Greek": {
+			"text": "Řečtina",
+			"sourceHash": "e315f6f286b54d75f099dcb09d74f06bb3c5f27ec5df727e1f9c80d0b1fa947a",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "6d2524c24e7d1e31e23ff4583c2ba4c1ab99adc4494cffac01b86ce26a7df8a0",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Hebrew": {
+			"text": "Hebrejština",
+			"sourceHash": "ac6a4cef231bf45007d6ba8afe35d7c934964f9eb14a325f034da9b839d2142d",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "640e8f9c25c6110c7f0b54b1ff2d897328882dbf304711606b70fedbfb530f3b",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Hostname (restart required)": {
+			"text": "Název hostitele (vyžaduje restart)",
+			"sourceHash": "c2641e22b5c81ce5d36d48293d19c77402fe57c772891fce79a729bc8720273f",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "ce9a2f85e694596366cf6a61141145f2bf178a746e860ffb04d2a1093fae95e9",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Hungarian": {
+			"text": "Maďarština",
+			"sourceHash": "a394ccf77467488c66c1a5e15cd5ab20e1d38bf0ad1d23552f3460c217129ecb",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "0a3026358ffd9ab13f05571f218ed09abb06fe7af79430ded9ab85f9e298a676",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Icelandic": {
+			"text": "Islandština",
+			"sourceHash": "3e57aa2f4b8342d4d12edf6615b60d84fb2d3f183fd0a4e8906c4994d0c09ae7",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "7981253626386b1c70387242ee4a3c59372db7207dccb7e38aadc544cdd255e6",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Ignore Sensor 3": {
+			"text": "Ignorovat senzor 3",
+			"sourceHash": "cb89f4b570230d78476720a6d4cc58f3fe37f76491814b1bba4d187a728bba96",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "e09144991ae1808097afece1aa1dbe4932775d8202dc6c15eb9160fd8ba7ba30",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Ignore Sensor 4": {
+			"text": "Ignorovat senzor 4",
+			"sourceHash": "ebcf587303dc0fe0530f06e775f9634d21e68316e21eca27777ae1ce2bc72f9e",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "2f7f0a4c1c27f7f16100e0e38a05b3a81c535685b917aea52845b4b30f450ea3",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Internal firmware error.": {
+			"text": "Interní chyba firmwaru.",
+			"sourceHash": "638805ae847b24cdde567998ef49a053e86ff7e8117f03bfa3045f2b86be73cb",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "e51046e2b6d46031d32e13cb89943116a86231250b4c5ca6032828df626a3b19",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Invalid cycle and soak configuration": {
+			"text": "Neplatná konfigurace cyklů a vsakování",
+			"sourceHash": "64d344b2fb34fee239154c210b3a374730e7d6f1999b276d7deea4c66452b7ac",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "0f94eeb40dc99cdfe484502fbc9325b2ee7fab82c5e08e8d1761b436c0a0f878",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "unreviewed"
+		},
+		"Invalid program configuration in backup.": {
+			"text": "Neplatná konfigurace programu v záloze.",
+			"sourceHash": "a64ecd2e063a0f372ecd1ab674fd635ebbcbc9f04e8003179e35feedc1e470b0",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "e52b1b2e75bbf129a299b75241eff38dca8f67cd257d0ec12de0375445f781dc",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Invalid program sensor adjustment in backup.": {
+			"text": "Neplatná úprava programu podle senzoru v záloze.",
+			"sourceHash": "a8711dd4a3acb11849caefda96481e4f24ae727d5df41850efca2f772dcf72dd",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "b6c4786e5c1126db107b48cadfd118ea2f08e50b217f8cf82f8cc5f8f16e23c4",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Invalid sensor configuration in backup.": {
+			"text": "Neplatná konfigurace senzoru v záloze.",
+			"sourceHash": "0f703bad9f6ff8714ebcc1c5e5af5672415db762eb06cda521cd8ae6561f7de6",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "26025e989cea8bc18eef6024d8eec2cebbd294d60e7a07df412897f82712bce1",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Italian": {
+			"text": "Italština",
+			"sourceHash": "e5777cab81802a685de3e4c40931f39b76b9acadaa7431159f1143c2276ed320",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "60bb72534d7059ab1a20ad2cc5996e155ca31009c9ab994b5b2d8e8482e2a1da",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Item mismatch.": {
+			"text": "Položka neodpovídá.",
+			"sourceHash": "d99f36df5d2db20930fb477260e67953b03144bf5a708cc8efeb78a3649d4a2e",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "3e406871df8335a5d7779ae073824aa0ad0b29adc0f31221c47c7653e1a4d30f",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Latvian": {
+			"text": "Lotyština",
+			"sourceHash": "44b6f68fb5d50c5207e3f45f7151551722d0e7143a5dcfbfb7c54c8c3fffc2c3",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "42a8d1064b103ab8b2da7d2e18ab1518934c28d5b3df49d19f7f1a71ad876ba7",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Less than a minute remaining": {
+			"text": "Zbývá méně než minuta",
+			"sourceHash": "2c489af6cf9dcb4490a9f5266ae3f4615ee6afc2ac99b3584ce68d9f8b44f917",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "b3a3c723085e0f0bd044a6b6962cca5713a4831dc19d62340e780fd32ff1bdd7",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Loading log data": {
+			"text": "Načítání záznamů",
+			"sourceHash": "a963568e037d772b2e309f0c4a2959eefe3e90ccd850b597775ee10b7890e8f5",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "202d4bcb4b5fa9a5a45be808ae86730d2f2f925d4f507335dc1b4932b4651d6d",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Loading program adjustments…": {
+			"text": "Načítání úprav programů…",
+			"sourceHash": "ca4fe44a82458600991842d1b4eeb105491a363247080b1bb73671e7ecc26091",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "f474b2daf880f96fe36f189945d0771a90ef0e1f73c0faae7fde202a9331ecdd",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Loading sensor data": {
+			"text": "Načítání dat senzorů",
+			"sourceHash": "ce81e3ca20fdccffde291ddf4191066180ac0ecc2d8137ab270609f62aded0fc",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "317fc71cb36f6ed839e19ab998f0971f4fadada5c597b190056e048a562c0b87",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Manual": {
+			"text": "Ruční",
+			"sourceHash": "387082cd5f118bedd5031b2058570c9df3f64f0c688ab8bc2c060b973775397f",
+			"contextHash": "27986029b3df9ad00dbc67ce579607a8420c959ffa16c15c9f227eb82afac172",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "3dde78c69e87d93a69f93e47d9a3f7d46c78e7ed763a8a899059052fb96a97d7",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Master finishing": {
+			"text": "Hlavní stanice dobíhá",
+			"sourceHash": "d18d8b19b0719a7da3448a211a2dc7f7ec5e0896c38d5eafc0712ea9f2e799a0",
+			"contextHash": "5fc4b9d7a45df2c4b138774135fdbb03a332756d2ace5d7b1f568cb53de5702a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "965c45a6f6c96486ee29c527c5cd109e61d160ec7008fdf5b5fcd4e6d4805fe5",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Masters": {
+			"text": "Hlavní stanice",
+			"sourceHash": "899503bfffdc5916366e03b643ded9dac1fb9eac2636c76699e21908ed8ab878",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "564c85a11ad942e2b6fa772fc13c99eecd16d249416d4659c2e036e64d0a4653",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Maximum cycle (minutes)": {
+			"text": "Maximální délka cyklu (minuty)",
+			"sourceHash": "9d216740c9563af0fa5676eba2acbccde68ed0f238101f81baee4625975bccd8",
+			"contextHash": "beee43ac2b24990782dc3dcecd71a4fefae6d8d30e8574141a91a9e2a998bb8b",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "ff78ecaecb91b2fdb0b8da9dcb22f0bdbc21dd34f347dc818c447602b3ada02a",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Minimum runtime": {
+			"text": "Minimální doba chodu",
+			"sourceHash": "806db99ac83b0003b30ed4481d20d102b928c239d50bdc9c9d38d4e0d0d52f4d",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "93bb4ddea49b548fd66fbb7d57f512cadaf216e604afc257bb0a7dcaa7a863bc",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Minimum soak (minutes)": {
+			"text": "Minimální pauza na vsakování (minuty)",
+			"sourceHash": "eeef86c45983bdc022d68232e9fd44324aa1c12d7600126a5ac5dbd103a8eeb0",
+			"contextHash": "beee43ac2b24990782dc3dcecd71a4fefae6d8d30e8574141a91a9e2a998bb8b",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "a08bd5b2c01d2d3a73243a5ce5f2c55724a2cc037c1df3435ca7667fb69cf05d",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Mongolian": {
+			"text": "Mongolština",
+			"sourceHash": "68b050dd8c76dd9e0184364671c660db4d8003e2bad7b30967cc44ef98cda530",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "a9a974490a8a8db4715596a524add5bc7bbe49ce4807da67729fcf5caf9b08f2",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Move left": {
+			"text": "Posunout vlevo",
+			"sourceHash": "5bd942e0cc11bac62e774109e304af6125ae51f11c60debeeaebb6651d5c8a11",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "7819221355bf844b382e2c100276e8f6f202bf9bddad336abab18bbc6f25e805",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Move right": {
+			"text": "Posunout vpravo",
+			"sourceHash": "59758ebbf3c1967ae1dba0525c175a502be048bbfcbae7dc8a8e3912505ac197",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "2eae80445b28c8f03ef52c4b102e306ca923edbcac673bd9abf6c2238808e2f7",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Network": {
+			"text": "Síť",
+			"sourceHash": "23e10e8157dfc823353460900388acf5fb1f168e868693b8737ab3ba720b94f7",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "7f3209b7eb75e901a2c5e6a0dc4eac13aea6d616d4d0a201da7a60c4fe1087e1",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Network Failure": {
+			"text": "Chyba sítě",
+			"sourceHash": "f018c16273404a0c6d92e0b88b12f6cac34cfe84f091cf12c5a388c8c0886798",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "48428ecdb788a3a5c201b71e3c47212c94a6a59c4659bfb3e8cb9ea89b82c135",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Network name advertised to your router when using DHCP. Leave empty to restore the device default. Use up to 32 letters, numbers or hyphens. This is separate from Device Name.": {
+			"text": "Síťový název předávaný směrovači při použití DHCP. Ponechte prázdné pro obnovení výchozího názvu zařízení. Použijte nejvýše 32 písmen, číslic nebo spojovníků. Tento název je nezávislý na názvu zařízení.",
+			"sourceHash": "23f00335c6a35b3c13016e013cdd49178403f3eee18428b23152412e03a1a8b0",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "25d3fd169c3c7e161d4b8515d8a59ced4af8586e7a802cde8abfb96176caee44",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"No Adjustment": {
+			"text": "Bez úpravy",
+			"sourceHash": "93d4f492eaf5d1811f39f018b359f81710f9831a892bbfc8ffe11afab04ed1ab",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "73b8399343ad71f94f2b3a4ada89d26fdc7af6f0d3bd12be78bbc3f788aa48dd",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"No sensor data in the selected time range. Older data may exist; choose a longer range above.": {
+			"text": "Ve zvoleném období nejsou žádná data senzorů. Starší data mohou existovat; nahoře vyberte delší období.",
+			"sourceHash": "dde2a4e7df333d8dc2aab87aa8b14a5cfe473956259a10c8b163c7fcad34bf91",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "df8b409642bbf390150166e4580be1b9e07f4d9ba2217bfcf33879964a8fd41a",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"No sensor logs found.": {
+			"text": "Nebyly nalezeny žádné záznamy senzorů.",
+			"sourceHash": "20810df83c0273414cd989d234391e8d7e24d2ed8ebbdeb8523607addaceeafd",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "35d98dc9134515a4d685f7bbf8aeaebe81b22fb4695b16a133dcb8e4282a00d7",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Norwegian": {
+			"text": "Norština",
+			"sourceHash": "9a5122901cd3f5b602b85d6e5f9ba7177b019cba79b1d35922a117a9b8bebf4a",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "3172c074f8a7ade55b6f578b06888b6875cc7b6d2daaec9fe99f90c69a3c08f3",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Note: this page is for external (e.g. analog) and virtual sensors.": {
+			"text": "Poznámka: Tato stránka je určena pro externí (např. analogové) a virtuální senzory.",
+			"sourceHash": "7379af3742a4279b0f8c3ccdf9f811f98ff900e0ff2765a35e75b696d021c9c2",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "03040b6d9f1bf4ed2df4040a251e674346da5c2dc633ac652b685b44c1cc9fff",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Number of Programs": {
+			"text": "Počet programů",
+			"sourceHash": "620befb68c3716911e9c89023f38ab619ef6aaa5f5bbe8df01ccf2848a381bc2",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "353a90ee45b94b6be708bf90b28a87161825eabb690699f20d105d23297fa05f",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Number of Sensors": {
+			"text": "Počet senzorů",
+			"sourceHash": "49660e957f2df687cacecaf7a9a23fa8419bbb55443eb587b40c805c300913d1",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "e7f29a7554e3d376465dee5698ecdf80df77285b53af2425e41e19680727797a",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"OK": {
+			"text": "OK",
+			"sourceHash": "98c4922bb641c65c7a30b7bcafdf230b9b00b6693631c56146ab25b2786ee4a3",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "98c4922bb641c65c7a30b7bcafdf230b9b00b6693631c56146ab25b2786ee4a3",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Off Adj.": {
+			"text": "Posun vypnutí",
+			"sourceHash": "d8ba58e0a879985b9e3ab4a49f72eac84a97947e6759c59f2a2dbfb849e7390b",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "2e8af5c11f9892d844c641d2dd31327876fd6e573a461a411c832e9b2b2f57ee",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"On Adj.": {
+			"text": "Posun zapnutí",
+			"sourceHash": "ebf5fb4e1da8b062adc9d1279c076eac8d17430f5709d657c3c8e8dc582a268e",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "ab26038735e93584494941fcb0f60b18a073e1d73ff8aad4f8d8f5a4b6bab6f7",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"On/Off adjustments are in 5-second increments.": {
+			"text": "Posuny zapnutí a vypnutí se nastavují po 5 sekundách.",
+			"sourceHash": "fce8dded1f8420edfdff940fd38e5c28e29188eae5aa2d85b51f92c7d52d8cc4",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "14fec9daab505249c75286666a1565168bb780beb04ee164822ae4f5b0e20c09",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Onboard Analog": {
+			"text": "Vestavěný analogový vstup",
+			"sourceHash": "01823cf4a33fd2c871876f84e0bff6ae89ee8a879f5a39436312ee099c41316b",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "eba211dba6c5aafecbc00b88a6cc0e62387ab28d84cd244e66e9019cff960eb5",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"OpenSprinklerASB Firmware Detected": {
+			"text": "Zjištěn firmware OpenSprinklerASB",
+			"sourceHash": "014122dc70b85b691b943f39d9d31be211597eb22a551ea0052cd2a132709d04",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "543b60896f17f7ae3b8d7173852fb3f850dfc8bc8cefeedd37e59640973a42f7",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Operation not permitted.": {
+			"text": "Operace není povolena.",
+			"sourceHash": "0884b986a6c8c3c67d3b4e27a5d567f5e647d82b4b30dc9102699589125eab32",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "2c5bbeb8f0b044e095a759e18dd4ac8375e7abb5d7e78b2153c8d18ae556210a",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Option": {
+			"text": "Možnost",
+			"sourceHash": "2c31ce6df7a4958f4e9871021588eb7219593902323a0c110a456464ce1035dc",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "6617cd0ded98e873ee14ddd164e9042bda9b9684f3992026f0cdf317e33f742a",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Output": {
+			"text": "Výstup",
+			"sourceHash": "0cd3518a3335a3aacc9f795a34d4c39df8aa5d744dfa24ded751735edef44387",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "5cc804dc0cedbb213c40e8276ea0dd0a1cdb3ae1d992c82f932e4b968fcd8785",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Password protection is disabled. Set a secure device password and turn off Ignore Password in Edit Options.": {
+			"text": "Ochrana heslem je vypnutá. Nastavte bezpečné heslo zařízení a vypněte volbu „Ignorovat heslo“ v části „Úprava nastavení“.",
+			"sourceHash": "0ec1fd61ede24491d962e8f0464cf9e624bd8da9204e370fc422ec9db19f401c",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "85898e14838c235c03ea07ca6a6d65d145f31d452f7f8aa0e007454c1f1ade4d",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Pause Runs": {
+			"text": "Pozastavit zavlažování",
+			"sourceHash": "014a9bc370a90a86f9434cd88202c407273fd79db0edd6456c9d32d68d408236",
+			"contextHash": "089d08776f6f39521fba37db6965244177b77aa2d0c64c609fa598243f13d261",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "66ef4b94bcee80a6decf1b151f773318514fdb748973152d9ea5993b948206c7",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Please fill in all required fields": {
+			"text": "Vyplňte všechna povinná pole",
+			"sourceHash": "10c03d02c5713e2e2480d52bd9998b49ee95f87fe07da41837b5a1f4af8debea",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "4890498771c4edbb3c98d1e12d97d4c9494cdabaa4b01e34cf6054641607b174",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Point": {
+			"text": "Bod",
+			"sourceHash": "a1880fca8372d06ffa5be27c8f5e30afff15243ec4c636118e36b060e58331df",
+			"contextHash": "a291fea46d121ca2d96d75818a621f34fad62852c7de9e583470d4fcf69573f0",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "12e3b1d7843f9202cfa746c93e81da7dc8c55c5f514526f3b9da07eaddf9a91c",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Polish": {
+			"text": "Polština",
+			"sourceHash": "83bdaad12c66361011b90886bfc2e1cba1a76f2914eba88af4a3db6cb3a43da0",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "822b9277c161097c25164b20a53d20cadbeda1449387eec9e769a0b680edf259",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Port 8080 is reserved for firmware update. Choose another HTTP port first.": {
+			"text": "Port 8080 je vyhrazen pro aktualizaci firmwaru. Nejprve vyberte jiný port HTTP.",
+			"sourceHash": "8db4d4da369af95f859badc59200cfc495f19a2961e684fdc81d6c05d3254787",
+			"contextHash": "89f775062299865aed268f39cdaa86d10d0a6538b4bf8c52e106acdef9833507",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "aa49233d31dff4daea7c5068007ee18a6d118cdfa42cddc73d9ab9c63fd6c9a2",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Port 8080 is reserved for firmware update. Please choose another HTTP port.": {
+			"text": "Port 8080 je vyhrazen pro aktualizaci firmwaru. Vyberte jiný port HTTP.",
+			"sourceHash": "dde9c21d5c3d10cbed4a0834904c312b1ed09fd24daa67e1c172bec0903c8f73",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "f3273160c3417dd8aaaa5458974ee81183b676a5504cc3ab42160e274c305e8f",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Portuguese": {
+			"text": "Portugalština",
+			"sourceHash": "8cb4d400f787a80f2e3c60a2bb2e2194bf78ed8c69be518138535c6074aeede3",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "eb563fffb5ae39428eac592fa94d129042534fe95815345cb31508870bbe1cb4",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Power On": {
+			"text": "Zapnutí napájení",
+			"sourceHash": "7529ff6ad12732408ce106e74561bda199aed85273ff31287a54512cdd5da21a",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "f917093af1ca576d6b1ad28e7b40828648f1b2542abbebd59a19547e34302a9d",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Program adjustments are unavailable.": {
+			"text": "Úpravy programů nejsou dostupné.",
+			"sourceHash": "79d7d34ef019800c55a4e11c5518c088f342238cb02e173fc2d9cbd7910c2ab2",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "36db7eea0b0dfd6bd4796ee15a9328303493ac73f6a7f8990de7ab26e649a8ff",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Program preview is unavailable because sensor adjustments could not be loaded.": {
+			"text": "Náhled programu není dostupný, protože nelze načíst úpravy podle senzorů.",
+			"sourceHash": "9f4c47aa13f87dc415d1b2159a7cbd8f024e04067d0a9006a9d104069b8793c4",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "813bcd5c7050753fe5c8b7c30e2c370521288c8324fc9ee428230286313fa1bf",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Program sensor adjustments that reference a sensor absent from both the backup and this controller will be disabled.": {
+			"text": "Úpravy programů podle senzorů budou zakázány, pokud odkazují na senzor, který není ani v záloze, ani v této řídicí jednotce.",
+			"sourceHash": "f567fe02b7809c14855d5b2a743e2afd5439c0e0205010b2d3110d3daa83b8c7",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "ca91a80261d58f45378c58abc0796084adc31850d532c1b974ffd5b2b849a6e2",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"RF code error.": {
+			"text": "Chyba kódu RF.",
+			"sourceHash": "2ba147301ea06eb2cd6c12d51fa00f5e145e47ee10c066d9562587c22abc61ba",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "b9a354b5264225d45593553ecd9e6d821df8a78141123dea8c7842bc48935c07",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Remote Extension mode is active": {
+			"text": "Režim vzdáleného rozšíření je aktivní",
+			"sourceHash": "52f08ec8217582f3e06107c3e13b7dd1483a1769d5210c02b7c16e0677b90d27",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "ba204334e2a6df7e5eeafbddf47b92ad2fbc1b551ceaa431bc3ae1e8e7077fb6",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Remove this station from its Bundle Station before changing its type.": {
+			"text": "Před změnou typu odeberte tuto stanici ze sdružené stanice.",
+			"sourceHash": "a02673f473fdd42685212628af52137deccb556ae1e348241ad8080668f05cc9",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "9a8e13598ba1a1f1198b657db153ae9640c2f5b3f2fac02c42ce545bd7969bf1",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "unreviewed"
+		},
+		"Remove unavailable members before saving.": {
+			"text": "Před uložením odeberte nedostupné členy.",
+			"sourceHash": "f78cec615cb6ca0a7f55dd5efd26b8cb7c1018030db40ae36d1548144b8dc971",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "70fc1f55e066b577c582d957233ff0a5fc906daeb4a35a73b6b1ea3dd0dcddc1",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Requests declined because the queue was full": {
+			"text": "Požadavky odmítnuté kvůli plné frontě",
+			"sourceHash": "a8678f842f81a9dd367d04badb4167842d371f207a6627571c0583c9152acbd5",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "d5e30aa98af81d399c0074e87bb2870837098fca8349306ca4e92c6fba63c9ea",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Reset Button": {
+			"text": "Tlačítko reset",
+			"sourceHash": "7f99a01d35d52d25a07d46d00140836d0f1c51bdad4de7efaba3220be7b9d463",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "e281c1393c19f61cae38cb844df7ec87df60fc90bdc726fa9cd846de6bf71f73",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Reset Zoom": {
+			"text": "Obnovit přiblížení",
+			"sourceHash": "ae8b7c08d579971e5f317c5716ce6cbe90bc889635764f9071abbd4aefd89a7a",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "1c23f48d74a70307b8f3dd4d4ebde66ed7b7d4e4b96809bfec8eab4b23eaa47b",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Reset cycle and soak settings": {
+			"text": "Obnovit nastavení cyklů a vsakování",
+			"sourceHash": "f706498384c0d6db0993a99c7c333e9150b15c0ac72fb15a3b2c1ad4259f0da7",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "0b6cf441ea0c21d286905138990a4859c70e0770c5904ee83d056da62889588f",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "unreviewed"
+		},
+		"Reset cycle and soak settings for all stations?": {
+			"text": "Obnovit nastavení cyklů a vsakování pro všechny stanice?",
+			"sourceHash": "3ed890ca5afa35837fec13356a3c5b9a3c3d072b0acd568e7836dcd3c66fc86b",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "eccade0f27403f9ebbebb7c4ffff77ac77a0aa9cde1180e46d519d73cecbd4ee",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "unreviewed"
+		},
+		"Restored sensor definitions did not pass verification. The restore was stopped before programs were changed.": {
+			"text": "Obnovené definice senzorů neprošly ověřením. Obnovení bylo zastaveno před změnou programů.",
+			"sourceHash": "2ea68d12d93b808a8ef2c27d3c7b72340f40c65d8407472a4c3f1424b8e526e0",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "9fe00c810fbfe2631315a10ec0dd8674defc64563b61366d8ea4d78296ba908d",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Retrieving sensor logs": {
+			"text": "Načítání záznamů senzorů",
+			"sourceHash": "dee05ab56bb4d7171e61f3113c6afc8ce439d996f86638bf3fdf5cff26fc476c",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "1ea89d3c0723846ec5cf22715c507a606adc61efe03547473a876000da8a75ad",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Romanian": {
+			"text": "Rumunština",
+			"sourceHash": "e4762a60d2c00a3aeb135bbbd5a956fa8f6d1cd6db580e7643d3a8c38c5ec841",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "55a103116b3db8dfb599e9bc79328366b89b833a5f160b9d393e2a877b1b778c",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Run After Others": {
+			"text": "Spustit po ostatních",
+			"sourceHash": "4ee18587861ec7735d4db1bf42bd665370015249befea299cc9d2e4de3e86e2f",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "674e8f30ce919e01351c54bb23c32aaeca7216df915c9696efc9b8698c8e4be5",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Run After Others (Append)": {
+			"text": "Spustit po ostatních (přidat na konec)",
+			"sourceHash": "0cb7549a0d737f1fd5e798eb8df33f373d8c159936b6b9c0fa107b30f1427e04",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "7a541597e09a633d27a1e0fca668883eff459a208267bdc48e57d50701ee6073",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Run Now and Cancel Others": {
+			"text": "Spustit nyní a zrušit ostatní",
+			"sourceHash": "64509bc315a5ad220870c633dc596c81b9f1d2c8285ab85610c42d22734f2b83",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "af226b89c324f8237fd7409971d221dc27269471699c683924d40bd2c9d125ae",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Run Now and Cancel Others (Replace)": {
+			"text": "Spustit nyní a zrušit ostatní (nahradit)",
+			"sourceHash": "243df9465a1b91f33487df426df03752464b445f286533f54601e8f37c21cb46",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "924571a6e4ca8a890fd8da6f625c76aaad7e5417e61e3bf3fa8974ea99e82617",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Run Now and Pause Others": {
+			"text": "Spustit nyní a pozastavit ostatní",
+			"sourceHash": "1db1f0a406ded66030b56c8fc4c228dfac0201b9c6e60c3d878b1d4ff3847a75",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "c2e79bdc99bf72a6702f9539d237be7d474bee6eb2450bb9ec01c4a6f514bea5",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Run Now and Pause Others (Insert to front)": {
+			"text": "Spustit nyní a pozastavit ostatní (vložit na začátek)",
+			"sourceHash": "10ee6f68340d006e7d00c76e79de85f45a451e778f20cf9b683a237e152a3263",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "576942f57fd306cff7c478cb9ba6c086dd6a0c35dba840cad7206ee2348241b6",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Run Time": {
+			"text": "Doba chodu",
+			"sourceHash": "2e5df8b5ada838fdc85e4f9c6ee51128316a7700bbdb0a3259d77a68e365138f",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "bf5184b89b89fcb7186d5410f0375b7f679c075046d4633bf7af78174f86abe1",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Run immediately (preempt other zones in this group)": {
+			"text": "Spustit okamžitě (přerušit ostatní zóny v této skupině)",
+			"sourceHash": "68faaf5229cb0d506ae3d29f7bf832f196d79589c1fadf61fdf615d1a6fc69fb",
+			"contextHash": "089d08776f6f39521fba37db6965244177b77aa2d0c64c609fa598243f13d261",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "1e8c35699e45d8156a75ebfd203cd792df44cacbe3d93f796dcfc21c29907b54",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Run this program?": {
+			"text": "Spustit tento program?",
+			"sourceHash": "108a1e18a3f1d13b59367f43842a8d51c8ada620d45d34f9f02993bc95fae8ba",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "69930b4b0ee2846a57f2216bd27124a7c0759a4f10acec49582b1381f55c9175",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Running Bundle Station": {
+			"text": "Běžící sdružená stanice",
+			"sourceHash": "e1ea5d2c61712c2615852f5c0d65ed33566029670bf4d59f4fb7e3bcd1e6cf81",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "dfec79fb44fe9bb9be5d9e51a68658e95b63a73b5a1605d327d1406b17318a96",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "unreviewed"
+		},
+		"Russian": {
+			"text": "Ruština",
+			"sourceHash": "07bb3c3f5a38af2d0deea379cfb2d7e4f592fd2d553fc2daf7fd14aaf22ede3e",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "af97bf679e7e76996af2b93d81f2c5c66da3b507583ba3c3aaf8ce320a444ae2",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Scheduling Option": {
+			"text": "Možnost plánování",
+			"sourceHash": "dc910cfd63c1ba39276a7da075bf603da5a50f8e81a54ec31da2422bbdf954f8",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "b2f4a5e2109bec5b7fccbf1dff8693e57fb8035ba1f54b335897d751d294f2e1",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Select Sensor": {
+			"text": "Vybrat senzor",
+			"sourceHash": "71305be90d69183027f09082f84ef12284918626c57499168b26ab6684639fe8",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "f98df623ba4e2e7a5ee0ab6136a5cca4708b28e7d683c86488167d77e1d837c6",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Select a compatible built-in sensor port.": {
+			"text": "Vyberte kompatibilní port vestavěného senzoru.",
+			"sourceHash": "6c521a7e06bde28cfdcba952e6b7d0e312d84e35c8c2e75acbddf52b502f56e6",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "6de5d9d05d34c4f23d475db4cf3277f64dcb54ad0c3c8b73e6b7dcb2d902289e",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Selected": {
+			"text": "Vybráno",
+			"sourceHash": "386ef3ac98752a065804161574cd35f36edfb30d97932520dbfa74401c059d39",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "1d1a8cab7b23aaa5e715c49685a0ead1f10b108d131a29b85724a0e92f520c8e",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Sensor 3 Update": {
+			"text": "Aktualizace senzoru 3",
+			"sourceHash": "5d3e68105689b0a5ff3384f5608a7fde9edd867e29ffc62db7e1347bc64b4867",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "ac986e321ad45c8bf0c75650a1819d13f89b83c43ae0a8387cc94c8d93e53dda",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Sensor 4 Update": {
+			"text": "Aktualizace senzoru 4",
+			"sourceHash": "0442f2920d03c2708f550eab425f08497dfa0b44bc2a04fecf10e96c33fc9519",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "4a7056760122c694de229162caf41e06de336a0b7ea4e58978113b634f0f0683",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Sensor Logs": {
+			"text": "Záznamy senzorů",
+			"sourceHash": "21f08299b225e4f4ce33d1f50c8d2ea9107eb164bc55c0f27fa173b427422e18",
+			"contextHash": "e478d376fecc82d351cb3ea75bd24ab24adb0e27adbebca368b5ba68b420d72d",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "1863bb892c124a7d862712d31ee3a52bfd6f40cebd2a13243231b39ecd056023",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Sensor Value": {
+			"text": "Hodnota senzoru",
+			"sourceHash": "13e56ce48b83e21d5c274190b56983b4c16ab93152b61786d6f492bd7bdf9115",
+			"contextHash": "a291fea46d121ca2d96d75818a621f34fad62852c7de9e583470d4fcf69573f0",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "441c28bbe3c70458ad46a2ad03737164a7dcc8e98facb96fdebd6633f977c3c6",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Sensor added successfully": {
+			"text": "Senzor byl úspěšně přidán",
+			"sourceHash": "4268713adf94fea888ce61e55e32e645a64db1cca0d08033c148f644207d3fe0",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "ea217228f839b861c0ef30fe7284c40e781c42ae672c1335db7da22358b6db93",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Sensor adjustment is unavailable; using 100%.": {
+			"text": "Úprava podle senzoru není dostupná; použije se 100%.",
+			"sourceHash": "11e6d23cad61fae20bfd7776fcf4ff61df228710cee2c3ef77222fcebd698df2",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "3ab06139cb5ca41cafdf02b7862132d9c54b6961c11dc3480626f1de1ecf33f6",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Sensor definitions in this backup reference unavailable child sensors.": {
+			"text": "Definice senzorů v této záloze odkazují na nedostupné dílčí senzory.",
+			"sourceHash": "f7b3e6a970cffb0e824ac8c7dacdb5978bf18e31f6a924168bb5cc157b6b29d2",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "806542b8b63763b86d4eb12289656df7938b262a0dd4eea070bbe4addb1adc65",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Sensor deleted successfully": {
+			"text": "Senzor byl úspěšně smazán",
+			"sourceHash": "b613792445b5707966256493863279e3f7e78739a79c6f8aa4a4eb31fa70e7b6",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "52d335d0344a1d114ced9a91879c3a2016f82fdc8ca3892d0a07d2d1e4ea1bbe",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Sensor log progress": {
+			"text": "Průběh zpracování záznamů senzorů",
+			"sourceHash": "5e5ab2977d0d2952f4f56c29fef2d7c766ff475ba59d551789583cc87fccc8c4",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "607a9c038fd73a1f13a12628d2dc778d9219d7e9f18e335c69e6f9a04a672c60",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Sensor readings conflict with the restored built-in port modes.": {
+			"text": "Hodnoty senzorů jsou v konfliktu s obnovenými režimy vestavěných portů.",
+			"sourceHash": "c835d57ada283031d6823915377c2b48aecbf8fd9546af50b679a23bc6a0bd79",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "b9102d96f5fae6abad066c017119cbc6b39ec5ca18dd1385ae5daead0c74eaf6",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Sensor updated successfully": {
+			"text": "Senzor byl úspěšně aktualizován",
+			"sourceHash": "d697f679435714a29d67c598d23a59b6e0f2d130fe4a700c2d10c0ba0f22bfb3",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "6e19477216d9d63461a27d12110182e623c0d85d1cddbddcaa9c1889d9cd8c87",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Sensors": {
+			"text": "Senzory",
+			"sourceHash": "3bc80eb469b2c2caed852ffa3d3418664e8b48fc02ec99fe8aea11ae37228501",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "166e53bca6c0e8da65dcd90390de354e7422568aa498b8d8c633f98cbc5a9d65",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Set this port to Analog in Built-in Sensors before adding an analog reading.": {
+			"text": "Před přidáním analogové hodnoty nastavte tento port na „Analogový“ v části „Vestavěné senzory“.",
+			"sourceHash": "213ce6c1ab56303a5675610832e01c08d42b678460409dc53f63aae8b982464e",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "d09f25042e29f54a9541a1f88764dce16f68ffa9e807125d622b773c6fd25020",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Set to -40 (either °F or °C) to disable.": {
+			"text": "Pro vypnutí nastavte -40 (ve °F nebo °C).",
+			"sourceHash": "5ebb212effe7e3b7b5da74f69fc9b578c734d796d29894271a2b07442ab7c161",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "0712002ab2c2b502feab4850bca2d62d99e244bb333637aade2f2d96973e72f8",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Settings were saved, but an invalid master station was ignored.": {
+			"text": "Nastavení bylo uloženo, ale neplatná hlavní stanice byla ignorována.",
+			"sourceHash": "f2da7e4f03eb721e0f235b7727f010cb0320834c2d143315b7ecddbecf118dc4",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "9b8aa09ae3c1faaadcb38dc30f8f69062ba68658f8adab00ffdd7698a97c5657",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Show Inactive": {
+			"text": "Zobrazit neaktivní",
+			"sourceHash": "e3efd192e0a17fa622709678b5ef7ea469fb8af11a3a0cf9e687608cb18b2182",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "6dd2c538be5f853ee937ea425393dec3169b168c4dda6ad093a7ea50dfa07dff",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Slovak": {
+			"text": "Slovenština",
+			"sourceHash": "19deefc7ade0d0c9726bdf9856e77828462873e7b6a6568f54a2c416c4a02786",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "774ec6e704209db8955785059f06a8d03ba6bcc9897aeb4f82941b69c5da3367",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Slovenian": {
+			"text": "Slovinština",
+			"sourceHash": "2dd9e145662c75c286d0cfeed9f0a7ec89d6e3986026336316d1743475ead49a",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "1ce6ee318cf932b5cb5401348aac672f27db2290f5c980bca7ab5a2f0d0bd5d3",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Soaking": {
+			"text": "Pauza na vsakování",
+			"sourceHash": "6d4e22b65ce968efbf9dc714129edbdb07f182b3cb3e9eb513202f7a4d8bc93b",
+			"contextHash": "5fc4b9d7a45df2c4b138774135fdbb03a332756d2ace5d7b1f568cb53de5702a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "1cbd9e97f61a909fcc691ec6fdcd4dc4ec1e10e79599629d1b14da9e716794c9",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Some program starts exceed the queue capacity and are not shown.": {
+			"text": "Některá spuštění programů překračují kapacitu fronty a nejsou zobrazena.",
+			"sourceHash": "f136ecca097bf9ddb4a3189b31d1c612cff2ebf689aba4e0248ee0b1229a0bce",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "501b8cf54044edc8655078882408d6abb1fe057857e0225737b7f74e4ae97b32",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Spanish": {
+			"text": "Španělština",
+			"sourceHash": "f67d489c628b745caa4180e0cfb5bfbd5a9226172706845b497ba33869e135e8",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "068de36c3a57ae9c0138406e8cd87b15c8449151ff3b4d0ca8fe8c0b4902e730",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Special Station": {
+			"text": "Speciální stanice",
+			"sourceHash": "710827368f8908c34ed0a126228aa1aa4a251bee85beca8e72e56d24b79d7c50",
+			"contextHash": "4c83d908eedbc859813fe4ad20bc8d9bdc735826318f0c74fa448007a66c3144",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "c946b9cb4e5a906b66e312beac589e7be944dbce79ded84dcbefed8aec819c49",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Sprinkler Logs": {
+			"text": "Záznamy zavlažování",
+			"sourceHash": "20f505a75ec6c31ac84cb84b6e8743d4558ca0d42655821594d13eeadd672faf",
+			"contextHash": "089d08776f6f39521fba37db6965244177b77aa2d0c64c609fa598243f13d261",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "24ffc4c05a48ddc2852031710d3e98d394f523db1c5cc8c5efa51e1c950f81fd",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Stop": {
+			"text": "Zastavit",
+			"sourceHash": "4a784e3e95a08715513ca46cee31eccacff2cae8533a976da4e173138d137776",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "d4abf07e895be9d73f01e068e6aeb4ce09d0064f3acb66541ef23a450c580766",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Stopping": {
+			"text": "Zastavování",
+			"sourceHash": "24a54b7783c68b9d52dc3c119daeac39e570d3bee5575b8a4cf55ada95399702",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "8374a2660df864b5737efc9028e7fedb4bad71e764ba7a325607bacd64d453d5",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Stopping after the current page": {
+			"text": "Zastavení po aktuální stránce dat",
+			"sourceHash": "148b41bf95239bd414c04079d5bcbc4257465fb107bbf46ce9fb58c067bda0a1",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "947b0c817437ad0d6716d8179fd395c3bad7a37fb90ed94713c0767b28959faf",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Swedish": {
+			"text": "Švédština",
+			"sourceHash": "b200b4c4c280d618053081bbb82aa6a190d77dad8538b26ef46d5522ef7bd204",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "6f64e559d5b4dce30670349f7b97f216969f6ce2110f4eef588e83230779ffcc",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Tamil": {
+			"text": "Tamilština",
+			"sourceHash": "3c35aec40ce5edabb151fe74179c069e4051457bd20880bf243903914566ed68",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "3179b29c5086757df1bcb34c3eb75352606ef327e1c4f8080244bafe05afb7da",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Tap to Configure Master": {
+			"text": "Klepnutím nastavíte hlavní stanici",
+			"sourceHash": "035dc8c624c68483a1c5a1fbc59ad62b04705e3552407e3a0fe91ba544e7be19",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "67dc44daa353e60cb44748946d1206bc51a83128f98a83a2bb34d22757661503",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Target PD Voltage": {
+			"text": "Cílové napětí PD",
+			"sourceHash": "2245b2d2364e005d7e9542c61ef57f416253935addf724f91ffe0cad56082403",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "8a2e2eb01f8012539faa0ed00e6f1fdce125de08d30e78f9b6a52b1d81a604b8",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Thai": {
+			"text": "Thajština",
+			"sourceHash": "93006fd1e9b767f306e9bb14f8406fcbb10528b2508159ddd4ba10e320e5cad3",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "410acddeb1eed2a688754df31d74545bfa55e63265d859f95ab16cd69ad5b13d",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"The active controller changed. Please restart the restore.": {
+			"text": "Aktivní řídicí jednotka se změnila. Spusťte obnovení znovu.",
+			"sourceHash": "d5140bb26a4f4b51adf94415ca19568a64027b93d2dec789eb42526c7969f241",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "66016acaf4d6c8024907a615086e67ac5c4304d326fcdf1e3c7673d5dea81cd4",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"The active controller changed. The restore finished without refreshing the new controller.": {
+			"text": "Aktivní řídicí jednotka se změnila. Obnovení bylo dokončeno bez aktualizace údajů nové jednotky.",
+			"sourceHash": "d82b6f970e71e8ddc6d5b1d0ed6d6c374ad81f1cf30ecdcd96ca0f200443d4d3",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "820bcfc1180d0f30fd0477c2feca114c7a5e53d6807a4ae6b69fbe350cea7c4f",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"The active controller changed. The restore was stopped before completion.": {
+			"text": "Aktivní řídicí jednotka se změnila. Obnovení bylo zastaveno před dokončením.",
+			"sourceHash": "036aef8272e8372eaae3da3f245e4890a324f438f24b2df4445cc984f2d5b0de",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "9d28632e2337e443c80dbc5d3ce5f198dcb0f63738aa2300317cc2915deb2a47",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"The controller detected one or more zones drawing too much current, exceeding the limit. Please check your wiring and perform a <b>solenoid resistance test</b>. After fixing, you can clear the alert here. For more instructions, visit our support site": {
+			"text": "Řídicí jednotka zjistila jednu nebo více zón s odběrem proudu nad povoleným limitem. Zkontrolujte zapojení a proveďte <b>měření odporu cívky elektromagnetického ventilu</b>. Po opravě můžete upozornění smazat zde. Další pokyny najdete na stránce podpory",
+			"sourceHash": "95120a2328c5808ddc746bbb12117219401709231ba8eca6b2f6e27c9454f28f",
+			"contextHash": "24268d641ff4b0ddc2a2b4f790932aa8a8745a4678cec55b6e960fce82a02865",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "a5f58c3bef4d8ff56f85d8edefd185e4bd1c0885c97c2b0321ec2c59573434fa",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"The controller is at its sensor limit. Restoring this backup will delete sensor definitions that exist only on this controller.": {
+			"text": "Řídicí jednotka dosáhla limitu senzorů. Obnovení této zálohy smaže definice senzorů, které existují pouze v této jednotce.",
+			"sourceHash": "c0f2524fc98842b8822bf9922fc8e8594dabb51fa558f9020b2d1ae1ab51fffd",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "c1c880734a7684d43d00306412bd7b7f00d950067c0d6db8d873041e735591c7",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"The holding current of your solenoid multiplied by its coil resistance (e.g. 0.25A×30Ω=7.5V). Set to 0 to use system default.": {
+			"text": "Přídržný proud elektromagnetického ventilu vynásobený odporem jeho cívky (např. 0.25A×30Ω=7.5V). Nastavte 0 pro výchozí hodnotu systému.",
+			"sourceHash": "7d5a341e308a96e38aa6935287225e1f79feae261058a464a0370606a67ae9f9",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "6eb6e6b5ad7ce69e1715efc829a3726a68a33a7ebd4f312a04119d317ac205ae",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"The required hardware for this type was not detected.": {
+			"text": "Požadovaný hardware pro tento typ nebyl nalezen.",
+			"sourceHash": "9f8b2798c03b988fd075a2a30d12ab4b60691afd6ff19dd29428f2e697137afb",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "39780886981ba4f20385c26297036fa1c9962e1f33a5d4275c1a0ab4a787b47b",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"This UI has limited support for ASB firmware.": {
+			"text": "Toto rozhraní má omezenou podporu firmwaru ASB.",
+			"sourceHash": "3cbba9db2ea68074906106674b0ec4d25ba1a92786fafe53a6235c12f35bc1cf",
+			"contextHash": "a63997a2bfc75d9365ba4cc920d2bfbdbfca0ae88b7b7057671ec2d0aed37880",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "48bfaf0cc412f0b4c07e1e7aaab23f0d1533a82d47e2c9e0d83fbc7678ab3a1e",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"This UI has limited support for it. Switch to OpenSprinklerASB app/UI.": {
+			"text": "Toto rozhraní jej podporuje jen omezeně. Použijte aplikaci nebo rozhraní OpenSprinklerASB.",
+			"sourceHash": "b0a189b8ce24a148b42b80da021c9a55f99e8c5896d73bc52ea56a3cfa6437c3",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "370115f9293d74308a163262c58034470719b903a33b2ed4e3c0a75c051691f9",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"This action can take a while depending on the number of log records.": {
+			"text": "Tato operace může chvíli trvat v závislosti na počtu záznamů.",
+			"sourceHash": "b16721428f532df1913915c2f64c0fd470c09d3968f59444893286a00014186c",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "f8dbc809675daa6dda043f0f1621a226cae9855f57c4db084fe363f76e99af14",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"This backup cannot be restored without removing sensors referenced by its aggregate definitions.": {
+			"text": "Tuto zálohu nelze obnovit bez odstranění senzorů, na které odkazují její definice agregovaných senzorů.",
+			"sourceHash": "837b2500b512c9758914e1ded4f8593236d5201ee7fb5dbd1e344a44000635b1",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "4066e70f0f488a99150f0fded91cddd03df9664b59fe71ee6689377fad6faa71",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"This backup contains Bundle Station assignments that are not supported by this controller.": {
+			"text": "Tato záloha obsahuje přiřazení sdružených stanic, která tato řídicí jednotka nepodporuje.",
+			"sourceHash": "212e504171957df8e3aefe7db42b6f87385610cc115ff9bda90111d90b33b869",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "272496d6276242ae15baa04f9c0820ab213ffcb83f8dc58921bb142275fc5fab",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "unreviewed"
+		},
+		"This backup contains an incomplete Bundle Station definition.": {
+			"text": "Tato záloha obsahuje neúplnou definici sdružené stanice.",
+			"sourceHash": "bea0f8a093814eeb0a11a96456a45eb3d9ffc7892846b9e28f4213076dcd535f",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "8c80f866c1f13505114e241219c7e0a8e13279dd00b35a3134ac4d9a30c06ae7",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "unreviewed"
+		},
+		"This backup contains more sensor definitions than this controller supports.": {
+			"text": "Tato záloha obsahuje více definic senzorů, než tato řídicí jednotka podporuje.",
+			"sourceHash": "c3f7f1deafd294ad38d8fc024dc126c5252c9bcf355fba1c496d208871c801a8",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "787e6149ae7b0a4fc8e6ba4ccee8d633d73cfb48aa374aff807878335b02464d",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"This backup contains sensor definitions that are not supported by this controller.": {
+			"text": "Tato záloha obsahuje definice senzorů, které tato řídicí jednotka nepodporuje.",
+			"sourceHash": "dde62496504a02a198dd6ff51ff8822192c550f4b679701d352b5c8483895719",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "c0fb0975776558331d921a31696f353fb21949f9f1db5cb59a8b5bad6cfc48ce",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"This backup contains sensor definitions that this controller does not support.": {
+			"text": "Tato záloha obsahuje definice senzorů, které tato řídicí jednotka nepodporuje.",
+			"sourceHash": "d50ff7853fab4ad9b6c689e4c33f2b39095c2622c3b0ef97259b7b7b62699a2a",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "c0fb0975776558331d921a31696f353fb21949f9f1db5cb59a8b5bad6cfc48ce",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"This controller is using a default or empty device password. Change it to protect access.": {
+			"text": "Tato řídicí jednotka používá výchozí nebo prázdné heslo zařízení. Změňte je, abyste chránili přístup.",
+			"sourceHash": "8ca2e11445443d208ccca29dbc812e1a202019aa5bf1aa111f7a1d7e5e38f6a0",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "ff97b5ac2f0f6e54cd20cb03caf39f55593be97c1ec9c221b4de094d15e2d6f1",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"This input does not support onboard analog readings.": {
+			"text": "Tento vstup nepodporuje vestavěné analogové měření.",
+			"sourceHash": "96967c1c97626f62500114dbe649a21a0489cef25ecb2b75b2a10cbbe4b307ee",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "a63886c2a278580b6ba7b864e168c887b84f4e49e7e4753dc4e6db40dcd556fb",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"This may take several minutes. Deleting a sensor's log does not free log capacity; use this only when you need to reset this sensor's recorded history.": {
+			"text": "To může trvat několik minut. Smazání záznamu senzoru neuvolní kapacitu pro záznamy; použijte tuto funkci jen tehdy, když potřebujete vymazat zaznamenanou historii tohoto senzoru.",
+			"sourceHash": "b59c596f72bb8f50d67d54104b3ed46c33f00e315ade8e564316955711da486f",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "09fbb6c55b6bb662c5f47f2aaa817c155c51e64e691efdc839d839faa651663c",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"This port has a conflicting sensor configuration. Remove it in Edit Sensors first.": {
+			"text": "Tento port má konfliktní konfiguraci senzoru. Nejprve ji odstraňte v části „Upravit senzory“.",
+			"sourceHash": "8a2779e7041dc181ebcf7273c7a534fba0449165d5f3764f01dc4301f3e5b9d2",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "0632e8fc8d4cdaf81d846b90c30d7b7b0c50cc70de29c9f5ef55318640420c02",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"This port is configured as Analog and cannot provide a digital reading.": {
+			"text": "Tento port je nastaven jako analogový a nemůže poskytovat digitální hodnotu.",
+			"sourceHash": "ac293221953cde69f1074b72c4eda0564da8c91eb4996bf049df6b1807f76c49",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "d816665edb75f68a49e72b29f1587cc7abf56d21114de0e61621ab9ab650f53d",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"This station is a bundle member of": {
+			"text": "Tato stanice je členem sdružené stanice",
+			"sourceHash": "22c82f11cfbad506b975eb62b8c9e94a1ea69810429af946dd479e3a88d5b7ca",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "1e7f44f4ad3121608ccc1636f499a483ffa0435e15343c76b76e6418e1f8c9cf",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "unreviewed"
+		},
+		"This station is active through a running Bundle Station.": {
+			"text": "Tato stanice je aktivní přes běžící sdruženou stanici.",
+			"sourceHash": "d1d0165bcc666e4683352a1f353ad69af6fba348a5c10edd2c4b2ecc05c8c865",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "6f81e4daa15499057fb8ca0852e24b529f39ea16ca81a6c6feaf888b6e4aa8fb",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "unreviewed"
+		},
+		"This station is no longer part of a Bundle Station.": {
+			"text": "Tato stanice již není součástí sdružené stanice.",
+			"sourceHash": "95653d75f900ac87653a2fc765b5948f474ee43f01b485625f5671cf6e95d71a",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "a64f398e148a542f65be9371fa7e50542a619d2b27a4ac7ec69b7e9bbf200aca",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "unreviewed"
+		},
+		"To edit built-in sensors (e.g. rain, flow), open the {0} section under Edit Options.": {
+			"text": "Pro úpravu vestavěných senzorů (např. deště, průtoku) otevřete část {0} v nabídce „Úprava nastavení“.",
+			"sourceHash": "07074b124ea0bbb745db706683310aae5a9293d2be201b38fa0491f69e527ad2",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "62cc82ea47305659d63487ad1b4dde7de23881cd83a9410e82d69624d2c0f9b9",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Turkish": {
+			"text": "Turečtina",
+			"sourceHash": "a0866ff0656c1b6c9c3bfeb31abed2ba558fcd1d19779bc6443cca5b0559b1e9",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "9880cbac8527fdaca15edbde41cd4d7e90bf3c92c6a23d43b5a0c4052fb72ac4",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Unable to determine the UUID assigned to a restored sensor. The restore was stopped.": {
+			"text": "Nelze určit UUID přiřazené obnovenému senzoru. Obnovení bylo zastaveno.",
+			"sourceHash": "e3d4e7072f6ce79c25a880b4fcbf29929cd9a99c7a0516d15f9cb4bf12738e34",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "71b9be868896c7621309ce14766c2ac2e75dae8f28d26ebfdaa49c22aaa5a68e",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Unable to import configuration. The restore stopped before completion; review the controller before retrying.": {
+			"text": "Konfiguraci nelze importovat. Obnovení se zastavilo před dokončením; před dalším pokusem zkontrolujte řídicí jednotku.",
+			"sourceHash": "4f910338009951b486daeb763eeccf78430fecdb9fd856548d2220650db6dff1",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "f72d8fcc6533bfcb5c2a2a616b98234bb5e064280780c7c935f20ee749d58bbd",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Unable to load Bundle Station configuration.": {
+			"text": "Konfiguraci sdružené stanice nelze načíst.",
+			"sourceHash": "40cc515c40fc7185cff7cf6117210ce2321b88f4d73c9c8671add36abe91a5b6",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "b1f36e26ac1e353384a4fd30de5a03b7030561efbce5ee42e2bd3347e1eae29c",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "unreviewed"
+		},
+		"Unable to load program adjustments. Try again.": {
+			"text": "Úpravy programů nelze načíst. Zkuste to znovu.",
+			"sourceHash": "2c7cc166d6b58aeecf4bbce555064e15bf339d5e5fea7cebb150c90c265e9bbc",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "a30c4854defae97b81353b596fbee09814397600cfe3ef1a3018f18108d38e01",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Unable to load station configuration.": {
+			"text": "Konfiguraci stanic nelze načíst.",
+			"sourceHash": "5587998d5f9fe3588dcb0ec16c3c67a8fdac4191f1825bfe18c6bc316c616850",
+			"contextHash": "c3b5d2067f4880c8f6db4872b35733a7ab5e2cc430af76e7ecd37826dac97da4",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "e8e421da72cf8350ec33480f9800864a4fc82e464d57f79de38aa1d1ba45a7cd",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Unable to map an aggregate sensor during import. The restore was stopped.": {
+			"text": "Při importu nelze přiřadit agregovaný senzor. Obnovení bylo zastaveno.",
+			"sourceHash": "2e47cf5a575789ccab7d027007e385720da180c5bb1e331d54c416005acab0a7",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "5d94866b6de7a1756ee0d65beb607d5863bb58dc0d83f84d11d31d6b374e19d0",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Unable to reset all station attributes. Some changes may already have been applied. Review the controller before retrying.": {
+			"text": "Nelze obnovit všechny atributy stanic. Některé změny již mohly být použity. Před dalším pokusem zkontrolujte řídicí jednotku.",
+			"sourceHash": "f005b2aeebb337875ad4e132b3d182f723243136427575338803d156ccd9faa1",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "6a8f585a840231a7e50d15849fb27d8ae5f60e7ce40f7df8175dfd3c8ae39dbc",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Unable to save settings. Controller settings were refreshed; review and try again.": {
+			"text": "Nastavení nelze uložit. Nastavení řídicí jednotky bylo znovu načteno; zkontrolujte je a zkuste to znovu.",
+			"sourceHash": "4bedd09a336eff9560ceac8e2970608df74a512d0b8f2b8639a3ace803b2c8f7",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "3c41279545d57002c11691ff050d09d92a3e2dd7459aff24151a7acad6fb037c",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Unable to validate sensor definitions on this controller. No configuration changes were made.": {
+			"text": "Nelze ověřit definice senzorů v této řídicí jednotce. Konfigurace nebyla změněna.",
+			"sourceHash": "4c27527cd3eec4c1d6771d799ace91fe6b16201681d21a8f3cfd62169c564079",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "be71a3179c612e4cfe8781d4f7ada955061811462be57e740667269e7d6d0cdb",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Unable to verify sensor definitions during import. The restore was stopped.": {
+			"text": "Při importu nelze ověřit definice senzorů. Obnovení bylo zastaveno.",
+			"sourceHash": "643395b62511a4ebd2cc5ec7840c4891d2a638bc434929a2828a9ce96249f57f",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "50cb3bf16be520c85e49affca48b7232ad9b0071fcfe7a6e592985bcd550c65b",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Unable to verify sensor port ownership. No settings were changed.": {
+			"text": "Nelze ověřit obsazení portů senzorů. Nastavení nebylo změněno.",
+			"sourceHash": "f0097be6a288846719df729af95392f894e6df95f16e589bc2d4a6c2df4a7704",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "83314badabbed4bcc2da078da7aebad11752e0b84f9093dfc33e5a08efe76d7f",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Unsupported onboard analog readings will be skipped. Unsupported Analog port modes will be set to None.": {
+			"text": "Nepodporované vestavěné analogové hodnoty budou přeskočeny. Nepodporované analogové režimy portů budou nastaveny na „Žádné“.",
+			"sourceHash": "fcf401f65213df6bcb019ef339becc36bd615aad169f10a1e3bf007d29215f5f",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "a3e0f8659ad88a725b4e6e7533f0d350adcc4bcd5ecb63028352ab2e23a0fb54",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Update Firmware": {
+			"text": "Aktualizovat firmware",
+			"sourceHash": "03c34ade202c54cc3bf99dbf86a979276e6885a96b8b2d72a0ed4e7585af3d91",
+			"contextHash": "1c7415f53055b2cb38320cbed8c292ae52f8f23481a7cb5e34f7d3b3b5b518e6",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "9c3350a065372b9b90775ff1901eedc820d4374b61c219a9fbb145f16c4e6f9e",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Update Sensor": {
+			"text": "Aktualizovat senzor",
+			"sourceHash": "78394f3eb30d912159a36767a76ad5f1f16568a889904de7095b714d1326af1f",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "db037dcd266eda5c5a57ed381dbee98a998415d2e89400d5d657a3fdcd68309a",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Upload failed.": {
+			"text": "Nahrávání selhalo.",
+			"sourceHash": "da0a85ac4ebfce1192ed7a9075def00115c610be79861ab3d8c11887cbfadf4f",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "d4801e22cb8a50ac5596a15cd4bdec8dc81210cbefd3b312b8e0edf11f725afa",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Use Sensor Adjustment": {
+			"text": "Použít úpravu podle senzoru",
+			"sourceHash": "143043e4fd4568fefe5dc81406977a08b38962be68062128f964fa144bbd04bd",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "25e106d126259205dcaafe4c7b353143a2247a35a6170bc87cc90a859e7f036d",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Use up to 32 ASCII letters, numbers or hyphens. The hostname cannot begin or end with a hyphen or contain only numbers. Leave empty to restore the device default.": {
+			"text": "Použijte nejvýše 32 písmen ASCII, číslic nebo spojovníků. Název hostitele nesmí začínat ani končit spojovníkem ani obsahovat pouze číslice. Ponechte prázdné pro obnovení výchozího názvu zařízení.",
+			"sourceHash": "26d90acd18771d0cc044c4444f5f552bc02aa458b707edad87bebaddd3e42c12",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "3e8dad1d76f78f0131643b421d2e3d3a790701a72c13886e025c4f22626a5ab0",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Uses the provider configured on the custom weather server.": {
+			"text": "Používá poskytovatele nastaveného na vlastním serveru počasí.",
+			"sourceHash": "b987ed572bdc18fd3c1c9ce2afc79e3e8428afd9ccd867ee91c5db19bec20b49",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "4bfd3463308c51358b2810b45514ac497191c726a77de7041d60bb4da63018e4",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Warning": {
+			"text": "Varování",
+			"sourceHash": "5128de8b5a61833952b4c66c4166ff4ebd3ad034e8fe094c4330253af8ec1add",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "e7d85df40ecbc98a7d28a614024a210128593302c2aa7ee2cea2df8491f5c9c0",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Watering": {
+			"text": "Zavlažování",
+			"sourceHash": "f9618bcf3511f67653f76e614ece52f5c879baff7282ef8ba1ac3d624d585c5b",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "6ae0f950b2d097463245c8c962a3014988f477e155ea8e426875e450fedce686",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Watering %": {
+			"text": "Zavlažování %",
+			"sourceHash": "73454e04893d9c8c9f9522ba67cf5410e1a6346039e9b4fb19870deb6de6eaaf",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "31a556e1c3eef749920bf8c01690ae3777c2d2731ec941bc4065f693c9f6a75c",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Weather Adjustment": {
+			"text": "Úprava podle počasí",
+			"sourceHash": "d0099f7842d95d8834a9982d6816150261f0e9b86723258f8b87691f96a8f856",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "06f7c779c5d2b391b9d97850ccc87937361f16b1800b12cacd9c9ac5e125d3cb",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Weather Failure": {
+			"text": "Chyba dotazu na počasí",
+			"sourceHash": "f91c25cfec276a734e39d48ca2b506acb8efc21868bc8d60027793e2478126fa",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "b4f4b1e050014073f96e67be8be6b62a0c3d4cfa9f55574ea36dae9e32615668",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Web Request": {
+			"text": "Webový požadavek",
+			"sourceHash": "4af373c7de6a66c7f13402025ff6a646eb232725587ab6c47b6e4b40b5fe271f",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "cb6bf7f81f89039ad6cb767286f09cdd6cb2a01e52c9374f8895597561a2e7fa",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"When using program switch, a switch is connected to the sensor port to trigger Program 3 every time the switch is pressed for at least 1 second.": {
+			"text": "Při použití přepínače programu je k portu senzoru připojen spínač, který spustí Program 3 při každém stisknutí po dobu alespoň 1 sekundy.",
+			"sourceHash": "9e75e6f42a8ab65b5b335ab40c3efee956e52dacfbd83b78e40e3a812de0429e",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "0b86095136828bc6977e7464c413121e907c5fa460298985ae9cd2972053e633",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"When using program switch, a switch is connected to the sensor port to trigger Program 4 every time the switch is pressed for at least 1 second.": {
+			"text": "Při použití přepínače programu je k portu senzoru připojen spínač, který spustí Program 4 při každém stisknutí po dobu alespoň 1 sekundy.",
+			"sourceHash": "8b83fee3105b648f618ebe39a4b737d8c0b8d7a12e2b7801ea537b7b5c3e2793",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "ab4d1e1a1de60f21bc25d62b89fc7a7f534d395155bfa5fce1cdde5046de9ca4",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"WiFi Change": {
+			"text": "Změna WiFi",
+			"sourceHash": "01f27359cceb9a49244ebb804ff65fc0f3dc6f4e132e7416f9c27f09541595ed",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "29bf28370e7950537e104c2c864028566d7a6bf3a8a043e5eb79bb1fdab574c8",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"WiFi Configure": {
+			"text": "Konfigurace WiFi",
+			"sourceHash": "1c4b081076d84b77aa0bf09c74d800b1a96287ea4ed161ca889b05df90b383b9",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "5e7b0415e8aaaf93c0ca9e6e210fe5d524b8b1f8f34ad1499f8be3a0c0a1670b",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Your device runs the OpenSprinklerASB firmware. This UI has limited support for it. Please switch to the OpenSprinklerASB mobile app/UI for full support.": {
+			"text": "Vaše zařízení používá firmware OpenSprinklerASB. Toto rozhraní jej podporuje jen omezeně. Pro plnou podporu použijte mobilní aplikaci nebo rozhraní OpenSprinklerASB.",
+			"sourceHash": "1882678ea202da384c7b66a28a0fa5c8a4c3379bc4ba3a38c1bdbeb890137226",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "5287c0b461c5ab809d74470a1d6b1c4fd000c6447b398fcb0d023da202acd011",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Zimmerman": {
+			"text": "Zimmerman",
+			"sourceHash": "8c1c7a5cd80bc5664395d7849494097af307b4340e4b39d913faa75600192426",
+			"contextHash": "27986029b3df9ad00dbc67ce579607a8420c959ffa16c15c9f227eb82afac172",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "8c1c7a5cd80bc5664395d7849494097af307b4340e4b39d913faa75600192426",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Zone": {
+			"text": "Stanice",
+			"sourceHash": "a107b4d76d6972e30fbce7ed4a86ddb89916ffd6677fb46b7667bfbd126abeb7",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "e9e52789c88e6198b0230ccf797522d461a725de2cf0e567e1db9b13cd0a9a62",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Zoom in": {
+			"text": "Přiblížit",
+			"sourceHash": "d17804412f8dd0818e0c3b2ee85c1e51f19aa61ef44183639d9e709327a43b13",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "7b32b88a9fe7a44ad57f98b9f71355c913c3de5b90a8fae8b507a46a980d13b6",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Zoom out": {
+			"text": "Oddálit",
+			"sourceHash": "23b012a283b2c14a72940b9ac0ef3ba8617c4e8acdb61b34a8a0f74d879b80bf",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "c1c2c6896ba699cce5129dbdd8360ad320dff03436c761c3297e70ee7e9f34a5",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"also active via Bundle Station": {
+			"text": "také aktivní přes sdruženou stanici",
+			"sourceHash": "ec983cb4288b3550a174293b7c42fcffee49d857a5fac50fd15a9f8effa1a2e4",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "28db75f7e41f17effac6dae09790c5d67daa635609c6f5391cb4738f5416bbc0",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "unreviewed"
+		},
+		"disabled": {
+			"text": "zakázáno",
+			"sourceHash": "f693b9deb860600fb93d749df324c55991afe7eba6300113ab381339b23d12d5",
+			"contextHash": "ab9242f7e5d7774c9a98bf9fe71d92c5afc5f29932e2c25cca974cd295a61622",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "e49fdbb6b24e38ce942ee77d09eccb741558cf5e2825577279e035dbe73fa22b",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"disabled program hidden. Tap 'Show Disabled' in the footer menu to view": {
+			"text": "zakázaný program je skrytý. Pro zobrazení klepněte na „Zobrazit zakázané“ v dolní nabídce",
+			"sourceHash": "ef619d3b6aff3ed18526179557cec64dce54ab64a6a46fa85c1a3f7952848607",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "0eeea6ea0478495d0e7f9eba58361dc1580c6a83862274d53a4ab815fa4ef9ab",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"disabled programs hidden. Tap 'Show Disabled' in the footer menu to view": {
+			"text": "zakázané programy jsou skryté. Pro zobrazení klepněte na „Zobrazit zakázané“ v dolní nabídce",
+			"sourceHash": "4e5825c79adaa35a185bf91c2a2e3a73d22e5e7574edbed90b8f49e6666971c9",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "d123451cbba93334d62662e941911f40293c4d20ff34b54a600e1b2c1ddef3c0",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"master": {
+			"text": "hlavní stanice",
+			"sourceHash": "fb0c284bf3e3ce017b395ae5f36004dd07e5fd7ab990e8dea222fecea35952cb",
+			"contextHash": "ab9242f7e5d7774c9a98bf9fe71d92c5afc5f29932e2c25cca974cd295a61622",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "7cd71eb886c803e72c598f3eeb246f95fdb0094966ecfdc698bc9701255d147a",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"this station": {
+			"text": "tato stanice",
+			"sourceHash": "f999ee9077f51afda466089515364aa64a5d7b1a9108f89a11e8018c4c0ae944",
+			"contextHash": "ab9242f7e5d7774c9a98bf9fe71d92c5afc5f29932e2c25cca974cd295a61622",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "4b8599d00df7b609c0afc1c04a376e7afd2ea721ffa8a4827811780c7f83ee48",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"total watering remaining": {
+			"text": "celková zbývající doba zavlažování",
+			"sourceHash": "0b96e80c139474b43a8455d1d718fd45bf970aafc7783f76271501307fb24ee0",
+			"contextHash": "5fc4b9d7a45df2c4b138774135fdbb03a332756d2ace5d7b1f568cb53de5702a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "37ea3832325360f1f02469ea10a01f80edc3fe6156a600342ae69c01efa2e62a",
+			"generator": "Codex assisted translation / cs completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		}
+	}
+}
