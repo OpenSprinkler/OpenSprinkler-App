@@ -23,6 +23,33 @@
 		]
 	},
 	"languages": {
+		"de": {
+			"Station": "Bewässerungskreis",
+			"Zone": "Bewässerungskreis",
+			"Master": "Hauptbewässerungskreis",
+			"Master Station": "Hauptbewässerungskreis",
+			"Sequential Group": "Sequentielle Gruppe",
+			"Run-Once": "Adhoc-Programm",
+			"Rain Delay": "Regenverzögerung",
+			"Rain Sensor": "Regensensor",
+			"Soil Sensor": "Feuchtigkeitssensor",
+			"Flow": "Durchfluss",
+			"Bundle Station": "Bündel-Bewässerungskreis",
+			"Bundle Member": "Bündelmitglied",
+			"Cycle and Soak": {
+				"preferred": "Zyklus und Sickerpause",
+				"review": "unreviewed",
+				"note": "Short feature name proposed in Claude's review. Awaiting native-speaker confirmation; use consistently in feature labels, errors, and reset messages."
+			},
+			"Aggregate Sensor": {
+				"preferred": "aggregierter Sensor",
+				"review": "reviewed",
+				"note": "Claude review supplied by the user: a virtual sensor combining child values. Avoid Aggregatsensor, which suggests a machinery sensor. This is an LLM review, not native-speaker certification."
+			},
+			"Program Switch": "Programmschalter",
+			"Sensor Adjustment": "Sensoranpassung",
+			"Weather Adjustment": "Wetteranpassung"
+		},
 		"zh": {
 			"Station": "浇水站",
 			"Zone": "浇水站",

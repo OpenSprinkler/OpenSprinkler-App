@@ -57,7 +57,7 @@ npm run translations:check
 
 Import validates the entire batch before writing it. Unknown keys, empty text, damaged placeholders/markup, changed numeric values or protected identifiers, stale request hashes, and replacement of an existing machine translation are rejected. Reimporting identical results is safe. Human-translated entries are skipped. A failed batch leaves the machine file unchanged.
 
-German, Hebrew, and Tamil each have 19 initial trial messages awaiting native review. Chinese has since completed the catalog, with 372 locally approved entries pinned in `overrides/zh.json` and the remaining 583 supplied by existing human translations. This is catalog coverage, not a claim that all runtime text is localized; `/jsd` labels remain deferred. See `zh-review.md`.
+German now has complete catalog coverage: two local overrides, 699 human translations and 272 machine entries (including its 19 initial trial entries). Following Claude's independent LLM review and wording corrections, 263 machine entries are marked reviewed; nine naming Cycle and Soak await native-speaker confirmation. See `de-review.md` for review attribution and terminology. Hebrew and Tamil each have 19 initial trial messages awaiting native review. Chinese has also completed the catalog, with 390 locally approved entries pinned in `overrides/zh.json` and the remaining 583 supplied by existing human translations. This is catalog coverage, not a claim that all runtime text is localized; `/jsd` labels remain deferred. See `zh-review.md`.
 
 ## Reviewing and Correcting
 

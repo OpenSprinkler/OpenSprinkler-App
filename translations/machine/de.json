@@ -1,175 +1,2452 @@
 {
 	"messages": {
+		"%s saved": {
+			"text": "%s eingespart",
+			"sourceHash": "126d88d26c3e4ce654e8aba096d57666aa3da446a3a619d49a21d96207af6ae2",
+			"contextHash": "ad224f56f33ab31fcb268e8aeade118cb7348585fdbe6c3b03f613ec7340f086",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "ae9a73d5ff287e93842534a0edaa7e046393252e57aaf199e22d3ddf35ad82d4",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"A field has an invalid format.": {
+			"text": "Ein Feld hat ein ungültiges Format.",
+			"sourceHash": "d076a4bff01e2af00552c722201a2f519389e596dd9492dbfe835832d6a0573b",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "1435942a04c5b4e6bef1633c76c3b924e47bf72fd24e846fdeaa43bed5dd795c",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"A required field is missing.": {
+			"text": "Ein Pflichtfeld fehlt.",
+			"sourceHash": "a78cdd6188512889c129cde629dc276f82964df2907a649db1e563efb6280c3c",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "4300b4375f82dd4b515b56939ae8a1f77aaa03f6bc503e71a04b94eb5e033834",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"A value is out of range.": {
+			"text": "Ein Wert liegt außerhalb des zulässigen Bereichs.",
+			"sourceHash": "10ba126ecb676d71e23ebbadcaa06e7e0e649efa733093fbab5a5093cf6cc0d8",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "322f064a06ed118ca024f92c85ea8498fd4f5a66ab8c84b72881fbd246c18d61",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"ASB firmware detected": {
+			"text": "ASB-Firmware erkannt",
+			"sourceHash": "72183e69522d527f8848594173bbc047e7c89215a311ffeda7de8d149da36ca3",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "7eb402e402b7c6671a7d7e3a01273bb586d53da7200005551b09f388aaedcf9a",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"About %d minute remaining": {
+			"text": "Noch etwa %d Minute",
+			"sourceHash": "727db5b876a7943f13d4b0b10edf365fbd518e26cc32f1a6d91609742537ea2e",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "40534ee0b35174d0aff2e09ab034731bfd6d86cb2c61ff1525072825c4bb35a3",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"About %d minutes remaining": {
+			"text": "Noch etwa %d Minuten",
+			"sourceHash": "13fb8e6e1ebd2ec82479275b43a8ec39610a611f7b4d907381b0d905e5d100d0",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "d60ec0d44a4c7ad9322fde5414e71dd6a419c558001d8a814a3c8683b826fa54",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Activated": {
+			"text": "Ausgelöst",
+			"sourceHash": "60a7b879d02b645bf29f30aac8dc0b0e72ba58efdeb57ec92c58a83d71dc656a",
+			"contextHash": "24268d641ff4b0ddc2a2b4f790932aa8a8745a4678cec55b6e960fce82a02865",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "c3595fce84d904e252ccdf0e794a34f3a3f8ea5cc07d314036301009992a84bc",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Active via Bundle Station": {
+			"text": "Über Bündel-Bewässerungskreis aktiv",
+			"sourceHash": "4c28a8b20afdd046d24c9225daf2b47fe8ae273b6444faa8276b7fd84e231a2b",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "45e94583f4a995e12b619612c20683639328a610df11de85f762e0e8b008ebd6",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Actual": {
+			"text": "Istwert",
+			"sourceHash": "516a5bec7439b0b2387fdffcec10b783297a05cc8ea659e0a01873d570cd8058",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "626d8a7b48ac6a7a4aa891b1f072df3388a3f44bcb08804d6fa2b056f0b9c473",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Add a Point": {
+			"text": "Punkt hinzufügen",
+			"sourceHash": "14face39117075bf43ad20029db2a501cf0c25b222e8b902b4b308fc52164ea2",
+			"contextHash": "a291fea46d121ca2d96d75818a621f34fad62852c7de9e583470d4fcf69573f0",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "e5ce3516532c8335e2e42a590dba8ef437b4b9010eb35b63eb0e99fbdc827d1e",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Add a Sensor": {
+			"text": "Sensor hinzufügen",
+			"sourceHash": "30f8931fc11154926ffe23fb06cfb8694eaecc8d0151d58ba9b7a7df8bc6e3cd",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "2a93f8b28a59f095f649b948d9b258cb83c9ea0eff8174d597d85caadaefddaa",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Adjustment Option": {
+			"text": "Anpassungsoption",
+			"sourceHash": "ba64f464969b1d7f4d2bd5a5d491af07d3b05f342e636ee7ba6840c08b4393fe",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "e20eab154715b8bc02066ea5e6cfb842d325470f82318b40008fae0147f5c4bc",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Afrikaans": {
+			"text": "Afrikaans",
+			"sourceHash": "c9988f40e4b47cd086255fc3ec81afaaf663320b5ac684aa5994a04ae98a50d4",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "c9988f40e4b47cd086255fc3ec81afaaf663320b5ac684aa5994a04ae98a50d4",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"All": {
+			"text": "Alle",
+			"sourceHash": "663175a9c461a96d6f0252fc22dbb8ed4951e7a6fc0e31546823bcc69d6021d1",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "25888051294734b490dea97f1c2fcab5de66c22305484820558bdebd9d468df2",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Amharic": {
+			"text": "Amharisch",
+			"sourceHash": "24c7eb06f59c0af1e1d9809b7263c1836782f8a72a01890c30ed53e18ce205da",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "b7dd8e4f334dac8e0d445a66bd63677ecfc2ea09d47d8e742bc19c1c1d99c843",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"An Aggregate Sensor references an unsupported analog reading. Resolve its dependencies before restoring.": {
+			"text": "Ein aggregierter Sensor verweist auf einen nicht unterstützten analogen Messwert. Beheben Sie die Abhängigkeiten vor der Wiederherstellung.",
+			"sourceHash": "c7188b7e96e0e198886bb980afdf3fd0fc586617dd2f77890717ce71bc7e4dd2",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "3556ffda3c7d69e1b717a4df44aa253222d15a5875bdd708e398e51621aa425f",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Analog": {
+			"text": "Analog",
+			"sourceHash": "e326bbf4b1d6572cdb8da8ba547e68dbea6d2b695788f4c691d1a7001c4ded76",
+			"contextHash": "002c0311001743f7641da2dc83ceee3458889794565c3fdc449308b0ecd3f22f",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "e326bbf4b1d6572cdb8da8ba547e68dbea6d2b695788f4c691d1a7001c4ded76",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Analog Sensor": {
+			"text": "Analogsensor",
+			"sourceHash": "5a65f23d2a2a04f73863f34e23743af9eec9a48e82e46a93f9a3133068dbce05",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "d5f178e95091a18ddabf7e6c3c4af6bcac84290acf7060c63aca5a4e7e892193",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Apply Current Weather Adjustment": {
+			"text": "Aktuelle Wetteranpassung anwenden",
+			"sourceHash": "24b1196f25d7b6967d2860a52ebaf5e422c3139be226c56e00078e60e85c9fee",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "b246395dbcdd8723eea1efc84671f2d20cb0bf92efe0a0a4aadb447071298fbe",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Apply Custom Adjustment": {
+			"text": "Benutzerdefinierte Anpassung anwenden",
+			"sourceHash": "fecdacde2537d8056da7215f20be38a43624cb2f8ecd86a60867bd2842918d54",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "d10963380eaf10fe8e306cf1005d958ef3e50ecb36f15d6292b3099ed1e1c101",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
 		"Apply Cycle and Soak": {
-			"text": "Zyklische Bewässerung mit Sickerpausen anwenden",
+			"text": "Zyklus und Sickerpause anwenden",
 			"sourceHash": "aebdc9118ff3dbfb38cc9baa70d95c0e22027280cade649d32fc50589d6c219c",
 			"contextHash": "089d08776f6f39521fba37db6965244177b77aa2d0c64c609fa598243f13d261",
-			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
-			"translationHash": "a6f617eed46add99cace95e8b43f77667b0651525998bcc0102e899bd0f7b121",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "64a6ad0e4720674ee3fe9ca4e7335f0977461289947478298e54fca933f50cfc",
 			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
 			"review": "unreviewed"
+		},
+		"Apply Sensor Adjustment": {
+			"text": "Sensoranpassung anwenden",
+			"sourceHash": "889a033d962f7a6095aab2b5b1284023f163ad101d632bc2e2d4a9dff12e729a",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "7bfc432c051529d9a41091f13878702e328bc8b16ca4cdf95ea82eaac9212455",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Apply Weather Adjustment": {
+			"text": "Wetteranpassung anwenden",
+			"sourceHash": "704d33771b139593c58cc3f1c5cd3d2c7564a33ae0716e20ec6c46c84f7799f3",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "fea446df902b77895dff9ed4fef9008701a27d444fe0494383bbc139efde12d1",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Are you sure you want to delete all sensor logs?": {
+			"text": "Möchten Sie wirklich alle Sensorprotokolle löschen?",
+			"sourceHash": "df8a85f8f6f68c8a804d0e8e54c9d092fbaa68b8c91b7527a4768d7232860331",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "cdfcc3327786d8b73c0c9fe0599caacf7e258296b053084c6bd9c3b7f7a93392",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Are you sure you want to delete this sensor?": {
+			"text": "Möchten Sie diesen Sensor wirklich löschen?",
+			"sourceHash": "cee9da5c3b9052aaaa658f8187554537f52f723fd7aa4fe461bcc699e2479326",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "f22b7e66a28f99e6802f08787c728e31a8baddbb92b354489d88f8635de0ba1e",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Are you sure you want to download all log data?": {
+			"text": "Möchten Sie wirklich alle Protokolldaten herunterladen?",
+			"sourceHash": "15bca914d529934f0bc2f790891fe6690aa2a6ff401bdd7fbe0e09f14030c18f",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "517a13fe14c17863df963a09012b17b1dfec8ecec5b3f0e06990204192fc49fc",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Auto Rain Delay": {
+			"text": "Automatische Regenverzögerung",
+			"sourceHash": "2ce9efcf14fdf89176d4d1d19f1f4e06ec73567d79933b58ce8cfa73ede67773",
+			"contextHash": "27986029b3df9ad00dbc67ce579607a8420c959ffa16c15c9f227eb82afac172",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "3b0e2ac26ed2457e3104467ca5dd694f3031068f365ebb1810ac22fe72a8e29f",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Automatic watering schedules, program-switch starts, weather queries and Cycle and Soak are disabled.": {
+			"text": "Automatische Bewässerungspläne, Starts per Programmschalter, Wetterabfragen sowie „Zyklus und Sickerpause“ sind deaktiviert.",
+			"sourceHash": "01b04cdb3a71fd90194e0d8613542cc339c8ad07f7e4a6ec0a086aacb6a7934d",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "9c42a59ff3e9d6b9d20d298bc61f58abbad10c279a3f9b6c7b188f73b9c0ec3a",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "unreviewed"
+		},
+		"Built-in Sensors": {
+			"text": "Integrierte Sensoren",
+			"sourceHash": "e1e7e9b4ccbfa1f68dcae48a1958e6e3557d7fa8afe0a742c7b1f0cff3e86f9d",
+			"contextHash": "002c0311001743f7641da2dc83ceee3458889794565c3fdc449308b0ecd3f22f",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "a1c7839f83a0dbc0fceae4520326d15c429f07ea84937efa68405c9329816852",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Bulgarian": {
+			"text": "Bulgarisch",
+			"sourceHash": "a10b72553c916a8fbb31cdc80ee5a406d8d00cff321105cea20e43624e863d95",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "9ede9cdb6041513fbca71a59c1d3df912b6da604a70fd96c4b8cadbd9d23245e",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
 		},
 		"Bundle Member": {
 			"text": "Bündelmitglied",
 			"sourceHash": "273ce7ff8cbcc5976fabbb2a7e547e0440381fde2306a4cac0e0c04fb64e0086",
 			"contextHash": "d57e7715650878f01cc62e9c79d7ec167506f8dceecd579434c6720438096290",
-			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
 			"translationHash": "17b5177800d223f17f1960807c9f45e4d53423b58d7255681fb3fb7132086ed0",
 			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
-			"review": "unreviewed"
+			"review": "reviewed"
 		},
 		"Bundle Station": {
 			"text": "Bündel-Bewässerungskreis",
 			"sourceHash": "72f4b397fbbab3c7e7122842551e145efb86321f4535ba9bde602309247622cf",
 			"contextHash": "3cae7a4a50fa78da67ce7528c397ce5520a9075594ded5377b523fc9cfb23397",
-			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
 			"translationHash": "257c722dd3e7732a15a5f43a122c90a94b21b5682f984de43af8571446f00370",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Bundle Station configuration was rejected. Station settings have been refreshed.": {
+			"text": "Die Konfiguration des Bündel-Bewässerungskreises wurde abgelehnt. Die Einstellungen der Bewässerungskreise wurden neu geladen.",
+			"sourceHash": "f414e78ac784b98e352dcb42ff3daf9525c0f1934fa84f05a25916f07cfb6cb7",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "99c667c53cd84e23fde7b3f7ecd0683f74b940fdc1968d622712725deb4f1c68",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Bundle Station members changed. Review the selection and try again.": {
+			"text": "Die Mitglieder des Bündel-Bewässerungskreises haben sich geändert. Prüfen Sie die Auswahl und versuchen Sie es erneut.",
+			"sourceHash": "070316e67f26dc1e05a8203504c8c8dd9900f6a1d4ab06cc1d4d62b30ad7700e",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "79408ddb40922c64ca1d1d58f68ed1febe8221a28f1c48294b1fe614e630da32",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Bundle member of": {
+			"text": "Bündelmitglied von",
+			"sourceHash": "978dd967317e7ca8e7bde4a71e964202fd6dc10f600d867f3f2438df592bd50a",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "247444a72156deae8f2251a2513a3895c3d917bab53079eabea709134ae5a08b",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Changing group designation is prohibited while station is running": {
+			"text": "Die Gruppenzuordnung kann nicht geändert werden, während der Bewässerungskreis läuft",
+			"sourceHash": "9b50a4903ad8a8e926d2938477541e589d0e5fa06e20338310736c059cd16387",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "becdfadd54bfda0995506b07916caf9eb77a140aae86cc5011324cfda05fe23b",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Chinese": {
+			"text": "Chinesisch",
+			"sourceHash": "1bf274ce62a1b34761dac43e5c864e8188a32dd23e0dbff219429730dd128c53",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "893d3922dfd30ee6ead7a519bb8264a00e9f138ac4e9e2ac2a9bceca94dfb88c",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Clear this alert": {
+			"text": "Diese Warnung löschen",
+			"sourceHash": "e1e662f0fd7d2c50eb894d4baaf8ec47d35f7c555dc03a6d4f64e338ca84fa7d",
+			"contextHash": "24268d641ff4b0ddc2a2b4f790932aa8a8745a4678cec55b6e960fce82a02865",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "9267de9834dba7ffdaf9159b52f412621bb601819124c1697573bef4e0c0c6db",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Click below to expand/edit. Be sure to save changes.": {
+			"text": "Zum Aufklappen oder Bearbeiten unten klicken. Speichern Sie anschließend Ihre Änderungen.",
+			"sourceHash": "055665d968e1c5ef40c6498857b613541e330877cba0cb8b2fb794442cb90173",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "8465a66f3ae533119e52e37f9a31d4993cb78f1a267a5b24dc0035fe020fd105",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Clock Update": {
+			"text": "Uhrzeitaktualisierung",
+			"sourceHash": "1033bf948129cd01c97b4249248286c40c130d70dd7379cfb33ce08c2b54946a",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "6bc4ecb9b9c113346ad6cf13383057c912223a705da524114e7e6480b2ec59fe",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Configuration": {
+			"text": "Konfiguration",
+			"sourceHash": "a9af6c753b7d22be15845ddec95421d0a7d66227ec1d4c777590caa8654c3277",
+			"contextHash": "089d08776f6f39521fba37db6965244177b77aa2d0c64c609fa598243f13d261",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "a50b7edd0048d1c47d52b73166b009ace2017064e853a96494287275e7f8bd45",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Configure Child Sensor": {
+			"text": "Untergeordneten Sensor konfigurieren",
+			"sourceHash": "d54dc188b0db2294d11075aa073a84316b76d2a344095418151eeb1eaf8cdb76",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "78aade4cdb1d65a4e801df531def7de74f9acd0530c340fdc425643017f69f35",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Conflicting sensor configuration: %s. Remove it in Edit Sensors first.": {
+			"text": "Widersprüchliche Sensorkonfiguration: %s. Entfernen Sie diese zuerst unter „Sensoren bearbeiten“.",
+			"sourceHash": "d39e6f679ee450885841f83f5d8788fd3584ebfabd54f2f7f40e6ae80aaa7e97",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "c0f6553690efc2e87cdaf4c3efb30a7aeeda989df1daf4ba0e42bce29a85afb1",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Controller rejected one or more invalid options. Review and try again.": {
+			"text": "Die Steuerung hat eine oder mehrere ungültige Optionen abgelehnt. Prüfen Sie die Einstellungen und versuchen Sie es erneut.",
+			"sourceHash": "f66465f9bc93128bab83c9d2cb5504522dcfeafb107cd4578fce4c581219ead2",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "3bd7f3ef4769a709bd41d754a9f21bea2eb32b611deea7129f739a8cd4f02b8d",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Create a single-run program for repeats": {
+			"text": "Ein einmaliges Programm für Wiederholungen erstellen",
+			"sourceHash": "9cd34f85d707008806d0e1dbc5c8b245fd27f69dfc9834693ac6d8dc1075acd7",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "e0554beda5993fdae0373ff1b697f62254448f73cd27a6a9aeb7a68f7a27adc7",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Croatian": {
+			"text": "Kroatisch",
+			"sourceHash": "0576c4b1c182ea7e26f7266e60ea218cc45db04d13951797da61f6382301cf97",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "3cb39b31084840cc2544631874bdd84b2e3c1f459325a07e71004fb4ab3a540f",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Current Sensor Value": {
+			"text": "Aktueller Sensorwert",
+			"sourceHash": "20b500b983190ae5b054e45846c35700d601285e715a4201540feaa32efd79b5",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "f300dcd1b341f202960a8a1756e50e27ff20bdf4ab4bd7b70b93c683afba7fa7",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Current Value": {
+			"text": "Aktueller Wert",
+			"sourceHash": "de8bd48518e1fd535c40a0286e99bcbfd369e1ed9cbc671796db0713e111bce5",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "1cc540b0b51f7c20aafd31502ba2a0a25713720cd0d310a29c6f0e12f073faa6",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Custom Adjustment": {
+			"text": "Benutzerdefinierte Anpassung",
+			"sourceHash": "f5b5e9e3c47a737bdbf8b5c90256243dc7b79579e962e70f6f6e350b4fa9389b",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "1a384ef930945dcbd561fe0d549221781cc188bb09ebf31e3d3fee534b272d0a",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Cycle and Soak": {
+			"text": "Zyklus und Sickerpause",
+			"sourceHash": "e534cf43c3e925f9e5f4d482a09bd8ffead76a0a754035307c99f58dd0336db6",
+			"contextHash": "beee43ac2b24990782dc3dcecd71a4fefae6d8d30e8574141a91a9e2a998bb8b",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "b7358795f41e784c30edff6989677f4096a057a0b710318b54f874d4f7a5e957",
 			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
 			"review": "unreviewed"
 		},
-		"Cycle and Soak": {
-			"text": "Zyklische Bewässerung mit Sickerpausen",
-			"sourceHash": "e534cf43c3e925f9e5f4d482a09bd8ffead76a0a754035307c99f58dd0336db6",
-			"contextHash": "beee43ac2b24990782dc3dcecd71a4fefae6d8d30e8574141a91a9e2a998bb8b",
-			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
-			"translationHash": "04082327e577fb67f7ac27389620c74ee2bcc207c22824ee94342b37203e279e",
-			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+		"Cycle and soak settings could not be read. Affected stations water without cycling.": {
+			"text": "Die Einstellungen für Zyklus und Sickerpause konnten nicht gelesen werden. Betroffene Bewässerungskreise bewässern ohne Zyklusunterteilung.",
+			"sourceHash": "9f0b9d1ef5c3d30fe44179d3c3acd0b92d104984c4b7709d711a3cdd14108af5",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "747c514e0173a7186185ee96e55304174ff10d0aaedb0cf19e7d14045b999df6",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
 			"review": "unreviewed"
 		},
 		"Cycle and soak times must be between 1 and 240 minutes.": {
-			"text": "Bewässerungszyklen und Sickerpausen müssen zwischen 1 und 240 Minuten dauern.",
+			"text": "Die Zeiten für Zyklus und Sickerpause müssen zwischen 1 und 240 Minuten liegen.",
 			"sourceHash": "1cfb6958acb3d34c4e7a7fb6a6c055b1809ccc10b0b5485cc128842ce27c18e1",
 			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
-			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
-			"translationHash": "b4b3bbe5fd72937058dc6d15185eeae2e0463845bdb01fe82a2fd3790c5c5124",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "282c8ba57f0db8f980084b37218dbf929a6948c0dfcc4a729e73b583274f1904",
 			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
 			"review": "unreviewed"
+		},
+		"Cycle paused": {
+			"text": "Bewässerungszyklus pausiert",
+			"sourceHash": "a1ff65d7c6a60675e4c4546837e447c50aa26b7007c4a5d6cadb5de5671e5be3",
+			"contextHash": "5fc4b9d7a45df2c4b138774135fdbb03a332756d2ace5d7b1f568cb53de5702a",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "c3d44c1a338347285e51b49226d97e20c6d458ccff0e96af4612c339e26c73ec",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Cycle queued": {
+			"text": "Bewässerungszyklus wartet",
+			"sourceHash": "100c33110e66976fdf3b1e73df16c21b2a87a1f1b06010fb423dce1dce11f078",
+			"contextHash": "5fc4b9d7a45df2c4b138774135fdbb03a332756d2ace5d7b1f568cb53de5702a",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "10d7620609caf3f1226172a034fd81609e053b91627e948a2593d339760f81ea",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Cycle running": {
+			"text": "Bewässerungszyklus läuft",
+			"sourceHash": "bac503974f1a17261dbbc859702ee1141db94793b42f3a43de8b8c09899d0290",
+			"contextHash": "5fc4b9d7a45df2c4b138774135fdbb03a332756d2ace5d7b1f568cb53de5702a",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "0fbc9898b2bf6c35739d5591c9150beb664a572723b5f68d3f50a443425c598b",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Czech": {
+			"text": "Tschechisch",
+			"sourceHash": "6a30554ac99199abc65296eaefc1a2e0fd5ac8c1ffc7a486e5a9c22e2eb57cfb",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "08432f772d470343d64384d81ba927d188c63389908f6f2925543dc3c1f165b1",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
 		},
 		"Default": {
 			"text": "Standard",
 			"sourceHash": "4ca0e0e73229540cc109b407b56d325b34def70f33f84982ed53de640d81ef49",
 			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
-			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
 			"translationHash": "d998c212030bc7c274bae23d7d354b3a35ddee152bc378c63c3125776478d504",
 			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
-			"review": "unreviewed"
+			"review": "reviewed"
 		},
 		"Default Provider": {
 			"text": "Standardanbieter",
 			"sourceHash": "25e62519cec370ae7162077c581fb2ff798f71ed6b25b9b03c8f4d1e87514bdd",
 			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
-			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
 			"translationHash": "ef78a3ad4328625119d4afb9bb9340fe6a8af76a421791049838b0ee72f2d14c",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Delayed Off Time": {
+			"text": "Ausschaltverzögerung",
+			"sourceHash": "7f9065a4c637b91bc1281b468c7070844f4ce8e5477e1bc1dcb04d76180d21b0",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "4ce35adb0d7e3660b18fa7edd7c28fe1e8fa6d1fbe0a5e2e3e89af4b7b77a956",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Delayed On Time": {
+			"text": "Einschaltverzögerung",
+			"sourceHash": "8d29bbcb70a9fb9b1a365f2109eca99e1e108b27edea14865874709c248994b8",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "2a617af238cdd1527cd1db7ea5ed606b897caea0eb25386ab035dcd17564ae91",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Delete All": {
+			"text": "Alle löschen",
+			"sourceHash": "5070ed6ecc4f7e6b84a2558c873289fcdd8111a4d254d9b7463606b5bfb7b5a5",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "2fb5c9b20d2df7dd8e93df2c7924e29eda77430fe3dfc97a1f9473dde7fe572f",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Delete Sensor": {
+			"text": "Sensor löschen",
+			"sourceHash": "03727720ca755596c0e33cc4a87d9ada6f71b0e1ab06ee4222f7ac8a4a18216e",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "d904ad7b3184632dd5449f8b0e547b8b4e261cd10c214f849607309841b8fabc",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Delete the entire log of": {
+			"text": "Gesamtes Protokoll löschen für",
+			"sourceHash": "1e6059e86bd0e33c5fd2381402e32b2e7c304b1853fb7161d1429fd50a43186a",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "77e6d21b0e2e9a542e032ed84a1ca63740d82a0a9202da11cce34c323eb9198d",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Deleting sensor log": {
+			"text": "Sensorprotokoll wird gelöscht",
+			"sourceHash": "265d39421464cb18574acc152686700df7829ed2fda92b8f743b800eae5a947a",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "cc3f44b4a04bbbaebe30075754010863b89f3c3daf480aa4bfdee19fb5824b44",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Device password is not secure": {
+			"text": "Gerätepasswort ist nicht sicher",
+			"sourceHash": "9c7be9d5a940a7a732e5b04fe607b09ce4d23ad04ab4ba2cc193a1dd5f97f678",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "b1bbebaffa4b097e7c0131dd48b81ac4c9447ca58fdd0d51a146385e7ea28771",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Disable Remote Extension": {
+			"text": "Fern-Erweiterungsmodus deaktivieren",
+			"sourceHash": "de04998f73a9ba6d1db6f7529939dccd8dc4543b2c81b6415a33c07eefa1ac03",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "19499dfbdf2be643568576954316ca599e7c06bce68bbccb31f002cca8770b6e",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Download": {
+			"text": "Herunterladen",
+			"sourceHash": "41533734a5a7b89d7d71651a377cbd7d509b922413ca059b398b85324940c0d7",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "ccf84cc977cfbc388714d010f3e143f4f27cbcee874e6aa6a9f19caa3a2fe5f9",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Download All": {
+			"text": "Alle herunterladen",
+			"sourceHash": "9a162a1d67e0110792bc9781e9af77f9d1bd52852a21daa008ec4c9e6aafe3d9",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "562aa348337ce2e2d893f107956d913ca4f951f122d4a053c786ea92ec0a6551",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Dutch": {
+			"text": "Niederländisch",
+			"sourceHash": "6949d667043bee0b3956062215f13454c6877f7bada74c9cee264e7035f428c2",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "75261d341671a4bbad0c9f5d1cd543a0513213a8017992127824ae39d8396a27",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Edit Sensors": {
+			"text": "Sensoren bearbeiten",
+			"sourceHash": "d9b6787ec983a3c55b89b50fa95c88f361c749f50ec3f6cc6d84919251b70128",
+			"contextHash": "59829b7ec60deaac16f47c84d202c693b4cbf4283b5981244f969747b253459a",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "0a0521bd8d092a431e1fbf2ea490621828e485dd1e42dac59b62190df68c0ec5",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Enable Cycle and Soak": {
+			"text": "Zyklus und Sickerpause aktivieren",
+			"sourceHash": "767d0437f0e0465c18c556da63b2e2e2c079cd7693516914eaaf780d63618056",
+			"contextHash": "5fc4b9d7a45df2c4b138774135fdbb03a332756d2ace5d7b1f568cb53de5702a",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "359196d7429286b8676cca2a7acc493d5e46667a9aa291ff627ed619e336933d",
 			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
 			"review": "unreviewed"
 		},
-		"Enable Cycle and Soak": {
-			"text": "Zyklische Bewässerung mit Sickerpausen aktivieren",
-			"sourceHash": "767d0437f0e0465c18c556da63b2e2e2c079cd7693516914eaaf780d63618056",
-			"contextHash": "5fc4b9d7a45df2c4b138774135fdbb03a332756d2ace5d7b1f568cb53de5702a",
-			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
-			"translationHash": "4df7373212ce899a01b5d139fb446267f5d718572e9f28f948c0f9ff1d64b9a1",
-			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
-			"review": "unreviewed"
+		"English": {
+			"text": "Englisch",
+			"sourceHash": "32889a931b08ba01dadfc309df2ec6bd7b8234aa9a8db49ffd49818f3b3aa1c6",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "4e0a768440d142b16dfd89af8f942b4ed290dd8e0e62d4f30745b44e2de8a26c",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Error: Add at least one sensor adjustment point.": {
+			"text": "Fehler: Fügen Sie mindestens einen Punkt für die Sensoranpassung hinzu.",
+			"sourceHash": "6fcd1ba08783a8c0cd599392c7818a7965c4bfabf5503853596d987baf02761f",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "a599c63494d9d985ed2fda23873e823165c61c7eb7c3473f25e3412ba3b72f6e",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Error: Complete or remove every sensor adjustment point.": {
+			"text": "Fehler: Vervollständigen oder entfernen Sie jeden unvollständigen Punkt der Sensoranpassung.",
+			"sourceHash": "f905641d6694fec4b167579ad00d78f506b14d245ab05c0d008270433010ad09",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "2fdbef3e454e2b231b914dbee8022a8a65e40849fe3fb0a79de608f9e450f12e",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Error: Select a sensor before enabling sensor adjustment.": {
+			"text": "Fehler: Wählen Sie einen Sensor aus, bevor Sie die Sensoranpassung aktivieren.",
+			"sourceHash": "b21d087efd817d9d492b04b6bfb2a1b26235b918adf79a47752c89fcb954a832",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "67f66182a560a886106dcac717da96074c6d2ecd5ab7d0884063dde01de4812b",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Error: Watering percentages cannot be negative.": {
+			"text": "Fehler: Bewässerungsprozentsätze dürfen nicht negativ sein.",
+			"sourceHash": "f6c2b25274e5e09545f409fd6726bd2a08dbb64dd07048b42079a9a7cb93939d",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "c654154832c10cb0f62b28e10d17f4845350cd38c47ebc1ff3dbe2fd1790118e",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Estonian": {
+			"text": "Estnisch",
+			"sourceHash": "459035c643e1cfe4a6cf83684836971224751c3c73c6212200569586f318b9e0",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "41e6c3d7444c10d60945eb5e04ccc1b18262f6597a6f38b17c206b513f639330",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Factory Reset": {
+			"text": "Zurücksetzen auf Werkseinstellungen",
+			"sourceHash": "16d5e106b7e55b95641097b3bff4b727ec143b0c902e132060f1b8f6464a155e",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "8c9f41d0f978c7c35299202e2992a90ddaeac2b6736a4e6df490750e6974b442",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Failed to delete sensor logs": {
+			"text": "Sensorprotokolle konnten nicht gelöscht werden",
+			"sourceHash": "a4a96bf737544d632a60ccf42dfdcb57acb66258caf1fa77cc3106ae77401684",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "5403b55328e0310a200c1364dafb53a015e13ae092e76e4228ab4cffb300a3b2",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Failed to download sensor logs": {
+			"text": "Sensorprotokolle konnten nicht heruntergeladen werden",
+			"sourceHash": "3193489791a9a8e233ecfb2fae81058640e85842abb2e16136430eccd6e2a5c4",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "ffdf95d7652be0d99a03a462c419b70050876748e2fcab10cff58730b7fc1323",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Failed to load sensor descriptions": {
+			"text": "Sensorbeschreibungen konnten nicht geladen werden",
+			"sourceHash": "b9f98b1ce27dd8e0cbe164f800040622629b4e54dce9928d20e92ab429ab05c3",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "3077e8f63721e9138e0ebb6801fcd8842cf12ceb57bdde6757e43a143b3d56dc",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Failed to load sensor logs": {
+			"text": "Sensorprotokolle konnten nicht geladen werden",
+			"sourceHash": "1a6b0fc8734d76cc258a6eab74d7874577c50240840bcb281582d150f41d3d91",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "3e14bcacc8969131ddc7c36851ea48356a2b7354a65c6402c13f2279f2a218f0",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Farsi": {
+			"text": "Persisch",
+			"sourceHash": "b3c4bbf2d31b8fc014110826abfcada07774f38ce68febd94e1f0ecac153e94c",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "45284f1dee0cc8b36e9143f2d070217d1cb8104eb9f78b3df83b0bccc6c9545e",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Filter stations": {
+			"text": "Bewässerungskreise filtern",
+			"sourceHash": "0c5841c34a21f0ccd1b746d9f7eb5d60cb27fac1929dfb820d1dec20142bb12c",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "6b9f19000766c1ec0ac526fe897b76b6bd213bd075777f077f9707e9de0115d3",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Firmware Update": {
+			"text": "Firmware-Aktualisierung",
+			"sourceHash": "c2fff85dc3ae73e5d57c434143b5738faa26395cd2166d9dec16c71ca5d78c0a",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "a2c025ea5d6790c9e043b70a04e9e7f18f86e7a0d1fd5579b61da9632463f363",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Firmware update requires a local network connection to the controller.": {
+			"text": "Die Firmware-Aktualisierung erfordert eine Verbindung zur Steuerung über das lokale Netzwerk.",
+			"sourceHash": "2b54c2a5630719c34b09438f177c83bb9d8f0314eab725c759b42a657498d768",
+			"contextHash": "89f775062299865aed268f39cdaa86d10d0a6538b4bf8c52e106acdef9833507",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "b713e3cc44bd4ec1a7ced7479558dc22d59e9e931b7645b9bf6f9777ddc4a68b",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"French": {
+			"text": "Französisch",
+			"sourceHash": "092033938ca2debb340be95266c500b7ee4739facaf97f9a059b190a19cee0f5",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "6a76a1bc7a70e48098e8399733ce9e94ef2b8625a8aa15e2a6fc4306f8f5a5e2",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"German": {
+			"text": "Deutsch",
+			"sourceHash": "ae4d849ad5c154f541d7168edf7878b994d27b800aba40c436c7f275ccd2a2c0",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "1275f81ea4649894560ec390bf40c222416d5c845a3113393d678816083ca87a",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Greek": {
+			"text": "Griechisch",
+			"sourceHash": "e315f6f286b54d75f099dcb09d74f06bb3c5f27ec5df727e1f9c80d0b1fa947a",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "24b195781199122abb8bbbb76f773ea0704adbe08bf54d2a05d38016cae0dbf9",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Hebrew": {
+			"text": "Hebräisch",
+			"sourceHash": "ac6a4cef231bf45007d6ba8afe35d7c934964f9eb14a325f034da9b839d2142d",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "46fe1e30eae77e03674fb8443a88a4e9d35be02fa44f7d4fbd5c82b47b74daf4",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
 		},
 		"Hostname (restart required)": {
 			"text": "Hostname (Neustart erforderlich)",
 			"sourceHash": "c2641e22b5c81ce5d36d48293d19c77402fe57c772891fce79a729bc8720273f",
 			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
-			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
 			"translationHash": "f592bd57bef16d841e34f3dadbd44a0891b4091feb2630b3f8981c2e69a61911",
+			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Hungarian": {
+			"text": "Ungarisch",
+			"sourceHash": "a394ccf77467488c66c1a5e15cd5ab20e1d38bf0ad1d23552f3460c217129ecb",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "d60e6f77dcfe8ca9c18be0327ffeedc86c3bcf1c7d7a24ddc7b82bf151f74900",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Icelandic": {
+			"text": "Isländisch",
+			"sourceHash": "3e57aa2f4b8342d4d12edf6615b60d84fb2d3f183fd0a4e8906c4994d0c09ae7",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "5d3e067d5a1a2b1b28eafda6a4c5ea6e3e0e36e4fda198173a6f693c44cc4c83",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Ignore Sensor 3": {
+			"text": "Sensor 3 ignorieren",
+			"sourceHash": "cb89f4b570230d78476720a6d4cc58f3fe37f76491814b1bba4d187a728bba96",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "13cf42e78a0ebf52a120ee11f4eea553a1f1be665f891423cfea69d3fafeca80",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Ignore Sensor 4": {
+			"text": "Sensor 4 ignorieren",
+			"sourceHash": "ebcf587303dc0fe0530f06e775f9634d21e68316e21eca27777ae1ce2bc72f9e",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "99ec3d7dee6ac7bd37cde7f732687323ff05c46e73559cdfadbfb1eae5d19673",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Internal firmware error.": {
+			"text": "Interner Firmware-Fehler.",
+			"sourceHash": "638805ae847b24cdde567998ef49a053e86ff7e8117f03bfa3045f2b86be73cb",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "7e3f29f1a36a6fd1382dadbfa53e171bf6876416638cacc944ff0e00520b697f",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Invalid cycle and soak configuration": {
+			"text": "Ungültige Einstellungen für Zyklus und Sickerpause",
+			"sourceHash": "64d344b2fb34fee239154c210b3a374730e7d6f1999b276d7deea4c66452b7ac",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "f858b21e47d75b6ea5c3bc946d974cadaa0470e11fc7f3a3c8fcab11c1992090",
 			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
 			"review": "unreviewed"
 		},
-		"Invalid cycle and soak configuration": {
-			"text": "Ungültige Einstellungen für Bewässerungszyklen und Sickerpausen",
-			"sourceHash": "64d344b2fb34fee239154c210b3a374730e7d6f1999b276d7deea4c66452b7ac",
+		"Invalid program configuration in backup.": {
+			"text": "Ungültige Programmkonfiguration in der Datensicherung.",
+			"sourceHash": "a64ecd2e063a0f372ecd1ab674fd635ebbcbc9f04e8003179e35feedc1e470b0",
 			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
-			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
-			"translationHash": "44e967cfb62fb583c757daa34631d4c0e49abbfa2c8916f5389f1db0f7fc3e43",
-			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
-			"review": "unreviewed"
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "d8972bdfcd299f826f9d4b77bf59f1e64017f98e7047ac9c912fe2756ecde5e5",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Invalid program sensor adjustment in backup.": {
+			"text": "Ungültige Sensoranpassung eines Programms in der Datensicherung.",
+			"sourceHash": "a8711dd4a3acb11849caefda96481e4f24ae727d5df41850efca2f772dcf72dd",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "380245b3ddf0e59edf9b2763aceee788312a5cf87942122755b55c511a68a2f3",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Invalid sensor configuration in backup.": {
+			"text": "Ungültige Sensorkonfiguration in der Datensicherung.",
+			"sourceHash": "0f703bad9f6ff8714ebcc1c5e5af5672415db762eb06cda521cd8ae6561f7de6",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "ec85ecdb04751fe1b7eb57b0a0885ea86056d6221cc3d4fc3eb960e9665edfa2",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Italian": {
+			"text": "Italienisch",
+			"sourceHash": "e5777cab81802a685de3e4c40931f39b76b9acadaa7431159f1143c2276ed320",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "a6a9e3b39c57b753a2666e11eb9a3bab05ebed09a15e212fb642da7c1df2af42",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Item mismatch.": {
+			"text": "Element stimmt nicht überein.",
+			"sourceHash": "d99f36df5d2db20930fb477260e67953b03144bf5a708cc8efeb78a3649d4a2e",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "11e8d6f85573204d1f47f8e8cbad4d62572cd026837e874a727e52459d4aeb37",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Latvian": {
+			"text": "Lettisch",
+			"sourceHash": "44b6f68fb5d50c5207e3f45f7151551722d0e7143a5dcfbfb7c54c8c3fffc2c3",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "d7ddcfeb7be7f1a8596405399f6da52054f479dac7da0dd52a65a97bfcd6bed4",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Less than a minute remaining": {
+			"text": "Weniger als eine Minute verbleibend",
+			"sourceHash": "2c489af6cf9dcb4490a9f5266ae3f4615ee6afc2ac99b3584ce68d9f8b44f917",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "3f6a7960e043c2c0e237c77fd4a989574f4a965b908edf224ed5b2ef6189d41a",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Loading log data": {
+			"text": "Protokolldaten werden geladen",
+			"sourceHash": "a963568e037d772b2e309f0c4a2959eefe3e90ccd850b597775ee10b7890e8f5",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "fd8f1716267fbba8afbaadc442a263dc5557403a3e72601162b6c9ad88e86955",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Loading program adjustments…": {
+			"text": "Programmanpassungen werden geladen…",
+			"sourceHash": "ca4fe44a82458600991842d1b4eeb105491a363247080b1bb73671e7ecc26091",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "bfcd04b6f080b32a7a8f4b4853df9437d4354dd4b43f41f48a32e426028780c8",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Loading sensor data": {
+			"text": "Sensordaten werden geladen",
+			"sourceHash": "ce81e3ca20fdccffde291ddf4191066180ac0ecc2d8137ab270609f62aded0fc",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "23b24d46a084898ad52eba006403ce8171135323171769634f99095bc5ba9848",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Manual": {
+			"text": "Manuell",
+			"sourceHash": "387082cd5f118bedd5031b2058570c9df3f64f0c688ab8bc2c060b973775397f",
+			"contextHash": "27986029b3df9ad00dbc67ce579607a8420c959ffa16c15c9f227eb82afac172",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "97aceb4db14a3b10e45a2b2acc71344676b66ef9e17dbae3fe12e6d23424864f",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Master finishing": {
+			"text": "Hauptbewässerungskreis läuft nach",
+			"sourceHash": "d18d8b19b0719a7da3448a211a2dc7f7ec5e0896c38d5eafc0712ea9f2e799a0",
+			"contextHash": "5fc4b9d7a45df2c4b138774135fdbb03a332756d2ace5d7b1f568cb53de5702a",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "8f613a94be23a43fba640c2f6eeb763818ea22aa9a31a09e6c27f98de9bd72d8",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
 		},
 		"Masters": {
 			"text": "Hauptbewässerungskreise",
 			"sourceHash": "899503bfffdc5916366e03b643ded9dac1fb9eac2636c76699e21908ed8ab878",
 			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
-			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
 			"translationHash": "1d6002fa772e68093127689f2311bf7c276aabf59ff974b11fc4c6e709a92bb3",
 			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
-			"review": "unreviewed"
+			"review": "reviewed"
 		},
 		"Maximum cycle (minutes)": {
 			"text": "Maximale Zyklusdauer (Minuten)",
 			"sourceHash": "9d216740c9563af0fa5676eba2acbccde68ed0f238101f81baee4625975bccd8",
 			"contextHash": "beee43ac2b24990782dc3dcecd71a4fefae6d8d30e8574141a91a9e2a998bb8b",
-			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
 			"translationHash": "535069d697fa74ea9036b250c69e4e7eb0ed3183dcf682583aec3866080d9059",
 			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
-			"review": "unreviewed"
+			"review": "reviewed"
+		},
+		"Minimum runtime": {
+			"text": "Mindestlaufzeit",
+			"sourceHash": "806db99ac83b0003b30ed4481d20d102b928c239d50bdc9c9d38d4e0d0d52f4d",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "f0b06d670102305438e446e0ac0e646ca8433bc043548ee59997433f64aadff4",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
 		},
 		"Minimum soak (minutes)": {
 			"text": "Minimale Sickerpause (Minuten)",
 			"sourceHash": "eeef86c45983bdc022d68232e9fd44324aa1c12d7600126a5ac5dbd103a8eeb0",
 			"contextHash": "beee43ac2b24990782dc3dcecd71a4fefae6d8d30e8574141a91a9e2a998bb8b",
-			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
 			"translationHash": "2149d26fd9ee82588969fd60308f590b0f35ec67ac60a25367c39e5484f3aa8d",
 			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
-			"review": "unreviewed"
+			"review": "reviewed"
+		},
+		"Mongolian": {
+			"text": "Mongolisch",
+			"sourceHash": "68b050dd8c76dd9e0184364671c660db4d8003e2bad7b30967cc44ef98cda530",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "1be920161b417addd56fbeff22c7e2abe63a25ba11e9c798f25e419b60d18ee8",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Move left": {
+			"text": "Nach links verschieben",
+			"sourceHash": "5bd942e0cc11bac62e774109e304af6125ae51f11c60debeeaebb6651d5c8a11",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "8238406b9e2f8be3fd9b821d40fb45d70295c4579fa9da323f1cc339c96f5c3b",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Move right": {
+			"text": "Nach rechts verschieben",
+			"sourceHash": "59758ebbf3c1967ae1dba0525c175a502be048bbfcbae7dc8a8e3912505ac197",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "af493585fff65c0803ff0262458fc515db1b945ef84b5f39c319c6452b404bd3",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
 		},
 		"Network": {
 			"text": "Netzwerk",
 			"sourceHash": "23e10e8157dfc823353460900388acf5fb1f168e868693b8737ab3ba720b94f7",
 			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
-			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
 			"translationHash": "2c4a7abb818c974f0ba416e809409afbde1fb5c8fab903d81007e66975af4926",
 			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
-			"review": "unreviewed"
+			"review": "reviewed"
+		},
+		"Network Failure": {
+			"text": "Netzwerkfehler",
+			"sourceHash": "f018c16273404a0c6d92e0b88b12f6cac34cfe84f091cf12c5a388c8c0886798",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "9e02b880c2163bad50a8a485df38863251e84a94590ab3aef49d916be87379e3",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Network name advertised to your router when using DHCP. Leave empty to restore the device default. Use up to 32 letters, numbers or hyphens. This is separate from Device Name.": {
+			"text": "Netzwerkname, der bei Verwendung von DHCP an Ihren Router gemeldet wird. Leer lassen, um den Standardnamen des Geräts wiederherzustellen. Verwenden Sie bis zu 32 Buchstaben, Ziffern oder Bindestriche. Dieser Name ist unabhängig vom Gerätenamen.",
+			"sourceHash": "23f00335c6a35b3c13016e013cdd49178403f3eee18428b23152412e03a1a8b0",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "62d8f359027567455bfecfb8c206719ef9e2a72017b1013cc40c4d52d261c283",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"No Adjustment": {
+			"text": "Keine Anpassung",
+			"sourceHash": "93d4f492eaf5d1811f39f018b359f81710f9831a892bbfc8ffe11afab04ed1ab",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "359cf025fd346cfb368506e1793b2b878367b5ad308e87f8559154ee788d0d71",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"No sensor data in the selected time range. Older data may exist; choose a longer range above.": {
+			"text": "Keine Sensordaten im gewählten Zeitraum. Ältere Daten können vorhanden sein; wählen Sie oben einen längeren Zeitraum.",
+			"sourceHash": "dde2a4e7df333d8dc2aab87aa8b14a5cfe473956259a10c8b163c7fcad34bf91",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "c5b0388f9083f67b77183609aa0cc946c4f71766dbf19ffad7b7e74e660b3b8b",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"No sensor logs found.": {
+			"text": "Keine Sensorprotokolle gefunden.",
+			"sourceHash": "20810df83c0273414cd989d234391e8d7e24d2ed8ebbdeb8523607addaceeafd",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "a523ad2d5e4831306fd798513559df6b03550c38e764b7d9468dc1cb9fece118",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Norwegian": {
+			"text": "Norwegisch",
+			"sourceHash": "9a5122901cd3f5b602b85d6e5f9ba7177b019cba79b1d35922a117a9b8bebf4a",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "3a03dbdaae496f2c621a1df0a18e9e149c89a9054dc4c26032fff44f9ca46414",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Note: this page is for external (e.g. analog) and virtual sensors.": {
+			"text": "Hinweis: Diese Seite ist für externe (z. B. analoge) und virtuelle Sensoren bestimmt.",
+			"sourceHash": "7379af3742a4279b0f8c3ccdf9f811f98ff900e0ff2765a35e75b696d021c9c2",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "b01f22426e525ee4452245e8edfc1890d57f2d6f7834644f684330c00fb3fae9",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Number of Programs": {
+			"text": "Anzahl der Programme",
+			"sourceHash": "620befb68c3716911e9c89023f38ab619ef6aaa5f5bbe8df01ccf2848a381bc2",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "de62f45acf841e299d482f1de3e43d9ac7ab0b9c6ba28acdf82b97a9e594087b",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Number of Sensors": {
+			"text": "Anzahl der Sensoren",
+			"sourceHash": "49660e957f2df687cacecaf7a9a23fa8419bbb55443eb587b40c805c300913d1",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "ab7746aead228dc0ab021fd4adccdbbd25d9e55f4625484426a2c9aae313f741",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"OK": {
+			"text": "OK",
+			"sourceHash": "98c4922bb641c65c7a30b7bcafdf230b9b00b6693631c56146ab25b2786ee4a3",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "98c4922bb641c65c7a30b7bcafdf230b9b00b6693631c56146ab25b2786ee4a3",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Off Adj.": {
+			"text": "Ausschaltversatz",
+			"sourceHash": "d8ba58e0a879985b9e3ab4a49f72eac84a97947e6759c59f2a2dbfb849e7390b",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "8f9c0ad1b23d2b5effb56956393fd46176c278b0684486ed1fea5dc6d3f5f45f",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"On Adj.": {
+			"text": "Einschaltversatz",
+			"sourceHash": "ebf5fb4e1da8b062adc9d1279c076eac8d17430f5709d657c3c8e8dc582a268e",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "90c73bb5993ad0871e0ec054f6d52fee5e88cda9bc792accc16ef8c8fbda7a28",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"On/Off adjustments are in 5-second increments.": {
+			"text": "Ein- und Ausschaltversatz werden in Schritten von 5 Sekunden eingestellt.",
+			"sourceHash": "fce8dded1f8420edfdff940fd38e5c28e29188eae5aa2d85b51f92c7d52d8cc4",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "b00604f4a0b623e2ac9cd57371d1bc42b4e0e0a3571959d243cde1fc05437f65",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Onboard Analog": {
+			"text": "Integrierter Analogeingang",
+			"sourceHash": "01823cf4a33fd2c871876f84e0bff6ae89ee8a879f5a39436312ee099c41316b",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "85e573d32059eee2cf6c569bd9e74506c4055c0505eaa7c937eaa61cb5730ad9",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"OpenSprinklerASB Firmware Detected": {
+			"text": "OpenSprinklerASB-Firmware erkannt",
+			"sourceHash": "014122dc70b85b691b943f39d9d31be211597eb22a551ea0052cd2a132709d04",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "7bda0fb04e4748fb7c449a8e6332dcfcb899ae471e8bffda27012ca3de051672",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Operation not permitted.": {
+			"text": "Vorgang nicht zulässig.",
+			"sourceHash": "0884b986a6c8c3c67d3b4e27a5d567f5e647d82b4b30dc9102699589125eab32",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "f0da33deea0fb8a4f7a9970181f3a6a55dd91712b41160a4e059055d9ec38e36",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Option": {
+			"text": "Option",
+			"sourceHash": "2c31ce6df7a4958f4e9871021588eb7219593902323a0c110a456464ce1035dc",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "2c31ce6df7a4958f4e9871021588eb7219593902323a0c110a456464ce1035dc",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
 		},
 		"Output": {
 			"text": "Ausgang",
 			"sourceHash": "0cd3518a3335a3aacc9f795a34d4c39df8aa5d744dfa24ded751735edef44387",
 			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
-			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
 			"translationHash": "c916985a42e7df257e2fde7ed51cbb455aee6226e39eb04ef3310107d9023d26",
 			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
-			"review": "unreviewed"
+			"review": "reviewed"
+		},
+		"Password protection is disabled. Set a secure device password and turn off Ignore Password in Edit Options.": {
+			"text": "Der Passwortschutz ist deaktiviert. Legen Sie ein sicheres Gerätepasswort fest und deaktivieren Sie „Passwort ignorieren“ unter „Optionen bearbeiten“.",
+			"sourceHash": "0ec1fd61ede24491d962e8f0464cf9e624bd8da9204e370fc422ec9db19f401c",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "e100fc587fda3a53669137f074cae507c22f0754e57c373acf9373bdaf0ee0a9",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Pause Runs": {
+			"text": "Bewässerungsläufe pausieren",
+			"sourceHash": "014a9bc370a90a86f9434cd88202c407273fd79db0edd6456c9d32d68d408236",
+			"contextHash": "089d08776f6f39521fba37db6965244177b77aa2d0c64c609fa598243f13d261",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "a462d1bbfe6470b09966c5d0d467792e3ce1edc6e47639cff130627073490f47",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Please fill in all required fields": {
+			"text": "Bitte füllen Sie alle Pflichtfelder aus",
+			"sourceHash": "10c03d02c5713e2e2480d52bd9998b49ee95f87fe07da41837b5a1f4af8debea",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "88657bb7626b26a2392bf8d6e4195edec1ef911f326df9a162065022814ec1f4",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Point": {
+			"text": "Punkt",
+			"sourceHash": "a1880fca8372d06ffa5be27c8f5e30afff15243ec4c636118e36b060e58331df",
+			"contextHash": "a291fea46d121ca2d96d75818a621f34fad62852c7de9e583470d4fcf69573f0",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "aaa11dc2ac1e7707c8ff0e270fb64ff31a9197c0ca245bb15edb103daf0e1d9c",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Polish": {
+			"text": "Polnisch",
+			"sourceHash": "83bdaad12c66361011b90886bfc2e1cba1a76f2914eba88af4a3db6cb3a43da0",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "7f5240fa186634120924eccc308cb7b0c8684d0cf3d8612d0b98c61df40c6e7b",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Port 8080 is reserved for firmware update. Choose another HTTP port first.": {
+			"text": "Port 8080 ist für die Firmware-Aktualisierung reserviert. Wählen Sie zuerst einen anderen HTTP-Port.",
+			"sourceHash": "8db4d4da369af95f859badc59200cfc495f19a2961e684fdc81d6c05d3254787",
+			"contextHash": "89f775062299865aed268f39cdaa86d10d0a6538b4bf8c52e106acdef9833507",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "ec8a31ef27a80fc8e218c0892d7b361359d9a21a5fe6bb27e31a38c9642096bb",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Port 8080 is reserved for firmware update. Please choose another HTTP port.": {
+			"text": "Port 8080 ist für die Firmware-Aktualisierung reserviert. Bitte wählen Sie einen anderen HTTP-Port.",
+			"sourceHash": "dde9c21d5c3d10cbed4a0834904c312b1ed09fd24daa67e1c172bec0903c8f73",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "27c9b5cdc39927a641ad9e557ca7aa26950f8d6edc79ecec8083d0ac5d60d3ee",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Portuguese": {
+			"text": "Portugiesisch",
+			"sourceHash": "8cb4d400f787a80f2e3c60a2bb2e2194bf78ed8c69be518138535c6074aeede3",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "cfcdbaea5d6f07db91b7eda14e49e8f3765a68b566c3f74c45859250f003d1d2",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Power On": {
+			"text": "Einschalten",
+			"sourceHash": "7529ff6ad12732408ce106e74561bda199aed85273ff31287a54512cdd5da21a",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "2ad5636189cacde461f1da8b0efe4d7bdb73913732ab4c09916cfceb55f0f263",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Program adjustments are unavailable.": {
+			"text": "Programmanpassungen sind nicht verfügbar.",
+			"sourceHash": "79d7d34ef019800c55a4e11c5518c088f342238cb02e173fc2d9cbd7910c2ab2",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "15d238b3441adbbed9dc60206429055c85a06403c861804e4e88ef58dc33b89b",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Program preview is unavailable because sensor adjustments could not be loaded.": {
+			"text": "Die Programmvorschau ist nicht verfügbar, da die Sensoranpassungen nicht geladen werden konnten.",
+			"sourceHash": "9f4c47aa13f87dc415d1b2159a7cbd8f024e04067d0a9006a9d104069b8793c4",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "c88aac29d42388b6db34a490f1bd7cd85d971279c389ce6f4319d8e2e4652c66",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Program sensor adjustments that reference a sensor absent from both the backup and this controller will be disabled.": {
+			"text": "Sensoranpassungen von Programmen werden deaktiviert, wenn der zugehörige Sensor weder in der Datensicherung noch auf dieser Steuerung vorhanden ist.",
+			"sourceHash": "f567fe02b7809c14855d5b2a743e2afd5439c0e0205010b2d3110d3daa83b8c7",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "df384cd133dcfa71b6a31727420684bd4beab0254e75cbf984d856ce1bae7d9d",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"RF code error.": {
+			"text": "Fehler im RF-Code.",
+			"sourceHash": "2ba147301ea06eb2cd6c12d51fa00f5e145e47ee10c066d9562587c22abc61ba",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "2f681dd7633d5555bd67a4276d0d81b283b4449c7ffc6b8e55f36a6d631fd01c",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Remote Extension mode is active": {
+			"text": "Fern-Erweiterungsmodus ist aktiv",
+			"sourceHash": "52f08ec8217582f3e06107c3e13b7dd1483a1769d5210c02b7c16e0677b90d27",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "e12e8733819494394d5fa6ff121d1e75be8e331ce847d7862b03fa0beddb08e5",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Remove this station from its Bundle Station before changing its type.": {
+			"text": "Entfernen Sie diesen Bewässerungskreis aus seinem Bündel-Bewässerungskreis, bevor Sie seinen Typ ändern.",
+			"sourceHash": "a02673f473fdd42685212628af52137deccb556ae1e348241ad8080668f05cc9",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "817ec5898fccdfad9750dab2ece86fb36f69ba7d2fa644cfdeb789744a4747da",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Remove unavailable members before saving.": {
+			"text": "Entfernen Sie nicht verfügbare Mitglieder vor dem Speichern.",
+			"sourceHash": "f78cec615cb6ca0a7f55dd5efd26b8cb7c1018030db40ae36d1548144b8dc971",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "99074be03f09d5b6a32ec7b3ce419a5760fd24cf63a9606be8e2bf00fa3e8f7b",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Requests declined because the queue was full": {
+			"text": "Anfragen abgelehnt, weil die Warteschlange voll war",
+			"sourceHash": "a8678f842f81a9dd367d04badb4167842d371f207a6627571c0583c9152acbd5",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "2060c5fa77827930ca1c2df71b5064b1796afda8367bb9e44a3e645cf1158943",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Reset Button": {
+			"text": "Reset-Taste",
+			"sourceHash": "7f99a01d35d52d25a07d46d00140836d0f1c51bdad4de7efaba3220be7b9d463",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "7d9c88ed3af63c56cec1c55243f95f834e82a896eb48163cac377e8d0ef69b5b",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
 		},
 		"Reset Zoom": {
 			"text": "Zoom zurücksetzen",
 			"sourceHash": "ae8b7c08d579971e5f317c5716ce6cbe90bc889635764f9071abbd4aefd89a7a",
 			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
-			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
 			"translationHash": "679ce8af048757e4a78605bf72aeb2f1561766d9f874c5a85d5539554cdabe30",
 			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
+			"review": "reviewed"
+		},
+		"Reset cycle and soak settings": {
+			"text": "Einstellungen für Zyklus und Sickerpause zurücksetzen",
+			"sourceHash": "f706498384c0d6db0993a99c7c333e9150b15c0ac72fb15a3b2c1ad4259f0da7",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "3aafad27334fb4fbca22a754f6617cef6069e37f2eae52e02659c30bddb86223",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
 			"review": "unreviewed"
+		},
+		"Reset cycle and soak settings for all stations?": {
+			"text": "Einstellungen für Zyklus und Sickerpause für alle Bewässerungskreise zurücksetzen?",
+			"sourceHash": "3ed890ca5afa35837fec13356a3c5b9a3c3d072b0acd568e7836dcd3c66fc86b",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "e82ef808cbe4dd46142908c19d03816cca96797363069bc9ad5f8ab88eac1853",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "unreviewed"
+		},
+		"Restored sensor definitions did not pass verification. The restore was stopped before programs were changed.": {
+			"text": "Die wiederhergestellten Sensordefinitionen haben die Überprüfung nicht bestanden. Die Wiederherstellung wurde gestoppt, bevor Programme geändert wurden.",
+			"sourceHash": "2ea68d12d93b808a8ef2c27d3c7b72340f40c65d8407472a4c3f1424b8e526e0",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "39719291f9a8b4e8e882fc38e92450577d2ef6092cd9b4a7495880ddc96ff861",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Retrieving sensor logs": {
+			"text": "Sensorprotokolle werden abgerufen",
+			"sourceHash": "dee05ab56bb4d7171e61f3113c6afc8ce439d996f86638bf3fdf5cff26fc476c",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "f3ec466b3430b67415bd2611ab52564ccdf420427c7ce888e71a3b9fcbf1262c",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Romanian": {
+			"text": "Rumänisch",
+			"sourceHash": "e4762a60d2c00a3aeb135bbbd5a956fa8f6d1cd6db580e7643d3a8c38c5ec841",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "7f196a4f399723dea832b75805b5e57f3f67dbeab94ba49bc8b0666fb28796b2",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Run After Others": {
+			"text": "Nach den anderen ausführen",
+			"sourceHash": "4ee18587861ec7735d4db1bf42bd665370015249befea299cc9d2e4de3e86e2f",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "7c3a0543ca20f794a46ef6bca1a5d477e370c03b1ce846afa26f975b87d8a13a",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Run After Others (Append)": {
+			"text": "Nach den anderen ausführen (anhängen)",
+			"sourceHash": "0cb7549a0d737f1fd5e798eb8df33f373d8c159936b6b9c0fa107b30f1427e04",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "ec979862a1c0d55c9bd4c409e89a0b7409ff70a2889f028cec757e8276a4c8db",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Run Now and Cancel Others": {
+			"text": "Jetzt ausführen und andere abbrechen",
+			"sourceHash": "64509bc315a5ad220870c633dc596c81b9f1d2c8285ab85610c42d22734f2b83",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "5e6df5554dddf7fcdd24f39d5fd8371258e35b04c8d333699d7c63d95204ce0f",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Run Now and Cancel Others (Replace)": {
+			"text": "Jetzt ausführen und andere abbrechen (ersetzen)",
+			"sourceHash": "243df9465a1b91f33487df426df03752464b445f286533f54601e8f37c21cb46",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "b30835775eb9c5fc90fae0eaca509af53ccfae6c980612bf9ebccdb026e09a20",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Run Now and Pause Others": {
+			"text": "Jetzt ausführen und andere pausieren",
+			"sourceHash": "1db1f0a406ded66030b56c8fc4c228dfac0201b9c6e60c3d878b1d4ff3847a75",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "330cbc42dcefcd837f2b153a04a8dd97c700aa64fe0aa3693dd59b28a4db966b",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Run Now and Pause Others (Insert to front)": {
+			"text": "Jetzt ausführen und andere pausieren (vorne einfügen)",
+			"sourceHash": "10ee6f68340d006e7d00c76e79de85f45a451e778f20cf9b683a237e152a3263",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "eaee5259a5fc7c2a6b03e659796c1db25f77a93c72671195dc6ae05252d7d7ec",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Run Time": {
+			"text": "Laufzeit",
+			"sourceHash": "2e5df8b5ada838fdc85e4f9c6ee51128316a7700bbdb0a3259d77a68e365138f",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "81f8de728676615cf04aa563859a811f7c9677d1d25dd08b4128b97df8429697",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Run immediately (preempt other zones in this group)": {
+			"text": "Sofort ausführen (andere Bewässerungskreise dieser Gruppe unterbrechen)",
+			"sourceHash": "68faaf5229cb0d506ae3d29f7bf832f196d79589c1fadf61fdf615d1a6fc69fb",
+			"contextHash": "089d08776f6f39521fba37db6965244177b77aa2d0c64c609fa598243f13d261",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "594d1266f9208426d44db0216c8755fa1b78414b1439503dfce704b8fbc5939c",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Run this program?": {
+			"text": "Dieses Programm ausführen?",
+			"sourceHash": "108a1e18a3f1d13b59367f43842a8d51c8ada620d45d34f9f02993bc95fae8ba",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "0e441a9b9177d44fb08455de813572d8860748c683de17e9f45a0b351e36b8c6",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Running Bundle Station": {
+			"text": "Laufender Bündel-Bewässerungskreis",
+			"sourceHash": "e1ea5d2c61712c2615852f5c0d65ed33566029670bf4d59f4fb7e3bcd1e6cf81",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "627c70cebdfdf5d483c35930dd8a3e419e6f2792a39896edac31772e8a05071c",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Russian": {
+			"text": "Russisch",
+			"sourceHash": "07bb3c3f5a38af2d0deea379cfb2d7e4f592fd2d553fc2daf7fd14aaf22ede3e",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "47bf30596fbb5520b6af09cce6b37b095e4399ff81e4eb641be30e857a71f42c",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Scheduling Option": {
+			"text": "Planungsoption",
+			"sourceHash": "dc910cfd63c1ba39276a7da075bf603da5a50f8e81a54ec31da2422bbdf954f8",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "5a4b30cc5a5e03ef9675f5b2ccbe42c0ff418304a9d23e16f0e091767b026211",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Select Sensor": {
+			"text": "Sensor auswählen",
+			"sourceHash": "71305be90d69183027f09082f84ef12284918626c57499168b26ab6684639fe8",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "ab9cb6e9fb87aab268dee7e075b00f192bed6e8351cb7b78caea02644b2ff4ea",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Select a compatible built-in sensor port.": {
+			"text": "Wählen Sie einen kompatiblen integrierten Sensoranschluss.",
+			"sourceHash": "6c521a7e06bde28cfdcba952e6b7d0e312d84e35c8c2e75acbddf52b502f56e6",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "e2c112ccbe6268a3a5e7ab3397b353a777af7ed8bc0d2d8052eb4fb12b5076ae",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
 		},
 		"Selected": {
 			"text": "Ausgewählt",
 			"sourceHash": "386ef3ac98752a065804161574cd35f36edfb30d97932520dbfa74401c059d39",
 			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
-			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
 			"translationHash": "50d6a33b0b1b8bdd3db6a2e28100f3042e458361227e0a852dc20ac2c29ce509",
 			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
-			"review": "unreviewed"
+			"review": "reviewed"
+		},
+		"Sensor 3 Update": {
+			"text": "Aktualisierung von Sensor 3",
+			"sourceHash": "5d3e68105689b0a5ff3384f5608a7fde9edd867e29ffc62db7e1347bc64b4867",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "4c1ad8c9b8e3596077f87c4d20d09e00162f6a4879e42e65d65fc420cd4e36b4",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Sensor 4 Update": {
+			"text": "Aktualisierung von Sensor 4",
+			"sourceHash": "0442f2920d03c2708f550eab425f08497dfa0b44bc2a04fecf10e96c33fc9519",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "924fb14b50e9b9b7ad398c550f41628a6e366c4fc70b0e521de8ca35d19cb69e",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Sensor Logs": {
+			"text": "Sensorprotokolle",
+			"sourceHash": "21f08299b225e4f4ce33d1f50c8d2ea9107eb164bc55c0f27fa173b427422e18",
+			"contextHash": "e478d376fecc82d351cb3ea75bd24ab24adb0e27adbebca368b5ba68b420d72d",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "c2580259ce4024e64cc3ac4952f58b21f41a69222c707414f9c39260706d8496",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Sensor Value": {
+			"text": "Sensorwert",
+			"sourceHash": "13e56ce48b83e21d5c274190b56983b4c16ab93152b61786d6f492bd7bdf9115",
+			"contextHash": "a291fea46d121ca2d96d75818a621f34fad62852c7de9e583470d4fcf69573f0",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "9ca7c21908d40afcc300db32c26de9116d5a8d4117bf15bc8c47d15a3fedba9d",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Sensor added successfully": {
+			"text": "Sensor erfolgreich hinzugefügt",
+			"sourceHash": "4268713adf94fea888ce61e55e32e645a64db1cca0d08033c148f644207d3fe0",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "28d82fea68d607bd6e3bd1a007f155bbf97111710dbb842a38e2cd9e7d938bf2",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Sensor adjustment is unavailable; using 100%.": {
+			"text": "Sensoranpassung ist nicht verfügbar; es werden 100% verwendet.",
+			"sourceHash": "11e6d23cad61fae20bfd7776fcf4ff61df228710cee2c3ef77222fcebd698df2",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "5a8f1fec9f21b343fbe45e8e3a0fba11bcec2d0eb6d89edf5184dd51a51f134c",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Sensor definitions in this backup reference unavailable child sensors.": {
+			"text": "Sensordefinitionen in dieser Datensicherung verweisen auf nicht verfügbare untergeordnete Sensoren.",
+			"sourceHash": "f7b3e6a970cffb0e824ac8c7dacdb5978bf18e31f6a924168bb5cc157b6b29d2",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "acae2603eff272b315ce2ce51a2f49cb2bfe161b8db682cc3e12ae70488a6f3f",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Sensor deleted successfully": {
+			"text": "Sensor erfolgreich gelöscht",
+			"sourceHash": "b613792445b5707966256493863279e3f7e78739a79c6f8aa4a4eb31fa70e7b6",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "7638cdc01af815973ed23e453231d5ab2c85900f8b4ec8134b33db8bb74ce1bd",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Sensor log progress": {
+			"text": "Fortschritt der Sensorprotokoll-Verarbeitung",
+			"sourceHash": "5e5ab2977d0d2952f4f56c29fef2d7c766ff475ba59d551789583cc87fccc8c4",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "3e9a3a82ff88ced8bf6ad49bb3741abfacfe161dfa09740c116469ac6ad87512",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Sensor readings conflict with the restored built-in port modes.": {
+			"text": "Sensormesswerte stehen im Konflikt mit den wiederhergestellten Betriebsarten der integrierten Anschlüsse.",
+			"sourceHash": "c835d57ada283031d6823915377c2b48aecbf8fd9546af50b679a23bc6a0bd79",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "3841f175b1e2af5a5d116689b368d04934e4dee59176de2d604c27313679a3e9",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Sensor updated successfully": {
+			"text": "Sensor erfolgreich aktualisiert",
+			"sourceHash": "d697f679435714a29d67c598d23a59b6e0f2d130fe4a700c2d10c0ba0f22bfb3",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "9cd3331ec28c095e8dfab0c0c9647ca5a099ae933698b25717c9ec16d616770b",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Sensors": {
+			"text": "Sensoren",
+			"sourceHash": "3bc80eb469b2c2caed852ffa3d3418664e8b48fc02ec99fe8aea11ae37228501",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "66d5c0555f5a3c0662cfe9292cfd5cca3ed6c199ae8f8358dc1f2f615eb60beb",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Set this port to Analog in Built-in Sensors before adding an analog reading.": {
+			"text": "Stellen Sie diesen Anschluss unter „Integrierte Sensoren“ auf „Analog“, bevor Sie einen analogen Messwert hinzufügen.",
+			"sourceHash": "213ce6c1ab56303a5675610832e01c08d42b678460409dc53f63aae8b982464e",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "a1c897d52e6b6b5ec93a1c70eeaf126f6071336dd1159732efcbbde9476f0bd8",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Set to -40 (either °F or °C) to disable.": {
+			"text": "Zum Deaktivieren auf -40 (°F oder °C) einstellen.",
+			"sourceHash": "5ebb212effe7e3b7b5da74f69fc9b578c734d796d29894271a2b07442ab7c161",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "c210819999dc833524efcc95b6dd680a135df9a48481a795a8302ba1ccba2ab9",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Settings were saved, but an invalid master station was ignored.": {
+			"text": "Die Einstellungen wurden gespeichert, aber ein ungültiger Hauptbewässerungskreis wurde ignoriert.",
+			"sourceHash": "f2da7e4f03eb721e0f235b7727f010cb0320834c2d143315b7ecddbecf118dc4",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "f15e5173120bc86d651d91bdf42511166b2da58f3fe9dd42f3b7e199b053ee55",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
 		},
 		"Show Inactive": {
 			"text": "Inaktive anzeigen",
 			"sourceHash": "e3efd192e0a17fa622709678b5ef7ea469fb8af11a3a0cf9e687608cb18b2182",
 			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
-			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
 			"translationHash": "1922a513ec467790a74628b9726f43e9b1adee3c2bd32280e4e0effcdf0b7620",
 			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
-			"review": "unreviewed"
+			"review": "reviewed"
+		},
+		"Slovak": {
+			"text": "Slowakisch",
+			"sourceHash": "19deefc7ade0d0c9726bdf9856e77828462873e7b6a6568f54a2c416c4a02786",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "00451714532cbd661726c3ed05bb773448a3662846a008d5b1403920673eeb4d",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Slovenian": {
+			"text": "Slowenisch",
+			"sourceHash": "2dd9e145662c75c286d0cfeed9f0a7ec89d6e3986026336316d1743475ead49a",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "912e8eba863a99d5d62e922f8b1ea5078396c3078b8e17b7e1d4dc86feccc109",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Soaking": {
+			"text": "Sickerpause",
+			"sourceHash": "6d4e22b65ce968efbf9dc714129edbdb07f182b3cb3e9eb513202f7a4d8bc93b",
+			"contextHash": "5fc4b9d7a45df2c4b138774135fdbb03a332756d2ace5d7b1f568cb53de5702a",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "2422aba795589009f938d65d8183bedcf8cbec3463c861f0e4121b26783b59c1",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Some program starts exceed the queue capacity and are not shown.": {
+			"text": "Einige Programmstarts überschreiten die Kapazität der Warteschlange und werden nicht angezeigt.",
+			"sourceHash": "f136ecca097bf9ddb4a3189b31d1c612cff2ebf689aba4e0248ee0b1229a0bce",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "b1f6eb07d7e814b03ce3da4af09df588387d62e747be4c904e5b379d39b24cde",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Spanish": {
+			"text": "Spanisch",
+			"sourceHash": "f67d489c628b745caa4180e0cfb5bfbd5a9226172706845b497ba33869e135e8",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "8c46828015446d44faea365890b6c612729f509e9a51e2383179805b925fef13",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Special Station": {
+			"text": "Spezial-Bewässerungskreis",
+			"sourceHash": "710827368f8908c34ed0a126228aa1aa4a251bee85beca8e72e56d24b79d7c50",
+			"contextHash": "4c83d908eedbc859813fe4ad20bc8d9bdc735826318f0c74fa448007a66c3144",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "1b0cddc01d45d4927a8d9cf6ead744abd2cf425fdbcd36cd22ef3a36dbbae6a0",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Sprinkler Logs": {
+			"text": "Bewässerungsprotokolle",
+			"sourceHash": "20f505a75ec6c31ac84cb84b6e8743d4558ca0d42655821594d13eeadd672faf",
+			"contextHash": "089d08776f6f39521fba37db6965244177b77aa2d0c64c609fa598243f13d261",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "f116d1f09d460f3932cd8bb8845212640496763958c75f9886142301169f564c",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Stop": {
+			"text": "Stoppen",
+			"sourceHash": "4a784e3e95a08715513ca46cee31eccacff2cae8533a976da4e173138d137776",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "88c289715b37c3c9fdc2b8141c8aaa168c03542715e2c408e55930a4eb8ab47f",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Stopping": {
+			"text": "Wird gestoppt",
+			"sourceHash": "24a54b7783c68b9d52dc3c119daeac39e570d3bee5575b8a4cf55ada95399702",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "a8acfebb22d08a8a7df8e18afe5c16afeea6a9467828a3e5c90e30be421708bf",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Stopping after the current page": {
+			"text": "Wird nach der aktuellen Datenseite gestoppt",
+			"sourceHash": "148b41bf95239bd414c04079d5bcbc4257465fb107bbf46ce9fb58c067bda0a1",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "0c60e75ce01b241836c92e3c46215078bbead182b1a48c43fa0b16464c1efcd8",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Swedish": {
+			"text": "Schwedisch",
+			"sourceHash": "b200b4c4c280d618053081bbb82aa6a190d77dad8538b26ef46d5522ef7bd204",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "a21642eb5f28f7e320ea952b6073e856e1b89d56001fdfeea71d62c8a256da08",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Tamil": {
+			"text": "Tamil",
+			"sourceHash": "3c35aec40ce5edabb151fe74179c069e4051457bd20880bf243903914566ed68",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "3c35aec40ce5edabb151fe74179c069e4051457bd20880bf243903914566ed68",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Tap to Configure Master": {
+			"text": "Zum Konfigurieren des Hauptbewässerungskreises antippen",
+			"sourceHash": "035dc8c624c68483a1c5a1fbc59ad62b04705e3552407e3a0fe91ba544e7be19",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "c1f17ee9d32e8d87c5d635379de7d5c310eb270c8157a361ed20ec97bde9ee93",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Target PD Voltage": {
+			"text": "PD-Sollspannung",
+			"sourceHash": "2245b2d2364e005d7e9542c61ef57f416253935addf724f91ffe0cad56082403",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "b9234a97b227eb5f6bd906a31630950ae60f742c0f65b9d8be4dc5c9d49c5376",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Thai": {
+			"text": "Thailändisch",
+			"sourceHash": "93006fd1e9b767f306e9bb14f8406fcbb10528b2508159ddd4ba10e320e5cad3",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "a1c6c66388105e5a0d6bac390a717c21892ff49c6ecf02820190694d86bcf7be",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"The active controller changed. Please restart the restore.": {
+			"text": "Die aktive Steuerung hat gewechselt. Bitte starten Sie die Wiederherstellung erneut.",
+			"sourceHash": "d5140bb26a4f4b51adf94415ca19568a64027b93d2dec789eb42526c7969f241",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "5af377bb5c71615f734131bf9e57e501e4a5bb16dc9ac418dc2beaa238856f63",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"The active controller changed. The restore finished without refreshing the new controller.": {
+			"text": "Die aktive Steuerung hat gewechselt. Die Wiederherstellung wurde abgeschlossen, ohne die Daten der neuen Steuerung neu zu laden.",
+			"sourceHash": "d82b6f970e71e8ddc6d5b1d0ed6d6c374ad81f1cf30ecdcd96ca0f200443d4d3",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "b480aad3255d932d2b912fd9e235f1b7d7e0eed3c96502060a64b3fad2f6baa4",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"The active controller changed. The restore was stopped before completion.": {
+			"text": "Die aktive Steuerung hat gewechselt. Die Wiederherstellung wurde vorzeitig gestoppt.",
+			"sourceHash": "036aef8272e8372eaae3da3f245e4890a324f438f24b2df4445cc984f2d5b0de",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "2082f203dd405886dc83c3cd79eb153cef30f79f13a8ec8b032cf09df935daa3",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"The controller detected one or more zones drawing too much current, exceeding the limit. Please check your wiring and perform a <b>solenoid resistance test</b>. After fixing, you can clear the alert here. For more instructions, visit our support site": {
+			"text": "Die Steuerung hat festgestellt, dass ein oder mehrere Bewässerungskreise zu viel Strom ziehen und den Grenzwert überschreiten. Bitte überprüfen Sie die Verkabelung und führen Sie eine <b>Widerstandsmessung der Magnetventile</b> durch. Nach der Behebung können Sie die Warnung hier löschen. Weitere Anweisungen finden Sie auf unserer Support-Website",
+			"sourceHash": "95120a2328c5808ddc746bbb12117219401709231ba8eca6b2f6e27c9454f28f",
+			"contextHash": "24268d641ff4b0ddc2a2b4f790932aa8a8745a4678cec55b6e960fce82a02865",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "ee8cecc3bd488dd0484c2890ed4c37e156ad61ca0831d7a2edd7a560b29ddd31",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"The controller is at its sensor limit. Restoring this backup will delete sensor definitions that exist only on this controller.": {
+			"text": "Die Steuerung hat ihre maximale Sensoranzahl erreicht. Beim Wiederherstellen dieser Datensicherung werden Sensordefinitionen gelöscht, die nur auf dieser Steuerung vorhanden sind.",
+			"sourceHash": "c0f2524fc98842b8822bf9922fc8e8594dabb51fa558f9020b2d1ae1ab51fffd",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "8fa112d948fc99dd622a82b58fdd0d23fd2507d2606b0ef4d0fee65af08fbd0d",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"The holding current of your solenoid multiplied by its coil resistance (e.g. 0.25A×30Ω=7.5V). Set to 0 to use system default.": {
+			"text": "Der Haltestrom Ihres Magnetventils multipliziert mit dem Spulenwiderstand (z. B. 0.25A×30Ω=7.5V). Auf 0 setzen, um den Systemstandard zu verwenden.",
+			"sourceHash": "7d5a341e308a96e38aa6935287225e1f79feae261058a464a0370606a67ae9f9",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "6671b769477c27577c0b9942eba1cfbf9e9b26a2bf6dea30c1de25753723703b",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"The required hardware for this type was not detected.": {
+			"text": "Die für diesen Typ erforderliche Hardware wurde nicht erkannt.",
+			"sourceHash": "9f8b2798c03b988fd075a2a30d12ab4b60691afd6ff19dd29428f2e697137afb",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "77ca90c2d67570f7b09c8e9801aba4ccb24349d7ddbcf5282026e6c8a2ad4e21",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"This UI has limited support for ASB firmware.": {
+			"text": "Diese Benutzeroberfläche unterstützt die ASB-Firmware nur eingeschränkt.",
+			"sourceHash": "3cbba9db2ea68074906106674b0ec4d25ba1a92786fafe53a6235c12f35bc1cf",
+			"contextHash": "a63997a2bfc75d9365ba4cc920d2bfbdbfca0ae88b7b7057671ec2d0aed37880",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "f956324fd855df16b94a503910acd4d2afb8c31eec20a78ed87ee1f23e1e183d",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"This UI has limited support for it. Switch to OpenSprinklerASB app/UI.": {
+			"text": "Diese Benutzeroberfläche unterstützt sie nur eingeschränkt. Wechseln Sie zur OpenSprinklerASB-App/Benutzeroberfläche.",
+			"sourceHash": "b0a189b8ce24a148b42b80da021c9a55f99e8c5896d73bc52ea56a3cfa6437c3",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "7161ab3dfd8bd19620157746cd17e46ce6b6e29bfdb291158c7ba3bd18e4c152",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"This action can take a while depending on the number of log records.": {
+			"text": "Dieser Vorgang kann je nach Anzahl der Protokolleinträge einige Zeit dauern.",
+			"sourceHash": "b16721428f532df1913915c2f64c0fd470c09d3968f59444893286a00014186c",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "b2ab8204e1b85c46657fcbdd126f34296a9c5ed457466e636328e0ced43c1084",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"This backup cannot be restored without removing sensors referenced by its aggregate definitions.": {
+			"text": "Diese Datensicherung kann nicht wiederhergestellt werden, ohne Sensoren zu entfernen, auf die ihre Definitionen aggregierter Sensoren verweisen.",
+			"sourceHash": "837b2500b512c9758914e1ded4f8593236d5201ee7fb5dbd1e344a44000635b1",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "3e6daef7593233cb0f89b21a1ad9defaaae95432654c00c44ed58d1131b7738e",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"This backup contains Bundle Station assignments that are not supported by this controller.": {
+			"text": "Diese Datensicherung enthält Zuordnungen zu Bündel-Bewässerungskreisen, die von dieser Steuerung nicht unterstützt werden.",
+			"sourceHash": "212e504171957df8e3aefe7db42b6f87385610cc115ff9bda90111d90b33b869",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "c59956f8bf8fbf06a53740874b833a829c19e99fc6603f519e81d6af5d69edc7",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"This backup contains an incomplete Bundle Station definition.": {
+			"text": "Diese Datensicherung enthält eine unvollständige Definition eines Bündel-Bewässerungskreises.",
+			"sourceHash": "bea0f8a093814eeb0a11a96456a45eb3d9ffc7892846b9e28f4213076dcd535f",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "dd6c6b8e69304773640faa5f349b19a6590557c05fc9b3e45a6123b36634f712",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"This backup contains more sensor definitions than this controller supports.": {
+			"text": "Diese Datensicherung enthält mehr Sensordefinitionen, als diese Steuerung unterstützt.",
+			"sourceHash": "c3f7f1deafd294ad38d8fc024dc126c5252c9bcf355fba1c496d208871c801a8",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "ed151dbf4339ba8112d47696e23a90387c774c2b6dbdf69010bb52fad149d479",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"This backup contains sensor definitions that are not supported by this controller.": {
+			"text": "Diese Datensicherung enthält Sensordefinitionen, die von dieser Steuerung nicht unterstützt werden.",
+			"sourceHash": "dde62496504a02a198dd6ff51ff8822192c550f4b679701d352b5c8483895719",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "3cc52d10fd34037ac494ee768772742c3f7187baee623735497b490085b452c5",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"This backup contains sensor definitions that this controller does not support.": {
+			"text": "Diese Datensicherung enthält Sensordefinitionen, die diese Steuerung nicht unterstützt.",
+			"sourceHash": "d50ff7853fab4ad9b6c689e4c33f2b39095c2622c3b0ef97259b7b7b62699a2a",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "8b0214a89217c9e393a0b37d79246785cf800cb6c500673ebb3e62619d7723d2",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"This controller is using a default or empty device password. Change it to protect access.": {
+			"text": "Diese Steuerung verwendet ein Standardpasswort oder ein leeres Gerätepasswort. Ändern Sie es, um den Zugriff zu schützen.",
+			"sourceHash": "8ca2e11445443d208ccca29dbc812e1a202019aa5bf1aa111f7a1d7e5e38f6a0",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "5e171ae7cf09a060c91553b04b2a23268a98c983f53a32ae4445900ee64287df",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"This input does not support onboard analog readings.": {
+			"text": "Dieser Eingang unterstützt keine integrierten analogen Messwerte.",
+			"sourceHash": "96967c1c97626f62500114dbe649a21a0489cef25ecb2b75b2a10cbbe4b307ee",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "daa1a5b6271e8638db2293958dc4ba7dce3fbda3332f08d53cdc8449edf2c3ae",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"This may take several minutes. Deleting a sensor's log does not free log capacity; use this only when you need to reset this sensor's recorded history.": {
+			"text": "Dies kann mehrere Minuten dauern. Das Löschen eines Sensorprotokolls gibt keinen Protokollspeicher frei. Verwenden Sie diese Funktion nur, wenn Sie den aufgezeichneten Verlauf dieses Sensors zurücksetzen müssen.",
+			"sourceHash": "b59c596f72bb8f50d67d54104b3ed46c33f00e315ade8e564316955711da486f",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "b6b60908c5834e64d8bc24a9a5329549524b89c9f89023ebe57bf78d67170ad2",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"This port has a conflicting sensor configuration. Remove it in Edit Sensors first.": {
+			"text": "An diesem Anschluss liegt eine widersprüchliche Sensorkonfiguration vor. Entfernen Sie diese zuerst unter „Sensoren bearbeiten“.",
+			"sourceHash": "8a2779e7041dc181ebcf7273c7a534fba0449165d5f3764f01dc4301f3e5b9d2",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "13de940f2dc8af8550b1d055253e80d9f0ed7a16c12d701ef5c4daffb15841bf",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"This port is configured as Analog and cannot provide a digital reading.": {
+			"text": "Dieser Anschluss ist als „Analog“ konfiguriert und kann keinen digitalen Messwert liefern.",
+			"sourceHash": "ac293221953cde69f1074b72c4eda0564da8c91eb4996bf049df6b1807f76c49",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "18be85824ffb54af92453875e7de93fe28eb7a791a3697538644d48e49ff97c1",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"This station is a bundle member of": {
+			"text": "Dieser Bewässerungskreis ist Bündelmitglied von",
+			"sourceHash": "22c82f11cfbad506b975eb62b8c9e94a1ea69810429af946dd479e3a88d5b7ca",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "a81004fd3b04fd5d8cf3b726133e97858d7ce9c931a0fa65157f9d845495f25c",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"This station is active through a running Bundle Station.": {
+			"text": "Dieser Bewässerungskreis ist durch einen laufenden Bündel-Bewässerungskreis aktiv.",
+			"sourceHash": "d1d0165bcc666e4683352a1f353ad69af6fba348a5c10edd2c4b2ecc05c8c865",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "7ae4b5fdbc261db0fdd7fbeb452d4e388d0098eff289c2ecb13fd127decbbdcf",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"This station is no longer part of a Bundle Station.": {
+			"text": "Dieser Bewässerungskreis gehört nicht mehr zu einem Bündel-Bewässerungskreis.",
+			"sourceHash": "95653d75f900ac87653a2fc765b5948f474ee43f01b485625f5671cf6e95d71a",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "32f4fdf56b3e4143e37e2dc2494e744faae4cf286b1f313bbbd33988b892c3dc",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"To edit built-in sensors (e.g. rain, flow), open the {0} section under Edit Options.": {
+			"text": "Um integrierte Sensoren (z. B. Regen, Durchfluss) zu bearbeiten, öffnen Sie den Abschnitt {0} unter „Optionen bearbeiten“.",
+			"sourceHash": "07074b124ea0bbb745db706683310aae5a9293d2be201b38fa0491f69e527ad2",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "4f33f8a7133202eb82f92f30edbdb813d2494ae88c8332dc83fa5a2b8389e2f3",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Turkish": {
+			"text": "Türkisch",
+			"sourceHash": "a0866ff0656c1b6c9c3bfeb31abed2ba558fcd1d19779bc6443cca5b0559b1e9",
+			"contextHash": "724e782f890c0e972e3805552424a140f8f40fb51e14af2d56f1856862f16bbc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "fe49a68ac5a32c12a84e2b448c87c8f2642bd0be1eaa8e5eb3b94c85f29c7f0d",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Unable to determine the UUID assigned to a restored sensor. The restore was stopped.": {
+			"text": "Die einem wiederhergestellten Sensor zugewiesene UUID konnte nicht ermittelt werden. Die Wiederherstellung wurde gestoppt.",
+			"sourceHash": "e3d4e7072f6ce79c25a880b4fcbf29929cd9a99c7a0516d15f9cb4bf12738e34",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "cea5aeeeb236c0ed0e3983fe2daa6dfdfa23103a66f777e82e0f94de32a81a90",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Unable to import configuration. The restore stopped before completion; review the controller before retrying.": {
+			"text": "Die Konfiguration konnte nicht importiert werden. Die Wiederherstellung wurde vorzeitig gestoppt. Prüfen Sie die Steuerung, bevor Sie es erneut versuchen.",
+			"sourceHash": "4f910338009951b486daeb763eeccf78430fecdb9fd856548d2220650db6dff1",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "04493e87d14cdbe7d356858e3396943db7cfe0cf19322bce0917d9cb4c508056",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Unable to load Bundle Station configuration.": {
+			"text": "Die Konfiguration des Bündel-Bewässerungskreises konnte nicht geladen werden.",
+			"sourceHash": "40cc515c40fc7185cff7cf6117210ce2321b88f4d73c9c8671add36abe91a5b6",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "390f5075bf52b82a0a742cab6320e127f867a6ef7a86b0850c92bd517748a1ad",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Unable to load program adjustments. Try again.": {
+			"text": "Programmanpassungen konnten nicht geladen werden. Versuchen Sie es erneut.",
+			"sourceHash": "2c7cc166d6b58aeecf4bbce555064e15bf339d5e5fea7cebb150c90c265e9bbc",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "ad68b228f533f88119e1043205b0a58d0d24704b4b7c51def934a8fc19905c35",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Unable to load station configuration.": {
+			"text": "Die Konfiguration der Bewässerungskreise konnte nicht geladen werden.",
+			"sourceHash": "5587998d5f9fe3588dcb0ec16c3c67a8fdac4191f1825bfe18c6bc316c616850",
+			"contextHash": "c3b5d2067f4880c8f6db4872b35733a7ab5e2cc430af76e7ecd37826dac97da4",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "f40f1f7aad3bbda0b14d93b8ac0c8b5997d595a9cd1901b9a248fedc2486ef4e",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Unable to map an aggregate sensor during import. The restore was stopped.": {
+			"text": "Ein aggregierter Sensor konnte beim Import nicht zugeordnet werden. Die Wiederherstellung wurde gestoppt.",
+			"sourceHash": "2e47cf5a575789ccab7d027007e385720da180c5bb1e331d54c416005acab0a7",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "d77719ea715422935001c3de1cf4c53d7417b526af062bec2eaf3b39a5331285",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Unable to reset all station attributes. Some changes may already have been applied. Review the controller before retrying.": {
+			"text": "Nicht alle Attribute der Bewässerungskreise konnten zurückgesetzt werden. Einige Änderungen wurden möglicherweise bereits übernommen. Prüfen Sie die Steuerung, bevor Sie es erneut versuchen.",
+			"sourceHash": "f005b2aeebb337875ad4e132b3d182f723243136427575338803d156ccd9faa1",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "d6588502c22882953f86677b404aa9bfd677652fa9efa67f53409b041e925193",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Unable to save settings. Controller settings were refreshed; review and try again.": {
+			"text": "Die Einstellungen konnten nicht gespeichert werden. Die Einstellungen der Steuerung wurden neu geladen. Prüfen Sie sie und versuchen Sie es erneut.",
+			"sourceHash": "4bedd09a336eff9560ceac8e2970608df74a512d0b8f2b8639a3ace803b2c8f7",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "38042533e8a6fa749b2a99ece163bb1356d6b1e5f243dfb4f37d8562bc3bd600",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Unable to validate sensor definitions on this controller. No configuration changes were made.": {
+			"text": "Die Sensordefinitionen auf dieser Steuerung konnten nicht validiert werden. Es wurden keine Konfigurationsänderungen vorgenommen.",
+			"sourceHash": "4c27527cd3eec4c1d6771d799ace91fe6b16201681d21a8f3cfd62169c564079",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "b03a03a2bc31ab8d9891dae6117381528c94ce7cf10dc89f4bc4d4501ec80f73",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Unable to verify sensor definitions during import. The restore was stopped.": {
+			"text": "Die Sensordefinitionen konnten beim Import nicht überprüft werden. Die Wiederherstellung wurde gestoppt.",
+			"sourceHash": "643395b62511a4ebd2cc5ec7840c4891d2a638bc434929a2828a9ce96249f57f",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "d270f0da24f67749271454b57c99af0d1c9093f5ae82e71d2d03bd876d7e4456",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Unable to verify sensor port ownership. No settings were changed.": {
+			"text": "Die Belegung der Sensoranschlüsse konnte nicht überprüft werden. Es wurden keine Einstellungen geändert.",
+			"sourceHash": "f0097be6a288846719df729af95392f894e6df95f16e589bc2d4a6c2df4a7704",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "c6bc2613061ce468908d323932317bac6e2b7d60096664f43a6cf6f48456153f",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Unsupported onboard analog readings will be skipped. Unsupported Analog port modes will be set to None.": {
+			"text": "Nicht unterstützte integrierte analoge Messwerte werden übersprungen. Nicht unterstützte analoge Anschlussmodi werden auf „Keiner“ gesetzt.",
+			"sourceHash": "fcf401f65213df6bcb019ef339becc36bd615aad169f10a1e3bf007d29215f5f",
+			"contextHash": "c10e15530ed179dab50fa7f51c08c1c16fd226087fa6ba361cd47f8697362523",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "8791b03eb31591aacd2ed8bc94b767eee58ae09b13023c8c0c9c7690fbf68ce3",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Update Firmware": {
+			"text": "Firmware aktualisieren",
+			"sourceHash": "03c34ade202c54cc3bf99dbf86a979276e6885a96b8b2d72a0ed4e7585af3d91",
+			"contextHash": "1c7415f53055b2cb38320cbed8c292ae52f8f23481a7cb5e34f7d3b3b5b518e6",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "bccf1570395b2ded80e3c7bdf2a531bc214f06466e2940553c1f41917dacbde3",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Update Sensor": {
+			"text": "Sensor aktualisieren",
+			"sourceHash": "78394f3eb30d912159a36767a76ad5f1f16568a889904de7095b714d1326af1f",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "f54820ae4d3169216a8c1f7cd31ccde1b688a483a42b23457407880ad4169b62",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Upload failed.": {
+			"text": "Hochladen fehlgeschlagen.",
+			"sourceHash": "da0a85ac4ebfce1192ed7a9075def00115c610be79861ab3d8c11887cbfadf4f",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "24faf1a2e18e7fbffd12c551fda7b9352fff4e581fc875b259498a73d17ab307",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Use Sensor Adjustment": {
+			"text": "Sensoranpassung verwenden",
+			"sourceHash": "143043e4fd4568fefe5dc81406977a08b38962be68062128f964fa144bbd04bd",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "46281bb439035dd0be5225610af890b50e15ab79906897c84e37290c508330aa",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Use up to 32 ASCII letters, numbers or hyphens. The hostname cannot begin or end with a hyphen or contain only numbers. Leave empty to restore the device default.": {
+			"text": "Verwenden Sie bis zu 32 ASCII-Buchstaben, Ziffern oder Bindestriche. Der Hostname darf weder mit einem Bindestrich beginnen oder enden noch ausschließlich aus Ziffern bestehen. Leer lassen, um den Standardnamen des Geräts wiederherzustellen.",
+			"sourceHash": "26d90acd18771d0cc044c4444f5f552bc02aa458b707edad87bebaddd3e42c12",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "d7a9777db92c45964cc6cbf9e9b6eb98f4e0b63ee799b95efbde4f898e18a71a",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Uses the provider configured on the custom weather server.": {
+			"text": "Verwendet den auf dem benutzerdefinierten Wetterserver konfigurierten Anbieter.",
+			"sourceHash": "b987ed572bdc18fd3c1c9ce2afc79e3e8428afd9ccd867ee91c5db19bec20b49",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "55bf7b5c82f233dc213e7b161f2c1146613ed6b61fd77ee7c904d85a9165f155",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Warning": {
+			"text": "Warnung",
+			"sourceHash": "5128de8b5a61833952b4c66c4166ff4ebd3ad034e8fe094c4330253af8ec1add",
+			"contextHash": "9ac22df6abcb51155ff7cb54adb74a73f6c75b3830f303b2bdb8cd2689c56efc",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "a3d45970c0ee030c8026942bf82ad3dec1c0b9bd7bcef01f899af388115d29a2",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
 		},
 		"Watering": {
 			"text": "Bewässerung",
 			"sourceHash": "f9618bcf3511f67653f76e614ece52f5c879baff7282ef8ba1ac3d624d585c5b",
 			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
-			"glossaryHash": "6354a5934264d47b67120aeeac1c0ac5e6da70366e6c3ef20763c90f0ee16d84",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
 			"translationHash": "255fa657947cad0c173536d145b16a8349a3be7395700c9eae54673be6a36bbe",
 			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
-			"review": "unreviewed"
+			"review": "reviewed"
+		},
+		"Watering %": {
+			"text": "Bewässerung %",
+			"sourceHash": "73454e04893d9c8c9f9522ba67cf5410e1a6346039e9b4fb19870deb6de6eaaf",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "36f3f19aa9067480c939e53bb51ead0363591f2c697b9bac6f2784d6c9e0ba4a",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Weather Adjustment": {
+			"text": "Wetteranpassung",
+			"sourceHash": "d0099f7842d95d8834a9982d6816150261f0e9b86723258f8b87691f96a8f856",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "42940f28e6f58e61c11d542b4b211b7f1e22bf8133794c25ca752672294e4eaf",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Weather Failure": {
+			"text": "Fehler bei der Wetterabfrage",
+			"sourceHash": "f91c25cfec276a734e39d48ca2b506acb8efc21868bc8d60027793e2478126fa",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "99f4aedd7cb1c9eb5a53de1db80cb1d96defabdbe37bc17fa4c3fe6a9cdb2039",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Web Request": {
+			"text": "Webanfrage",
+			"sourceHash": "4af373c7de6a66c7f13402025ff6a646eb232725587ab6c47b6e4b40b5fe271f",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "0cef343a1edca4b178e4f926f0c53b5dfbc5bdeeb28580afdf71483b6de68484",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"When using program switch, a switch is connected to the sensor port to trigger Program 3 every time the switch is pressed for at least 1 second.": {
+			"text": "Bei Verwendung eines Programmschalters wird ein Schalter an den Sensoranschluss angeschlossen, um Programm 3 jedes Mal auszulösen, wenn der Schalter mindestens 1 Sekunde lang gedrückt wird.",
+			"sourceHash": "9e75e6f42a8ab65b5b335ab40c3efee956e52dacfbd83b78e40e3a812de0429e",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "ef6f9b4a66a3b2abf0d1bb88a09a86b66b0ecd3dcce992babcc6e524d18fd041",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"When using program switch, a switch is connected to the sensor port to trigger Program 4 every time the switch is pressed for at least 1 second.": {
+			"text": "Bei Verwendung eines Programmschalters wird ein Schalter an den Sensoranschluss angeschlossen, um Programm 4 jedes Mal auszulösen, wenn der Schalter mindestens 1 Sekunde lang gedrückt wird.",
+			"sourceHash": "8b83fee3105b648f618ebe39a4b737d8c0b8d7a12e2b7801ea537b7b5c3e2793",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "d4d83fabf05b7bbd515bb6b8672444b168739a1526e1a7653b248f7ff401f44f",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"WiFi Change": {
+			"text": "WLAN-Änderung",
+			"sourceHash": "01f27359cceb9a49244ebb804ff65fc0f3dc6f4e132e7416f9c27f09541595ed",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "0cec1b3a5d766a9ff5951a4d53ac52d2c9b4777c201e71f21c99b8f12e5ac6e7",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"WiFi Configure": {
+			"text": "WLAN-Konfiguration",
+			"sourceHash": "1c4b081076d84b77aa0bf09c74d800b1a96287ea4ed161ca889b05df90b383b9",
+			"contextHash": "d7334fc0773b9c515857c871a268204a82ee0c859fd23ddb0c35064cef87aba3",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "5e6342f611b062a1cd54a7c33ef43b3dca2d8d5f7cec41d40739acbbaa4b1326",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Your device runs the OpenSprinklerASB firmware. This UI has limited support for it. Please switch to the OpenSprinklerASB mobile app/UI for full support.": {
+			"text": "Ihr Gerät verwendet die OpenSprinklerASB-Firmware. Diese Benutzeroberfläche unterstützt sie nur eingeschränkt. Für volle Unterstützung wechseln Sie bitte zur OpenSprinklerASB-App/Benutzeroberfläche.",
+			"sourceHash": "1882678ea202da384c7b66a28a0fa5c8a4c3379bc4ba3a38c1bdbeb890137226",
+			"contextHash": "aca7d5f568d52c1f83cacb56af4bcfc60e0592fe0fc29d5392aec658fb4896ac",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "d0c184546ee9b1a9de6f17817bc09cdf349a62518a64e9894257edc60c0d443b",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Zimmerman": {
+			"text": "Zimmerman",
+			"sourceHash": "8c1c7a5cd80bc5664395d7849494097af307b4340e4b39d913faa75600192426",
+			"contextHash": "27986029b3df9ad00dbc67ce579607a8420c959ffa16c15c9f227eb82afac172",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "8c1c7a5cd80bc5664395d7849494097af307b4340e4b39d913faa75600192426",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Zone": {
+			"text": "Bewässerungskreis",
+			"sourceHash": "a107b4d76d6972e30fbce7ed4a86ddb89916ffd6677fb46b7667bfbd126abeb7",
+			"contextHash": "528c165ee7380d1b20771f90e77dcddc4719e03a76fa5a3816ab4ebcdc0443cf",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "e043dbd468ce1aeb2ceaa22db9c39a42f6c731854008799f9655b49223511ad3",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Zoom in": {
+			"text": "Vergrößern",
+			"sourceHash": "d17804412f8dd0818e0c3b2ee85c1e51f19aa61ef44183639d9e709327a43b13",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "8d6f92884acc0b4c1e119c841674753798aaa31c742844bce79d34c86a5d6cb2",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"Zoom out": {
+			"text": "Verkleinern",
+			"sourceHash": "23b012a283b2c14a72940b9ac0ef3ba8617c4e8acdb61b34a8a0f74d879b80bf",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "5599afe61164f90c4c8cf852cf8decba5467b81188ab6536eb27815cab5506ef",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"also active via Bundle Station": {
+			"text": "auch über Bündel-Bewässerungskreis aktiv",
+			"sourceHash": "ec983cb4288b3550a174293b7c42fcffee49d857a5fac50fd15a9f8effa1a2e4",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "bb9edc18464aee2435b44839ce43e290aec9aa92c4a742033b3a506a323424c3",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"disabled": {
+			"text": "deaktiviert",
+			"sourceHash": "f693b9deb860600fb93d749df324c55991afe7eba6300113ab381339b23d12d5",
+			"contextHash": "ab9242f7e5d7774c9a98bf9fe71d92c5afc5f29932e2c25cca974cd295a61622",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "a80812f2a95080cc170bcdad8fa84af961ea7cec6331b3fe33c44e619da8ca02",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"disabled program hidden. Tap 'Show Disabled' in the footer menu to view": {
+			"text": "deaktiviertes Programm ausgeblendet. Zum Anzeigen im Fußmenü auf „Deaktivierte anzeigen“ tippen",
+			"sourceHash": "ef619d3b6aff3ed18526179557cec64dce54ab64a6a46fa85c1a3f7952848607",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "625af3d0079a44fd7a402f08e87b631be93401489a9f5e408ac437aca823a9c9",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"disabled programs hidden. Tap 'Show Disabled' in the footer menu to view": {
+			"text": "deaktivierte Programme ausgeblendet. Zum Anzeigen im Fußmenü auf „Deaktivierte anzeigen“ tippen",
+			"sourceHash": "4e5825c79adaa35a185bf91c2a2e3a73d22e5e7574edbed90b8f49e6666971c9",
+			"contextHash": "cecd7e057469b7e36bdb4653c189f6f8964417183ff8bb88dbf44d6ab2a81d00",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "e39fba0def8ac5135f5086c6592971548130e24690dfb6bf1ee6953f4e247300",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"master": {
+			"text": "Hauptbewässerungskreis",
+			"sourceHash": "fb0c284bf3e3ce017b395ae5f36004dd07e5fd7ab990e8dea222fecea35952cb",
+			"contextHash": "ab9242f7e5d7774c9a98bf9fe71d92c5afc5f29932e2c25cca974cd295a61622",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "fcc89f26ef853f381afa347e429fc7279e2f7cd24e8185f219c6f71c9ba170b8",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"this station": {
+			"text": "dieser Bewässerungskreis",
+			"sourceHash": "f999ee9077f51afda466089515364aa64a5d7b1a9108f89a11e8018c4c0ae944",
+			"contextHash": "ab9242f7e5d7774c9a98bf9fe71d92c5afc5f29932e2c25cca974cd295a61622",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "b73a5f366696e210aebb53b1f50a887151d40c535b20ce39faac6d40105ad46e",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
+		},
+		"total watering remaining": {
+			"text": "verbleibende Gesamtbewässerungszeit",
+			"sourceHash": "0b96e80c139474b43a8455d1d718fd45bf970aafc7783f76271501307fb24ee0",
+			"contextHash": "5fc4b9d7a45df2c4b138774135fdbb03a332756d2ace5d7b1f568cb53de5702a",
+			"glossaryHash": "9649e41950de742c7c53bd9457d5ba78dc97cf8afd83b97574a699cd1eab6bf4",
+			"translationHash": "69766fe8c4af2b67e2f342c0496e06dfc1ebfb41c341dffaf22718d44b55f94a",
+			"generator": "Codex assisted translation / German completion-v1 / 2026-10-21",
+			"review": "reviewed"
 		}
 	}
 }
