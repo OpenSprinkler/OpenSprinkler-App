@@ -96,15 +96,15 @@
 		},
 		"About %d minute remaining": {
 			"references": [
-				"www/js/modules/sensors.js:2708",
-				"www/js/modules/sensors.js:2730"
+				"www/js/modules/sensors.js:2710",
+				"www/js/modules/sensors.js:2732"
 			],
 			"notes": []
 		},
 		"About %d minutes remaining": {
 			"references": [
-				"www/js/modules/sensors.js:2708",
-				"www/js/modules/sensors.js:2730"
+				"www/js/modules/sensors.js:2710",
+				"www/js/modules/sensors.js:2732"
 			],
 			"notes": []
 		},
@@ -145,7 +145,7 @@
 			"references": [
 				"www/js/modules/dashboard.js:717",
 				"www/js/modules/programs.js:234",
-				"www/js/modules/sensors.js:2280",
+				"www/js/modules/sensors.js:2282",
 				"www/js/modules/sites.js:368"
 			],
 			"notes": []
@@ -173,13 +173,13 @@
 		"Add a Point": {
 			"references": [
 				"www/js/modules/programs.js:2508",
-				"www/js/modules/sensors.js:1332"
+				"www/js/modules/sensors.js:1334"
 			],
 			"notes": []
 		},
 		"Add a Sensor": {
 			"references": [
-				"www/js/modules/sensors.js:2374"
+				"www/js/modules/sensors.js:2376"
 			],
 			"notes": []
 		},
@@ -248,7 +248,7 @@
 		},
 		"All": {
 			"references": [
-				"www/js/modules/sensors.js:2443"
+				"www/js/modules/sensors.js:2445"
 			],
 			"notes": []
 		},
@@ -410,7 +410,7 @@
 		},
 		"Are you sure you want to delete all sensor logs?": {
 			"references": [
-				"www/js/modules/sensors.js:3278"
+				"www/js/modules/sensors.js:3280"
 			],
 			"notes": []
 		},
@@ -440,7 +440,7 @@
 		},
 		"Are you sure you want to delete this sensor?": {
 			"references": [
-				"www/js/modules/sensors.js:2162"
+				"www/js/modules/sensors.js:2164"
 			],
 			"notes": []
 		},
@@ -452,7 +452,7 @@
 		},
 		"Are you sure you want to download all log data?": {
 			"references": [
-				"www/js/modules/sensors.js:3270"
+				"www/js/modules/sensors.js:3272"
 			],
 			"notes": []
 		},
@@ -552,9 +552,9 @@
 				"www/js/modules/programs.js:3232",
 				"www/js/modules/programs.js:399",
 				"www/js/modules/programs.js:762",
-				"www/js/modules/sensors.js:2274",
-				"www/js/modules/sensors.js:2377",
-				"www/js/modules/sensors.js:3236",
+				"www/js/modules/sensors.js:2276",
+				"www/js/modules/sensors.js:2379",
+				"www/js/modules/sensors.js:3238",
 				"www/js/modules/sites.js:359",
 				"www/js/modules/ui-dom.js:492",
 				"www/js/modules/weather.js:806"
@@ -628,7 +628,7 @@
 			"references": [
 				"www/js/modules/options.js:1020",
 				"www/js/modules/sensors.js:1163",
-				"www/js/modules/sensors.js:2215"
+				"www/js/modules/sensors.js:2217"
 			],
 			"notes": []
 		},
@@ -817,7 +817,7 @@
 		},
 		"Click below to expand/edit. Be sure to save changes.": {
 			"references": [
-				"www/js/modules/sensors.js:2189"
+				"www/js/modules/sensors.js:2191"
 			],
 			"notes": []
 		},
@@ -877,7 +877,7 @@
 		},
 		"Configure Child Sensor": {
 			"references": [
-				"www/js/modules/sensors.js:1573"
+				"www/js/modules/sensors.js:1575"
 			],
 			"notes": []
 		},
@@ -996,7 +996,7 @@
 		},
 		"Current Value": {
 			"references": [
-				"www/js/modules/sensors.js:2126"
+				"www/js/modules/sensors.js:2128"
 			],
 			"notes": []
 		},
@@ -1129,15 +1129,15 @@
 				"www/js/modules/analog.js:770",
 				"www/js/modules/programs.js:2660",
 				"www/js/modules/programs.js:2872",
-				"www/js/modules/sensors.js:1345",
-				"www/js/modules/sensors.js:3037",
+				"www/js/modules/sensors.js:1347",
+				"www/js/modules/sensors.js:3039",
 				"www/js/modules/sites.js:159"
 			],
 			"notes": []
 		},
 		"Delete All": {
 			"references": [
-				"www/js/modules/sensors.js:2447"
+				"www/js/modules/sensors.js:2449"
 			],
 			"notes": []
 		},
@@ -1155,19 +1155,19 @@
 		},
 		"Delete Sensor": {
 			"references": [
-				"www/js/modules/sensors.js:2156"
+				"www/js/modules/sensors.js:2158"
 			],
 			"notes": []
 		},
 		"Delete the entire log of": {
 			"references": [
-				"www/js/modules/sensors.js:3041"
+				"www/js/modules/sensors.js:3043"
 			],
 			"notes": []
 		},
 		"Deleting sensor log": {
 			"references": [
-				"www/js/modules/sensors.js:2713"
+				"www/js/modules/sensors.js:2715"
 			],
 			"notes": []
 		},
@@ -1378,20 +1378,20 @@
 		},
 		"Download": {
 			"references": [
-				"www/js/modules/sensors.js:3008"
+				"www/js/modules/sensors.js:3010"
 			],
 			"notes": []
 		},
 		"Download All": {
 			"references": [
-				"www/js/modules/sensors.js:2446"
+				"www/js/modules/sensors.js:2448"
 			],
 			"notes": []
 		},
 		"Download Log": {
 			"references": [
 				"www/js/modules/analog.js:781",
-				"www/js/modules/sensors.js:2596"
+				"www/js/modules/sensors.js:2598"
 			],
 			"notes": []
 		},
@@ -1457,7 +1457,7 @@
 		"Edit Sensors": {
 			"references": [
 				"www/js/modules/options.js:2118",
-				"www/js/modules/sensors.js:2271",
+				"www/js/modules/sensors.js:2273",
 				"www/js/modules/ui-dom.js:329"
 			],
 			"notes": []
@@ -1740,27 +1740,27 @@
 		},
 		"Failed to delete sensor logs": {
 			"references": [
-				"www/js/modules/sensors.js:3198"
+				"www/js/modules/sensors.js:3200"
 			],
 			"notes": []
 		},
 		"Failed to download sensor logs": {
 			"references": [
-				"www/js/modules/sensors.js:2556",
-				"www/js/modules/sensors.js:2839"
+				"www/js/modules/sensors.js:2558",
+				"www/js/modules/sensors.js:2841"
 			],
 			"notes": []
 		},
 		"Failed to load sensor descriptions": {
 			"references": [
-				"www/js/modules/sensors.js:2225",
-				"www/js/modules/sensors.js:2354"
+				"www/js/modules/sensors.js:2227",
+				"www/js/modules/sensors.js:2356"
 			],
 			"notes": []
 		},
 		"Failed to load sensor logs": {
 			"references": [
-				"www/js/modules/sensors.js:3152"
+				"www/js/modules/sensors.js:3154"
 			],
 			"notes": []
 		},
@@ -2371,8 +2371,8 @@
 		},
 		"Less than a minute remaining": {
 			"references": [
-				"www/js/modules/sensors.js:2705",
-				"www/js/modules/sensors.js:2727"
+				"www/js/modules/sensors.js:2707",
+				"www/js/modules/sensors.js:2729"
 			],
 			"notes": []
 		},
@@ -2391,7 +2391,7 @@
 		},
 		"Loading log data": {
 			"references": [
-				"www/js/modules/sensors.js:2735"
+				"www/js/modules/sensors.js:2737"
 			],
 			"notes": []
 		},
@@ -2404,7 +2404,7 @@
 		},
 		"Loading sensor data": {
 			"references": [
-				"www/js/modules/sensors.js:2687"
+				"www/js/modules/sensors.js:2689"
 			],
 			"notes": []
 		},
@@ -2805,7 +2805,7 @@
 		"New Sensor": {
 			"references": [
 				"www/js/modules/analog.js:317",
-				"www/js/modules/sensors.js:1888"
+				"www/js/modules/sensors.js:1890"
 			],
 			"notes": []
 		},
@@ -2835,13 +2835,13 @@
 		},
 		"No sensor data in the selected time range. Older data may exist; choose a longer range above.": {
 			"references": [
-				"www/js/modules/sensors.js:2949"
+				"www/js/modules/sensors.js:2951"
 			],
 			"notes": []
 		},
 		"No sensor logs found.": {
 			"references": [
-				"www/js/modules/sensors.js:2950"
+				"www/js/modules/sensors.js:2952"
 			],
 			"notes": []
 		},
@@ -2897,7 +2897,7 @@
 		},
 		"Note: this page is for external (e.g. analog) and virtual sensors.": {
 			"references": [
-				"www/js/modules/sensors.js:2208"
+				"www/js/modules/sensors.js:2210"
 			],
 			"notes": []
 		},
@@ -2941,7 +2941,7 @@
 		},
 		"Number of Sensors": {
 			"references": [
-				"www/js/modules/sensors.js:2190"
+				"www/js/modules/sensors.js:2192"
 			],
 			"notes": []
 		},
@@ -3112,7 +3112,7 @@
 				"www/js/modules/dashboard.js:683",
 				"www/js/modules/logs.js:40",
 				"www/js/modules/programs.js:259",
-				"www/js/modules/sensors.js:1780"
+				"www/js/modules/sensors.js:1782"
 			],
 			"notes": []
 		},
@@ -3246,8 +3246,8 @@
 		},
 		"Please fill in all required fields": {
 			"references": [
-				"www/js/modules/sensors.js:2152",
-				"www/js/modules/sensors.js:2330"
+				"www/js/modules/sensors.js:2154",
+				"www/js/modules/sensors.js:2332"
 			],
 			"notes": []
 		},
@@ -3267,8 +3267,8 @@
 			"references": [
 				"www/js/modules/programs.js:2501",
 				"www/js/modules/programs.js:2872",
-				"www/js/modules/sensors.js:1321",
-				"www/js/modules/sensors.js:1345"
+				"www/js/modules/sensors.js:1323",
+				"www/js/modules/sensors.js:1347"
 			],
 			"notes": []
 		},
@@ -3616,7 +3616,7 @@
 		"Refresh": {
 			"references": [
 				"www/js/modules/logs.js:644",
-				"www/js/modules/sensors.js:3242",
+				"www/js/modules/sensors.js:3244",
 				"www/js/modules/weather.js:812"
 			],
 			"notes": []
@@ -3788,7 +3788,7 @@
 		},
 		"Reset Zoom": {
 			"references": [
-				"www/js/modules/sensors.js:3003"
+				"www/js/modules/sensors.js:3005"
 			],
 			"notes": []
 		},
@@ -3819,7 +3819,7 @@
 		},
 		"Retrieving sensor logs": {
 			"references": [
-				"www/js/modules/sensors.js:2663"
+				"www/js/modules/sensors.js:2665"
 			],
 			"notes": []
 		},
@@ -4174,7 +4174,7 @@
 		},
 		"Sensor Logs": {
 			"references": [
-				"www/js/modules/sensors.js:3233",
+				"www/js/modules/sensors.js:3235",
 				"www/js/modules/ui-dom.js:317"
 			],
 			"notes": []
@@ -4184,13 +4184,13 @@
 				"www/js/modules/programs.js:2502",
 				"www/js/modules/programs.js:2831",
 				"www/js/modules/programs.js:2870",
-				"www/js/modules/sensors.js:1323"
+				"www/js/modules/sensors.js:1325"
 			],
 			"notes": []
 		},
 		"Sensor added successfully": {
 			"references": [
-				"www/js/modules/sensors.js:2067"
+				"www/js/modules/sensors.js:2069"
 			],
 			"notes": []
 		},
@@ -4209,13 +4209,13 @@
 		},
 		"Sensor deleted successfully": {
 			"references": [
-				"www/js/modules/sensors.js:2080"
+				"www/js/modules/sensors.js:2082"
 			],
 			"notes": []
 		},
 		"Sensor log progress": {
 			"references": [
-				"www/js/modules/sensors.js:2461"
+				"www/js/modules/sensors.js:2463"
 			],
 			"notes": []
 		},
@@ -4233,7 +4233,7 @@
 		},
 		"Sensor updated successfully": {
 			"references": [
-				"www/js/modules/sensors.js:2072"
+				"www/js/modules/sensors.js:2074"
 			],
 			"notes": []
 		},
@@ -4360,7 +4360,7 @@
 		},
 		"Show Inactive": {
 			"references": [
-				"www/js/modules/sensors.js:2435"
+				"www/js/modules/sensors.js:2437"
 			],
 			"notes": []
 		},
@@ -4636,8 +4636,8 @@
 		},
 		"Stop": {
 			"references": [
-				"www/js/modules/sensors.js:2457",
-				"www/js/modules/sensors.js:2693"
+				"www/js/modules/sensors.js:2459",
+				"www/js/modules/sensors.js:2695"
 			],
 			"notes": []
 		},
@@ -4651,14 +4651,14 @@
 		},
 		"Stopping": {
 			"references": [
-				"www/js/modules/sensors.js:3260"
+				"www/js/modules/sensors.js:3262"
 			],
 			"notes": []
 		},
 		"Stopping after the current page": {
 			"references": [
-				"www/js/modules/sensors.js:2698",
-				"www/js/modules/sensors.js:3261"
+				"www/js/modules/sensors.js:2700",
+				"www/js/modules/sensors.js:3263"
 			],
 			"notes": []
 		},
@@ -4682,8 +4682,8 @@
 				"www/js/modules/programs.js:3238",
 				"www/js/modules/programs.js:580",
 				"www/js/modules/programs.js:768",
-				"www/js/modules/sensors.js:1605",
-				"www/js/modules/sensors.js:2383",
+				"www/js/modules/sensors.js:1607",
+				"www/js/modules/sensors.js:2385",
 				"www/js/modules/sites.js:196",
 				"www/js/modules/sites.js:593",
 				"www/js/modules/sites.js:776",
@@ -4975,7 +4975,7 @@
 		},
 		"This action can take a while depending on the number of log records.": {
 			"references": [
-				"www/js/modules/sensors.js:3271"
+				"www/js/modules/sensors.js:3273"
 			],
 			"notes": []
 		},
@@ -5042,7 +5042,7 @@
 		},
 		"This may take several minutes. Deleting a sensor's log does not free log capacity; use this only when you need to reset this sensor's recorded history.": {
 			"references": [
-				"www/js/modules/sensors.js:3043"
+				"www/js/modules/sensors.js:3045"
 			],
 			"notes": []
 		},
@@ -5136,7 +5136,7 @@
 		},
 		"To edit built-in sensors (e.g. rain, flow), open the {0} section under Edit Options.": {
 			"references": [
-				"www/js/modules/sensors.js:2213"
+				"www/js/modules/sensors.js:2215"
 			],
 			"notes": []
 		},
@@ -5364,12 +5364,12 @@
 			"references": [
 				"www/js/modules/errors.js:40",
 				"www/js/modules/errors.js:42",
-				"www/js/modules/sensors.js:2793",
-				"www/js/modules/sensors.js:2794",
-				"www/js/modules/sensors.js:2976",
-				"www/js/modules/sensors.js:3010",
-				"www/js/modules/sensors.js:3011",
-				"www/js/modules/sensors.js:3014"
+				"www/js/modules/sensors.js:2795",
+				"www/js/modules/sensors.js:2796",
+				"www/js/modules/sensors.js:2978",
+				"www/js/modules/sensors.js:3012",
+				"www/js/modules/sensors.js:3013",
+				"www/js/modules/sensors.js:3016"
 			],
 			"notes": []
 		},
@@ -5427,7 +5427,7 @@
 		},
 		"Update Sensor": {
 			"references": [
-				"www/js/modules/sensors.js:2144"
+				"www/js/modules/sensors.js:2146"
 			],
 			"notes": []
 		},
@@ -5586,13 +5586,13 @@
 		"Voltage": {
 			"references": [
 				"www/js/modules/analog.js:903",
-				"www/js/modules/sensors.js:1322"
+				"www/js/modules/sensors.js:1324"
 			],
 			"notes": []
 		},
 		"Warning": {
 			"references": [
-				"www/js/modules/sensors.js:2749"
+				"www/js/modules/sensors.js:2751"
 			],
 			"notes": []
 		},
@@ -7085,61 +7085,61 @@
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/sensors.js",
-			"line": 1345,
+			"line": 1347,
 			"key": "Delete"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/sensors.js",
-			"line": 1345,
+			"line": 1347,
 			"key": "Point"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/sensors.js",
-			"line": 1573,
+			"line": 1575,
 			"key": "Configure Child Sensor"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/sensors.js",
-			"line": 1780,
+			"line": 1782,
 			"key": "Options"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/sensors.js",
-			"line": 2190,
+			"line": 2192,
 			"key": "Number of Sensors"
 		},
 		{
 			"kind": "dynamic-key",
 			"source": "www/js/modules/sensors.js",
-			"line": 2663,
+			"line": 2665,
 			"expression": "OSApp.Language._(label || /* i18n-extract */ \"Retrieving sensor logs\")"
 		},
 		{
 			"kind": "dynamic-key",
 			"source": "www/js/modules/sensors.js",
-			"line": 2709,
+			"line": 2711,
 			"expression": "OSApp.Language._(message)"
 		},
 		{
 			"kind": "dynamic-key",
 			"source": "www/js/modules/sensors.js",
-			"line": 2731,
+			"line": 2733,
 			"expression": "OSApp.Language._(message)"
 		},
 		{
 			"kind": "dynamic-key",
 			"source": "www/js/modules/sensors.js",
-			"line": 2750,
+			"line": 2752,
 			"expression": "OSApp.Language._(message)"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/sensors.js",
-			"line": 3041,
+			"line": 3043,
 			"key": "Delete the entire log of"
 		},
 		{

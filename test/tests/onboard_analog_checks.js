@@ -116,6 +116,42 @@ describe("Onboard analog sensors", function() {
 		parent.find("select[id*='sen-1-subtype-']").val("11").trigger("change");
 		assert.equal(field("unit").val(), "40", "ADS1115 still uses its own defaults");
 	});
+	it("keeps an existing onboard temperature sensor's unit editable without touching hidden types", function() {
+		var form = editor(), saved = reading(21, 2);
+		saved.unit = 17; saved.min = 0; saved.max = 100; saved.extra.subtype = 10;
+		var hiddenInput = parent.find("select[id*='sen-4-input-']").val();
+		form.update(saved);
+		assert.isFalse(field("unit").prop("disabled"));
+		assert.isFalse(field("unit").selectmenu("option", "disabled"));
+		assert.equal(parent.find("select[id*='sen-4-input-']").val(), hiddenInput);
+		assert.equal(field("min").val(), "0");
+		assert.equal(field("max").val(), "100");
+		assert.isFalse(field("unit").find("option[value='18']").prop("disabled"));
+		assert.isTrue(field("unit").find("option[value='4']").prop("disabled"));
+		field("unit").val("18").trigger("change");
+		var params = new URL("http://test" + form.getURL()).searchParams;
+		assert.equal(params.get("unit"), "18");
+		assert.equal(params.get("min"), "32");
+		assert.equal(params.get("max"), "212");
+		assert.equal(params.get("type"), "5");
+		assert.equal(params.get("input"), "2");
+		assert.equal(params.get("subtype"), "10");
+	});
+	it("keeps fixed-unit moisture and digital sensors locked while temperature remains editable", function() {
+		var form = editor(), saved = reading(21, 0);
+		saved.unit = 40; saved.extra.subtype = 11;
+		form.update(saved);
+		assert.isTrue(field("unit").prop("disabled"));
+		assert.equal(field("unit").val(), "40");
+		selectType(4);
+		assert.isTrue(field("unit").prop("disabled"));
+		saved.unit = 18; saved.min = 32; saved.max = 212; saved.extra.subtype = 10;
+		form.update(saved);
+		assert.isFalse(field("unit").prop("disabled"));
+		assert.equal(field("unit").val(), "18");
+		assert.equal(field("min").val(), "32");
+		assert.equal(field("max").val(), "212");
+	});
 	it("validates, serializes and verifies analog piecewise definitions", function() {
 		var sensor = reading(21, 2);
 		sensor.extra.subtype = 1;

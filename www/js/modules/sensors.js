@@ -1177,6 +1177,8 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
 
         function applySideEffects(opt, applyDefaults) {
             if (!opt) return;
+            // Inactive sensor types must not change shared units, locks or defaults.
+            if (ctx && typeof ctx.isSegmentVisible === "function" && !ctx.isSegmentVisible()) return;
 
             // On type/subtype change: common args in typeCorrelated reset to
             // their base default; opt.dfl overrides apply on top; non-common
@@ -2010,7 +2012,7 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
                         str = JSON.stringify(extraValue);
                     }
 
-                    sensorOptions.forEach((v) => v.update(extraKey, str));
+                    sensorOptions.filter((v) => v.is_visible()).forEach((v) => v.update(extraKey, str));
                 }
             }
             for (const [key, value] of Object.entries(data)) {

@@ -68,13 +68,13 @@ msgstr ""
 msgid "About"
 msgstr ""
 
-#: www/js/modules/sensors.js:2708
-#: www/js/modules/sensors.js:2730
+#: www/js/modules/sensors.js:2710
+#: www/js/modules/sensors.js:2732
 msgid "About %d minute remaining"
 msgstr ""
 
-#: www/js/modules/sensors.js:2708
-#: www/js/modules/sensors.js:2730
+#: www/js/modules/sensors.js:2710
+#: www/js/modules/sensors.js:2732
 msgid "About %d minutes remaining"
 msgstr ""
 
@@ -103,7 +103,7 @@ msgstr ""
 
 #: www/js/modules/dashboard.js:717
 #: www/js/modules/programs.js:234
-#: www/js/modules/sensors.js:2280
+#: www/js/modules/sensors.js:2282
 #: www/js/modules/sites.js:368
 msgid "Add"
 msgstr ""
@@ -123,11 +123,11 @@ msgid "Add Sensor"
 msgstr ""
 
 #: www/js/modules/programs.js:2508
-#: www/js/modules/sensors.js:1332
+#: www/js/modules/sensors.js:1334
 msgid "Add a Point"
 msgstr ""
 
-#: www/js/modules/sensors.js:2374
+#: www/js/modules/sensors.js:2376
 msgid "Add a Sensor"
 msgstr ""
 
@@ -174,7 +174,7 @@ msgstr ""
 msgid "Air Humidity"
 msgstr ""
 
-#: www/js/modules/sensors.js:2443
+#: www/js/modules/sensors.js:2445
 msgid "All"
 msgstr ""
 
@@ -286,7 +286,7 @@ msgstr ""
 msgid "Are you sure you want to delete ALL programs?"
 msgstr ""
 
-#: www/js/modules/sensors.js:3278
+#: www/js/modules/sensors.js:3280
 msgid "Are you sure you want to delete all sensor logs?"
 msgstr ""
 
@@ -308,7 +308,7 @@ msgstr ""
 msgid "Are you sure you want to delete this program adjustment?"
 msgstr ""
 
-#: www/js/modules/sensors.js:2162
+#: www/js/modules/sensors.js:2164
 msgid "Are you sure you want to delete this sensor?"
 msgstr ""
 
@@ -316,7 +316,7 @@ msgstr ""
 msgid "Are you sure you want to downgrade the UI?"
 msgstr ""
 
-#: www/js/modules/sensors.js:3270
+#: www/js/modules/sensors.js:3272
 msgid "Are you sure you want to download all log data?"
 msgstr ""
 
@@ -390,9 +390,9 @@ msgstr ""
 #: www/js/modules/programs.js:3232
 #: www/js/modules/programs.js:399
 #: www/js/modules/programs.js:762
-#: www/js/modules/sensors.js:2274
-#: www/js/modules/sensors.js:2377
-#: www/js/modules/sensors.js:3236
+#: www/js/modules/sensors.js:2276
+#: www/js/modules/sensors.js:2379
+#: www/js/modules/sensors.js:3238
 #: www/js/modules/sites.js:359
 #: www/js/modules/ui-dom.js:492
 #: www/js/modules/weather.js:806
@@ -448,7 +448,7 @@ msgstr ""
 
 #: www/js/modules/options.js:1020
 #: www/js/modules/sensors.js:1163
-#: www/js/modules/sensors.js:2215
+#: www/js/modules/sensors.js:2217
 msgid "Built-in Sensors"
 msgstr ""
 
@@ -581,7 +581,7 @@ msgstr ""
 msgid "Click any program below to expand/edit. Be sure to save changes."
 msgstr ""
 
-#: www/js/modules/sensors.js:2189
+#: www/js/modules/sensors.js:2191
 msgid "Click below to expand/edit. Be sure to save changes."
 msgstr ""
 
@@ -621,7 +621,7 @@ msgstr ""
 msgid "Configuration"
 msgstr ""
 
-#: www/js/modules/sensors.js:1573
+#: www/js/modules/sensors.js:1575
 msgid "Configure Child Sensor"
 msgstr ""
 
@@ -702,7 +702,7 @@ msgstr ""
 msgid "Current Sensor Value"
 msgstr ""
 
-#: www/js/modules/sensors.js:2126
+#: www/js/modules/sensors.js:2128
 msgid "Current Value"
 msgstr ""
 
@@ -796,13 +796,13 @@ msgstr ""
 #: www/js/modules/analog.js:770
 #: www/js/modules/programs.js:2660
 #: www/js/modules/programs.js:2872
-#: www/js/modules/sensors.js:1345
-#: www/js/modules/sensors.js:3037
+#: www/js/modules/sensors.js:1347
+#: www/js/modules/sensors.js:3039
 #: www/js/modules/sites.js:159
 msgid "Delete"
 msgstr ""
 
-#: www/js/modules/sensors.js:2447
+#: www/js/modules/sensors.js:2449
 msgid "Delete All"
 msgstr ""
 
@@ -814,15 +814,15 @@ msgstr ""
 msgid "Delete Program"
 msgstr ""
 
-#: www/js/modules/sensors.js:2156
+#: www/js/modules/sensors.js:2158
 msgid "Delete Sensor"
 msgstr ""
 
-#: www/js/modules/sensors.js:3041
+#: www/js/modules/sensors.js:3043
 msgid "Delete the entire log of"
 msgstr ""
 
-#: www/js/modules/sensors.js:2713
+#: www/js/modules/sensors.js:2715
 msgid "Deleting sensor log"
 msgstr ""
 
@@ -969,16 +969,16 @@ msgstr ""
 msgid "Downgrade UI"
 msgstr ""
 
-#: www/js/modules/sensors.js:3008
+#: www/js/modules/sensors.js:3010
 msgid "Download"
 msgstr ""
 
-#: www/js/modules/sensors.js:2446
+#: www/js/modules/sensors.js:2448
 msgid "Download All"
 msgstr ""
 
 #: www/js/modules/analog.js:781
-#: www/js/modules/sensors.js:2596
+#: www/js/modules/sensors.js:2598
 msgid "Download Log"
 msgstr ""
 
@@ -1024,7 +1024,7 @@ msgid "Edit Sensor Configuration. "
 msgstr ""
 
 #: www/js/modules/options.js:2118
-#: www/js/modules/sensors.js:2271
+#: www/js/modules/sensors.js:2273
 #: www/js/modules/ui-dom.js:329
 msgid "Edit Sensors"
 msgstr ""
@@ -1219,21 +1219,21 @@ msgstr ""
 msgid "Factory Reset"
 msgstr ""
 
-#: www/js/modules/sensors.js:3198
+#: www/js/modules/sensors.js:3200
 msgid "Failed to delete sensor logs"
 msgstr ""
 
-#: www/js/modules/sensors.js:2556
-#: www/js/modules/sensors.js:2839
+#: www/js/modules/sensors.js:2558
+#: www/js/modules/sensors.js:2841
 msgid "Failed to download sensor logs"
 msgstr ""
 
-#: www/js/modules/sensors.js:2225
-#: www/js/modules/sensors.js:2354
+#: www/js/modules/sensors.js:2227
+#: www/js/modules/sensors.js:2356
 msgid "Failed to load sensor descriptions"
 msgstr ""
 
-#: www/js/modules/sensors.js:3152
+#: www/js/modules/sensors.js:3154
 msgid "Failed to load sensor logs"
 msgstr ""
 
@@ -1660,8 +1660,8 @@ msgstr ""
 msgid "Latvian"
 msgstr ""
 
-#: www/js/modules/sensors.js:2705
-#: www/js/modules/sensors.js:2727
+#: www/js/modules/sensors.js:2707
+#: www/js/modules/sensors.js:2729
 msgid "Less than a minute remaining"
 msgstr ""
 
@@ -1674,7 +1674,7 @@ msgstr ""
 msgid "Loading"
 msgstr ""
 
-#: www/js/modules/sensors.js:2735
+#: www/js/modules/sensors.js:2737
 msgid "Loading log data"
 msgstr ""
 
@@ -1683,7 +1683,7 @@ msgstr ""
 msgid "Loading program adjustments…"
 msgstr ""
 
-#: www/js/modules/sensors.js:2687
+#: www/js/modules/sensors.js:2689
 msgid "Loading sensor data"
 msgstr ""
 
@@ -1965,7 +1965,7 @@ msgid "New Program Adjustment"
 msgstr ""
 
 #: www/js/modules/analog.js:317
-#: www/js/modules/sensors.js:1888
+#: www/js/modules/sensors.js:1890
 msgid "New Sensor"
 msgstr ""
 
@@ -1985,13 +1985,13 @@ msgstr ""
 msgid "No new devices were detected on your network"
 msgstr ""
 
-#: www/js/modules/sensors.js:2949
+#: www/js/modules/sensors.js:2951
 msgid ""
 "No sensor data in the selected time range. Older data may exist; choose a "
 "longer range above."
 msgstr ""
 
-#: www/js/modules/sensors.js:2950
+#: www/js/modules/sensors.js:2952
 msgid "No sensor logs found."
 msgstr ""
 
@@ -2033,7 +2033,7 @@ msgid ""
 "station type."
 msgstr ""
 
-#: www/js/modules/sensors.js:2208
+#: www/js/modules/sensors.js:2210
 msgid "Note: this page is for external (e.g. analog) and virtual sensors."
 msgstr ""
 
@@ -2063,7 +2063,7 @@ msgstr ""
 msgid "Number of Programs"
 msgstr ""
 
-#: www/js/modules/sensors.js:2190
+#: www/js/modules/sensors.js:2192
 msgid "Number of Sensors"
 msgstr ""
 
@@ -2182,7 +2182,7 @@ msgstr ""
 #: www/js/modules/dashboard.js:683
 #: www/js/modules/logs.js:40
 #: www/js/modules/programs.js:259
-#: www/js/modules/sensors.js:1780
+#: www/js/modules/sensors.js:1782
 msgid "Options"
 msgstr ""
 
@@ -2281,8 +2281,8 @@ msgid ""
 "data."
 msgstr ""
 
-#: www/js/modules/sensors.js:2152
-#: www/js/modules/sensors.js:2330
+#: www/js/modules/sensors.js:2154
+#: www/js/modules/sensors.js:2332
 msgid "Please fill in all required fields"
 msgstr ""
 
@@ -2298,8 +2298,8 @@ msgstr ""
 
 #: www/js/modules/programs.js:2501
 #: www/js/modules/programs.js:2872
-#: www/js/modules/sensors.js:1321
-#: www/js/modules/sensors.js:1345
+#: www/js/modules/sensors.js:1323
+#: www/js/modules/sensors.js:1347
 msgid "Point"
 msgstr ""
 
@@ -2543,7 +2543,7 @@ msgid "Recipient Email"
 msgstr ""
 
 #: www/js/modules/logs.js:644
-#: www/js/modules/sensors.js:3242
+#: www/js/modules/sensors.js:3244
 #: www/js/modules/weather.js:812
 msgid "Refresh"
 msgstr ""
@@ -2666,7 +2666,7 @@ msgstr ""
 msgid "Reset Wireless Settings"
 msgstr ""
 
-#: www/js/modules/sensors.js:3003
+#: www/js/modules/sensors.js:3005
 msgid "Reset Zoom"
 msgstr ""
 
@@ -2689,7 +2689,7 @@ msgstr ""
 msgid "Restrictions"
 msgstr ""
 
-#: www/js/modules/sensors.js:2663
+#: www/js/modules/sensors.js:2665
 msgid "Retrieving sensor logs"
 msgstr ""
 
@@ -2939,7 +2939,7 @@ msgstr ""
 msgid "Sensor Enabled"
 msgstr ""
 
-#: www/js/modules/sensors.js:3233
+#: www/js/modules/sensors.js:3235
 #: www/js/modules/ui-dom.js:317
 msgid "Sensor Logs"
 msgstr ""
@@ -2947,11 +2947,11 @@ msgstr ""
 #: www/js/modules/programs.js:2502
 #: www/js/modules/programs.js:2831
 #: www/js/modules/programs.js:2870
-#: www/js/modules/sensors.js:1323
+#: www/js/modules/sensors.js:1325
 msgid "Sensor Value"
 msgstr ""
 
-#: www/js/modules/sensors.js:2067
+#: www/js/modules/sensors.js:2069
 msgid "Sensor added successfully"
 msgstr ""
 
@@ -2964,11 +2964,11 @@ msgstr ""
 msgid "Sensor definitions in this backup reference unavailable child sensors."
 msgstr ""
 
-#: www/js/modules/sensors.js:2080
+#: www/js/modules/sensors.js:2082
 msgid "Sensor deleted successfully"
 msgstr ""
 
-#: www/js/modules/sensors.js:2461
+#: www/js/modules/sensors.js:2463
 msgid "Sensor log progress"
 msgstr ""
 
@@ -2980,7 +2980,7 @@ msgstr ""
 msgid "Sensor readings conflict with the restored built-in port modes."
 msgstr ""
 
-#: www/js/modules/sensors.js:2072
+#: www/js/modules/sensors.js:2074
 msgid "Sensor updated successfully"
 msgstr ""
 
@@ -3071,7 +3071,7 @@ msgstr ""
 msgid "Show Disabled"
 msgstr ""
 
-#: www/js/modules/sensors.js:2435
+#: www/js/modules/sensors.js:2437
 msgid "Show Inactive"
 msgstr ""
 
@@ -3261,8 +3261,8 @@ msgstr ""
 msgid "Stations:"
 msgstr ""
 
-#: www/js/modules/sensors.js:2457
-#: www/js/modules/sensors.js:2693
+#: www/js/modules/sensors.js:2459
+#: www/js/modules/sensors.js:2695
 msgid "Stop"
 msgstr ""
 
@@ -3272,12 +3272,12 @@ msgstr ""
 msgid "Stop All Stations"
 msgstr ""
 
-#: www/js/modules/sensors.js:3260
+#: www/js/modules/sensors.js:3262
 msgid "Stopping"
 msgstr ""
 
-#: www/js/modules/sensors.js:2698
-#: www/js/modules/sensors.js:3261
+#: www/js/modules/sensors.js:2700
+#: www/js/modules/sensors.js:3263
 msgid "Stopping after the current page"
 msgstr ""
 
@@ -3299,8 +3299,8 @@ msgstr ""
 #: www/js/modules/programs.js:3238
 #: www/js/modules/programs.js:580
 #: www/js/modules/programs.js:768
-#: www/js/modules/sensors.js:1605
-#: www/js/modules/sensors.js:2383
+#: www/js/modules/sensors.js:1607
+#: www/js/modules/sensors.js:2385
 #: www/js/modules/sites.js:196
 #: www/js/modules/sites.js:593
 #: www/js/modules/sites.js:776
@@ -3524,7 +3524,7 @@ msgstr ""
 msgid "This UI has limited support for it. Switch to OpenSprinklerASB app/UI."
 msgstr ""
 
-#: www/js/modules/sensors.js:3271
+#: www/js/modules/sensors.js:3273
 msgid "This action can take a while depending on the number of log records."
 msgstr ""
 
@@ -3583,7 +3583,7 @@ msgid ""
 "application can be found at"
 msgstr ""
 
-#: www/js/modules/sensors.js:3043
+#: www/js/modules/sensors.js:3045
 msgid ""
 "This may take several minutes. Deleting a sensor's log does not free log "
 "capacity; use this only when you need to reset this sensor's recorded "
@@ -3656,7 +3656,7 @@ msgstr ""
 msgid "To (mm/dd)"
 msgstr ""
 
-#: www/js/modules/sensors.js:2213
+#: www/js/modules/sensors.js:2215
 msgid ""
 "To edit built-in sensors (e.g. rain, flow), open the {0} section under Edit "
 "Options."
@@ -3832,12 +3832,12 @@ msgstr ""
 
 #: www/js/modules/errors.js:40
 #: www/js/modules/errors.js:42
-#: www/js/modules/sensors.js:2793
-#: www/js/modules/sensors.js:2794
-#: www/js/modules/sensors.js:2976
-#: www/js/modules/sensors.js:3010
-#: www/js/modules/sensors.js:3011
-#: www/js/modules/sensors.js:3014
+#: www/js/modules/sensors.js:2795
+#: www/js/modules/sensors.js:2796
+#: www/js/modules/sensors.js:2978
+#: www/js/modules/sensors.js:3012
+#: www/js/modules/sensors.js:3013
+#: www/js/modules/sensors.js:3016
 msgid "Unknown"
 msgstr ""
 
@@ -3879,7 +3879,7 @@ msgstr ""
 msgid "Update Now"
 msgstr ""
 
-#: www/js/modules/sensors.js:2144
+#: www/js/modules/sensors.js:2146
 msgid "Update Sensor"
 msgstr ""
 
@@ -3995,11 +3995,11 @@ msgid "Volt"
 msgstr ""
 
 #: www/js/modules/analog.js:903
-#: www/js/modules/sensors.js:1322
+#: www/js/modules/sensors.js:1324
 msgid "Voltage"
 msgstr ""
 
-#: www/js/modules/sensors.js:2749
+#: www/js/modules/sensors.js:2751
 msgid "Warning"
 msgstr ""
 
