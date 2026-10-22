@@ -58,6 +58,7 @@ describe("Import/Export Checks", function () {
 		sandbox.stub($.mobile, "loading");
 		sandbox.stub(OSApp.Firmware, "isOSPi").returns(false);
 		sandbox.stub(OSApp.Firmware, "checkOSVersion").returns(true);
+		sandbox.stub(OSApp.Sites, "updateController");
 		suppressPostImportRefresh(sandbox);
 		return previousController;
 	}
@@ -224,6 +225,327 @@ describe("Import/Export Checks", function () {
 		} finally {
 			OSApp.currentSession.controller = previousController;
 		}
+	});
+
+	it("restores cycle settings after special station definitions", function () {
+		var sandbox = sinon.createSandbox(), controller = installImportHarness(sandbox, []), commands = [];
+		try {
+			OSApp.currentSession.controller.stations = {csver: 1, snames: ["S1"]};
+			sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (command) {
+				commands.push(command); return resolved({result:1});
+			});
+			var backup = baseBackup();
+			backup.stations.cs = [[1, 300, 600]];
+			backup.special = {0: {st:0, sd:"0"}};
+			return cleanupAfter(asNative(OSApp.ImportExport.importConfig(backup)).then(function () {
+				var reset = commands.indexOf("/cs?pw=&csreset=1");
+				var special = commands.indexOf("/cs?pw=&sid=0&st=0&sd=0");
+				var policy = commands.indexOf("/cs?pw=&sid=0&cse=1&csc=300&css=600");
+				assert.isAtLeast(special, 0); assert.isAbove(reset, special); assert.isAbove(policy, reset);
+				assert.isAbove(reset, commands.findIndex(function (command) { return command.indexOf("/co?") === 0; }));
+			}), sandbox, controller);
+		} catch (error) { OSApp.currentSession.controller = controller; sandbox.restore(); throw error; }
+	});
+
+	[
+		{target: "old", backup: "Garden-Controller", expected: "garden-controller"},
+		{target: "old", backup: "", expected: ""},
+		{target: "old", backup: undefined},
+		{target: undefined, backup: "Garden-Controller"}
+	].forEach(function (example) {
+		it("imports hostname only when both backup and target support it: " + JSON.stringify(example), function () {
+			var sandbox = sinon.createSandbox(), controller = installImportHarness(sandbox, []), commands = [];
+			try {
+				if (example.target !== undefined) OSApp.currentSession.controller.settings.hname = example.target;
+				sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (command) {
+					commands.push(command); return resolved({result: 1});
+				});
+				var backup = baseBackup();
+				if (example.backup !== undefined) backup.settings.hname = example.backup;
+				return cleanupAfter(asNative(OSApp.ImportExport.importConfig(backup)).then(function () {
+					var command = commands.find(function (command) { return command.indexOf("/co?") === 0; });
+					var params = new URL("http://controller" + command).searchParams;
+					assert.equal(params.has("hname"), example.expected !== undefined);
+					if (example.expected !== undefined) assert.equal(params.get("hname"), example.expected);
+				}), sandbox, controller);
+			} catch (error) { OSApp.currentSession.controller = controller; sandbox.restore(); throw error; }
+		});
+	});
+
+	function bundleRestoreFixture() {
+		var target = OSApp.currentSession.controller;
+		target.options = {fwv: 221, fwm: 7, ext: 1, mexp: 8, mas: 0, mas2: 0};
+		target.stations = {snames: Array.from({length: 16}, function (_, i) { return "S" + i; }), stn_bnd: [1, 1], stn_spe: [1, 1], bmt: 1, csver: 1};
+		var backup = baseBackup();
+		backup.options = {fwv: 221, fwm: 7, ext: 0, mas: 7, mas2: 8};
+		backup.stations = {snames: target.stations.snames.slice(0, 8), masop: [0], stn_spe: [0], cs: Array.from({length: 8}, function () { return [0, 0, 0]; })};
+		backup.special = {};
+		return backup;
+	}
+
+	["ordinary", "GPIO", "redefined"].forEach(function (replacement) {
+		it("clears conflicting bundles before restoring masters and " + replacement + " stations", function () {
+			var sandbox = sinon.createSandbox(), controller = installImportHarness(sandbox, []), commands = [];
+			try {
+				var backup = bundleRestoreFixture(), activeBundles = {
+					0: {st: 7, sd: OSApp.Bundles.encodeMembers([6, 7], 2)},
+					8: {st: 7, sd: OSApp.Bundles.encodeMembers([9], 2)}
+				};
+				if (replacement === "GPIO") backup.special[0] = {st: 3, sd: "05,1"};
+				if (replacement === "redefined") backup.special[0] = {st: 7, sd: OSApp.Bundles.encodeMembers([1], 1)};
+				var count = 16, coCount = 0;
+				sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (command) {
+					commands.push(command);
+					if (command.indexOf("/je?") === 0) return resolved($.extend(true, {}, activeBundles));
+					var p = paramsFor(command);
+					if (command.indexOf("/co?") === 0) {
+						coCount++;
+						if (coCount === 1) { assert.isFalse(p.has("mas")); assert.isFalse(p.has("mas2")); count = 8; }
+						else {
+							assert.equal(p.get("mas"), "7"); assert.equal(p.get("mas2"), "8");
+							assert.deepEqual(Array.from(p.keys()).sort(), ["mas", "mas2", "pw"]);
+							if (activeBundles[0]) return rejected({result: 17});
+						}
+					}
+					if (p.has("sid")) assert.isBelow(Number(p.get("sid")), count);
+					if (p.get("st") === "0") delete activeBundles[p.get("sid")];
+					return resolved({result: 1});
+				});
+				return cleanupAfter(asNative(OSApp.ImportExport.importConfig(backup)).then(function () {
+					assert.equal(coCount, 2);
+					var first = commands.findIndex(function (c) { return c.indexOf("/co?") === 0; });
+					assert.equal(commands[first + 1], "/cs?pw=&sid=0&st=0&sd=0");
+					assert.match(commands[first + 2], /^\/co\?/);
+					assert.notInclude(commands, "/cs?pw=&sid=8&st=0&sd=0");
+					assert.isAbove(commands.indexOf("/cs?pw=&csreset=1"), first + 2);
+					assert.isFalse(commands.some(function (c) { return c.includes("&cse="); }));
+					assert.include(commands, "/dp?pw=&pid=-1");
+				}), sandbox, controller);
+			} catch (error) { OSApp.currentSession.controller = controller; sandbox.restore(); throw error; }
+		});
+	});
+
+	it("clears an obsolete bundle even when no imported master conflicts", function () {
+		var sandbox = sinon.createSandbox(), controller = installImportHarness(sandbox, []), commands = [];
+		try {
+			var backup = bundleRestoreFixture(); backup.options.mas = backup.options.mas2 = 0;
+			sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (command) {
+				commands.push(command);
+				return resolved(command.indexOf("/je?") === 0 ? {0: {st: 7, sd: OSApp.Bundles.encodeMembers([1], 2)}} : {result: 1});
+			});
+			return cleanupAfter(asNative(OSApp.ImportExport.importConfig(backup)).then(function () {
+				assert.include(commands, "/cs?pw=&sid=0&st=0&sd=0");
+			}), sandbox, controller);
+		} catch (error) { OSApp.currentSession.controller = controller; sandbox.restore(); throw error; }
+	});
+
+	it("sets member types before bundle leaders and restores only nonzero policies", function () {
+		var sandbox = sinon.createSandbox(), controller = installImportHarness(sandbox, []), commands = [];
+		try {
+			var backup = bundleRestoreFixture();
+			backup.special = {0: {st: 7, sd: OSApp.Bundles.encodeMembers([1], 1)}, 1: {st: 0, sd: "0"}};
+			backup.stations.cs[0] = [0, 60, 120];
+			var memberReady = false;
+			sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (command) {
+				commands.push(command);
+				if (command.indexOf("/je?") === 0) return resolved({1: {st: 7, sd: OSApp.Bundles.encodeMembers([2], 2)}});
+				var p = paramsFor(command);
+				if (p.get("sid") === "1" && p.get("st") === "0") memberReady = true;
+				if (p.get("st") === "7") assert.isTrue(memberReady);
+				return resolved({result: 1});
+			});
+			return cleanupAfter(asNative(OSApp.ImportExport.importConfig(backup)).then(function () {
+				var member = commands.lastIndexOf("/cs?pw=&sid=1&st=0&sd=0");
+				var reset = commands.indexOf("/cs?pw=&csreset=1");
+				var bundle = commands.findIndex(function (c) { return c.includes("&st=7"); });
+				assert.isAbove(reset, member); assert.isAbove(bundle, reset);
+				assert.deepEqual(commands.filter(function (c) { return c.includes("&cse="); }), ["/cs?pw=&sid=0&cse=0&csc=60&css=120"]);
+			}), sandbox, controller);
+		} catch (error) { OSApp.currentSession.controller = controller; sandbox.restore(); throw error; }
+	});
+
+	it("establishes ordinary member types omitted from the backup special list", function () {
+		var sandbox = sinon.createSandbox(), controller = installImportHarness(sandbox, []), commands = [];
+		try {
+			var backup = bundleRestoreFixture();
+			backup.special = {0: {st: 7, sd: OSApp.Bundles.encodeMembers([1], 1)}};
+			var memberType = 3;
+			sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (command) {
+				commands.push(command);
+				if (command.indexOf("/je?") === 0) return resolved({1: {st: 3, sd: "05,1"}});
+				var p = paramsFor(command);
+				if (p.get("sid") === "1" && p.get("st") === "0") memberType = 0;
+				if (p.get("st") === "7") assert.equal(memberType, 0);
+				return resolved({result: 1});
+			});
+			return cleanupAfter(asNative(OSApp.ImportExport.importConfig(backup)).then(function () {
+				assert.include(commands, "/cs?pw=&sid=1&st=0&sd=0");
+				assert.include(commands, "/dp?pw=&pid=-1");
+			}), sandbox, controller);
+		} catch (error) { OSApp.currentSession.controller = controller; sandbox.restore(); throw error; }
+	});
+
+	[3, 7].forEach(function (newType) {
+		it("clears redefined bundles before an old member becomes special type " + newType, function () {
+			var sandbox = sinon.createSandbox(), controller = installImportHarness(sandbox, []), commands = [];
+			try {
+				var backup = bundleRestoreFixture(), referenced = true;
+				backup.special = {0: {st: 7, sd: OSApp.Bundles.encodeMembers([2], 1)}, 1: {st: newType, sd: newType === 7 ? OSApp.Bundles.encodeMembers([3], 1) : "05,1"}};
+				sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (command) {
+					commands.push(command);
+					if (command.indexOf("/je?") === 0) return resolved({0: {st: 7, sd: OSApp.Bundles.encodeMembers([1], 2)}});
+					var p = paramsFor(command);
+					if (p.get("sid") === "0" && p.get("st") === "0") referenced = false;
+					if (p.get("sid") === "1" && p.has("st")) assert.isFalse(referenced);
+					return resolved({result: 1});
+				});
+				return cleanupAfter(asNative(OSApp.ImportExport.importConfig(backup)).then(function () {
+					assert.include(commands, "/cs?pw=&sid=0&st=0&sd=0");
+					assert.include(commands, "/dp?pw=&pid=-1");
+				}), sandbox, controller);
+			} catch (error) { OSApp.currentSession.controller = controller; sandbox.restore(); throw error; }
+		});
+	});
+
+	[1, 2].forEach(function (failedCo) {
+		it("stops and refreshes after options request " + failedCo + " fails", function () {
+			var sandbox = sinon.createSandbox(), controller = installImportHarness(sandbox, []), commands = [];
+			try {
+				var backup = bundleRestoreFixture(), count = 0;
+				sandbox.stub(OSApp.Errors, "showError");
+				sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (command) {
+					commands.push(command);
+					if (command.indexOf("/je?") === 0) return resolved({0: {st: 7, sd: OSApp.Bundles.encodeMembers([6, 7], 2)}});
+					if (command.indexOf("/co?") === 0 && ++count === failedCo) return rejected({result: 17});
+					return resolved({result: 1});
+				});
+				var assertStopped = function () {
+					assert.equal(count, failedCo);
+					assert.match(commands[commands.length - 1], /^\/co\?/);
+					assert.notInclude(commands, "/cs?pw=&csreset=1");
+					if (failedCo === 1) assert.isFalse(commands.some(function (c) { return c.indexOf("/cs?") === 0; }));
+					assert.isTrue(OSApp.Sites.updateController.calledOnce);
+					assert.isTrue($.mobile.loading.calledWith("hide"));
+					assert.isTrue(OSApp.Errors.showError.called);
+				};
+				return cleanupAfter(asNative(OSApp.ImportExport.importConfig(backup)).then(assertStopped, assertStopped), sandbox, controller);
+			} catch (error) { OSApp.currentSession.controller = controller; sandbox.restore(); throw error; }
+		});
+	});
+
+	[false, true].forEach(function (isPi) {
+		it("keeps one options request on non-bundle firmware (OSPi=" + isPi + ")", function () {
+			var sandbox = sinon.createSandbox(), controller = installImportHarness(sandbox, []), commands = [];
+			try {
+				OSApp.Firmware.isOSPi.returns(isPi);
+				var backup = baseBackup(); backup.options.mas = 1; backup.options.mas2 = 0;
+				sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (command) { commands.push(command); return resolved({result: 1}); });
+				return cleanupAfter(asNative(OSApp.ImportExport.importConfig(backup)).then(function () {
+					assert.lengthOf(commands.filter(function (c) { return c.indexOf("/co?") === 0; }), 1);
+					assert.notInclude(commands, "/je?pw=");
+					assert.notInclude(commands, "/cs?pw=&csreset=1");
+					assert.isTrue(OSApp.UIDom.areYouSure.calledOnce);
+				}), sandbox, controller);
+			} catch (error) { OSApp.currentSession.controller = controller; sandbox.restore(); throw error; }
+		});
+	});
+
+	it("does not clear a redefined bundle whose current members do not conflict", function () {
+		var sandbox = sinon.createSandbox(), controller = installImportHarness(sandbox, []), commands = [];
+		try {
+			var backup = bundleRestoreFixture();
+			backup.special = {0: {st: 7, sd: OSApp.Bundles.encodeMembers([2], 1)}};
+			sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (command) {
+				commands.push(command);
+				return resolved(command.indexOf("/je?") === 0 ? {0: {st: 7, sd: OSApp.Bundles.encodeMembers([1], 2)}} : {result: 1});
+			});
+			return cleanupAfter(asNative(OSApp.ImportExport.importConfig(backup)).then(function () {
+				assert.notInclude(commands, "/cs?pw=&sid=0&st=0&sd=0");
+				assert.isTrue(commands.some(function (c) { return c.includes("&st=7"); }));
+			}), sandbox, controller);
+		} catch (error) { OSApp.currentSession.controller = controller; sandbox.restore(); throw error; }
+	});
+
+	it("stops after a controller switch during the first split options request", function () {
+		var sandbox = sinon.createSandbox(), controller = installImportHarness(sandbox, []), commands = [], first = $.Deferred();
+		try {
+			var backup = bundleRestoreFixture();
+			sandbox.stub(OSApp.Errors, "showError");
+			sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (command) {
+				commands.push(command);
+				return command.indexOf("/je?") === 0 ? resolved({0: {st: 7, sd: OSApp.Bundles.encodeMembers([6], 2)}}) : first.promise();
+			});
+			var result = asNative(OSApp.ImportExport.importConfig(backup));
+			OSApp.currentSession.controller = {marker: "other"};
+			first.resolve({result: 1});
+			var assertStopped = function () {
+				assert.lengthOf(commands, 2);
+				assert.match(commands[1], /^\/co\?/);
+				assert.isFalse(OSApp.Sites.updateController.called);
+			};
+			return cleanupAfter(result.then(assertStopped, assertStopped), sandbox, controller);
+		} catch (error) { OSApp.currentSession.controller = controller; sandbox.restore(); throw error; }
+	});
+
+	it("rejects unavailable bundle metadata before confirmation", function () {
+		var sandbox = sinon.createSandbox(), controller = installImportHarness(sandbox, []);
+		try {
+			var backup = bundleRestoreFixture();
+			sandbox.stub(OSApp.Errors, "showError");
+			var send = sandbox.stub(OSApp.Firmware, "sendToOS").returns(resolved({result: 1}));
+			var assertStopped = function () {
+				assert.isTrue(send.calledOnceWithExactly("/je?pw=", "json"));
+				assert.isFalse(OSApp.UIDom.areYouSure.called);
+				assert.isFalse(OSApp.Sites.updateController.called);
+			};
+			return cleanupAfter(asNative(OSApp.ImportExport.importConfig(backup)).then(assertStopped, assertStopped), sandbox, controller);
+		} catch (error) { OSApp.currentSession.controller = controller; sandbox.restore(); throw error; }
+	});
+
+	it("shows unsupported sensor names as plain text for seven seconds before confirmation or writes", function () {
+		var sandbox = sinon.createSandbox(), controller = installImportHarness(sandbox, []), commands = [];
+		try {
+			var backup = baseBackup(); backup.sensors = {sn: [weatherSensor(42, '<b>ChipC</b>', 0), weatherSensor(43, 'Chip&C', 0)]};
+			sandbox.stub(OSApp.Errors, "showError");
+			sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (command) { commands.push(command); return resolved(sensorDescription()); });
+			var assertStopped = function () {
+				assert.deepEqual(commands, ["/jsd?pw="]);
+				assert.isFalse(OSApp.UIDom.areYouSure.called);
+				assert.isTrue(OSApp.Errors.showError.calledOnceWithExactly(
+					OSApp.Language._("This backup contains sensor definitions that are not supported by this controller.") + " <b>ChipC</b>, Chip&C", 7000));
+				assert.isFalse(OSApp.Sites.updateController.called);
+			};
+			return cleanupAfter(asNative(OSApp.ImportExport.importConfig(backup)).then(assertStopped, assertStopped), sandbox, controller);
+		} catch (error) { OSApp.currentSession.controller = controller; sandbox.restore(); throw error; }
+	});
+
+	it("exports the saved hostname and rejects invalid imports before writes", function () {
+		var sandbox = sinon.createSandbox(), controller = installImportHarness(sandbox, []);
+		try {
+			OSApp.currentSession.controller.settings.hname = "garden";
+			assert.equal(JSON.parse(OSApp.ImportExport.serializeConfig()).settings.hname, "garden");
+			var send = sandbox.stub(OSApp.Firmware, "sendToOS");
+			sandbox.stub(OSApp.Errors, "showError");
+			var backup = baseBackup(); backup.settings.hname = "invalid name";
+			OSApp.ImportExport.importConfig(backup);
+			assert.isFalse(send.called);
+			assert.isTrue(OSApp.Errors.showError.calledWith(OSApp.Options.hostnameError()));
+		} finally { OSApp.currentSession.controller = controller; sandbox.restore(); }
+	});
+
+	it("preserves cycle policies when importing a backup without cycle metadata", function () {
+		var sandbox = sinon.createSandbox(), controller = installImportHarness(sandbox, []), commands = [];
+		try {
+			OSApp.currentSession.controller.stations = {csver: 1, snames: ["S1"], cs: [[1, 300, 600]]};
+			sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (command) {
+				commands.push(command); return resolved({result: 1});
+			});
+			var backup = baseBackup();
+			delete backup.stations.cs;
+			return cleanupAfter(asNative(OSApp.ImportExport.importConfig(backup)).then(function () {
+				assert.isFalse(commands.some(function (command) { return /[&?](csreset|cse|csc|css)=/.test(command); }));
+			}), sandbox, controller);
+		} catch (error) { OSApp.currentSession.controller = controller; sandbox.restore(); throw error; }
 	});
 
 	it("should import an enabled Weather Sensor definition", function () {
@@ -722,6 +1044,7 @@ describe("Import/Export Checks", function () {
 				assert.isTrue(errors.some(function (message) {
 					return message.indexOf("active controller changed") !== -1;
 				}));
+				assert.isFalse(OSApp.Sites.updateController.called);
 			};
 			return cleanupAfter(restore.then(assertStopped, assertStopped), sandbox, controller);
 		} catch (error) {

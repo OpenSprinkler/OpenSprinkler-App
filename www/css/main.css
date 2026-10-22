@@ -835,6 +835,59 @@ input[type=number] {
 }
 #stn_attrib {
     border: 0;
+    width: 230px;
+    max-width: calc(100vw - 30px);
+}
+#stn_attrib .tabs {
+    display: flex;
+    flex-wrap: wrap;
+}
+#stn_attrib .tabs li {
+    box-sizing: border-box;
+    flex: 0 1 auto;
+    max-width: 100%;
+    min-width: 0;
+    padding: 10px 15px;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+#stn_attrib .tabs li:focus-visible {
+    outline: 2px solid #517d99;
+    outline-offset: -2px;
+}
+#stn_attrib .tab-content {
+    box-sizing: border-box;
+    max-height: calc(100vh - 160px);
+    overflow-y: auto;
+    width: 100%;
+}
+#stn_attrib .ui-bar {
+    white-space: normal;
+}
+#stn_attrib .ui-checkbox label {
+    white-space: normal;
+}
+#stn_attrib label[for="cycle-minutes"],
+#stn_attrib label[for="soak-minutes"] {
+    font-size: 12.5px;
+}
+.preview-touch-active .vis-tooltip {
+    display: none !important;
+}
+.preview-touch-details {
+    position: fixed;
+    z-index: 10000;
+    max-width: calc(100vw - 32px);
+    box-sizing: border-box;
+    padding: 8px 12px;
+    border: 1px solid #bfbfbf;
+    border-radius: 4px;
+    background: #fff;
+    color: #333;
+    font-size: 13px;
+    text-shadow: none;
+    white-space: pre-line;
+    pointer-events: none;
 }
 .location {
 	padding-right: 5px;
@@ -890,6 +943,22 @@ input[type=number] {
 	border-radius: 50%;
 	background-color: transparent;
 	background-image: none;
+}
+/* Cycle and Soak replaces the group circle with a closed circular arrow. */
+.station-group-settings.station-cycle:after {
+	width: 28px;
+	height: 28px;
+	margin-top: -14px;
+	margin-left: -14px;
+	border: 0;
+	border-radius: 0;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Cpath d='M17.59 4.13A10.5 10.5 0 1 1 10.41 4.13' fill='none' stroke='%230e8fb5' stroke-width='1.9' stroke-linecap='round'/%3E%3Cpath d='M9.38 1.31L14.17 2.77L11.43 6.95Z' fill='%230e8fb5' stroke='%230e8fb5' stroke-width='.8' stroke-linejoin='round'/%3E%3C/svg%3E");
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: 28px 28px;
+}
+.station-group-settings.station-cycle .station-gid {
+	color: #0e8fb5 !important;
 }
 .station-group-settings .station-gid {
 	position: absolute;
@@ -1051,7 +1120,7 @@ div.running-text{
 .attrib-submit {
     border: 0;
 }
-.rem {
+.rem, .cycle-status {
     width: 80%;
     margin:0 auto;
     font-size:.71em!important;

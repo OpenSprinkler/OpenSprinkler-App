@@ -22,7 +22,7 @@ OSApp.Firmware.Constants = {
 	// Ensure error codes align with reboot causes in Firmware defines.h
 	// Do NOT use Language._ to translate these here during definition. Do it when rendering!
 	// FIXME: all enums should follow the pattern of an array with objects with id/name. Example: [{id: -4, name: "Empty Response"}]
-	rebootReasons: {
+	rebootReasons: /* i18n-extract */ {
 		0: "None",
 		1: "Factory Reset",
 		2: "Reset Button",

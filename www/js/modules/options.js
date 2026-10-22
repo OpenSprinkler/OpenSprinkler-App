@@ -17,6 +17,16 @@
 var OSApp = OSApp || {};
 OSApp.Options = OSApp.Options || {};
 
+OSApp.Options.isValidHostname = function( value ) {
+	return typeof value === "string" && ( value === "" ||
+		( value.length <= 32 && !/[^a-z0-9-]/i.test( value ) &&
+			value[ 0 ] !== "-" && value[ value.length - 1 ] !== "-" && !/^\d+$/.test( value ) ) );
+};
+
+OSApp.Options.hostnameError = function() {
+	return OSApp.Language._( "Use up to 32 ASCII letters, numbers or hyphens. The hostname cannot begin or end with a hyphen or contain only numbers. Leave empty to restore the device default." );
+};
+
 OSApp.Options.getNotificationEvents = function( options ) {
 	options = options || {};
 	var events = [
@@ -85,14 +95,48 @@ OSApp.Options.removeInvalidBundleMasterOptions = function( options ) {
 };
 
 OSApp.Options.resetStationAttributes = function( attributes ) {
-	var operation = $.Deferred();
+	var operation = $.Deferred(),
+		session = OSApp.currentSession,
+		controller = session.controller,
+		resetCycles = OSApp.CycleSoak.supported(),
+		attributesReset = false;
+	var isCurrent = function() {
+		return OSApp.currentSession === session && OSApp.currentSession.controller === controller;
+	};
+	var guard = function() {
+		if ( isCurrent() ) { return true; }
+		operation.reject( { statusText: "stale" } );
+		return false;
+	};
+	var refresh = function() {
+		OSApp.Sites.invalidateControllerStationSpecial();
+		OSApp.Sites.updateController( function() {
+			if ( !isCurrent() || !OSApp.Supported.special() ) { return; }
+			OSApp.Sites.ensureControllerStationSpecial( function() {
+				if ( isCurrent() ) { $( "html" ).trigger( "datarefresh" ); }
+			}, true );
+		} );
+	};
+	var fail = function( error ) {
+		if ( isCurrent() && attributesReset ) {
+			OSApp.Errors.showError( OSApp.Language._( "Unable to reset all station attributes. Some changes may already have been applied. Review the controller before retrying." ) );
+			refresh();
+		}
+		operation.reject( error );
+	};
+	operation.always( function() {
+		if ( isCurrent() ) { $.mobile.loading( "hide" ); }
+	} );
 
 	$.mobile.loading( "show" );
 	OSApp.Storage.get( "current_site", function( data ) {
+		if ( !guard() ) { return; }
 		var targetSite = data.current_site;
 
-		OSApp.Firmware.sendToOS( "/cs?pw=&" + attributes ).done( function( result ) {
+		var finish = function( result ) {
+			if ( !guard() ) { return; }
 			OSApp.Storage.get( "sites", function( latestData ) {
+				if ( !guard() ) { return; }
 				var sites = OSApp.Sites.parseSites( latestData.sites );
 
 				if ( sites[ targetSite ] ) {
@@ -102,12 +146,29 @@ OSApp.Options.resetStationAttributes = function( attributes ) {
 					OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
 				}
 				OSApp.Errors.showError( OSApp.Language._( "Stations have been updated" ) );
-				OSApp.Sites.updateController();
+				refresh();
 				operation.resolve( result );
 			} );
-		} ).fail( function( error ) {
-			operation.reject( error );
+		};
+		var requests = [], next = 0;
+		// Clearing pN alone cannot remove bundle leaders: firmware restores their special bit.
+		( controller.stations.snames || [] ).forEach( function( _name, sid ) {
+			if ( ( controller.stations.stn_bnd?.[ sid >> 3 ] || 0 ) & ( 1 << ( sid % 8 ) ) ) {
+				requests.push( "/cs?pw=&sid=" + sid + "&st=0&sd=0" );
+			}
 		} );
+		requests.push( "/cs?pw=&" + attributes );
+		// csreset returns early in firmware, so it must be a separate request.
+		if ( resetCycles ) { requests.push( "/cs?pw=&csreset=1" ); }
+		var sendNext = function() {
+			if ( !guard() ) { return; }
+			OSApp.Firmware.sendToOS( requests[ next++ ] ).done( function( result ) {
+				if ( !guard() ) { return; }
+				attributesReset = true;
+				if ( next < requests.length ) { sendNext(); } else { finish( result ); }
+			} ).fail( fail );
+		};
+		sendNext();
 	} );
 
 	return operation.promise();
@@ -146,6 +207,18 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 				// FIXME: please refactor these values to constants
 				switch ( id ) {
+					case "hname":
+						if ( typeof OSApp.currentSession.controller.settings.hname === "undefined" ) { return true; }
+						if ( !OSApp.Options.isValidHostname( data ) ) {
+							$item.closest( "[data-role='collapsible']" ).collapsible( "expand" );
+							$item.trigger( "focus" );
+							OSApp.Errors.showError( OSApp.Options.hostnameError() );
+							invalid = true;
+							return false;
+						}
+						data = data.toLowerCase();
+						if ( data === OSApp.currentSession.controller.settings.hname ) { return true; }
+						break;
 					case "o1":
 						var tz = data.split( ":" );
 						tz[ 0 ] = parseInt( tz[ 0 ], 10 );
@@ -391,7 +464,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 							// Flow pulse rate: only meaningful when type=Flow; pack into o41/o42.
 							if ( typeof optsRef.fpr0 !== "undefined" && parseInt( sconf.type ) === 2 ) {
 								var fpr = parseFloat( sconf.fpr ) || 0;
-								if ( sconf.fprUnit === "gallon" ) { fpr = fpr * 3.78541; }
+								if ( sconf.fprUnit === "gallon" ) { fpr = fpr * OSApp.Utils.LITERS_PER_GALLON; }
 								opt.o41 = Math.round( fpr * 100 ) & 0xff;
 								opt.o42 = ( Math.round( fpr * 100 ) >> 8 ) & 0xff;
 							}
@@ -565,13 +638,37 @@ OSApp.Options.showOptions = function( expandItem ) {
 						message = OSApp.Language._( "Check device password and try again." );
 					} else if ( error?.status === 404 ) {
 						message = OSApp.Language._( "Please check input and try again." );
+					} else if ( error?.result === 17 && error?.item === "hname" ) {
+						message = OSApp.Options.hostnameError();
+					} else if ( error?.result === 48 && /^sn[1-4]t$/.test( error?.item ) ) {
+						message = OSApp.Language._( "This port has a conflicting sensor configuration. Remove it in Edit Sensors first." );
+					} else if ( error?.result === 80 && error?.item === "sensors" ) {
+						message = OSApp.Language._( "Unable to verify sensor port ownership. No settings were changed." );
 					}
 					reconcileRejectedOptions( message );
 				} );
 			};
 
 			$.mobile.loading( "show" );
-			sendOptions( opt, false );
+			var changesPortMode = Object.keys( opt ).some( function( key ) {
+				return /^sn[1-4]t$/.test( key ) && Number( opt[ key ] ) !== Number( saveContext.controller.options[ key ] );
+			} );
+			if ( changesPortMode && OSApp.Supported.sensors() ) {
+				OSApp.Sites.updateControllerSensors( undefined, saveContext ).done( function() {
+					if ( !isCurrentSave() ) { return; }
+					if ( !Array.isArray( saveContext.controller.sensors?.sn ) ) {
+						restoreSubmit( OSApp.Language._( "Unable to verify sensor port ownership. No settings were changed." ) );
+						return;
+					}
+					var conflict = OSApp.Sensors.portModeConflict( opt, saveContext.controller.options, saveContext.controller.sensors?.sn );
+					if ( conflict ) { restoreSubmit( conflict ); return; }
+					sendOptions( opt, false );
+				} ).fail( function() {
+					restoreSubmit( OSApp.Language._( "Unable to verify sensor port ownership. No settings were changed." ) );
+				} );
+			} else {
+				sendOptions( opt, false );
+			}
 		},
 		header = OSApp.UIDom.changeHeader( {
 			title: OSApp.Language._( "Edit Options" ),
@@ -868,6 +965,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 			case 1: return OSApp.Language._( "Rain" );
 			case 2: return OSApp.Language._( "Flow" );
 			case 3: return OSApp.Language._( "Soil" );
+			case 4: return OSApp.Language._( "Analog" );
 			case 240: return OSApp.Language._( "Program Switch" );
 			default: return "";
 		}
@@ -888,7 +986,8 @@ OSApp.Options.showOptions = function( expandItem ) {
 			};
 			if ( typeof opts.fpr0 !== "undefined" ) {
 				conf.fpr = ( ( opts.fpr1 * 256 + opts.fpr0 ) / 100 );
-				conf.fprUnit = "liter";
+				conf.fprUnit = OSApp.currentDevice.isMetric ? "liter" : "gallon";
+				if ( conf.fprUnit === "gallon" ) { conf.fpr = Number( ( conf.fpr / OSApp.Utils.LITERS_PER_GALLON ).toFixed( 4 ) ); }
 			}
 		} else {
 			// Sensor 2/3/4 share the same shape (sn{N}t / sn{N}o / sn{N}on /
@@ -1015,14 +1114,65 @@ OSApp.Options.showOptions = function( expandItem ) {
 		"<input type='range' id='o29' min='0' max='255' step='10' data-highlight='true' value='" + ( OSApp.currentSession.controller.options.dim ) + "'></div>";
 	}
 
-	list += "</fieldset><fieldset data-role='collapsible' data-theme='b'" +
-		( typeof expandItem === "string" && expandItem === "advanced" ? " data-collapsed='false'" : "" ) + ">" +
-		"<legend>" + OSApp.Language._( "Advanced" ) + "</legend>";
+	list += "</fieldset><fieldset data-role='collapsible'" +
+		( typeof expandItem === "string" && expandItem === "network" ? " data-collapsed='false'" : "" ) + ">" +
+		"<legend>" + OSApp.Language._( "Network" ) + "</legend>";
 
 	if ( typeof OSApp.currentSession.controller.options.hp0 !== "undefined" ) {
 		list += "<div class='ui-field-contain'><label for='o12'>" + OSApp.Language._( "HTTP Port (restart required)" ) + "</label>" +
 			"<input data-mini='true' type='number' pattern='[0-9]*' id='o12' value='" + ( OSApp.currentSession.controller.options.hp1 * 256 + OSApp.currentSession.controller.options.hp0 ) + "'>" +
 			"</div>";
+	}
+
+	if ( typeof OSApp.currentSession.controller.settings.hname !== "undefined" ) {
+		list += "<div class='ui-field-contain'><label for='hname'>" + OSApp.Language._( "Hostname (restart required)" ) +
+			"<button data-helptext='" + OSApp.Utils.htmlEscape( OSApp.Language._( "Network name advertised to your router when using DHCP. Leave empty to restore the device default. Use up to 32 letters, numbers or hyphens. This is separate from Device Name." ) ) +
+			"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label>" +
+			"<input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='hname' maxlength='32' placeholder='" +
+			OSApp.Utils.htmlEscape( OSApp.Language._( "Default" ) ) + "' value='" +
+			OSApp.Utils.htmlEscape( OSApp.currentSession.controller.settings.hname ) + "'></div>";
+	}
+
+	if ( typeof OSApp.currentSession.controller.options.ar !== "undefined" ) {
+		list += "<label for='o14'><input data-mini='true' id='o14' type='checkbox' " + ( ( OSApp.currentSession.controller.options.ar === 1 ) ? "checked='checked'" : "" ) + ">" +
+			OSApp.Language._( "Auto Reconnect" ) + "</label>";
+	}
+
+	if ( typeof OSApp.currentSession.controller.options.dhcp !== "undefined" && OSApp.Firmware.checkOSVersion( 210 ) ) {
+		list += "<label for='o3'><input data-mini='true' id='o3' type='checkbox' " + ( ( OSApp.currentSession.controller.options.dhcp === 1 ) ? "checked='checked'" : "" ) + ">" +
+			OSApp.Language._( "Use DHCP (restart required)" ) + "</label>";
+
+		var ip = [ OSApp.currentSession.controller.options.ip1, OSApp.currentSession.controller.options.ip2, OSApp.currentSession.controller.options.ip3, OSApp.currentSession.controller.options.ip4 ].join( "." ),
+			gw = [ OSApp.currentSession.controller.options.gw1, OSApp.currentSession.controller.options.gw2, OSApp.currentSession.controller.options.gw3, OSApp.currentSession.controller.options.gw4 ].join( "." );
+
+		list += "<div class='" + ( ( OSApp.currentSession.controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='ip_addr'>" +
+			OSApp.Language._( "IP Address" ) + "</label><button data-mini='true' id='ip_addr' value='" + ip + "'>" + ip + "</button></div>";
+		if ( typeof OSApp.currentSession.controller.options.subn1 !== "undefined" ) {
+			var subnet = [ OSApp.currentSession.controller.options.subn1, OSApp.currentSession.controller.options.subn2, OSApp.currentSession.controller.options.subn3, OSApp.currentSession.controller.options.subn4 ].join( "." );
+			list += "<div class='" + ( ( OSApp.currentSession.controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='subnet'>" +
+				OSApp.Language._( "Subnet Mask" ) + "</label><button data-mini='true' id='subnet' value='" + subnet + "'>" + subnet + "</button></div>";
+		}
+
+		list += "<div class='" + ( ( OSApp.currentSession.controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='gateway'>" +
+			OSApp.Language._( "Gateway Address" ) + "</label><button data-mini='true' id='gateway' value='" + gw + "'>" + gw + "</button></div>";
+
+		if ( typeof OSApp.currentSession.controller.options.dns1 !== "undefined" ) {
+			var dns = [ OSApp.currentSession.controller.options.dns1, OSApp.currentSession.controller.options.dns2, OSApp.currentSession.controller.options.dns3, OSApp.currentSession.controller.options.dns4 ].join( "." );
+			list += "<div class='" + ( ( OSApp.currentSession.controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='dns'>" +
+				OSApp.Language._( "DNS Address" ) + "</label><button data-mini='true' id='dns' value='" + dns + "'>" + dns + "</button></div>";
+		}
+
+	}
+
+	if ( typeof OSApp.currentSession.controller.options.ntp !== "undefined" ) {
+		list += "<label for='o2'><input data-mini='true' id='o2' type='checkbox' " + ( ( OSApp.currentSession.controller.options.ntp === 1 ) ? "checked='checked'" : "" ) + ">" +
+			OSApp.Language._( "NTP Sync" ) + "</label>";
+	}
+
+	if ( typeof OSApp.currentSession.controller.options.ntp !== "undefined" && OSApp.Firmware.checkOSVersion( 210 ) ) {
+		var ntpIP = [ OSApp.currentSession.controller.options.ntp1, OSApp.currentSession.controller.options.ntp2, OSApp.currentSession.controller.options.ntp3, OSApp.currentSession.controller.options.ntp4 ].join( "." );
+		list += "<div class='" + ( ( OSApp.currentSession.controller.options.ntp === 1 ) ? "" : "hidden " ) + "ui-field-contain duration-field'><label for='ntp_addr'>" +
+			OSApp.Language._( "NTP IP Address" ) + "</label><button data-mini='true' id='ntp_addr' value='" + ntpIP + "'>" + ntpIP + "</button></div>";
 	}
 
 	if ( typeof OSApp.currentSession.controller.options.devid !== "undefined" ) {
@@ -1032,6 +1182,10 @@ OSApp.Options.showOptions = function( expandItem ) {
 			"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label>" +
 			"<input data-mini='true' type='number' pattern='[0-9]*' max='255' id='o26' value='" + OSApp.currentSession.controller.options.devid + "'></div>";
 	}
+
+	list += "</fieldset><fieldset data-role='collapsible' data-theme='b'" +
+		( typeof expandItem === "string" && expandItem === "advanced" ? " data-collapsed='false'" : "" ) + ">" +
+		"<legend>" + OSApp.Language._( "Advanced" ) + "</legend>";
 
 	if ( typeof OSApp.currentSession.controller.options.rlp !== "undefined" ) {
 		list += "<div class='ui-field-contain duration-field'>" +
@@ -1091,47 +1245,6 @@ OSApp.Options.showOptions = function( expandItem ) {
 				OSApp.Language._( "Maximum is 24V. Set to 0 for default." ) +
 			"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label>" +
 			"<input type='range' id='latof' min='0' max='24' step='1' data-highlight='true' value='" + ( OSApp.currentSession.controller.options.latof ) + "'></div>";
-	}
-
-	if ( typeof OSApp.currentSession.controller.options.ntp !== "undefined" && OSApp.Firmware.checkOSVersion( 210 ) ) {
-		var ntpIP = [ OSApp.currentSession.controller.options.ntp1, OSApp.currentSession.controller.options.ntp2, OSApp.currentSession.controller.options.ntp3, OSApp.currentSession.controller.options.ntp4 ].join( "." );
-		list += "<div class='" + ( ( OSApp.currentSession.controller.options.ntp === 1 ) ? "" : "hidden " ) + "ui-field-contain duration-field'><label for='ntp_addr'>" +
-			OSApp.Language._( "NTP IP Address" ) + "</label><button data-mini='true' id='ntp_addr' value='" + ntpIP + "'>" + ntpIP + "</button></div>";
-	}
-
-	if ( typeof OSApp.currentSession.controller.options.dhcp !== "undefined" && OSApp.Firmware.checkOSVersion( 210 ) ) {
-		var ip = [ OSApp.currentSession.controller.options.ip1, OSApp.currentSession.controller.options.ip2, OSApp.currentSession.controller.options.ip3, OSApp.currentSession.controller.options.ip4 ].join( "." ),
-			gw = [ OSApp.currentSession.controller.options.gw1, OSApp.currentSession.controller.options.gw2, OSApp.currentSession.controller.options.gw3, OSApp.currentSession.controller.options.gw4 ].join( "." );
-
-		list += "<div class='" + ( ( OSApp.currentSession.controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='ip_addr'>" +
-			OSApp.Language._( "IP Address" ) + "</label><button data-mini='true' id='ip_addr' value='" + ip + "'>" + ip + "</button></div>";
-		list += "<div class='" + ( ( OSApp.currentSession.controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='gateway'>" +
-			OSApp.Language._( "Gateway Address" ) + "</label><button data-mini='true' id='gateway' value='" + gw + "'>" + gw + "</button></div>";
-
-		if ( typeof OSApp.currentSession.controller.options.subn1 !== "undefined" ) {
-			var subnet = [ OSApp.currentSession.controller.options.subn1, OSApp.currentSession.controller.options.subn2, OSApp.currentSession.controller.options.subn3, OSApp.currentSession.controller.options.subn4 ].join( "." );
-			list += "<div class='" + ( ( OSApp.currentSession.controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='subnet'>" +
-				OSApp.Language._( "Subnet Mask" ) + "</label><button data-mini='true' id='subnet' value='" + subnet + "'>" + subnet + "</button></div>";
-		}
-
-		if ( typeof OSApp.currentSession.controller.options.dns1 !== "undefined" ) {
-			var dns = [ OSApp.currentSession.controller.options.dns1, OSApp.currentSession.controller.options.dns2, OSApp.currentSession.controller.options.dns3, OSApp.currentSession.controller.options.dns4 ].join( "." );
-			list += "<div class='" + ( ( OSApp.currentSession.controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='dns'>" +
-				OSApp.Language._( "DNS Address" ) + "</label><button data-mini='true' id='dns' value='" + dns + "'>" + dns + "</button></div>";
-		}
-
-		list += "<label for='o3'><input data-mini='true' id='o3' type='checkbox' " + ( ( OSApp.currentSession.controller.options.dhcp === 1 ) ? "checked='checked'" : "" ) + ">" +
-			OSApp.Language._( "Use DHCP (restart required)" ) + "</label>";
-	}
-
-	if ( typeof OSApp.currentSession.controller.options.ntp !== "undefined" ) {
-		list += "<label for='o2'><input data-mini='true' id='o2' type='checkbox' " + ( ( OSApp.currentSession.controller.options.ntp === 1 ) ? "checked='checked'" : "" ) + ">" +
-			OSApp.Language._( "NTP Sync" ) + "</label>";
-	}
-
-	if ( typeof OSApp.currentSession.controller.options.ar !== "undefined" ) {
-		list += "<label for='o14'><input data-mini='true' id='o14' type='checkbox' " + ( ( OSApp.currentSession.controller.options.ar === 1 ) ? "checked='checked'" : "" ) + ">" +
-			OSApp.Language._( "Auto Reconnect" ) + "</label>";
 	}
 
 	if ( typeof OSApp.currentSession.controller.options.ipas !== "undefined" ) {
@@ -1364,7 +1477,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 						"<label class='center'>" + OSApp.Language._( "of rain is forecasted in the next:" ) + "</label>" +
 						"<div class='input_with_buttons'>" +
 							"<button id='decr2' class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
-							"<input id='rainDays' type='text' value='" + options.rainDays + " days'>" +
+							"<input id='rainDays' type='text' value='" + options.rainDays + " " + OSApp.Language._( "days" ) + "'>" +
 							"<button id='incr2' class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
 							"<p class='pad-top rain-desc center smaller'>" + OSApp.Language._("Set either to 0 to disable.") +
 						"</div><hr>" +
@@ -1403,14 +1516,14 @@ OSApp.Options.showOptions = function( expandItem ) {
 			const input = popup.find( "#rainDays" );
 			const value = parseInt( input.val().match( /\d+/g )[0] ) + 1;
 			if ( value > 10 ) return;
-			input.val( value + " days");
+			input.val( value + " " + OSApp.Language._( "days" ) );
 			return false;
 		} );
 		OSApp.UIDom.holdButton( popup.find( "#decr2" ), function() {
 			const input = popup.find( "#rainDays" );
 			const value = parseInt( input.val().match( /\d+/g )[0] ) - 1;
 			if ( value < 0 ) return;
-			input.val( value + " days");
+			input.val( value + " " + OSApp.Language._( "days" ) );
 			return false;
 		} );
 
@@ -1908,10 +2021,31 @@ OSApp.Options.showOptions = function( expandItem ) {
 		if ( OSApp.Firmware.checkOSVersion( 217 ) ) {
 			html += "<option value='240'" + ( current === 240 ? " selected" : "" ) + ">" + OSApp.Language._( "Program Switch" ) + "</option>";
 		}
+		if ( OSApp.Sensors.onboardAnalogInputs( OSApp.currentSession.controller.sensor_desc ).indexOf( num - 1 ) !== -1 ) {
+			html += "<option value='4'" + ( current === 4 ? " selected" : "" ) + ">" + OSApp.Language._( "Analog" ) + "</option>";
+		} else if ( current === 4 ) {
+			// Preserve a stored mode even when metadata could not be loaded.
+			html += "<option value='4' selected disabled>" + OSApp.Language._( "Analog" ) + "</option>";
+		}
 		return html;
 	};
 
-	page.find( "#sensor1, #sensor2, #sensor3, #sensor4" ).on( "click", function() {
+	page.find( "#sensor1, #sensor2, #sensor3, #sensor4" ).on( "click", function( _event, metadataReady ) {
+		if ( OSApp.Supported.sensors() && !OSApp.currentSession.controller.sensor_desc && !metadataReady ) {
+			var source = this, context = { session: OSApp.currentSession, controller: OSApp.currentSession.controller };
+			$.mobile.loading( "show" );
+			OSApp.Sites.updateControllerSensorDescription( undefined, context ).done( function() {
+				if ( OSApp.currentSession !== context.session || OSApp.currentSession.controller !== context.controller ) { return; }
+				$.mobile.loading( "hide" );
+				$( source ).trigger( "click", [ true ] );
+			} ).fail( function() {
+				if ( OSApp.currentSession !== context.session || OSApp.currentSession.controller !== context.controller ) { return; }
+				$.mobile.loading( "hide" );
+				// Standard modes remain editable without optional Analog metadata.
+				$( source ).trigger( "click", [ true ] );
+			} );
+			return;
+		}
 		var button = this, curr = button.value,
 			conf = $.extend( {}, { type: 0, no: 0, on: 0, off: 0, fpr: 0, fprUnit: "liter" }, OSApp.Utils.unescapeJSON( curr ) ),
 			num = parseInt( button.id.substring( 6 ) ),
@@ -1923,6 +2057,11 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 		var fprRow = "";
 		if ( hasFlow ) {
+			var preferredUnit = OSApp.currentDevice.isMetric ? "liter" : "gallon";
+			if ( conf.fprUnit !== preferredUnit ) {
+				conf.fpr = Number( ( conf.fpr * ( preferredUnit === "liter" ? OSApp.Utils.LITERS_PER_GALLON : 1 / OSApp.Utils.LITERS_PER_GALLON ) ).toFixed( 4 ) );
+				conf.fprUnit = preferredUnit;
+			}
 			fprRow = "<div class='ui-field-contain sn-fpr'>" +
 					"<label for='sn-fpr'>" + OSApp.Language._( "Flow Pulse Rate" ) + "</label>" +
 					"<table style='width:100%'><tr style='vertical-align:top'>" +
@@ -1976,12 +2115,18 @@ OSApp.Options.showOptions = function( expandItem ) {
 					"</div>" +
 					fprRow +
 					"<p class='sn-prg-hint smaller'>" + prgHint + "</p>" +
+					"<a href='#sensors' class='sn-analog-link'>" + OSApp.Language._( "Edit Sensors" ) + "</a>" +
+					"<p class='sn-port-conflict sensor-hw-missing'></p>" +
 					"<button class='submit' data-theme='b'>" + OSApp.Language._( "Submit" ) + "</button>" +
 				"</div>" +
 			"</div>" );
 
+		var showPortConflict = function( conflict ) {
+			popup.find( ".sn-port-conflict" ).text( conflict ).toggle( !!conflict );
+			popup.find( ".submit" ).prop( "disabled", !!conflict ).toggleClass( "ui-state-disabled", !!conflict );
+		};
 		var refreshFields = function() {
-			var t = parseInt( popup.find( "#sn-type" ).val() ) || 0;
+			var t = Number( popup.find( "#sn-type" ).val() ?? currentType );
 			// Normally Open: rain (1) / soil (3) / program switch (240)
 			popup.find( ".sn-no" ).toggle( t === 1 || t === 3 || t === 240 );
 			// On/Off delays: rain (1) / soil (3)
@@ -1990,17 +2135,33 @@ OSApp.Options.showOptions = function( expandItem ) {
 			popup.find( ".sn-fpr" ).toggle( t === 2 );
 			// Program switch hint: program switch (240)
 			popup.find( ".sn-prg-hint" ).toggle( t === 240 );
+			// Only link to readings once the port mode has actually been saved.
+			popup.find( ".sn-analog-link" ).toggle( t === 4 && Number( OSApp.currentSession.controller.options[ "sn" + num + "t" ] ) === 4 );
+			var proposed = {};
+			proposed[ "sn" + num + "t" ] = t;
+			var conflict = OSApp.Sensors.portModeConflict( proposed, OSApp.currentSession.controller.options,
+				OSApp.currentSession.controller.sensors?.sn );
+			showPortConflict( conflict );
 		};
 		popup.find( "#sn-type" ).on( "change", refreshFields );
+		popup.find( ".sn-analog-link" ).on( "click", function() { popup.popup( "close" ); } );
 
 		popup.find( ".submit" ).on( "click", function() {
 			var onInput = popup.find( "#sn-on" ),
 				offInput = popup.find( "#sn-off" ),
-				type = parseInt( popup.find( "#sn-type" ).val() ) || 0,
+				type = Number( popup.find( "#sn-type" ).val() ?? currentType ),
 				usesDelays = type === 1 || type === 3,
 				fprValue = parseFloat( popup.find( "#sn-fpr" ).val() ),
 				fprUnit = popup.find( "#sn-fpr-unit" ).val(),
-				fprLiters = fprUnit === "gallon" ? fprValue * 3.78541 : fprValue;
+				fprLiters = fprUnit === "gallon" ? fprValue * OSApp.Utils.LITERS_PER_GALLON : fprValue;
+			var proposed = {};
+			proposed[ "sn" + num + "t" ] = type;
+			var conflict = OSApp.Sensors.portModeConflict( proposed, OSApp.currentSession.controller.options,
+				OSApp.currentSession.controller.sensors?.sn );
+			if ( conflict ) {
+				showPortConflict( conflict );
+				return;
+			}
 			if ( usesDelays && ( !onInput[ 0 ].checkValidity() || !offInput[ 0 ].checkValidity() ) ) {
 				showPopupInputError();
 				return;

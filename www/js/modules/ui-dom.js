@@ -1614,6 +1614,8 @@ OSApp.UIDom.showDurationBox = function( opt ) {
 						"<button value='65535' class='ui-mini ui-btn set " + ( type === 1 ? "ui-btn-active" : "" ) + "'>" + OSApp.Language._( "Sunset to Sunrise" ) + "</button>" +
 					"</div>" +
 				"</div>" : "" ) +
+				( opt.showCycleSoakCheckbox ? "<label for='cs-checkbox'><input type='checkbox' id='cs-checkbox'>" +
+					OSApp.Language._( "Apply Cycle and Soak" ) + "</label>" : "" ) +
 				( opt.showQOCheckbox ? "<label for='qo-checkbox' class='center'>" +
 					"<input type='checkbox' id='qo-checkbox' checked='checked'>" +
 					opt.qoLabel +
@@ -1643,7 +1645,7 @@ OSApp.UIDom.showDurationBox = function( opt ) {
 
 			input.val( val + dir );
 			if ( opt.incrementalUpdate ) {
-				opt.callback( getValue(), getQueueOption() );
+				opt.callback( getValue(), getQueueOption(), popup.find( "#cs-checkbox" ).is( ":checked" ) );
 			}
 
 			if ( !opt.preventCompression && OSApp.Firmware.checkOSVersion( 210 ) ) {
@@ -1719,7 +1721,7 @@ OSApp.UIDom.showDurationBox = function( opt ) {
 	popup.find( "span" ).prepend( incrbts + inputs + decrbts );
 
 	popup.find( "button.submit" ).on( "click", function() {
-		opt.callback( getValue(), getQueueOption() );
+		opt.callback( getValue(), getQueueOption(), popup.find( "#cs-checkbox" ).is( ":checked" ) );
 		popup.popup( "destroy" ).remove();
 	} );
 
@@ -1777,7 +1779,7 @@ OSApp.UIDom.showDurationBox = function( opt ) {
 			}
 
 			if ( opt.incrementalUpdate ) {
-				opt.callback( getValue(), getQueueOption() );
+				opt.callback( getValue(), getQueueOption(), popup.find( "#cs-checkbox" ).is( ":checked" ) );
 			}
 		} );
 	}
@@ -1791,7 +1793,7 @@ OSApp.UIDom.showDurationBox = function( opt ) {
 	} )
 	.one( "popupafterclose", function() {
 		if ( opt.incrementalUpdate ) {
-			opt.callback( getValue(), getQueueOption() );
+			opt.callback( getValue(), getQueueOption(), popup.find( "#cs-checkbox" ).is( ":checked" ) );
 		}
 	} );
 
