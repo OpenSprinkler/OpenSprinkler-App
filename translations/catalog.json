@@ -482,7 +482,7 @@
 		},
 		"Are you sure you want to restore the configuration?": {
 			"references": [
-				"www/js/modules/import-export.js:927"
+				"www/js/modules/import-export.js:978"
 			],
 			"notes": []
 		},
@@ -563,7 +563,7 @@
 		},
 		"Backup restored to your device": {
 			"references": [
-				"www/js/modules/import-export.js:1378"
+				"www/js/modules/import-export.js:1455"
 			],
 			"notes": []
 		},
@@ -3398,7 +3398,7 @@
 		},
 		"Program": {
 			"references": [
-				"www/js/modules/import-export.js:1191",
+				"www/js/modules/import-export.js:1271",
 				"www/js/modules/programs.js:2136",
 				"www/js/modules/programs.js:2181",
 				"www/js/modules/programs.js:2433",
@@ -3812,7 +3812,7 @@
 		},
 		"Restored sensor definitions did not pass verification. The restore was stopped before programs were changed.": {
 			"references": [
-				"www/js/modules/import-export.js:1351"
+				"www/js/modules/import-export.js:1427"
 			],
 			"notes": []
 		},
@@ -4885,19 +4885,19 @@
 		},
 		"The active controller changed. Please restart the restore.": {
 			"references": [
-				"www/js/modules/import-export.js:929"
+				"www/js/modules/import-export.js:980"
 			],
 			"notes": []
 		},
 		"The active controller changed. The restore finished without refreshing the new controller.": {
 			"references": [
-				"www/js/modules/import-export.js:1372"
+				"www/js/modules/import-export.js:1448"
 			],
 			"notes": []
 		},
 		"The active controller changed. The restore was stopped before completion.": {
 			"references": [
-				"www/js/modules/import-export.js:1222"
+				"www/js/modules/import-export.js:1323"
 			],
 			"notes": []
 		},
@@ -5012,8 +5012,7 @@
 		},
 		"This backup contains sensor definitions that are not supported by this controller.": {
 			"references": [
-				"www/js/modules/import-export.js:1268",
-				"www/js/modules/import-export.js:1279"
+				"www/js/modules/import-export.js:947"
 			],
 			"notes": []
 		},
@@ -5234,20 +5233,21 @@
 		},
 		"Unable to determine the UUID assigned to a restored sensor. The restore was stopped.": {
 			"references": [
-				"www/js/modules/import-export.js:1316"
+				"www/js/modules/import-export.js:1392"
 			],
 			"notes": []
 		},
 		"Unable to import configuration. The restore stopped before completion; review the controller before retrying.": {
 			"references": [
-				"www/js/modules/import-export.js:941"
+				"www/js/modules/import-export.js:993"
 			],
 			"notes": []
 		},
 		"Unable to load Bundle Station configuration.": {
 			"references": [
 				"www/js/modules/dashboard.js:492",
-				"www/js/modules/dashboard.js:510"
+				"www/js/modules/dashboard.js:510",
+				"www/js/modules/import-export.js:961"
 			],
 			"notes": []
 		},
@@ -5271,7 +5271,7 @@
 		},
 		"Unable to map an aggregate sensor during import. The restore was stopped.": {
 			"references": [
-				"www/js/modules/import-export.js:1332"
+				"www/js/modules/import-export.js:1408"
 			],
 			"notes": []
 		},
@@ -5314,17 +5314,17 @@
 		},
 		"Unable to validate sensor definitions on this controller. No configuration changes were made.": {
 			"references": [
-				"www/js/modules/import-export.js:1272",
 				"www/js/modules/import-export.js:659",
 				"www/js/modules/import-export.js:666",
-				"www/js/modules/import-export.js:675"
+				"www/js/modules/import-export.js:675",
+				"www/js/modules/import-export.js:973"
 			],
 			"notes": []
 		},
 		"Unable to verify sensor definitions during import. The restore was stopped.": {
 			"references": [
-				"www/js/modules/import-export.js:1242",
-				"www/js/modules/import-export.js:1255"
+				"www/js/modules/import-export.js:1344",
+				"www/js/modules/import-export.js:1357"
 			],
 			"notes": []
 		},
@@ -6653,7 +6653,13 @@
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/import-export.js",
-			"line": 1191,
+			"line": 947,
+			"key": "This backup contains sensor definitions that are not supported by this controller."
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/import-export.js",
+			"line": 1271,
 			"key": "Program"
 		},
 		{

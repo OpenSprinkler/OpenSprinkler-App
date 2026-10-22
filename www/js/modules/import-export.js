@@ -42,7 +42,7 @@ OSApp.ImportExport.prepareBundleStationImport = function( data, targetController
 		} ),
 		mask = Number( targetStations.bmt ),
 		masters = [ "mas", "mas2", "mas3", "mas4" ].map( function( key ) {
-			return Number( data.options?.[ key ] ) - 1;
+			return Number( data.options?.[ key ] ?? targetController?.options?.[ key ] ) - 1;
 		} ).filter( function( sid ) { return sid >= 0; } ),
 		error = supported && hasBundle && restoredBoardCount > maxBoardCount ?
 			OSApp.Language._( "This backup contains Bundle Station assignments that are not supported by this controller." ) : "";
@@ -616,7 +616,7 @@ OSApp.ImportExport.prepareOnboardSensorImport = function( source, options, recor
 	return { data: data, skipped: skipped, resetPorts: resetPorts, records: records, description: description };
 };
 
-OSApp.ImportExport.importConfig = function( data, onboardPlan ) {
+OSApp.ImportExport.importConfig = function( data, onboardPlan, restorePlan ) {
 	var warning = "",
 		hasSensorData = !!data && Object.prototype.hasOwnProperty.call( data, "sensors" );
 
@@ -924,6 +924,57 @@ OSApp.ImportExport.importConfig = function( data, onboardPlan ) {
 			} ).concat( onboardPlan.resetPorts ).join( "<br>" );
 	}
 
+	var supportsBundles = Array.isArray( importController.stations?.stn_bnd );
+	if ( !restorePlan && ( supportsBundles || backupSensors.length ) ) {
+		var prepared = {}, preflightReads = $.Deferred().resolve().promise();
+		var contextCurrent = function() {
+			return OSApp.currentSession === importSession && OSApp.currentSession.controller === importController;
+		};
+		$.mobile.loading( "show" );
+		if ( backupSensors.length ) {
+			preflightReads = preflightReads.then( function() {
+				return onboardPlan ? onboardPlan.description : OSApp.Firmware.sendToOS( "/jsd?pw=", "json" );
+			} ).then( function( raw ) {
+				if ( !contextCurrent() ) { return $.Deferred().reject().promise(); }
+				if ( !Array.isArray( raw?.sensors ) || !raw.sensors.length ) {
+					return $.Deferred().reject().promise();
+				}
+				var description = raw.sensors[ 0 ].name ? raw : OSApp.Sensors.normalizeJsd( raw );
+				var unsupported = backupSensors.filter( function( sensor ) {
+					return !OSApp.ImportExport.sensorDefinitionSupported( sensor, description, targetSensors );
+				} );
+				if ( unsupported.length ) {
+					return $.Deferred().reject( OSApp.Language._( "This backup contains sensor definitions that are not supported by this controller." ) + " " +
+						unsupported.map( function( sensor ) { return String( sensor.name || sensor.uuid ); } ).join( ", " ) ).promise();
+				}
+			} );
+		}
+		if ( supportsBundles ) {
+			preflightReads = preflightReads.then( function() {
+				if ( !contextCurrent() ) { return $.Deferred().reject().promise(); }
+				return OSApp.Firmware.sendToOS( "/je?pw=", "json" );
+			} ).then( function( special ) {
+				if ( !special || typeof special !== "object" || Array.isArray( special ) ||
+					!Object.keys( special ).every( function( sid ) {
+						return /^\d+$/.test( sid ) && Number.isInteger( special[ sid ]?.st ) && typeof special[ sid ].sd === "string";
+					} ) ) {
+					return $.Deferred().reject( OSApp.Language._( "Unable to load Bundle Station configuration." ) ).promise();
+				}
+				prepared.special = special;
+			} );
+		}
+		return preflightReads.then( function() {
+			if ( !contextCurrent() ) { return; }
+			$.mobile.loading( "hide" );
+			return OSApp.ImportExport.importConfig( data, onboardPlan, prepared );
+		}, function( error ) {
+			if ( contextCurrent() ) {
+				$.mobile.loading( "hide" );
+				OSApp.Errors.showError( typeof error === "string" ? error : OSApp.Language._( "Unable to validate sensor definitions on this controller. No configuration changes were made." ), 7000 );
+			}
+		} );
+	}
+
 	return OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to restore the configuration?" ), warning, function() {
 		if ( OSApp.currentSession !== importSession || OSApp.currentSession.controller !== importController ) {
 			OSApp.Errors.showError( OSApp.Language._( "The active controller changed. Please restart the restore." ) );
@@ -933,6 +984,7 @@ OSApp.ImportExport.importConfig = function( data, onboardPlan ) {
 
 		var cs = "/cs?pw=",
 			co = "/co?pw=",
+			masterOptions = "/co?pw=",
 			cpStart = "/cp?pw=",
 			ncs = Math.ceil( data.stations.snames.length / 16 ),
 			csi = new Array( ncs ).fill( "/cs?pw=" ),
@@ -971,7 +1023,11 @@ OSApp.ImportExport.importConfig = function( data, onboardPlan ) {
 				if ( typeof option === "string" ) {
 					option = encodeURIComponent( option );
 				}
-				co += "&o" + key + "=" + option;
+				if ( supportsBundles && [ "mas", "mas2", "mas3", "mas4" ].indexOf( i ) !== -1 ) {
+					masterOptions += "&o" + key + "=" + option;
+				} else {
+					co += "&o" + key + "=" + option;
+				}
 			}
 		}
 
@@ -1121,7 +1177,31 @@ OSApp.ImportExport.importConfig = function( data, onboardPlan ) {
 		// Normalize station special data object
 		data.special = bundleImport.special;
 
-		baseCommands.push( OSApp.Utils.transformKeysinString( co ), cs );
+		baseCommands.push( OSApp.Utils.transformKeysinString( co ) );
+		var restoredStationCount = importController.stations?.snames?.length || sourceStationCount;
+		if ( supportsBundles ) {
+			if ( Number.isInteger( data.options.ext ) && data.options.ext >= 0 ) {
+				restoredStationCount = ( Math.min( data.options.ext, importController.options.mexp ?? importController.stations.stn_bnd.length - 1 ) + 1 ) * 8;
+			}
+			var masters = [ "mas", "mas2", "mas3", "mas4" ].map( function( name ) {
+				return Number( data.options[ name ] ?? importController.options[ name ] ) - 1;
+			} ).filter( function( sid ) { return sid >= 0; } );
+			Object.keys( restorePlan.special ).forEach( function( sid ) {
+				var current = restorePlan.special[ sid ];
+				// Shrinking /co leaves out-of-range bundle data on disk, but firmware ignores it.
+				if ( Number( sid ) >= restoredStationCount || Number( current.st ) !== OSApp.Constants.stations.SPECIAL_TYPE_BUNDLE ) { return; }
+				var conflicts = masters.indexOf( Number( sid ) ) !== -1 || OSApp.Bundles.decodeMembers( current.sd, importController.stations.stn_bnd.length ).some( function( member ) {
+					// Firmware also forbids changing a referenced member to any special type.
+					return member < restoredStationCount && ( masters.indexOf( member ) !== -1 ||
+						( data.special[ member ] && Number( data.special[ member ].st ) !== OSApp.Constants.stations.SPECIAL_TYPE_STANDARD ) );
+				} );
+				if ( Number( data.special[ sid ]?.st ) !== OSApp.Constants.stations.SPECIAL_TYPE_BUNDLE || conflicts ) {
+					baseCommands.push( "/cs?pw=&sid=" + sid + "&st=0&sd=0" );
+				}
+			} );
+			if ( masterOptions !== "/co?pw=" ) { baseCommands.push( OSApp.Utils.transformKeysinString( masterOptions ) ); }
+		}
+		baseCommands.push( cs );
 		baseCommands = baseCommands.concat( csi );
 
 		var buildProgramCommand = function( sourceProgram, index ) {
@@ -1194,21 +1274,42 @@ OSApp.ImportExport.importConfig = function( data, onboardPlan ) {
 			return cpStart + "&pid=-1&v=" + JSON.stringify( prog ) + name + dateRange + sensorAdjustment;
 		};
 
+		var bundleCommands = [];
 		$.each( data.special, function( sid, info ) {
 			if ( OSApp.Firmware.checkOSVersion( 216 ) ) {
-				baseCommands.push( "/cs?pw=&sid=" + sid + "&st=" + info.st + "&sd=" + encodeURIComponent( info.sd ) );
+				var commands = Number( info.st ) === OSApp.Constants.stations.SPECIAL_TYPE_BUNDLE ? bundleCommands : baseCommands;
+				commands.push( "/cs?pw=&sid=" + sid + "&st=" + info.st + "&sd=" + encodeURIComponent( info.sd ) );
 			}
 		} );
+		if ( supportsBundles ) {
+			var standardMembers = Object.create( null );
+			$.each( data.special, function( sid, info ) {
+				if ( Number( info.st ) !== OSApp.Constants.stations.SPECIAL_TYPE_BUNDLE ) { return; }
+				OSApp.Bundles.decodeMembers( info.sd, restoredStationCount / 8 ).forEach( function( member ) {
+					var previousType = restorePlan.special[ member ]?.st;
+					if ( !data.special[ member ] && previousType && previousType !== OSApp.Constants.stations.SPECIAL_TYPE_BUNDLE ) {
+						standardMembers[ member ] = true;
+					}
+				} );
+			} );
+			// Ordinary members have no /je entry in the backup; establish their type explicitly.
+			Object.keys( standardMembers ).forEach( function( sid ) {
+				baseCommands.push( "/cs?pw=&sid=" + sid + "&st=0&sd=0" );
+			} );
+		}
 		if ( OSApp.CycleSoak.supported() && Array.isArray( data.stations.cs ) ) {
-			// Clear policies before restoring Bundle definitions, then restore snapshots.
-			baseCommands.unshift( "/cs?pw=&csreset=1" );
+			baseCommands.push( "/cs?pw=&csreset=1" );
+		}
+		baseCommands = baseCommands.concat( bundleCommands );
+		if ( OSApp.CycleSoak.supported() && Array.isArray( data.stations.cs ) ) {
 			( data.stations.cs || [] ).forEach( function( policy, sid ) {
-				if ( sid < importController.stations.snames.length ) {
+				if ( sid < restoredStationCount && policy.some( function( value ) { return value !== 0; } ) ) {
 					baseCommands.push( "/cs?pw=&sid=" + sid + "&cse=" + policy[ 0 ] + "&csc=" + policy[ 1 ] + "&css=" + policy[ 2 ] );
 				}
 			} );
 		}
 
+		var writeAttempted = false;
 		var isImportContextCurrent = function() {
 				return OSApp.currentSession === importSession && OSApp.currentSession.controller === importController;
 			},
@@ -1223,6 +1324,7 @@ OSApp.ImportExport.importConfig = function( data, onboardPlan ) {
 				if ( !isImportContextCurrent() ) {
 					return rejectImport( staleMessage );
 				}
+				if ( !/^\/j/.test( command ) ) { writeAttempted = true; }
 				return OSApp.Firmware.sendToOS( command, type ).then( function( response ) {
 					return isImportContextCurrent() ? response : rejectImport( staleMessage );
 				} );
@@ -1257,33 +1359,7 @@ OSApp.ImportExport.importConfig = function( data, onboardPlan ) {
 					return { sensors: snapshot.sn, uuids: uuids };
 				} );
 			},
-			preflightSensors = function() {
-				if ( backupSensors.length === 0 ) {
-					return $.Deferred().resolve().promise();
-				}
-				if ( onboardPlan ) {
-					return backupSensors.every( function( sensor ) {
-						return OSApp.ImportExport.sensorDefinitionSupported( sensor, onboardPlan.description, targetSensors );
-					} ) ? $.Deferred().resolve().promise() : rejectImport(
-						OSApp.Language._( "This backup contains sensor definitions that are not supported by this controller." ) );
-				}
-				return sendImportRequest( "/jsd?pw=", "json" ).then( function( rawDescription ) {
-					if ( !rawDescription || typeof rawDescription !== "object" ) {
-						return rejectImport( OSApp.Language._( "Unable to validate sensor definitions on this controller. No configuration changes were made." ) );
-					}
-					var description = rawDescription.sensors && rawDescription.sensors.length > 0 && rawDescription.sensors[ 0 ].name ?
-						rawDescription : OSApp.Sensors.normalizeJsd( rawDescription );
-					if ( !backupSensors.every( function( sensor ) {
-						return OSApp.ImportExport.sensorDefinitionSupported( sensor, description, targetSensors );
-					} ) ) {
-						return rejectImport( OSApp.Language._( "This backup contains sensor definitions that are not supported by this controller." ) );
-					}
-					return description;
-				} );
-			},
-			sequence = preflightSensors().then( function() {
-				return sendCommands( baseCommands );
-			} );
+			sequence = sendCommands( baseCommands );
 
 		// Make only the capacity-required deletions, and do them serially.
 		$.each( sensorsToDelete, function( index, sensor ) {
@@ -1372,6 +1448,7 @@ OSApp.ImportExport.importConfig = function( data, onboardPlan ) {
 						OSApp.Errors.showError( OSApp.Language._( "The active controller changed. The restore finished without refreshing the new controller." ) );
 						return;
 					}
+					OSApp.Sites.invalidateControllerStationSpecial();
 					OSApp.Sites.updateController(
 						function() {
 							$.mobile.loading( "hide" );
@@ -1389,6 +1466,11 @@ OSApp.ImportExport.importConfig = function( data, onboardPlan ) {
 			function() {
 				$.mobile.loading( "hide" );
 				OSApp.Errors.showError( importFailureMessage );
+				// Even a rejected /co can alter text settings and in-memory options.
+				if ( writeAttempted && isImportContextCurrent() ) {
+					OSApp.Sites.invalidateControllerStationSpecial();
+					OSApp.Sites.updateController( function() {}, function() {} );
+				}
 			}
 		);
 	} );

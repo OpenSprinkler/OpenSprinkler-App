@@ -336,7 +336,7 @@ msgstr ""
 msgid "Are you sure you want to reset the wireless settings?"
 msgstr ""
 
-#: www/js/modules/import-export.js:927
+#: www/js/modules/import-export.js:978
 msgid "Are you sure you want to restore the configuration?"
 msgstr ""
 
@@ -399,7 +399,7 @@ msgstr ""
 msgid "Back"
 msgstr ""
 
-#: www/js/modules/import-export.js:1378
+#: www/js/modules/import-export.js:1455
 msgid "Backup restored to your device"
 msgstr ""
 
@@ -2386,7 +2386,7 @@ msgstr ""
 msgid "Preview Programs"
 msgstr ""
 
-#: www/js/modules/import-export.js:1191
+#: www/js/modules/import-export.js:1271
 #: www/js/modules/programs.js:2136
 #: www/js/modules/programs.js:2181
 #: www/js/modules/programs.js:2433
@@ -2681,7 +2681,7 @@ msgstr ""
 msgid "Reset cycle and soak settings for all stations?"
 msgstr ""
 
-#: www/js/modules/import-export.js:1351
+#: www/js/modules/import-export.js:1427
 msgid ""
 "Restored sensor definitions did not pass verification. The restore was "
 "stopped before programs were changed."
@@ -3449,17 +3449,17 @@ msgid ""
 "from this reference point."
 msgstr ""
 
-#: www/js/modules/import-export.js:929
+#: www/js/modules/import-export.js:980
 msgid "The active controller changed. Please restart the restore."
 msgstr ""
 
-#: www/js/modules/import-export.js:1372
+#: www/js/modules/import-export.js:1448
 msgid ""
 "The active controller changed. The restore finished without refreshing the "
 "new controller."
 msgstr ""
 
-#: www/js/modules/import-export.js:1222
+#: www/js/modules/import-export.js:1323
 msgid "The active controller changed. The restore was stopped before completion."
 msgstr ""
 
@@ -3552,8 +3552,7 @@ msgstr ""
 msgid "This backup contains more sensor definitions than this controller supports."
 msgstr ""
 
-#: www/js/modules/import-export.js:1268
-#: www/js/modules/import-export.js:1279
+#: www/js/modules/import-export.js:947
 msgid ""
 "This backup contains sensor definitions that are not supported by this "
 "controller."
@@ -3729,13 +3728,13 @@ msgstr ""
 msgid "Unable to connect to"
 msgstr ""
 
-#: www/js/modules/import-export.js:1316
+#: www/js/modules/import-export.js:1392
 msgid ""
 "Unable to determine the UUID assigned to a restored sensor. The restore was "
 "stopped."
 msgstr ""
 
-#: www/js/modules/import-export.js:941
+#: www/js/modules/import-export.js:993
 msgid ""
 "Unable to import configuration. The restore stopped before completion; "
 "review the controller before retrying."
@@ -3743,6 +3742,7 @@ msgstr ""
 
 #: www/js/modules/dashboard.js:492
 #: www/js/modules/dashboard.js:510
+#: www/js/modules/import-export.js:961
 msgid "Unable to load Bundle Station configuration."
 msgstr ""
 
@@ -3760,7 +3760,7 @@ msgstr ""
 msgid "Unable to load station configuration."
 msgstr ""
 
-#: www/js/modules/import-export.js:1332
+#: www/js/modules/import-export.js:1408
 msgid "Unable to map an aggregate sensor during import. The restore was stopped."
 msgstr ""
 
@@ -3793,17 +3793,17 @@ msgid ""
 "again."
 msgstr ""
 
-#: www/js/modules/import-export.js:1272
 #: www/js/modules/import-export.js:659
 #: www/js/modules/import-export.js:666
 #: www/js/modules/import-export.js:675
+#: www/js/modules/import-export.js:973
 msgid ""
 "Unable to validate sensor definitions on this controller. No configuration "
 "changes were made."
 msgstr ""
 
-#: www/js/modules/import-export.js:1242
-#: www/js/modules/import-export.js:1255
+#: www/js/modules/import-export.js:1344
+#: www/js/modules/import-export.js:1357
 msgid "Unable to verify sensor definitions during import. The restore was stopped."
 msgstr ""
 
