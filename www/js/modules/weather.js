@@ -795,7 +795,7 @@ OSApp.Weather.showForecast = function() {
 				"<ul data-role='listview' data-inset='true'>" +
 					OSApp.Weather.makeForecast() +
 				"</ul>" +
-				OSApp.Weather.makeAttribution( OSApp.currentSession.controller.settings.wto?.provider || OSApp.currentSession.weather.wp || OSApp.currentSession.weather.weatherProvider ) +
+				OSApp.Weather.makeAttribution( OSApp.currentSession.weather.weatherProvider || OSApp.currentSession.weather.wp || OSApp.currentSession.controller.settings.wto?.provider ) +
 			"</div>" +
 		"</div>" );
 
