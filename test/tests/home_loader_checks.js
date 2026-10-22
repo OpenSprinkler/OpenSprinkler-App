@@ -156,19 +156,48 @@ describe("Firmware UI Loader Checks", function () {
 		});
 	});
 
-	it("times out a stalled dependency and ignores its late load event", function () {
-		start();
-		clock.tick(15000);
-		assertLoadError();
-		harness.event("vendor-js/jquery.js");
-		assert.lengthOf(harness.scripts, 1);
+	[20000, 59000].forEach(delay => {
+		it("completes startup when a required module takes " + delay / 1000 + " seconds", async function () {
+			start({ savedSite: true });
+			await harness.loadDependencies();
+			harness.event("js/modules/ui-dom.js");
+			clock.tick(delay);
+			assert.notInclude(harness.document.body.textContent, "Unable to load");
+			harness.event("js/modules/storage.js");
+			harness.event("js/main.js");
+			harness.html.resolve("<body><main>Loaded application</main></body>");
+			await clock.tickAsync(5);
+			harness.event("vendor-js/jqm.js");
+			$(harness.document).trigger("mobileinit");
+			clock.tick(60000);
+			assert.equal(harness.document.body.textContent, "Loaded application");
+		});
+	});
+
+	["vendor-js/jquery.js", "js/modules/storage.js"].forEach(path => {
+		it("times out stalled " + path + " after 60 seconds and ignores its late load event", async function () {
+			start();
+			if (path === "js/modules/storage.js") {
+				await harness.loadDependencies();
+				harness.event("js/modules/ui-dom.js");
+			}
+			clock.tick(59999);
+			assert.notInclude(harness.document.body.textContent, "Unable to load");
+			clock.tick(1);
+			assertLoadError();
+			var requestedScripts = harness.scripts.length;
+			harness.event(path);
+			assert.lengthOf(harness.scripts, requestedScripts);
+		});
 	});
 
 	it("times out a stalled manifest and ignores a late response", async function () {
 		var resolveManifest;
 		start({ manifest: new Promise(resolve => { resolveManifest = resolve; }) });
 		await harness.loadDependencies();
-		clock.tick(15000);
+		clock.tick(59999);
+		assert.notInclude(harness.document.body.textContent, "Unable to load");
+		clock.tick(1);
 		assertLoadError();
 		resolveManifest({ ok: true, json: () => Promise.resolve(["storage.js"]) });
 		await clock.tickAsync(1);
@@ -195,7 +224,7 @@ describe("Firmware UI Loader Checks", function () {
 			start({ savedSite: true });
 			await harness.loadDependencies();
 			harness.loadApplication();
-			assert.equal(harness.ajax.firstCall.args[0].timeout, 15000);
+			assert.equal(harness.ajax.firstCall.args[0].timeout, 60000);
 			if (outcome === "failure") {
 				harness.html.reject();
 			} else {

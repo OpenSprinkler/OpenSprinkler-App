@@ -22,7 +22,7 @@ window.currLocal = true;
 	var assetLocation = getAssetLocation() + assetPath,
 		isReady = false,
 		loadFailed = false,
-		loadTimeout = 15000,
+		loadTimeout = 60000,
 		readyInterval;
 
 	function getAssetLocation() {
