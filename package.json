@@ -24,7 +24,8 @@
 		"lint": "eslint ./www/js/**",
 		"prepare": "husky",
 		"start": "npx http-server --port 8080 --cors '*' -c-1 ./www",
-		"test": "npx karma start --browsers ChromeHeadless test/karma.conf.js"
+		"test": "npm run test:build && npx karma start --browsers ChromeHeadless test/karma.conf.js",
+		"test:build": "node --test test/build_checks/*.js"
 	},
 	"lint-staged": {
 		"package.json": "sort-package-json"

@@ -17,19 +17,39 @@
 window.currLocal = true;
 
 ( function( document ) {
-	var assetLocation = getAssetLocation(),
-		isReady = false;
+	// prepareFW replaces this path with a content-hashed asset directory.
+	var assetPath = "";
+	var assetLocation = getAssetLocation() + assetPath,
+		isReady = false,
+		loadFailed = false,
+		loadTimeout = 15000,
+		readyInterval;
 
 	function getAssetLocation() {
-		var mainScript = document.querySelector( "script[src$='home.js']" ).src,
-			def = "http://ui.opensprinkler.com/";
+		var mainScript = document.currentScript || document.querySelector( "script[src$='home.js'], script[src*='home.js?']" ),
+			def = "https://ui.opensprinkler.com/";
 
-		if ( !mainScript ) {
+		if ( !mainScript || !mainScript.src ) {
 			return def;
 		}
 
-		mainScript = /^\s*(((([^:/#?]+:)?(?:(\/\/)((?:(([^:@/#?]+)(?::([^:@/#?]+))?)@)?(([^:/#?\][]+|\[[^/\]@#?]+\])(?::([0-9]+))?))?)?)?((\/?(?:[^/?#]+\/+)*)([^?#]*)))?(\?[^#]+)?)(#.*)?/.exec( mainScript || "" ) || [];
-		return mainScript[ 1 ].slice( 0, -10 ) || def;
+		return mainScript.src.split( /[?#]/ )[ 0 ].replace( /js\/home\.js$/, "" );
+	}
+
+	function showLoadError( message ) {
+		if ( loadFailed ) {
+			return;
+		}
+		loadFailed = true;
+		clearInterval( readyInterval );
+		document.title = "OpenSprinkler: Unable to load";
+		document.body.innerHTML = "<div class='spinner' role='alert'><h1>Unable to load OpenSprinkler</h1>" +
+			"<p class='feedback'></p><button type='button'>Reload</button></div>";
+		document.querySelector( ".feedback" ).textContent = typeof message === "string" ? message :
+			"Some application files could not load. Check your connection and reload the page.";
+		document.querySelector( ".spinner button" ).addEventListener( "click", function() {
+			location.reload();
+		} );
 	}
 
 	function insertStyle( css ) {
@@ -54,6 +74,9 @@ window.currLocal = true;
 
 		link.rel = rel;
 		link.href = href;
+		if ( rel === "stylesheet" ) {
+			link.addEventListener( "error", showLoadError, false );
+		}
 		if ( media && media !== "" ) {
 			link.media = media;
 		}
@@ -79,15 +102,37 @@ window.currLocal = true;
 
 	// Insert script into the DOM
 	function insertScript( src, callback, errorCallback ) {
-		// Create callback if one is not provided
-		callback = callback || function() {};
-
-		var a = document.createElement( "script" );
-		a.src = src;
-		a.addEventListener( "load", callback, false );
-		if ( errorCallback ) {
-			a.addEventListener( "error", errorCallback, false );
+		if ( loadFailed ) {
+			return;
 		}
+
+		var a = document.createElement( "script" ),
+			finished = false,
+			timeout = setTimeout( function() { complete( false ); }, loadTimeout );
+
+		function complete( success ) {
+			if ( finished ) {
+				return;
+			}
+			finished = true;
+			clearTimeout( timeout );
+			if ( !success ) {
+				a.remove();
+			}
+			if ( !loadFailed ) {
+				if ( success ) {
+					if ( callback ) {
+						callback();
+					}
+				} else {
+					( errorCallback || showLoadError )();
+				}
+			}
+		}
+
+		a.src = src;
+		a.addEventListener( "load", function() { complete( true ); }, false );
+		a.addEventListener( "error", function() { complete( false ); }, false );
 		document.getElementsByTagName( "head" )[ 0 ].appendChild( a );
 	}
 
@@ -106,9 +151,23 @@ window.currLocal = true;
 	}
 
 	function loadApplicationScripts() {
+		var timeout = setTimeout( showLoadError, loadTimeout );
 		fetch( assetLocation + "modules.json" )
-			.then( response => response.json() )
+			.then( response => {
+				if ( !response.ok ) {
+					throw new Error( "Unable to load the module list" );
+				}
+				return response.json();
+			} )
 			.then( modules => {
+				clearTimeout( timeout );
+				if ( loadFailed ) {
+					return;
+				}
+				if ( !Array.isArray( modules ) || !modules.length || !modules.every( script =>
+					typeof script === "string" && /^[a-z0-9_-]+\.js$/i.test( script ) ) ) {
+					throw new Error( "Invalid module list" );
+				}
 				let loadedScripts = 0;
 				const totalScripts = modules.length;
 
@@ -123,8 +182,9 @@ window.currLocal = true;
 								init();
 							} catch ( err ) {
 								if ( err.code === 22 ) {
-									document.body.innerHTML = "<div class='spinner'><div class='logo'></div>" +
-										"<span class='feedback'>Local storage is not enabled. You may be in private browsing mode.</span></div>";
+									showLoadError( "Local storage is not enabled. You may be in private browsing mode." );
+								} else {
+									showLoadError();
 								}
 							}
 						});
@@ -135,7 +195,10 @@ window.currLocal = true;
 				modules.forEach( script => {
 					insertScript( assetLocation + "js/modules/" + script, scriptLoaded );
 				});
-			});
+			} ).catch( function() {
+				clearTimeout( timeout );
+				showLoadError();
+			} );
 	}
 
 	// Change the viewport
@@ -188,10 +251,10 @@ window.currLocal = true;
 		insertScript( assetLocation + "vendor-js/libs.js", function() {
 
 			// Insert charting library for analog support
-			insertScript( assetLocation + "vendor-js/apexcharts.min.js" );
+			insertScript( assetLocation + "vendor-js/apexcharts.min.js", null, function() {} );
 
 			// Insert datatables grid library
-			insertScript( assetLocation + "vendor-js/dataTables-2.1.8.min.js" );
+			insertScript( assetLocation + "vendor-js/dataTables-2.1.8.min.js", null, function() {} );
 
 			// Sensor Logs requires this stack in dependency order. Keep it in
 			// parity with index.html. Missing chart assets must not block app startup.
@@ -237,22 +300,24 @@ window.currLocal = true;
 	function init() {
 		var body = $( "body" ),
 			finishInit = function() {
+				if ( loadFailed ) {
+					return;
+				}
 
 				// Start checking for script load completion and callback when done
-				var interval = setInterval( function() {
+				readyInterval = setInterval( function() {
 					if ( isReady ) {
-						clearInterval( interval );
+						clearInterval( readyInterval );
 
 						// Load jQuery Mobile
-						$.ajax( {
-							url: assetLocation + "vendor-js/jqm.js",
-							dataType: "script",
-							cache: true
-						} );
+						insertScript( assetLocation + "vendor-js/jqm.js" );
 					}
 				}, 1 );
 			},
 			savePassword = function( pw, isHashed ) {
+				if ( loadFailed ) {
+					return;
+				}
 				var sites = {
 					"Local": {
 						"os_ip": document.URL.match( /https?:\/\/(.*)\/.*?/ )[ 1 ],
@@ -282,11 +347,6 @@ window.currLocal = true;
 				}, 2000 );
 
 				$( "#os_pw" ).val( "" );
-			},
-			fail = function() {
-				body.html( "<div class='spinner'>" +
-						"<div class='logo'></div><span class='feedback'>Unable to load UI</span>" +
-					"</div>" );
 			},
 			sites = JSON.parse( OSApp.Storage.getItemSync( "sites" ) ),
 			loader;
@@ -390,21 +450,32 @@ window.currLocal = true;
 			url: assetLocation + "index.html",
 			crossDomain: true,
 			cache: true,
+			timeout: loadTimeout,
 			type: "GET"
 		} ).then(
 			function( data ) {
+				if ( loadFailed ) {
+					return;
+				}
 
 				// Grab the pages from index.html (body content)
-				var pages = data.match( /<body>([.\s\S]*)<\/body>/ )[ 1 ];
+				var pages = typeof data === "string" && data.match( /<body>([.\s\S]*)<\/body>/ );
+				if ( !pages ) {
+					showLoadError();
+					return;
+				}
 
 				// Show the body when jQM attempts first page transition
 				$( document ).one( "mobileinit", function() {
+					if ( loadFailed ) {
+						return;
+					}
 
 					// Change title to reflect loading finished
 					document.title = "OpenSprinkler";
 
 					// Inject pages into DOM
-					body.html( pages );
+					body.html( pages[ 1 ] );
 
 					// Remove spinner code (no longer needed)
 					$( "head" ).find( "style" ).remove();
@@ -423,7 +494,7 @@ window.currLocal = true;
 				// Mark environment as loaded
 				isReady = true;
 			},
-			fail
+			showLoadError
 		);
 	}
 }( document ) );

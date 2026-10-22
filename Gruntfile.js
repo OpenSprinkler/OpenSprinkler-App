@@ -57,24 +57,14 @@ module.exports = function( grunt ) {
 					archive: "build/firmware/UI.zip"
 				},
 				files: [ {
-					src: [ "css/**", "js/**", "vendor-js/**", "img/**", "locale/*.js", "*.html", "manifest.json", "sw.js" ],
-					cwd: "www/",
+					src: [ "**/*", "!UI.zip" ],
+					cwd: "build/firmware/",
 					expand: true
-				}, {
-					src: "res/ios-web/**"
-				}, {
-					expand: true,
-					src: "build/modules.json",
-					flatten: true,
-					dest: "/"
 				} ]
 			}
 		},
 
 		shell: {
-			unzipFW: {
-				command: "cd build/firmware && unzip UI.zip"
-			},
 			pushEng: {
 				command: [
 					"xgettext --keyword=OSApp.Language._ --output=- <%= jsFiles %> --force-po --from-code=UTF-8 --language='JavaScript' | sed '/^#/d' > .msgjs",
@@ -102,13 +92,48 @@ module.exports = function( grunt ) {
 	} );
 
 	grunt.registerTask( "generateScriptsJson", function() {
-		const scripts = grunt.file.expand({ cwd: "www/js/modules" }, "*.js");
+		const scripts = grunt.file.expand({ cwd: "www/js/modules" }, "*.js").sort();
 		grunt.file.write("build/modules.json", JSON.stringify(scripts, null, 2));
+	} );
+
+	grunt.registerTask( "stageFirmware", function() {
+		const output = "build/firmware/";
+		const files = grunt.file.expand({ cwd: "www", filter: "isFile" }, [
+			"css/**", "js/**/*.js", "vendor-js/*.js", "img/**", "locale/*.js", "*.html", "manifest.json", "sw.js"
+		]);
+		const resources = grunt.file.expand({ filter: "isFile" }, "res/ios-web/**");
+
+		// Remove obsolete assets when a build is repeated locally.
+		grunt.file.delete(output);
+		files.forEach(file => grunt.file.copy("www/" + file, output + file));
+		resources.forEach(file => grunt.file.copy(file, output + file));
+		grunt.file.copy("build/modules.json", output + "modules.json");
+
+		// Hash paths and contents so every dependent asset belongs to one build,
+		// including rebuilds that keep the same application version.
+		const assets = files.concat(resources, "modules.json").sort();
+		const hash = require("crypto").createHash("sha256");
+		assets.forEach(file => {
+			hash.update(file + "\0");
+			hash.update(grunt.file.read(output + file, { encoding: null }));
+			hash.update("\0");
+		});
+		const assetPath = "assets/" + hash.digest("hex").slice(0, 20) + "/";
+		assets.forEach(file => grunt.file.copy(output + file, output + assetPath + file));
+
+		// Keep the firmware's stable entry URL and legacy files for older loaders.
+		const loader = grunt.file.read(output + "js/home.js");
+		const marker = 'var assetPath = "";';
+		if (!loader.includes(marker)) {
+			grunt.fail.fatal("The firmware loader is missing its asset path marker.");
+		}
+		grunt.file.write(output + "js/home.js", loader.replace(marker, 'var assetPath = "' + assetPath + '";'));
+		grunt.log.writeln("Firmware assets: " + assetPath);
 	} );
 
 	// Default task(s).
 	grunt.registerTask( "default", [ "eslint" ] );
 	grunt.registerTask( "updateLang", [ "shell:updateLang" ] );
 	grunt.registerTask( "pushEng", [ "shell:pushEng" ] );
-	grunt.registerTask( "prepareFW", [ "generateScriptsJson", "compress:makeFW", "shell:unzipFW" ] );
+	grunt.registerTask( "prepareFW", [ "generateScriptsJson", "stageFirmware", "compress:makeFW" ] );
 };

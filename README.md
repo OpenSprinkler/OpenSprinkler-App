@@ -115,7 +115,32 @@ This project uses Grunt to automate various development tasks. Here are some of 
 
 #### Building and Deployment
 
-* **`grunt compress:makeFW`**: Creates a ZIP archive of the application files for firmware updates.
+* **`grunt prepareFW`**: Builds the hosted firmware UI and its `build/firmware/UI.zip` archive.
+
+#### Firmware UI caching
+
+The firmware loads the stable `js/home.js` URL. Each build stamps this loader with an `assets/<content-hash>/` directory.
+That directory contains the matching module list, scripts, styles, HTML, images, and translations.
+The hash changes when any packaged file changes, even when the application version stays the same.
+Root files remain available for older loaders. The source files and native app bundles remain unchanged.
+
+Firebase requires revalidation for mutable URLs, including `js/home.js`, `modules.json`, and `index.html`.
+Files under `assets/` can use long cache lifetimes because their paths identify their contents.
+
+Before releasing this change, configure Cloudflare to respect the origin's browser and edge cache headers for the UI hosts.
+Remove any matching cache rule or page rule that overrides these headers.
+The UI hosts are `ui.opensprinkler.com`, `betaui.opensprinkler.com`, and `devui.opensprinkler.com`.
+[Cloudflare cache settings](https://developers.cloudflare.com/cache/how-to/cache-rules/settings/#browser-ttl) explain these controls.
+The deployment workflow purges the selected host after deployment.
+
+After deployment, check the public host, including Cloudflare, with `curl -I`:
+
+* `/js/home.js` and `/modules.json` must return `Cache-Control: no-cache, max-age=0, must-revalidate`.
+* `/assets/<content-hash>/js/main.js` must return `Cache-Control: public, max-age=31536000, immutable`.
+
+Existing browser copies can retain their previous cache lifetime until they expire or the user reloads without cached files.
+If a versioned loader requests a removed build, it shows a Reload button instead of mixing files from different builds.
+Verify a returning browser after deployment, including the controller password prompt and the loaded application.
 
 #### Localization
 
