@@ -49,6 +49,34 @@ describe("Weather Server Default Provider Checks", function () {
 		});
 	});
 
+	it("keeps rain restriction days localized when stepping and saves the numeric value", function () {
+		var sandbox = sinon.createSandbox(), popup, buttons = {}, translate = OSApp.Language._;
+		try {
+			OSApp.currentSession.controller.settings.wto = {rainDays: 2};
+			sandbox.stub(OSApp.Language, "_").callsFake(function (text) {
+				return text === "days" ? "日" : translate(text);
+			});
+			sandbox.stub(OSApp.Supported, "restrictions").returns(true);
+			sandbox.stub(OSApp.UIDom, "openPopup").callsFake(function (element) { popup = element; });
+			sandbox.stub(OSApp.UIDom, "holdButton").callsFake(function (element, callback) {
+				buttons[element.attr("id")] = callback;
+			});
+			sandbox.stub($.fn, "popup").returnsThis();
+			OSApp.Options.showOptions();
+			$("#weatherRestriction").trigger("click");
+			assert.equal(popup.find("#rainDays").val(), "2 日");
+			buttons.incr2();
+			assert.equal(popup.find("#rainDays").val(), "3 日");
+			buttons.decr2();
+			assert.equal(popup.find("#rainDays").val(), "2 日");
+			popup.find(".submit").trigger("click");
+			assert.strictEqual(OSApp.Utils.unescapeJSON($("#wto").val()).rainDays, 2);
+		} finally {
+			if (popup) popup.remove();
+			sandbox.restore();
+		}
+	});
+
 	it("recognizes custom and empty weather-server values", function () {
 		assert.isTrue(OSApp.Weather.isCustomWeatherServer("http://192.168.1.20:3000"));
 		assert.isTrue(OSApp.Weather.isCustomWeatherServer("http://my-nas.local:8085"));

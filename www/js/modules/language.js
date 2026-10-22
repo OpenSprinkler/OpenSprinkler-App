@@ -18,7 +18,7 @@ var OSApp = OSApp || {};
 OSApp.Language = OSApp.Language || {};
 
 OSApp.Language.Constants = {
-	languageCodes: {
+	languageCodes: /* i18n-extract */ {
 		af: "Afrikaans",
 		am: "Amharic",
 		bg: "Bulgarian",

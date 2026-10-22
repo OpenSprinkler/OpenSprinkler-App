@@ -33,10 +33,21 @@ OSApp.Cards.getGroupLabel = function( cardObj ) {
 	return cardObj.find( ".station-gid" );
 };
 
+OSApp.Cards.getGroupDescription = function( sid, value ) {
+	var description = OSApp.Language._( "Sequential Group" ) + ": " + value,
+		policy = OSApp.CycleSoak.supported() ? OSApp.CycleSoak.readablePolicy( sid ) : null;
+	if ( policy && policy[ 0 ] ) {
+		description += "\n" + OSApp.Language._( "Cycle and Soak" ) +
+			"\n" + OSApp.Language._( "Maximum cycle (minutes)" ) + ": " + policy[ 1 ] / 60 +
+			"\n" + OSApp.Language._( "Minimum soak (minutes)" ) + ": " + policy[ 2 ] / 60;
+	}
+	return description;
+};
+
 OSApp.Cards.setGroupLabel = function( cardObj, value ) {
 	if ( !OSApp.Supported.groups() ) { return; }
 	var groupLabel = OSApp.Cards.getGroupLabel( cardObj ),
-		description = OSApp.Language._( "Basic Settings" ) + " - " + OSApp.Language._( "Sequential Group" ) + ": " + value;
+		description = OSApp.Cards.getGroupDescription( OSApp.Cards.getSID( cardObj ), value );
 
 	groupLabel.removeClass( "hidden" );
 	groupLabel.text( value );

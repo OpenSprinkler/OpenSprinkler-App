@@ -144,8 +144,14 @@ Verify a returning browser after deployment, including the controller password p
 
 #### Localization
 
-* **`grunt shell:pushEng`**: Extracts English strings for translation, pushes them to Transifex, and updates the English PO file.
-* **`grunt shell:updateLang`**: Pulls translations from Transifex and updates the language files.
+* **`npm run translations:extract`**: Extracts English strings and source context locally.
+* **`npm run translations:coverage`**: Reports translation gaps per language.
+* **`npm run translations:compile`**: Merges human and machine sources into bundled dictionaries.
+* **`npm run translations:check`**: Verifies the catalog and compiled files are current, without network access.
+* **`grunt pushEng`**: Extracts English strings and uploads them to Transifex. No Git commit or push.
+* **`grunt updateLang`**: Pulls Transifex translations into the human source layer and compiles the dictionaries. No Git commit or push.
+
+See [the translation maintainer guide](translations/README.md) for assisted translation and review.
 
 #### Unit Tests
 

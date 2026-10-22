@@ -165,6 +165,18 @@ OSApp.Utils.flowRateToVolume = function( rate ) {
        return parseFloat( ( rate * ( ( OSApp.currentSession.controller.options.fpr1 << 8 ) + OSApp.currentSession.controller.options.fpr0 ) / 100 ).toFixed( 2 ) );
 };
 
+OSApp.Utils.LITERS_PER_GALLON = 3.78541;
+
+// Keep calibration and log calculations in liters; convert only for display.
+OSApp.Utils.formatFlowVolume = function( liters ) {
+	var metric = OSApp.currentDevice.isMetric;
+	return ( metric ? liters : liters / OSApp.Utils.LITERS_PER_GALLON ).toFixed( 2 ) + ( metric ? " L" : " gal" );
+};
+
+OSApp.Utils.formatFlowRate = function( litersPerMinute ) {
+	return OSApp.Utils.formatFlowVolume( litersPerMinute ) + "/min";
+};
+
 /*
 Returns true when currentSession.controller.settings is populated
 */

@@ -118,6 +118,21 @@ describe("Program Preview Checks", function () {
 		assert.isBelow(zulu.start.getTime(), alpha.start.getTime());
 	});
 
+	it("renders cycle segments through the real program preview path", function () {
+		var c = OSApp.currentSession.controller;
+		c.stations.csver = 1; c.stations.qmax = 120;
+		c.stations.cs = [[1, 60, 60], [0, 0, 0]];
+		c.programs.pd[0][4] = [121, 0, 0, 0, 0, 0, 0, 0];
+		var timeline = showPreview();
+		var runs = timeline.items.filter(function (item) { return item.group === "station-0"; });
+		assert.lengthOf(runs, 3);
+		assert.deepEqual(runs.map(function (r) { return (r.end - r.start) / 1000; }), [41, 40, 40]);
+		assert.equal((runs[1].start - runs[0].end) / 1000, 60);
+		assert.include(runs[0].previewDetails, "1:00:01");
+		assert.include(runs[0].previewDetails, OSApp.Dates.dhms2str(OSApp.Dates.sec2dhms(41)));
+		assert.include(runs[0].title, "<br>");
+	});
+
 	it("orders Unicode station names by UTF-8 bytes like firmware strcmp", function () {
 		OSApp.currentSession.controller.stations.snames[0] = "\uE000";
 		OSApp.currentSession.controller.stations.snames[1] = "\u{10000}";
@@ -126,6 +141,48 @@ describe("Program Preview Checks", function () {
 		var astral = timeline.items.find(function (item) { return item.group === "station-1"; });
 
 		assert.isBelow(bmp.start.getTime(), astral.start.getTime());
+	});
+
+	it("provides master timing details for both hover and long-press", function () {
+		var c = OSApp.currentSession.controller;
+		c.options.mas = 8; c.options.mton = -5; c.options.mtof = 10;
+		c.stations.masop = [1];
+		var timeline = showPreview();
+		var master = timeline.items.find(function (item) { return item.className === "master"; });
+		assert.isDefined(master);
+		assert.isNumber(master.id);
+		assert.include(master.title, "Start Time:");
+		assert.include(master.previewDetails, OSApp.Dates.dhms2str(OSApp.Dates.sec2dhms(75)));
+		timeline.getEventProperties = function () { return {item: master.id}; };
+		var clock = sandbox.useFakeTimers();
+		var event = new Event("touchstart", {bubbles: true});
+		Object.defineProperty(event, "touches", {value: [{clientX: 100, clientY: 100, pageX: 100, pageY: 100}]});
+		timeline.element.dispatchEvent(event);
+		clock.tick(500);
+		assert.equal($(".preview-touch-details").text(), master.previewDetails);
+	});
+
+	it("retains actual runtime when a run crosses midnight", function () {
+		var c = OSApp.currentSession.controller;
+		c.programs.pd[0][3] = [1439, 0, 0, -1];
+		c.programs.pd[0][4] = [120, 0, 0, 0, 0, 0, 0, 0];
+		var timeline = showPreview();
+		var run = timeline.items.find(function (item) { return item.group === "station-0"; });
+		assert.equal((run.end - run.start) / 1000, 120);
+		assert.include(run.previewDetails, "Run Time: " + OSApp.Dates.dhms2str(OSApp.Dates.sec2dhms(120)));
+		assert.include(run.title, "Start Time:");
+	});
+
+	it("formats tooltip seconds with the shared 12/24-hour formatter", function () {
+		var previous = OSApp.uiState.is24Hour;
+		try {
+			OSApp.uiState.is24Hour = true;
+			assert.equal(OSApp.Dates.minutesToTime(780, 5), "13:00:05");
+			OSApp.uiState.is24Hour = false;
+			sandbox.stub(OSApp.Language, "_").callsFake(function (text) {return text === "PM" ? "afternoon" : text;});
+			assert.equal(OSApp.Dates.minutesToTime(780, 5), "1:00:05 afternoon");
+			assert.equal(OSApp.Dates.minutesToTime(780), "1:00 afternoon");
+		} finally { OSApp.uiState.is24Hour = previous; }
 	});
 
 	it("matches firmware single truncation after weather and sensor preview scaling", function () {

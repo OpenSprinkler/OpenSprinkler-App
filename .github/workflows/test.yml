@@ -30,5 +30,8 @@ jobs:
 
       - name: Run test steps
         run: |
+          npm run test:translations
+          npm run translations:check
+          npm run translations:coverage
           grunt
           npm run test

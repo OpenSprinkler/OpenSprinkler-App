@@ -1,0 +1,7368 @@
+{
+	"version": 1,
+	"messages": {
+		" when opening Station ": {
+			"references": [
+				"www/js/modules/status.js:211"
+			],
+			"notes": []
+		},
+		"% Watering": {
+			"references": [
+				"www/js/modules/options.js:1833",
+				"www/js/modules/options.js:950"
+			],
+			"notes": []
+		},
+		"%s saved": {
+			"references": [
+				"www/js/modules/logs.js:486"
+			],
+			"notes": []
+		},
+		"A custom name for this device": {
+			"references": [
+				"www/js/modules/sites.js:564"
+			],
+			"notes": []
+		},
+		"A field has an invalid format.": {
+			"references": [
+				"www/js/modules/firmware.js:159"
+			],
+			"notes": []
+		},
+		"A required field is missing.": {
+			"references": [
+				"www/js/modules/firmware.js:157"
+			],
+			"notes": []
+		},
+		"A valid DNS address is required when DHCP is not used": {
+			"references": [
+				"www/js/modules/options.js:289"
+			],
+			"notes": []
+		},
+		"A valid IP address is required when DHCP is not used": {
+			"references": [
+				"www/js/modules/options.js:244"
+			],
+			"notes": []
+		},
+		"A valid gateway address is required when DHCP is not used": {
+			"references": [
+				"www/js/modules/options.js:274"
+			],
+			"notes": []
+		},
+		"A valid subnet address is required when DHCP is not used": {
+			"references": [
+				"www/js/modules/options.js:259"
+			],
+			"notes": []
+		},
+		"A value is out of range.": {
+			"references": [
+				"www/js/modules/firmware.js:158"
+			],
+			"notes": []
+		},
+		"AM": {
+			"references": [
+				"www/js/modules/dates.js:224",
+				"www/js/modules/ui-dom.js:1113"
+			],
+			"notes": []
+		},
+		"API Tool": {
+			"references": [
+				"www/js/modules/errors.js:54"
+			],
+			"notes": []
+		},
+		"ASB firmware detected": {
+			"references": [
+				"www/js/modules/sites.js:1043"
+			],
+			"notes": []
+		},
+		"About": {
+			"references": [
+				"www/index.html:100",
+				"www/js/modules/about.js:90"
+			],
+			"notes": []
+		},
+		"About %d minute remaining": {
+			"references": [
+				"www/js/modules/sensors.js:2710",
+				"www/js/modules/sensors.js:2732"
+			],
+			"notes": []
+		},
+		"About %d minutes remaining": {
+			"references": [
+				"www/js/modules/sensors.js:2710",
+				"www/js/modules/sensors.js:2732"
+			],
+			"notes": []
+		},
+		"Activate Relay": {
+			"references": [
+				"www/js/modules/dashboard.js:783"
+			],
+			"notes": []
+		},
+		"Activated": {
+			"references": [
+				"www/js/modules/status.js:277"
+			],
+			"notes": []
+		},
+		"Active State": {
+			"references": [
+				"www/js/modules/dashboard.js:394"
+			],
+			"notes": []
+		},
+		"Active via Bundle Station": {
+			"references": [
+				"www/js/modules/dashboard.js:139",
+				"www/js/modules/dashboard.js:1439",
+				"www/js/modules/dashboard.js:159",
+				"www/js/modules/dashboard.js:225"
+			],
+			"notes": []
+		},
+		"Actual": {
+			"references": [
+				"www/js/modules/options.js:1212"
+			],
+			"notes": []
+		},
+		"Add": {
+			"references": [
+				"www/js/modules/dashboard.js:717",
+				"www/js/modules/programs.js:234",
+				"www/js/modules/sensors.js:2282",
+				"www/js/modules/sites.js:368"
+			],
+			"notes": []
+		},
+		"Add Controller": {
+			"references": [
+				"www/js/modules/welcome.js:44",
+				"www/js/modules/welcome.js:68"
+			],
+			"notes": []
+		},
+		"Add Program": {
+			"references": [
+				"www/js/modules/programs.js:3229",
+				"www/js/modules/ui-dom.js:99"
+			],
+			"notes": []
+		},
+		"Add Sensor": {
+			"references": [
+				"www/js/modules/analog.js:726"
+			],
+			"notes": []
+		},
+		"Add a Point": {
+			"references": [
+				"www/js/modules/programs.js:2508",
+				"www/js/modules/sensors.js:1334"
+			],
+			"notes": []
+		},
+		"Add a Sensor": {
+			"references": [
+				"www/js/modules/sensors.js:2376"
+			],
+			"notes": []
+		},
+		"Add program adjustment": {
+			"references": [
+				"www/js/modules/analog.js:776"
+			],
+			"notes": []
+		},
+		"Additional Start Times": {
+			"references": [
+				"www/js/modules/programs.js:2617"
+			],
+			"notes": []
+		},
+		"Adjust Interval Programs Using Multiple Days of Weather Data": {
+			"references": [
+				"www/js/modules/options.js:866"
+			],
+			"notes": []
+		},
+		"Adjustment Method": {
+			"references": [
+				"www/js/modules/options.js:842"
+			],
+			"notes": []
+		},
+		"Adjustment Method Options": {
+			"references": [
+				"www/js/modules/options.js:868"
+			],
+			"notes": []
+		},
+		"Adjustment Option": {
+			"references": [
+				"www/js/modules/programs.js:534"
+			],
+			"notes": []
+		},
+		"Adjustment-Nr": {
+			"references": [
+				"www/js/modules/analog.js:164"
+			],
+			"notes": []
+		},
+		"Advanced": {
+			"references": [
+				"www/index.html:104",
+				"www/js/modules/options.js:1188",
+				"www/js/modules/sites.js:141",
+				"www/js/modules/sites.js:584"
+			],
+			"notes": []
+		},
+		"Afrikaans": {
+			"references": [
+				"www/js/modules/language.js:21"
+			],
+			"notes": []
+		},
+		"Air Humidity": {
+			"references": [
+				"www/js/modules/analog.js:910"
+			],
+			"notes": []
+		},
+		"All": {
+			"references": [
+				"www/js/modules/sensors.js:2445"
+			],
+			"notes": []
+		},
+		"All stations have been stopped": {
+			"references": [
+				"www/js/modules/stations.js:216"
+			],
+			"notes": []
+		},
+		"Amharic": {
+			"references": [
+				"www/js/modules/language.js:21"
+			],
+			"notes": []
+		},
+		"An Aggregate Sensor references an unsupported analog reading. Resolve its dependencies before restoring.": {
+			"references": [
+				"www/js/modules/import-export.js:601"
+			],
+			"notes": []
+		},
+		"An IP address, URL, or token is required to continue.": {
+			"references": [
+				"www/js/modules/sites.js:791"
+			],
+			"notes": []
+		},
+		"An invalid API key has been detected.": {
+			"references": [
+				"www/js/modules/options.js:939"
+			],
+			"notes": []
+		},
+		"Analog": {
+			"references": [
+				"www/js/modules/options.js:2025",
+				"www/js/modules/options.js:2028",
+				"www/js/modules/options.js:968",
+				"www/js/modules/sensors.js:100"
+			],
+			"notes": []
+		},
+		"Analog Sensor": {
+			"references": [
+				"www/js/modules/sensors.js:100"
+			],
+			"notes": []
+		},
+		"Analog Sensor Config": {
+			"references": [
+				"www/js/modules/analog.js:675",
+				"www/js/modules/ui-dom.js:330"
+			],
+			"notes": []
+		},
+		"Analog Sensor Log": {
+			"references": [
+				"www/js/modules/analog.js:825"
+			],
+			"notes": []
+		},
+		"App Password": {
+			"references": [
+				"www/js/modules/options.js:2490"
+			],
+			"notes": []
+		},
+		"App Settings": {
+			"references": [
+				"www/js/modules/options.js:746"
+			],
+			"notes": []
+		},
+		"App Version": {
+			"references": [
+				"www/js/modules/about.js:59"
+			],
+			"notes": []
+		},
+		"Apply Current Weather Adjustment": {
+			"references": [
+				"www/js/modules/programs.js:541"
+			],
+			"notes": []
+		},
+		"Apply Custom Adjustment": {
+			"references": [
+				"www/js/modules/programs.js:545"
+			],
+			"notes": []
+		},
+		"Apply Cycle and Soak": {
+			"references": [
+				"www/js/modules/ui-dom.js:1618"
+			],
+			"notes": []
+		},
+		"Apply Sensor Adjustment": {
+			"references": [
+				"www/js/modules/programs.js:3590"
+			],
+			"notes": []
+		},
+		"Apply Weather Adjustment": {
+			"references": [
+				"www/js/modules/programs.js:3583"
+			],
+			"notes": []
+		},
+		"Apr": {
+			"references": [
+				"www/js/modules/dates.js:172",
+				"www/js/modules/ui-dom.js:1395",
+				"www/js/modules/weather.js:344"
+			],
+			"notes": []
+		},
+		"Are you sure you want to": {
+			"references": [
+				"www/js/modules/ui-dom.js:683"
+			],
+			"notes": []
+		},
+		"Are you sure you want to ": {
+			"references": [
+				"www/js/modules/logs.js:457"
+			],
+			"notes": []
+		},
+		"Are you sure you want to clear ALL your log data?": {
+			"references": [
+				"www/js/modules/logs.js:658"
+			],
+			"notes": []
+		},
+		"Are you sure you want to clear the current location?": {
+			"references": [
+				"www/js/modules/options.js:1326"
+			],
+			"notes": []
+		},
+		"Are you sure you want to clear the sensor log?": {
+			"references": [
+				"www/js/modules/analog.js:644"
+			],
+			"notes": []
+		},
+		"Are you sure you want to delete ": {
+			"references": [
+				"www/js/modules/sites.js:315"
+			],
+			"notes": []
+		},
+		"Are you sure you want to delete ALL programs?": {
+			"references": [
+				"www/js/modules/ui-dom.js:2093"
+			],
+			"notes": []
+		},
+		"Are you sure you want to delete all sensor logs?": {
+			"references": [
+				"www/js/modules/sensors.js:3280"
+			],
+			"notes": []
+		},
+		"Are you sure you want to delete all settings and return to the default settings?": {
+			"references": [
+				"www/js/modules/ui-dom.js:2107"
+			],
+			"notes": []
+		},
+		"Are you sure you want to delete program": {
+			"references": [
+				"www/js/modules/programs.js:3268"
+			],
+			"notes": []
+		},
+		"Are you sure you want to delete the sensor?": {
+			"references": [
+				"www/js/modules/analog.js:529"
+			],
+			"notes": []
+		},
+		"Are you sure you want to delete this program adjustment?": {
+			"references": [
+				"www/js/modules/analog.js:588"
+			],
+			"notes": []
+		},
+		"Are you sure you want to delete this sensor?": {
+			"references": [
+				"www/js/modules/sensors.js:2164"
+			],
+			"notes": []
+		},
+		"Are you sure you want to downgrade the UI?": {
+			"references": [
+				"www/js/modules/ui-dom.js:712"
+			],
+			"notes": []
+		},
+		"Are you sure you want to download all log data?": {
+			"references": [
+				"www/js/modules/sensors.js:3272"
+			],
+			"notes": []
+		},
+		"Are you sure you want to logout?": {
+			"references": [
+				"www/js/modules/network.js:935"
+			],
+			"notes": []
+		},
+		"Are you sure you want to reboot OpenSprinkler?": {
+			"references": [
+				"www/js/modules/ui-dom.js:699"
+			],
+			"notes": []
+		},
+		"Are you sure you want to reset station attributes?": {
+			"references": [
+				"www/js/modules/options.js:1695"
+			],
+			"notes": []
+		},
+		"Are you sure you want to reset the wireless settings?": {
+			"references": [
+				"www/js/modules/options.js:1701"
+			],
+			"notes": []
+		},
+		"Are you sure you want to restore the configuration?": {
+			"references": [
+				"www/js/modules/import-export.js:978"
+			],
+			"notes": []
+		},
+		"Are you sure you want to stop all stations?": {
+			"references": [
+				"www/js/modules/stations.js:205"
+			],
+			"notes": []
+		},
+		"Attempting to retrieve your current location": {
+			"references": [
+				"www/js/modules/options.js:2772"
+			],
+			"notes": []
+		},
+		"Aug": {
+			"references": [
+				"www/js/modules/dates.js:173",
+				"www/js/modules/ui-dom.js:1396",
+				"www/js/modules/weather.js:370"
+			],
+			"notes": []
+		},
+		"Authorization Required": {
+			"references": [
+				"www/js/modules/sites.js:769"
+			],
+			"notes": []
+		},
+		"Auto Rain Delay": {
+			"references": [
+				"www/js/modules/weather.js:23"
+			],
+			"notes": []
+		},
+		"Auto Reconnect": {
+			"references": [
+				"www/js/modules/options.js:1138"
+			],
+			"notes": []
+		},
+		"Automatic watering schedules, program-switch starts, weather queries and Cycle and Soak are disabled.": {
+			"references": [
+				"www/js/modules/sites.js:1098"
+			],
+			"notes": []
+		},
+		"Average": {
+			"references": [
+				"www/js/modules/logs.js:401",
+				"www/js/modules/logs.js:481"
+			],
+			"notes": []
+		},
+		"Back": {
+			"references": [
+				"www/js/modules/about.js:93",
+				"www/js/modules/analog.js:678",
+				"www/js/modules/analog.js:828",
+				"www/js/modules/firmware.js:747",
+				"www/js/modules/language.js:88",
+				"www/js/modules/logs.js:638",
+				"www/js/modules/network.js:290",
+				"www/js/modules/options.js:677",
+				"www/js/modules/programs.js:1955",
+				"www/js/modules/programs.js:228",
+				"www/js/modules/programs.js:3232",
+				"www/js/modules/programs.js:399",
+				"www/js/modules/programs.js:762",
+				"www/js/modules/sensors.js:2276",
+				"www/js/modules/sensors.js:2379",
+				"www/js/modules/sensors.js:3238",
+				"www/js/modules/sites.js:359",
+				"www/js/modules/ui-dom.js:492",
+				"www/js/modules/weather.js:806"
+			],
+			"notes": []
+		},
+		"Backup restored to your device": {
+			"references": [
+				"www/js/modules/import-export.js:1455"
+			],
+			"notes": []
+		},
+		"Backup saved on this device": {
+			"references": [
+				"www/js/modules/import-export.js:157"
+			],
+			"notes": []
+		},
+		"Baseline ETo": {
+			"references": [
+				"www/js/modules/weather.js:520"
+			],
+			"notes": []
+		},
+		"Basic": {
+			"references": [
+				"www/js/modules/dashboard.js:682"
+			],
+			"notes": []
+		},
+		"Basic Settings": {
+			"references": [
+				"www/js/modules/dashboard.js:1415",
+				"www/js/modules/dashboard.js:1416",
+				"www/js/modules/dashboard.js:179",
+				"www/js/modules/programs.js:2427"
+			],
+			"notes": []
+		},
+		"Below is the corrupt data which could not be parsed but may be useful for restoration.": {
+			"references": [
+				"www/js/modules/sites.js:1682"
+			],
+			"notes": []
+		},
+		"Boost Time": {
+			"references": [
+				"www/js/modules/options.js:1199"
+			],
+			"notes": []
+		},
+		"Boost time changes how long the boost converter is activated with a range from 0 to 1000 milliseconds.": {
+			"references": [
+				"www/js/modules/options.js:1201"
+			],
+			"notes": []
+		},
+		"Brightness": {
+			"references": [
+				"www/js/modules/options.js:1108"
+			],
+			"notes": []
+		},
+		"Broker/Server": {
+			"references": [
+				"www/js/modules/options.js:2345"
+			],
+			"notes": []
+		},
+		"Built-in Sensors": {
+			"references": [
+				"www/js/modules/options.js:1020",
+				"www/js/modules/sensors.js:1163",
+				"www/js/modules/sensors.js:2217"
+			],
+			"notes": []
+		},
+		"Bulgarian": {
+			"references": [
+				"www/js/modules/language.js:21"
+			],
+			"notes": []
+		},
+		"Bundle Member": {
+			"references": [
+				"www/js/modules/dashboard.js:147",
+				"www/js/modules/options.js:2001"
+			],
+			"notes": []
+		},
+		"Bundle Station": {
+			"references": [
+				"www/js/modules/dashboard.js:742",
+				"www/js/modules/options.js:2000",
+				"www/js/modules/stations.js:184",
+				"www/js/modules/status.js:173"
+			],
+			"notes": []
+		},
+		"Bundle Station configuration was rejected. Station settings have been refreshed.": {
+			"references": [
+				"www/js/modules/dashboard.js:1138"
+			],
+			"notes": []
+		},
+		"Bundle Station members changed. Review the selection and try again.": {
+			"references": [
+				"www/js/modules/dashboard.js:504"
+			],
+			"notes": []
+		},
+		"Bundle member of": {
+			"references": [
+				"www/js/modules/dashboard.js:76"
+			],
+			"notes": []
+		},
+		"California Restriction": {
+			"references": [
+				"www/js/modules/weather.js:1087"
+			],
+			"notes": []
+		},
+		"Cancel": {
+			"references": [
+				"www/js/modules/dashboard.js:570",
+				"www/js/modules/network.js:171",
+				"www/js/modules/programs.js:3612"
+			],
+			"notes": []
+		},
+		"Change": {
+			"references": [
+				"www/js/modules/dashboard.js:717",
+				"www/js/modules/dashboard.js:929"
+			],
+			"notes": []
+		},
+		"Change IP/URL": {
+			"references": [
+				"www/js/modules/sites.js:129"
+			],
+			"notes": []
+		},
+		"Change Name": {
+			"references": [
+				"www/js/modules/sites.js:126"
+			],
+			"notes": []
+		},
+		"Change Password": {
+			"references": [
+				"www/index.html:110",
+				"www/js/modules/network.js:736",
+				"www/js/modules/sites.js:1078",
+				"www/js/modules/sites.js:137"
+			],
+			"notes": []
+		},
+		"Change Pause": {
+			"references": [
+				"www/js/modules/ui-dom.js:1942",
+				"www/js/modules/ui-dom.js:323"
+			],
+			"notes": []
+		},
+		"Change Rain Delay": {
+			"references": [
+				"www/js/modules/weather.js:951"
+			],
+			"notes": []
+		},
+		"Change Token": {
+			"references": [
+				"www/js/modules/sites.js:133"
+			],
+			"notes": []
+		},
+		"Changing group designation is prohibited while station is running": {
+			"references": [
+				"www/js/modules/dashboard.js:706"
+			],
+			"notes": []
+		},
+		"Characters remaining": {
+			"references": [
+				"www/js/modules/dashboard.js:415"
+			],
+			"notes": []
+		},
+		"Check All": {
+			"references": [
+				"www/js/modules/programs.js:2289"
+			],
+			"notes": []
+		},
+		"Check IP/URL/Port and try again.": {
+			"references": [
+				"www/js/modules/sites.js:740",
+				"www/js/modules/sites.js:750"
+			],
+			"notes": []
+		},
+		"Check device password and try again.": {
+			"references": [
+				"www/js/modules/firmware.js:132",
+				"www/js/modules/firmware.js:281",
+				"www/js/modules/options.js:638"
+			],
+			"notes": []
+		},
+		"Chinese": {
+			"references": [
+				"www/js/modules/language.js:21"
+			],
+			"notes": []
+		},
+		"Choose day(s)": {
+			"references": [
+				"www/js/modules/programs.js:2262",
+				"www/js/modules/programs.js:2548"
+			],
+			"notes": []
+		},
+		"Clear": {
+			"references": [
+				"www/js/modules/notifications.js:93"
+			],
+			"notes": []
+		},
+		"Clear Log": {
+			"references": [
+				"www/js/modules/analog.js:780"
+			],
+			"notes": []
+		},
+		"Clear Log Data": {
+			"references": [
+				"www/js/modules/options.js:1264"
+			],
+			"notes": []
+		},
+		"Clear Logs": {
+			"references": [
+				"www/js/modules/logs.js:56"
+			],
+			"notes": []
+		},
+		"Clear this alert": {
+			"references": [
+				"www/js/modules/status.js:225"
+			],
+			"notes": []
+		},
+		"Click any program below to expand/edit. Be sure to save changes.": {
+			"references": [
+				"www/js/modules/programs.js:2173"
+			],
+			"notes": []
+		},
+		"Click below to expand/edit. Be sure to save changes.": {
+			"references": [
+				"www/js/modules/sensors.js:2191"
+			],
+			"notes": []
+		},
+		"Click here for more details": {
+			"references": [
+				"www/js/modules/firmware.js:743"
+			],
+			"notes": []
+		},
+		"Click here to enable all connected stations.": {
+			"references": [
+				"www/js/modules/firmware.js:720"
+			],
+			"notes": []
+		},
+		"Click here to enter a valid password to decrypt the data": {
+			"references": [
+				"www/js/modules/network.js:676"
+			],
+			"notes": []
+		},
+		"Click here to re-login to OpenSprinkler.com": {
+			"references": [
+				"www/js/modules/network.js:653"
+			],
+			"notes": []
+		},
+		"Click here to retrieve the partial weather option data": {
+			"references": [
+				"www/js/modules/sites.js:1673"
+			],
+			"notes": []
+		},
+		"Click here to troubleshoot remote access issues": {
+			"references": [
+				"www/js/modules/network.js:286"
+			],
+			"notes": []
+		},
+		"Clock Update": {
+			"references": [
+				"www/js/modules/firmware.js:25"
+			],
+			"notes": []
+		},
+		"Close": {
+			"references": [
+				"www/js/modules/options.js:2741"
+			],
+			"notes": []
+		},
+		"Configuration": {
+			"references": [
+				"www/js/modules/ui-dom.js:326"
+			],
+			"notes": []
+		},
+		"Configure Child Sensor": {
+			"references": [
+				"www/js/modules/sensors.js:1575"
+			],
+			"notes": []
+		},
+		"Configure Events": {
+			"references": [
+				"www/js/modules/options.js:1085"
+			],
+			"notes": []
+		},
+		"Configure Master": {
+			"references": [
+				"www/js/modules/options.js:779"
+			],
+			"notes": []
+		},
+		"Configured as Extender": {
+			"references": [
+				"www/js/modules/status.js:112"
+			],
+			"notes": []
+		},
+		"Confirm New Password": {
+			"references": [
+				"www/js/modules/network.js:743"
+			],
+			"notes": []
+		},
+		"Conflicting sensor configuration: %s. Remove it in Edit Sensors first.": {
+			"references": [
+				"www/js/modules/sensors.js:151"
+			],
+			"notes": []
+		},
+		"Connected": {
+			"references": [
+				"www/js/modules/system-diagnostics.js:98"
+			],
+			"notes": []
+		},
+		"Connecting to": {
+			"references": [
+				"www/js/modules/sites.js:884"
+			],
+			"notes": []
+		},
+		"Connecting...": {
+			"references": [
+				"www/js/modules/system-diagnostics.js:94"
+			],
+			"notes": []
+		},
+		"Connection timed-out. Please try again.": {
+			"references": [
+				"www/js/modules/firmware.js:277"
+			],
+			"notes": []
+		},
+		"Continue": {
+			"references": [
+				"www/js/modules/dashboard.js:571",
+				"www/js/modules/sites.js:1132"
+			],
+			"notes": []
+		},
+		"Contrast": {
+			"references": [
+				"www/js/modules/options.js:1103"
+			],
+			"notes": []
+		},
+		"Controller Reboot": {
+			"references": [
+				"www/js/modules/options.js:37"
+			],
+			"notes": []
+		},
+		"Controller rejected one or more invalid options. Review and try again.": {
+			"references": [
+				"www/js/modules/options.js:613",
+				"www/js/modules/options.js:618",
+				"www/js/modules/options.js:627",
+				"www/js/modules/options.js:630",
+				"www/js/modules/options.js:635"
+			],
+			"notes": []
+		},
+		"Corrupted Response": {
+			"references": [
+				"www/js/modules/errors.js:49"
+			],
+			"notes": []
+		},
+		"Create a single-run program for repeats": {
+			"references": [
+				"www/js/modules/programs.js:3598"
+			],
+			"notes": []
+		},
+		"Croatian": {
+			"references": [
+				"www/js/modules/language.js:21"
+			],
+			"notes": []
+		},
+		"Current": {
+			"references": [
+				"www/js/modules/status.js:63"
+			],
+			"notes": []
+		},
+		"Current Sensor Value": {
+			"references": [
+				"www/js/modules/programs.js:2493"
+			],
+			"notes": []
+		},
+		"Current Value": {
+			"references": [
+				"www/js/modules/sensors.js:2128"
+			],
+			"notes": []
+		},
+		"Current Weather": {
+			"references": [
+				"www/js/modules/weather.js:774"
+			],
+			"notes": []
+		},
+		"Custom Adjustment": {
+			"references": [
+				"www/js/modules/programs.js:551"
+			],
+			"notes": []
+		},
+		"Cycle and Soak": {
+			"references": [
+				"www/js/modules/cards.js:40"
+			],
+			"notes": []
+		},
+		"Cycle and Soak reported an error. Some stations may water without cycling. If this persists after restarting the controller, reset the cycle and soak settings.": {
+			"references": [
+				"www/js/modules/dashboard.js:1330"
+			],
+			"notes": []
+		},
+		"Cycle and soak times must be between 1 and 240 minutes.": {
+			"references": [
+				"www/js/modules/dashboard.js:461"
+			],
+			"notes": []
+		},
+		"Cycle paused": {
+			"references": [
+				"www/js/modules/cycle-soak.js:45"
+			],
+			"notes": []
+		},
+		"Cycle queued": {
+			"references": [
+				"www/js/modules/cycle-soak.js:45"
+			],
+			"notes": []
+		},
+		"Cycle running": {
+			"references": [
+				"www/js/modules/cycle-soak.js:45"
+			],
+			"notes": []
+		},
+		"Czech": {
+			"references": [
+				"www/js/modules/language.js:21"
+			],
+			"notes": []
+		},
+		"DNS Address": {
+			"references": [
+				"www/js/modules/options.js:1162"
+			],
+			"notes": []
+		},
+		"Day": {
+			"references": [
+				"www/js/modules/logs.js:44"
+			],
+			"notes": []
+		},
+		"Day of the Month (Use 0 for the last day)": {
+			"references": [
+				"www/js/modules/programs.js:2572"
+			],
+			"notes": []
+		},
+		"Days": {
+			"references": [
+				"www/js/modules/ui-dom.js:1576"
+			],
+			"notes": []
+		},
+		"Days of the Week": {
+			"references": [
+				"www/js/modules/programs.js:2260",
+				"www/js/modules/programs.js:2545"
+			],
+			"notes": []
+		},
+		"Dec": {
+			"references": [
+				"www/js/modules/dates.js:173",
+				"www/js/modules/ui-dom.js:1396",
+				"www/js/modules/weather.js:396"
+			],
+			"notes": []
+		},
+		"Default": {
+			"references": [
+				"www/js/modules/options.js:1132"
+			],
+			"notes": []
+		},
+		"Default Provider": {
+			"references": [
+				"www/js/modules/options.js:918"
+			],
+			"notes": []
+		},
+		"Delay Duration (hours)": {
+			"references": [
+				"www/js/modules/weather.js:252"
+			],
+			"notes": []
+		},
+		"Delayed Off Time": {
+			"references": [
+				"www/js/modules/options.js:2113"
+			],
+			"notes": []
+		},
+		"Delayed On Time": {
+			"references": [
+				"www/js/modules/options.js:2109"
+			],
+			"notes": []
+		},
+		"Delete": {
+			"references": [
+				"www/js/modules/analog.js:720",
+				"www/js/modules/analog.js:770",
+				"www/js/modules/programs.js:2660",
+				"www/js/modules/programs.js:2872",
+				"www/js/modules/sensors.js:1347",
+				"www/js/modules/sensors.js:3039",
+				"www/js/modules/sites.js:159"
+			],
+			"notes": []
+		},
+		"Delete All": {
+			"references": [
+				"www/js/modules/sensors.js:2449"
+			],
+			"notes": []
+		},
+		"Delete All Programs": {
+			"references": [
+				"www/js/modules/options.js:1266"
+			],
+			"notes": []
+		},
+		"Delete Program": {
+			"references": [
+				"www/js/modules/programs.js:2320"
+			],
+			"notes": []
+		},
+		"Delete Sensor": {
+			"references": [
+				"www/js/modules/sensors.js:2158"
+			],
+			"notes": []
+		},
+		"Delete the entire log of": {
+			"references": [
+				"www/js/modules/sensors.js:3043"
+			],
+			"notes": []
+		},
+		"Deleting sensor log": {
+			"references": [
+				"www/js/modules/sensors.js:2715"
+			],
+			"notes": []
+		},
+		"Detect baseline ETo": {
+			"references": [
+				"www/js/modules/weather.js:531"
+			],
+			"notes": []
+		},
+		"Device Address:": {
+			"references": [
+				"www/js/modules/sites.js:569"
+			],
+			"notes": []
+		},
+		"Device ID (restart required)": {
+			"references": [
+				"www/js/modules/options.js:1179"
+			],
+			"notes": []
+		},
+		"Device ID modifies the last byte of the MAC address.": {
+			"references": [
+				"www/js/modules/options.js:1181"
+			],
+			"notes": []
+		},
+		"Device Name": {
+			"references": [
+				"www/js/modules/options.js:1089"
+			],
+			"notes": []
+		},
+		"Device Name:": {
+			"references": [
+				"www/js/modules/sites.js:562"
+			],
+			"notes": []
+		},
+		"Device Password:": {
+			"references": [
+				"www/js/modules/sites.js:577"
+			],
+			"notes": []
+		},
+		"Device Time": {
+			"references": [
+				"www/js/modules/options.js:705"
+			],
+			"notes": []
+		},
+		"Device name is attached to all IFTTT and email notifications to help distinguish multiple devices": {
+			"references": [
+				"www/js/modules/options.js:1091"
+			],
+			"notes": []
+		},
+		"Device password is not secure": {
+			"references": [
+				"www/js/modules/sites.js:1074"
+			],
+			"notes": []
+		},
+		"Disable": {
+			"references": [
+				"www/index.html:106",
+				"www/js/modules/dashboard.js:819",
+				"www/js/modules/ui-dom.js:616",
+				"www/js/modules/ui-dom.js:731"
+			],
+			"notes": []
+		},
+		"Disable Remote Extension": {
+			"references": [
+				"www/js/modules/sites.js:1099"
+			],
+			"notes": []
+		},
+		"Disabled": {
+			"references": [
+				"www/js/modules/ui-dom.js:335"
+			],
+			"notes": []
+		},
+		"Disallow watering if the current\ntemperature is below:": {
+			"references": [
+				"www/js/modules/options.js:1485"
+			],
+			"notes": []
+		},
+		"Disallow watering if:": {
+			"references": [
+				"www/js/modules/options.js:1471"
+			],
+			"notes": []
+		},
+		"Disconnected": {
+			"references": [
+				"www/js/modules/system-diagnostics.js:96"
+			],
+			"notes": []
+		},
+		"Dismiss": {
+			"references": [
+				"www/js/modules/firmware.js:634",
+				"www/js/modules/sites.js:1690"
+			],
+			"notes": []
+		},
+		"Divider": {
+			"references": [
+				"www/js/modules/analog.js:375"
+			],
+			"notes": []
+		},
+		"Do you want to continue?": {
+			"references": [
+				"www/js/modules/programs.js:3529",
+				"www/js/modules/programs.js:3538"
+			],
+			"notes": []
+		},
+		"Do you want to delete the current image?": {
+			"references": [
+				"www/js/modules/dashboard.js:1671"
+			],
+			"notes": []
+		},
+		"Do you want to re-enable system operation?": {
+			"references": [
+				"www/js/modules/status.js:121"
+			],
+			"notes": []
+		},
+		"Do you want to resume program operation?": {
+			"references": [
+				"www/js/modules/ui-dom.js:1932",
+				"www/js/modules/ui-dom.js:1983"
+			],
+			"notes": []
+		},
+		"Do you want to save your changes?": {
+			"references": [
+				"www/js/modules/programs.js:171",
+				"www/js/modules/ui-dom.js:945"
+			],
+			"notes": []
+		},
+		"Do you want to stop the currently running program?": {
+			"references": [
+				"www/js/modules/stations.js:454"
+			],
+			"notes": []
+		},
+		"Do you want to stop the selected station?": {
+			"references": [
+				"www/js/modules/dashboard.js:1609"
+			],
+			"notes": []
+		},
+		"Do you want to turn off manual mode?": {
+			"references": [
+				"www/js/modules/status.js:297"
+			],
+			"notes": []
+		},
+		"Do you want to turn off rain delay?": {
+			"references": [
+				"www/js/modules/status.js:259"
+			],
+			"notes": []
+		},
+		"Do you want to unschedule the selected station?": {
+			"references": [
+				"www/js/modules/dashboard.js:1612"
+			],
+			"notes": []
+		},
+		"Do you wish to add this location to your cloud synced site list?": {
+			"references": [
+				"www/js/modules/network.js:552"
+			],
+			"notes": []
+		},
+		"Do you wish to disable extender mode?": {
+			"references": [
+				"www/js/modules/status.js:88"
+			],
+			"notes": []
+		},
+		"Don't have an account?": {
+			"references": [
+				"www/js/modules/network.js:365"
+			],
+			"notes": []
+		},
+		"Done": {
+			"references": [
+				"www/js/modules/ui-dom.js:492"
+			],
+			"notes": []
+		},
+		"Downgrade UI": {
+			"references": [
+				"www/index.html:113"
+			],
+			"notes": []
+		},
+		"Download": {
+			"references": [
+				"www/js/modules/sensors.js:3010"
+			],
+			"notes": []
+		},
+		"Download All": {
+			"references": [
+				"www/js/modules/sensors.js:2448"
+			],
+			"notes": []
+		},
+		"Download Log": {
+			"references": [
+				"www/js/modules/analog.js:781",
+				"www/js/modules/sensors.js:2598"
+			],
+			"notes": []
+		},
+		"Duration": {
+			"references": [
+				"www/js/modules/ui-dom.js:1467",
+				"www/js/modules/ui-dom.js:1544",
+				"www/js/modules/weather.js:953"
+			],
+			"notes": []
+		},
+		"Dutch": {
+			"references": [
+				"www/js/modules/language.js:21"
+			],
+			"notes": []
+		},
+		"ETo": {
+			"references": [
+				"www/js/modules/system-diagnostics.js:58",
+				"www/js/modules/weather.js:23"
+			],
+			"notes": []
+		},
+		"Edit": {
+			"references": [
+				"www/js/modules/analog.js:719",
+				"www/js/modules/analog.js:769"
+			],
+			"notes": []
+		},
+		"Edit Options": {
+			"references": [
+				"www/js/modules/options.js:674",
+				"www/js/modules/ui-dom.js:327"
+			],
+			"notes": []
+		},
+		"Edit Program Adjustment": {
+			"references": [
+				"www/js/modules/analog.js:151"
+			],
+			"notes": []
+		},
+		"Edit Programs": {
+			"references": [
+				"www/js/modules/ui-dom.js:328"
+			],
+			"notes": []
+		},
+		"Edit Sensor": {
+			"references": [
+				"www/js/modules/analog.js:317"
+			],
+			"notes": []
+		},
+		"Edit Sensor Configuration. ": {
+			"references": [
+				"www/js/modules/analog.js:321"
+			],
+			"notes": []
+		},
+		"Edit Sensors": {
+			"references": [
+				"www/js/modules/options.js:2118",
+				"www/js/modules/sensors.js:2273",
+				"www/js/modules/ui-dom.js:329"
+			],
+			"notes": []
+		},
+		"Elevation": {
+			"references": [
+				"www/js/modules/weather.js:526"
+			],
+			"notes": []
+		},
+		"Email": {
+			"references": [
+				"www/js/modules/import-export.js:131"
+			],
+			"notes": []
+		},
+		"Email (copy/paste)": {
+			"references": [
+				"www/js/modules/import-export.js:203"
+			],
+			"notes": []
+		},
+		"Email Notifications": {
+			"references": [
+				"www/js/modules/options.js:1059"
+			],
+			"notes": []
+		},
+		"Email Settings": {
+			"references": [
+				"www/js/modules/options.js:2460"
+			],
+			"notes": []
+		},
+		"Enable": {
+			"references": [
+				"www/js/modules/options.js:2339",
+				"www/js/modules/options.js:2463",
+				"www/js/modules/options.js:2564",
+				"www/js/modules/programs.js:2642",
+				"www/js/modules/ui-dom.js:616",
+				"www/js/modules/ui-dom.js:731"
+			],
+			"notes": []
+		},
+		"Enable California Restriction": {
+			"references": [
+				"www/js/modules/options.js:1492"
+			],
+			"notes": []
+		},
+		"Enable Cycle and Soak": {
+			"references": [
+				"www/js/modules/cycle-soak.js:33"
+			],
+			"notes": []
+		},
+		"Enable Data Logging": {
+			"references": [
+				"www/js/modules/analog.js:395"
+			],
+			"notes": []
+		},
+		"Enable Date Range": {
+			"references": [
+				"www/js/modules/programs.js:2447"
+			],
+			"notes": []
+		},
+		"Enable Logging": {
+			"references": [
+				"www/js/modules/options.js:739"
+			],
+			"notes": []
+		},
+		"Enable manual rain delay by entering a value into the input below. To turn off a currently enabled rain delay use a value of 0.": {
+			"references": [
+				"www/js/modules/weather.js:960"
+			],
+			"notes": []
+		},
+		"Enabled": {
+			"references": [
+				"www/js/modules/programs.js:2243",
+				"www/js/modules/programs.js:2437"
+			],
+			"notes": []
+		},
+		"End Time": {
+			"references": [
+				"www/js/modules/logs.js:348",
+				"www/js/modules/programs.js:2297"
+			],
+			"notes": []
+		},
+		"End:": {
+			"references": [
+				"www/js/modules/logs.js:51"
+			],
+			"notes": []
+		},
+		"English": {
+			"references": [
+				"www/js/modules/language.js:21"
+			],
+			"notes": []
+		},
+		"Enter Date/Time": {
+			"references": [
+				"www/js/modules/ui-dom.js:1399"
+			],
+			"notes": []
+		},
+		"Enter GPS Coordinates": {
+			"references": [
+				"www/js/modules/options.js:1295",
+				"www/js/modules/options.js:1300"
+			],
+			"notes": []
+		},
+		"Enter IP Address": {
+			"references": [
+				"www/js/modules/ui-dom.js:1842"
+			],
+			"notes": []
+		},
+		"Enter a duration to manually run ": {
+			"references": [
+				"www/js/modules/dashboard.js:1619"
+			],
+			"notes": []
+		},
+		"Error": {
+			"references": [
+				"www/js/modules/weather.js:1056"
+			],
+			"notes": []
+		},
+		"Error retrieving log data. Please refresh to try again.": {
+			"references": [
+				"www/js/modules/logs.js:501"
+			],
+			"notes": []
+		},
+		"Error: Add at least one sensor adjustment point.": {
+			"references": [
+				"www/js/modules/programs.js:3202"
+			],
+			"notes": []
+		},
+		"Error: Complete or remove every sensor adjustment point.": {
+			"references": [
+				"www/js/modules/programs.js:3184"
+			],
+			"notes": []
+		},
+		"Error: Day of month is out of bounds.": {
+			"references": [
+				"www/js/modules/programs.js:3418"
+			],
+			"notes": []
+		},
+		"Error: Interval days must be between": {
+			"references": [
+				"www/js/modules/programs.js:3403"
+			],
+			"notes": []
+		},
+		"Error: Interval days must be between 2 and 128.": {
+			"references": [
+				"www/js/modules/programs.js:3315"
+			],
+			"notes": []
+		},
+		"Error: Select a sensor before enabling sensor adjustment.": {
+			"references": [
+				"www/js/modules/programs.js:3171"
+			],
+			"notes": []
+		},
+		"Error: Start date is input incorrectly.": {
+			"references": [
+				"www/js/modules/programs.js:3426"
+			],
+			"notes": []
+		},
+		"Error: Start time must be prior to end time.": {
+			"references": [
+				"www/js/modules/programs.js:3326"
+			],
+			"notes": []
+		},
+		"Error: Starting in days wrong.": {
+			"references": [
+				"www/js/modules/programs.js:3317",
+				"www/js/modules/programs.js:3410"
+			],
+			"notes": []
+		},
+		"Error: Watering percentages cannot be negative.": {
+			"references": [
+				"www/js/modules/programs.js:3190"
+			],
+			"notes": []
+		},
+		"Error: You have not selected any days of the week.": {
+			"references": [
+				"www/js/modules/programs.js:3305",
+				"www/js/modules/programs.js:3442"
+			],
+			"notes": []
+		},
+		"Error: You have not selected any stations.": {
+			"references": [
+				"www/js/modules/programs.js:3347",
+				"www/js/modules/programs.js:3521"
+			],
+			"notes": []
+		},
+		"Error: date range is malformed": {
+			"references": [
+				"www/js/modules/programs.js:3498"
+			],
+			"notes": []
+		},
+		"Estonian": {
+			"references": [
+				"www/js/modules/language.js:21"
+			],
+			"notes": []
+		},
+		"Even Days Only": {
+			"references": [
+				"www/js/modules/programs.js:2257",
+				"www/js/modules/programs.js:2580"
+			],
+			"notes": []
+		},
+		"Excellent": {
+			"references": [
+				"www/js/modules/network.js:914"
+			],
+			"notes": []
+		},
+		"Export": {
+			"references": [
+				"www/js/modules/logs.js:54"
+			],
+			"notes": []
+		},
+		"Export Configuration": {
+			"references": [
+				"www/index.html:97"
+			],
+			"notes": []
+		},
+		"Factor": {
+			"references": [
+				"www/js/modules/analog.js:370"
+			],
+			"notes": []
+		},
+		"Factor 1 (adjustment for min)": {
+			"references": [
+				"www/js/modules/analog.js:208"
+			],
+			"notes": []
+		},
+		"Factor 2 (adjustment for max)": {
+			"references": [
+				"www/js/modules/analog.js:213"
+			],
+			"notes": []
+		},
+		"Factory Reset": {
+			"references": [
+				"www/js/modules/firmware.js:25"
+			],
+			"notes": []
+		},
+		"Failed to delete sensor logs": {
+			"references": [
+				"www/js/modules/sensors.js:3200"
+			],
+			"notes": []
+		},
+		"Failed to download sensor logs": {
+			"references": [
+				"www/js/modules/sensors.js:2558",
+				"www/js/modules/sensors.js:2841"
+			],
+			"notes": []
+		},
+		"Failed to load sensor descriptions": {
+			"references": [
+				"www/js/modules/sensors.js:2227",
+				"www/js/modules/sensors.js:2356"
+			],
+			"notes": []
+		},
+		"Failed to load sensor logs": {
+			"references": [
+				"www/js/modules/sensors.js:3154"
+			],
+			"notes": []
+		},
+		"Fair": {
+			"references": [
+				"www/js/modules/network.js:910"
+			],
+			"notes": []
+		},
+		"Farsi": {
+			"references": [
+				"www/js/modules/language.js:21"
+			],
+			"notes": []
+		},
+		"Feb": {
+			"references": [
+				"www/js/modules/dates.js:172",
+				"www/js/modules/ui-dom.js:1395",
+				"www/js/modules/weather.js:332"
+			],
+			"notes": []
+		},
+		"File": {
+			"references": [
+				"www/js/modules/import-export.js:130",
+				"www/js/modules/import-export.js:202"
+			],
+			"notes": []
+		},
+		"Filter stations": {
+			"references": [
+				"www/js/modules/dashboard.js:284"
+			],
+			"notes": []
+		},
+		"Firmware": {
+			"references": [
+				"www/js/modules/about.js:61",
+				"www/js/modules/firmware.js:645",
+				"www/js/modules/network.js:115"
+			],
+			"notes": []
+		},
+		"Firmware Update": {
+			"references": [
+				"www/js/modules/firmware.js:25"
+			],
+			"notes": []
+		},
+		"Firmware update available": {
+			"references": [
+				"www/js/modules/firmware.js:601"
+			],
+			"notes": []
+		},
+		"Firmware update requires a local network connection to the controller.": {
+			"references": [
+				"www/js/modules/firmware.js:616",
+				"www/js/modules/ui-dom.js:740"
+			],
+			"notes": []
+		},
+		"Fixed": {
+			"references": [
+				"www/js/modules/programs.js:2627"
+			],
+			"notes": []
+		},
+		"Flow": {
+			"references": [
+				"www/js/modules/options.js:2016",
+				"www/js/modules/options.js:966",
+				"www/js/modules/sensors.js:98",
+				"www/js/modules/status.js:72"
+			],
+			"notes": []
+		},
+		"Flow Alert": {
+			"references": [
+				"www/js/modules/options.js:42"
+			],
+			"notes": []
+		},
+		"Flow Pulse Rate": {
+			"references": [
+				"www/js/modules/options.js:2066"
+			],
+			"notes": []
+		},
+		"Flow Rate": {
+			"references": [
+				"www/js/modules/logs.js:349"
+			],
+			"notes": []
+		},
+		"Flow Sensor": {
+			"references": [
+				"www/js/modules/logs.js:206",
+				"www/js/modules/logs.js:208",
+				"www/js/modules/logs.js:210",
+				"www/js/modules/logs.js:211",
+				"www/js/modules/sensors.js:98"
+			],
+			"notes": []
+		},
+		"Flow Sensor Update": {
+			"references": [
+				"www/js/modules/options.js:35"
+			],
+			"notes": []
+		},
+		"Forecast": {
+			"references": [
+				"www/js/modules/weather.js:803"
+			],
+			"notes": []
+		},
+		"Forecasted Rain": {
+			"references": [
+				"www/js/modules/weather.js:856",
+				"www/js/modules/weather.js:875"
+			],
+			"notes": []
+		},
+		"French": {
+			"references": [
+				"www/js/modules/language.js:21"
+			],
+			"notes": []
+		},
+		"Fri": {
+			"references": [
+				"www/js/modules/dates.js:171",
+				"www/js/modules/dates.js:238",
+				"www/js/modules/weather.js:848"
+			],
+			"notes": []
+		},
+		"Friday": {
+			"references": [
+				"www/js/modules/dates.js:237",
+				"www/js/modules/programs.js:2218",
+				"www/js/modules/programs.js:2388"
+			],
+			"notes": []
+		},
+		"From (mm/dd)": {
+			"references": [
+				"www/js/modules/programs.js:2453"
+			],
+			"notes": []
+		},
+		"GPIO": {
+			"references": [
+				"www/js/modules/dashboard.js:736",
+				"www/js/modules/stations.js:176"
+			],
+			"notes": []
+		},
+		"GPIO Pin": {
+			"references": [
+				"www/js/modules/dashboard.js:380"
+			],
+			"notes": []
+		},
+		"Gateway Address": {
+			"references": [
+				"www/js/modules/options.js:1157"
+			],
+			"notes": []
+		},
+		"German": {
+			"references": [
+				"www/js/modules/language.js:21"
+			],
+			"notes": []
+		},
+		"Good": {
+			"references": [
+				"www/js/modules/network.js:912"
+			],
+			"notes": []
+		},
+		"Greek": {
+			"references": [
+				"www/js/modules/language.js:21"
+			],
+			"notes": []
+		},
+		"Group": {
+			"references": [
+				"www/js/modules/analog.js:344"
+			],
+			"notes": []
+		},
+		"Grouping:": {
+			"references": [
+				"www/js/modules/logs.js:42"
+			],
+			"notes": []
+		},
+		"HIGH": {
+			"references": [
+				"www/js/modules/dashboard.js:396"
+			],
+			"notes": []
+		},
+		"HTTP": {
+			"references": [
+				"www/js/modules/dashboard.js:737",
+				"www/js/modules/stations.js:178"
+			],
+			"notes": []
+		},
+		"HTTP Port (restart required)": {
+			"references": [
+				"www/js/modules/options.js:1122"
+			],
+			"notes": []
+		},
+		"HTTPS": {
+			"references": [
+				"www/js/modules/dashboard.js:738",
+				"www/js/modules/stations.js:180"
+			],
+			"notes": []
+		},
+		"Hardware Version": {
+			"references": [
+				"www/js/modules/about.js:67"
+			],
+			"notes": []
+		},
+		"Hebrew": {
+			"references": [
+				"www/js/modules/language.js:21"
+			],
+			"notes": []
+		},
+		"Help": {
+			"references": [
+				"www/js/modules/errors.js:55"
+			],
+			"notes": []
+		},
+		"Help & Support": {
+			"references": [
+				"www/index.html:99"
+			],
+			"notes": []
+		},
+		"Hide": {
+			"references": [
+				"www/js/modules/ui-dom.js:335"
+			],
+			"notes": []
+		},
+		"High": {
+			"references": [
+				"www/js/modules/weather.js:871"
+			],
+			"notes": []
+		},
+		"Hostname (restart required)": {
+			"references": [
+				"www/js/modules/options.js:1128"
+			],
+			"notes": []
+		},
+		"Hours": {
+			"references": [
+				"www/js/modules/ui-dom.js:1576"
+			],
+			"notes": []
+		},
+		"Humidity": {
+			"references": [
+				"www/js/modules/analog.js:909",
+				"www/js/modules/weather.js:113"
+			],
+			"notes": []
+		},
+		"Hungarian": {
+			"references": [
+				"www/js/modules/language.js:21"
+			],
+			"notes": []
+		},
+		"ID": {
+			"references": [
+				"www/js/modules/analog.js:364"
+			],
+			"notes": []
+		},
+		"IFTTT Notifications": {
+			"references": [
+				"www/js/modules/options.js:1072"
+			],
+			"notes": []
+		},
+		"IP Address": {
+			"references": [
+				"www/js/modules/analog.js:354",
+				"www/js/modules/options.js:1149"
+			],
+			"notes": []
+		},
+		"Icelandic": {
+			"references": [
+				"www/js/modules/language.js:21"
+			],
+			"notes": []
+		},
+		"Idle Brightness": {
+			"references": [
+				"www/js/modules/options.js:1113"
+			],
+			"notes": []
+		},
+		"If the current draw (mA) exceeds this threshold when stations are running, an overcurrent fault notification is triggered. Set to 0 to use the system default. Set to maximum (2550) to disable this feature.": {
+			"references": [
+				"www/js/modules/options.js:1229"
+			],
+			"notes": []
+		},
+		"If the current draw (mA) falls below this threshold when a station finishes running, a low-current fault notification is triggered. The recommended value is 100. Set to 0 to disable this feature.": {
+			"references": [
+				"www/js/modules/options.js:1221"
+			],
+			"notes": []
+		},
+		"If the current weather condition reports rain, a rain delay is automatically issued using the duration below.": {
+			"references": [
+				"www/js/modules/weather.js:250"
+			],
+			"notes": []
+		},
+		"Ignore Password": {
+			"references": [
+				"www/js/modules/options.js:1252"
+			],
+			"notes": []
+		},
+		"Ignore Rain": {
+			"references": [
+				"www/js/modules/dashboard.js:789"
+			],
+			"notes": []
+		},
+		"Ignore Sensor 1": {
+			"references": [
+				"www/js/modules/dashboard.js:795"
+			],
+			"notes": []
+		},
+		"Ignore Sensor 2": {
+			"references": [
+				"www/js/modules/dashboard.js:801"
+			],
+			"notes": []
+		},
+		"Ignore Sensor 3": {
+			"references": [
+				"www/js/modules/dashboard.js:807"
+			],
+			"notes": []
+		},
+		"Ignore Sensor 4": {
+			"references": [
+				"www/js/modules/dashboard.js:813"
+			],
+			"notes": []
+		},
+		"Image": {
+			"references": [
+				"www/js/modules/dashboard.js:717",
+				"www/js/modules/dashboard.js:929"
+			],
+			"notes": []
+		},
+		"Import": {
+			"references": [
+				"www/js/modules/import-export.js:170"
+			],
+			"notes": []
+		},
+		"Import Configuration": {
+			"references": [
+				"www/index.html:98"
+			],
+			"notes": []
+		},
+		"In": {
+			"references": [
+				"www/js/modules/dates.js:159"
+			],
+			"notes": []
+		},
+		"Incorrect password for ": {
+			"references": [
+				"www/js/modules/network.js:738"
+			],
+			"notes": []
+		},
+		"Information": {
+			"references": [
+				"www/js/modules/sites.js:950",
+				"www/js/modules/ui-dom.js:314"
+			],
+			"notes": []
+		},
+		"Input Monthly Watering Percentage Values": {
+			"references": [
+				"www/js/modules/weather.js:321"
+			],
+			"notes": []
+		},
+		"Integrations": {
+			"references": [
+				"www/js/modules/options.js:1027"
+			],
+			"notes": []
+		},
+		"Internal (within app)": {
+			"references": [
+				"www/js/modules/import-export.js:132",
+				"www/js/modules/import-export.js:204"
+			],
+			"notes": []
+		},
+		"Internal firmware error.": {
+			"references": [
+				"www/js/modules/firmware.js:163"
+			],
+			"notes": []
+		},
+		"Interval": {
+			"references": [
+				"www/js/modules/programs.js:2250",
+				"www/js/modules/programs.js:2532"
+			],
+			"notes": []
+		},
+		"Interval (Days)": {
+			"references": [
+				"www/js/modules/programs.js:2270",
+				"www/js/modules/programs.js:2556"
+			],
+			"notes": []
+		},
+		"Invalid configuration": {
+			"references": [
+				"www/js/modules/import-export.js:628"
+			],
+			"notes": []
+		},
+		"Invalid cycle and soak configuration": {
+			"references": [
+				"www/js/modules/import-export.js:719"
+			],
+			"notes": []
+		},
+		"Invalid new OTC token. Any other changes were made successfully.": {
+			"references": [
+				"www/js/modules/sites.js:271"
+			],
+			"notes": []
+		},
+		"Invalid program configuration in backup.": {
+			"references": [
+				"www/js/modules/import-export.js:728"
+			],
+			"notes": []
+		},
+		"Invalid program sensor adjustment in backup.": {
+			"references": [
+				"www/js/modules/import-export.js:769"
+			],
+			"notes": []
+		},
+		"Invalid sensor configuration in backup.": {
+			"references": [
+				"www/js/modules/import-export.js:560",
+				"www/js/modules/import-export.js:781"
+			],
+			"notes": []
+		},
+		"Invalid username/password combination. Please try again.": {
+			"references": [
+				"www/js/modules/network.js:386"
+			],
+			"notes": []
+		},
+		"Italian": {
+			"references": [
+				"www/js/modules/language.js:21"
+			],
+			"notes": []
+		},
+		"Item mismatch.": {
+			"references": [
+				"www/js/modules/firmware.js:156"
+			],
+			"notes": []
+		},
+		"Jan": {
+			"references": [
+				"www/js/modules/dates.js:172",
+				"www/js/modules/ui-dom.js:1395",
+				"www/js/modules/weather.js:326"
+			],
+			"notes": []
+		},
+		"Jul": {
+			"references": [
+				"www/js/modules/dates.js:173",
+				"www/js/modules/ui-dom.js:1395",
+				"www/js/modules/weather.js:364"
+			],
+			"notes": []
+		},
+		"Jun": {
+			"references": [
+				"www/js/modules/dates.js:172",
+				"www/js/modules/ui-dom.js:1395",
+				"www/js/modules/weather.js:358"
+			],
+			"notes": []
+		},
+		"Just Now": {
+			"references": [
+				"www/js/modules/dates.js:127"
+			],
+			"notes": []
+		},
+		"LCD Screen": {
+			"references": [
+				"www/js/modules/options.js:1100"
+			],
+			"notes": []
+		},
+		"LOW": {
+			"references": [
+				"www/js/modules/dashboard.js:397"
+			],
+			"notes": []
+		},
+		"Language localization is crowdsourced using Transifex available at": {
+			"references": [
+				"www/js/modules/about.js:45"
+			],
+			"notes": []
+		},
+		"Last Reboot": {
+			"references": [
+				"www/js/modules/system-diagnostics.js:35"
+			],
+			"notes": []
+		},
+		"Last Request": {
+			"references": [
+				"www/js/modules/system-diagnostics.js:67"
+			],
+			"notes": []
+		},
+		"Last Response": {
+			"references": [
+				"www/js/modules/system-diagnostics.js:68"
+			],
+			"notes": []
+		},
+		"Last Updated": {
+			"references": [
+				"www/js/modules/system-diagnostics.js:47"
+			],
+			"notes": []
+		},
+		"Last Used Program": {
+			"references": [
+				"www/js/modules/programs.js:420"
+			],
+			"notes": []
+		},
+		"Latch Off Voltage": {
+			"references": [
+				"www/js/modules/options.js:1243"
+			],
+			"notes": []
+		},
+		"Latch On Voltage": {
+			"references": [
+				"www/js/modules/options.js:1235"
+			],
+			"notes": []
+		},
+		"Latest": {
+			"references": [
+				"www/js/modules/firmware.js:645"
+			],
+			"notes": []
+		},
+		"Latvian": {
+			"references": [
+				"www/js/modules/language.js:21"
+			],
+			"notes": []
+		},
+		"Less than a minute remaining": {
+			"references": [
+				"www/js/modules/sensors.js:2707",
+				"www/js/modules/sensors.js:2729"
+			],
+			"notes": []
+		},
+		"Level": {
+			"references": [
+				"www/js/modules/analog.js:934",
+				"www/js/modules/analog.js:935"
+			],
+			"notes": []
+		},
+		"Loading": {
+			"references": [
+				"www/js/modules/sites.js:890"
+			],
+			"notes": []
+		},
+		"Loading log data": {
+			"references": [
+				"www/js/modules/sensors.js:2737"
+			],
+			"notes": []
+		},
+		"Loading program adjustments…": {
+			"references": [
+				"www/js/modules/programs.js:1789",
+				"www/js/modules/programs.js:896"
+			],
+			"notes": []
+		},
+		"Loading sensor data": {
+			"references": [
+				"www/js/modules/sensors.js:2689"
+			],
+			"notes": []
+		},
+		"Localization": {
+			"references": [
+				"www/index.html:101",
+				"www/js/modules/language.js:139"
+			],
+			"notes": []
+		},
+		"Location": {
+			"references": [
+				"www/js/modules/options.js:729"
+			],
+			"notes": []
+		},
+		"Log cleared:": {
+			"references": [
+				"www/js/modules/analog.js:646"
+			],
+			"notes": []
+		},
+		"Logout": {
+			"references": [
+				"www/index.html:102",
+				"www/js/modules/ui-dom.js:2149",
+				"www/js/modules/ui-dom.js:2155"
+			],
+			"notes": []
+		},
+		"Logs": {
+			"references": [
+				"www/js/modules/logs.js:635"
+			],
+			"notes": []
+		},
+		"Logs have been cleared": {
+			"references": [
+				"www/js/modules/logs.js:665"
+			],
+			"notes": []
+		},
+		"Low": {
+			"references": [
+				"www/js/modules/weather.js:870"
+			],
+			"notes": []
+		},
+		"MQTT": {
+			"references": [
+				"www/js/modules/options.js:1045"
+			],
+			"notes": []
+		},
+		"MQTT Settings": {
+			"references": [
+				"www/js/modules/options.js:2336"
+			],
+			"notes": []
+		},
+		"Manage Sites": {
+			"references": [
+				"www/index.html:96",
+				"www/js/modules/sites.js:355",
+				"www/js/modules/ui-dom.js:94"
+			],
+			"notes": []
+		},
+		"Manual": {
+			"references": [
+				"www/js/modules/weather.js:23"
+			],
+			"notes": []
+		},
+		"Manual Control": {
+			"references": [
+				"www/js/modules/programs.js:396",
+				"www/js/modules/ui-dom.js:319"
+			],
+			"notes": []
+		},
+		"Manual Mode": {
+			"references": [
+				"www/js/modules/programs.js:261"
+			],
+			"notes": []
+		},
+		"Manual mode enabled": {
+			"references": [
+				"www/js/modules/status.js:296"
+			],
+			"notes": []
+		},
+		"Manual mode is not enabled. Please enable manual mode then try again.": {
+			"references": [
+				"www/js/modules/programs.js:299"
+			],
+			"notes": []
+		},
+		"Manual program": {
+			"references": [
+				"www/js/modules/programs.js:2139"
+			],
+			"notes": []
+		},
+		"Manually Add Device": {
+			"references": [
+				"www/js/modules/sites.js:53",
+				"www/js/modules/welcome.js:63"
+			],
+			"notes": []
+		},
+		"Mar": {
+			"references": [
+				"www/js/modules/dates.js:172",
+				"www/js/modules/ui-dom.js:1395",
+				"www/js/modules/weather.js:338"
+			],
+			"notes": []
+		},
+		"Master": {
+			"references": [
+				"www/js/modules/programs.js:1386",
+				"www/js/modules/programs.js:1446",
+				"www/js/modules/programs.js:1448",
+				"www/js/modules/programs.js:1450",
+				"www/js/modules/programs.js:1451",
+				"www/js/modules/programs.js:1473",
+				"www/js/modules/programs.js:1475",
+				"www/js/modules/programs.js:1477",
+				"www/js/modules/programs.js:1478",
+				"www/js/modules/programs.js:2602",
+				"www/js/modules/programs.js:383",
+				"www/js/modules/programs.js:509"
+			],
+			"notes": []
+		},
+		"Master Station": {
+			"references": [
+				"www/js/modules/dashboard.js:1399",
+				"www/js/modules/dashboard.js:1400",
+				"www/js/modules/dashboard.js:179",
+				"www/js/modules/options.js:2243"
+			],
+			"notes": []
+		},
+		"Master finishing": {
+			"references": [
+				"www/js/modules/cycle-soak.js:45"
+			],
+			"notes": []
+		},
+		"Max Humidity": {
+			"references": [
+				"www/js/modules/system-diagnostics.js:63"
+			],
+			"notes": []
+		},
+		"Max Temp": {
+			"references": [
+				"www/js/modules/system-diagnostics.js:61"
+			],
+			"notes": []
+		},
+		"Max sensor value": {
+			"references": [
+				"www/js/modules/analog.js:223"
+			],
+			"notes": []
+		},
+		"Maximum cycle (minutes)": {
+			"references": [
+				"www/js/modules/cards.js:41",
+				"www/js/modules/cycle-soak.js:35"
+			],
+			"notes": []
+		},
+		"Maximum is 24V. Set to 0 for default.": {
+			"references": [
+				"www/js/modules/options.js:1237",
+				"www/js/modules/options.js:1245"
+			],
+			"notes": []
+		},
+		"May": {
+			"references": [
+				"www/js/modules/dates.js:172",
+				"www/js/modules/ui-dom.js:1395",
+				"www/js/modules/weather.js:352"
+			],
+			"notes": []
+		},
+		"May be an IP, URL, or OTC Token": {
+			"references": [
+				"www/js/modules/sites.js:571"
+			],
+			"notes": []
+		},
+		"Mean Humidity": {
+			"references": [
+				"www/js/modules/system-diagnostics.js:55"
+			],
+			"notes": []
+		},
+		"Mean Radiation": {
+			"references": [
+				"www/js/modules/system-diagnostics.js:59"
+			],
+			"notes": []
+		},
+		"Mean Temp": {
+			"references": [
+				"www/js/modules/system-diagnostics.js:56"
+			],
+			"notes": []
+		},
+		"Mean Wind": {
+			"references": [
+				"www/js/modules/system-diagnostics.js:64"
+			],
+			"notes": []
+		},
+		"Merge": {
+			"references": [
+				"www/js/modules/network.js:581"
+			],
+			"notes": []
+		},
+		"Method": {
+			"references": [
+				"www/js/modules/system-diagnostics.js:43"
+			],
+			"notes": []
+		},
+		"Milliamperes": {
+			"references": [
+				"www/js/modules/options.js:1872"
+			],
+			"notes": []
+		},
+		"Milliseconds": {
+			"references": [
+				"www/js/modules/options.js:1822"
+			],
+			"notes": []
+		},
+		"Min Humidity": {
+			"references": [
+				"www/js/modules/system-diagnostics.js:62"
+			],
+			"notes": []
+		},
+		"Min Temp": {
+			"references": [
+				"www/js/modules/system-diagnostics.js:60"
+			],
+			"notes": []
+		},
+		"Min sensor value": {
+			"references": [
+				"www/js/modules/analog.js:218"
+			],
+			"notes": []
+		},
+		"Minimum runtime": {
+			"references": [
+				"www/js/modules/dashboard.js:311"
+			],
+			"notes": []
+		},
+		"Minimum soak (minutes)": {
+			"references": [
+				"www/js/modules/cards.js:42",
+				"www/js/modules/cycle-soak.js:37"
+			],
+			"notes": []
+		},
+		"Minutes": {
+			"references": [
+				"www/js/modules/ui-dom.js:1576"
+			],
+			"notes": []
+		},
+		"Mon": {
+			"references": [
+				"www/js/modules/dates.js:170",
+				"www/js/modules/dates.js:238",
+				"www/js/modules/weather.js:848"
+			],
+			"notes": []
+		},
+		"Monday": {
+			"references": [
+				"www/js/modules/dates.js:237",
+				"www/js/modules/programs.js:2218",
+				"www/js/modules/programs.js:2388"
+			],
+			"notes": []
+		},
+		"Mongolian": {
+			"references": [
+				"www/js/modules/language.js:21"
+			],
+			"notes": []
+		},
+		"Monthly": {
+			"references": [
+				"www/js/modules/programs.js:2539",
+				"www/js/modules/weather.js:23"
+			],
+			"notes": []
+		},
+		"Move left": {
+			"references": [
+				"www/js/modules/programs.js:796"
+			],
+			"notes": []
+		},
+		"Move right": {
+			"references": [
+				"www/js/modules/programs.js:797"
+			],
+			"notes": []
+		},
+		"Multi-Day Levels": {
+			"references": [
+				"www/js/modules/system-diagnostics.js:45"
+			],
+			"notes": []
+		},
+		"NTP IP Address": {
+			"references": [
+				"www/js/modules/options.js:1175"
+			],
+			"notes": []
+		},
+		"NTP Sync": {
+			"references": [
+				"www/js/modules/options.js:1169"
+			],
+			"notes": []
+		},
+		"Name": {
+			"references": [
+				"www/js/modules/analog.js:349"
+			],
+			"notes": []
+		},
+		"Network": {
+			"references": [
+				"www/js/modules/options.js:1119"
+			],
+			"notes": []
+		},
+		"Network Error": {
+			"references": [
+				"www/js/modules/firmware.js:285",
+				"www/js/modules/network.js:921"
+			],
+			"notes": []
+		},
+		"Network Failure": {
+			"references": [
+				"www/js/modules/firmware.js:25"
+			],
+			"notes": []
+		},
+		"Network name advertised to your router when using DHCP. Leave empty to restore the device default. Use up to 32 letters, numbers or hyphens. This is separate from Device Name.": {
+			"references": [
+				"www/js/modules/options.js:1129"
+			],
+			"notes": []
+		},
+		"Never": {
+			"references": [
+				"www/js/modules/system-diagnostics.js:48"
+			],
+			"notes": []
+		},
+		"New OpenSprinkler Device": {
+			"references": [
+				"www/js/modules/sites.js:558"
+			],
+			"notes": []
+		},
+		"New Password": {
+			"references": [
+				"www/js/modules/network.js:741"
+			],
+			"notes": []
+		},
+		"New Program Adjustment": {
+			"references": [
+				"www/js/modules/analog.js:151"
+			],
+			"notes": []
+		},
+		"New Sensor": {
+			"references": [
+				"www/js/modules/analog.js:317",
+				"www/js/modules/sensors.js:1890"
+			],
+			"notes": []
+		},
+		"No": {
+			"references": [
+				"www/js/modules/ui-dom.js:1820"
+			],
+			"notes": []
+		},
+		"No Adjustment": {
+			"references": [
+				"www/js/modules/programs.js:537"
+			],
+			"notes": []
+		},
+		"No entries found in the selected date range": {
+			"references": [
+				"www/js/modules/logs.js:495"
+			],
+			"notes": []
+		},
+		"No new devices were detected on your network": {
+			"references": [
+				"www/js/modules/network.js:141"
+			],
+			"notes": []
+		},
+		"No sensor data in the selected time range. Older data may exist; choose a longer range above.": {
+			"references": [
+				"www/js/modules/sensors.js:2951"
+			],
+			"notes": []
+		},
+		"No sensor logs found.": {
+			"references": [
+				"www/js/modules/sensors.js:2952"
+			],
+			"notes": []
+		},
+		"No stations set to run on this day.": {
+			"references": [
+				"www/js/modules/programs.js:1807"
+			],
+			"notes": []
+		},
+		"None": {
+			"references": [
+				"www/js/modules/firmware.js:25",
+				"www/js/modules/options.js:1992",
+				"www/js/modules/options.js:2013",
+				"www/js/modules/programs.js:2255",
+				"www/js/modules/programs.js:2578",
+				"www/js/modules/sensors.js:689",
+				"www/js/modules/weather.js:1083"
+			],
+			"notes": []
+		},
+		"Normally Open": {
+			"references": [
+				"www/js/modules/options.js:2105"
+			],
+			"notes": []
+		},
+		"Norwegian": {
+			"references": [
+				"www/js/modules/language.js:21"
+			],
+			"notes": []
+		},
+		"Not Enabled": {
+			"references": [
+				"www/js/modules/system-diagnostics.js:92"
+			],
+			"notes": []
+		},
+		"Not specified": {
+			"references": [
+				"www/js/modules/options.js:1301",
+				"www/js/modules/options.js:1327",
+				"www/js/modules/options.js:730"
+			],
+			"notes": []
+		},
+		"Note: There is a limit on the number of character used to configure this station type.": {
+			"references": [
+				"www/js/modules/dashboard.js:414"
+			],
+			"notes": []
+		},
+		"Note: this page is for external (e.g. analog) and virtual sensors.": {
+			"references": [
+				"www/js/modules/sensors.js:2210"
+			],
+			"notes": []
+		},
+		"Notice: If you want to combine multiple sensors, then build a sensor group. ": {
+			"references": [
+				"www/js/modules/analog.js:156"
+			],
+			"notes": []
+		},
+		"Notification Events": {
+			"references": [
+				"www/js/modules/options.js:1081"
+			],
+			"notes": []
+		},
+		"Notifications": {
+			"references": [
+				"www/js/modules/notifications.js:85"
+			],
+			"notes": []
+		},
+		"Nov": {
+			"references": [
+				"www/js/modules/dates.js:173",
+				"www/js/modules/ui-dom.js:1396",
+				"www/js/modules/weather.js:390"
+			],
+			"notes": []
+		},
+		"Now": {
+			"references": [
+				"www/js/modules/weather.js:851"
+			],
+			"notes": []
+		},
+		"Number of Programs": {
+			"references": [
+				"www/js/modules/programs.js:2174"
+			],
+			"notes": []
+		},
+		"Number of Sensors": {
+			"references": [
+				"www/js/modules/sensors.js:2192"
+			],
+			"notes": []
+		},
+		"Number of Stations": {
+			"references": [
+				"www/js/modules/options.js:812"
+			],
+			"notes": []
+		},
+		"OK": {
+			"references": [
+				"www/js/modules/dashboard.js:124"
+			],
+			"notes": []
+		},
+		"OTC": {
+			"references": [
+				"www/js/modules/options.js:1031"
+			],
+			"notes": []
+		},
+		"Oct": {
+			"references": [
+				"www/js/modules/dates.js:173",
+				"www/js/modules/ui-dom.js:1396",
+				"www/js/modules/weather.js:384"
+			],
+			"notes": []
+		},
+		"Odd Days Only": {
+			"references": [
+				"www/js/modules/programs.js:2256",
+				"www/js/modules/programs.js:2579"
+			],
+			"notes": []
+		},
+		"Off Adj.": {
+			"references": [
+				"www/js/modules/options.js:2255"
+			],
+			"notes": []
+		},
+		"Off Command": {
+			"references": [
+				"www/js/modules/dashboard.js:411"
+			],
+			"notes": []
+		},
+		"Offline": {
+			"references": [
+				"www/js/modules/weather.js:1054"
+			],
+			"notes": []
+		},
+		"Offset (minutes)": {
+			"references": [
+				"www/js/modules/ui-dom.js:1167"
+			],
+			"notes": []
+		},
+		"On Adj.": {
+			"references": [
+				"www/js/modules/options.js:2251"
+			],
+			"notes": []
+		},
+		"On Command": {
+			"references": [
+				"www/js/modules/dashboard.js:409"
+			],
+			"notes": []
+		},
+		"On/Off adjustments are in 5-second increments.": {
+			"references": [
+				"www/js/modules/options.js:2258"
+			],
+			"notes": []
+		},
+		"Onboard Analog": {
+			"references": [
+				"www/js/modules/sensors.js:670"
+			],
+			"notes": []
+		},
+		"Online": {
+			"references": [
+				"www/js/modules/weather.js:1058"
+			],
+			"notes": []
+		},
+		"Open source attributions": {
+			"references": [
+				"www/js/modules/about.js:51"
+			],
+			"notes": []
+		},
+		"OpenSprinkler can send notifications to a specified email address using a given email and SMTP server.": {
+			"references": [
+				"www/js/modules/options.js:1061"
+			],
+			"notes": []
+		},
+		"OpenSprinkler is rebooting now": {
+			"references": [
+				"www/js/modules/ui-dom.js:703"
+			],
+			"notes": []
+		},
+		"OpenSprinkler.com Login": {
+			"references": [
+				"www/index.html:103",
+				"www/js/modules/network.js:361",
+				"www/js/modules/welcome.js:34"
+			],
+			"notes": []
+		},
+		"OpenSprinkler.com Login Expired": {
+			"references": [
+				"www/js/modules/network.js:652"
+			],
+			"notes": []
+		},
+		"OpenSprinklerASB Firmware Detected": {
+			"references": [
+				"www/js/modules/sites.js:1126"
+			],
+			"notes": []
+		},
+		"OpenThings Cloud (OTC) Settings": {
+			"references": [
+				"www/js/modules/options.js:2561"
+			],
+			"notes": []
+		},
+		"OpenThings Cloud (OTC) allows remote access using OTC Token .": {
+			"references": [
+				"www/js/modules/options.js:1033"
+			],
+			"notes": []
+		},
+		"OpenThings Token must be 32 characters long.": {
+			"references": [
+				"www/js/modules/options.js:2605",
+				"www/js/modules/sites.js:796"
+			],
+			"notes": []
+		},
+		"Operation": {
+			"references": [
+				"www/index.html:108"
+			],
+			"notes": []
+		},
+		"Operation not permitted.": {
+			"references": [
+				"www/js/modules/firmware.js:161"
+			],
+			"notes": []
+		},
+		"Option": {
+			"references": [
+				"www/js/modules/options.js:2102"
+			],
+			"notes": []
+		},
+		"Options": {
+			"references": [
+				"www/js/modules/dashboard.js:683",
+				"www/js/modules/logs.js:40",
+				"www/js/modules/programs.js:259",
+				"www/js/modules/sensors.js:1782"
+			],
+			"notes": []
+		},
+		"Order Stations by Groups": {
+			"references": [
+				"www/js/modules/options.js:764"
+			],
+			"notes": []
+		},
+		"Order Stations by Name": {
+			"references": [
+				"www/js/modules/options.js:768"
+			],
+			"notes": []
+		},
+		"Output": {
+			"references": [
+				"www/js/modules/dashboard.js:684"
+			],
+			"notes": []
+		},
+		"Overcurrent Fault detected": {
+			"references": [
+				"www/js/modules/status.js:210"
+			],
+			"notes": []
+		},
+		"Overcurrent Limit": {
+			"references": [
+				"www/js/modules/options.js:1227"
+			],
+			"notes": []
+		},
+		"PM": {
+			"references": [
+				"www/js/modules/dates.js:224",
+				"www/js/modules/ui-dom.js:1113"
+			],
+			"notes": []
+		},
+		"Password": {
+			"references": [
+				"www/js/modules/network.js:685",
+				"www/js/modules/options.js:2366"
+			],
+			"notes": []
+		},
+		"Password cannot be empty": {
+			"references": [
+				"www/js/modules/network.js:789"
+			],
+			"notes": []
+		},
+		"Password cannot be longer than 32 characters": {
+			"references": [
+				"www/js/modules/network.js:796"
+			],
+			"notes": []
+		},
+		"Password changed successfully": {
+			"references": [
+				"www/js/modules/network.js:826"
+			],
+			"notes": []
+		},
+		"Password on remote controller does not match the password on this OSApp.currentSession.controller.": {
+			"references": [
+				"www/js/modules/dashboard.js:556"
+			],
+			"notes": []
+		},
+		"Password protection is disabled. Set a secure device password and turn off Ignore Password in Edit Options.": {
+			"references": [
+				"www/js/modules/sites.js:1076"
+			],
+			"notes": []
+		},
+		"Password:": {
+			"references": [
+				"www/js/modules/network.js:373",
+				"www/js/modules/network.js:741",
+				"www/js/modules/sites.js:194",
+				"www/js/modules/sites.js:774"
+			],
+			"notes": []
+		},
+		"Paste your backup here": {
+			"references": [
+				"www/js/modules/import-export.js:169"
+			],
+			"notes": []
+		},
+		"Pause Runs": {
+			"references": [
+				"www/js/modules/ui-dom.js:324"
+			],
+			"notes": []
+		},
+		"Please add a site by tapping the 'Add' button in the top right corner.": {
+			"references": [
+				"www/js/modules/sites.js:93"
+			],
+			"notes": []
+		},
+		"Please check input and try again.": {
+			"references": [
+				"www/js/modules/firmware.js:141",
+				"www/js/modules/firmware.js:171",
+				"www/js/modules/options.js:1982",
+				"www/js/modules/options.js:640"
+			],
+			"notes": []
+		},
+		"Please check the current device password is correct then try again": {
+			"references": [
+				"www/js/modules/network.js:811"
+			],
+			"notes": []
+		},
+		"Please enter an API key for your selected weather provider.": {
+			"references": [
+				"www/js/modules/options.js:928"
+			],
+			"notes": []
+		},
+		"Please enter your OpenSprinkler.com password. If you have recently changed your password, you may need to enter your previous password to decrypt the data.": {
+			"references": [
+				"www/js/modules/network.js:682"
+			],
+			"notes": []
+		},
+		"Please fill in all required fields": {
+			"references": [
+				"www/js/modules/sensors.js:2154",
+				"www/js/modules/sensors.js:2332"
+			],
+			"notes": []
+		},
+		"Please note this may indicate other data corruption as well, please verify all settings.": {
+			"references": [
+				"www/js/modules/sites.js:1681"
+			],
+			"notes": []
+		},
+		"Please re-enter password to try again.": {
+			"references": [
+				"www/js/modules/network.js:739"
+			],
+			"notes": []
+		},
+		"Point": {
+			"references": [
+				"www/js/modules/programs.js:2501",
+				"www/js/modules/programs.js:2872",
+				"www/js/modules/sensors.js:1323",
+				"www/js/modules/sensors.js:1347"
+			],
+			"notes": []
+		},
+		"Polish": {
+			"references": [
+				"www/js/modules/language.js:21"
+			],
+			"notes": []
+		},
+		"Poor": {
+			"references": [
+				"www/js/modules/network.js:908"
+			],
+			"notes": []
+		},
+		"Port": {
+			"references": [
+				"www/js/modules/analog.js:359",
+				"www/js/modules/options.js:2352",
+				"www/js/modules/options.js:2476",
+				"www/js/modules/options.js:2584"
+			],
+			"notes": []
+		},
+		"Port 8080 is reserved for firmware update. Choose another HTTP port first.": {
+			"references": [
+				"www/js/modules/firmware.js:615",
+				"www/js/modules/ui-dom.js:739"
+			],
+			"notes": []
+		},
+		"Port 8080 is reserved for firmware update. Please choose another HTTP port.": {
+			"references": [
+				"www/js/modules/options.js:360"
+			],
+			"notes": []
+		},
+		"Portuguese": {
+			"references": [
+				"www/js/modules/language.js:21"
+			],
+			"notes": []
+		},
+		"Power On": {
+			"references": [
+				"www/js/modules/firmware.js:25"
+			],
+			"notes": []
+		},
+		"Powered by AccuWeather": {
+			"references": [
+				"www/js/modules/weather.js:915"
+			],
+			"notes": []
+		},
+		"Powered by Apple": {
+			"references": [
+				"www/js/modules/weather.js:889"
+			],
+			"notes": []
+		},
+		"Powered by Bright Sky+DWD": {
+			"references": [
+				"www/js/modules/weather.js:899"
+			],
+			"notes": []
+		},
+		"Powered by Dark Sky": {
+			"references": [
+				"www/js/modules/weather.js:893"
+			],
+			"notes": []
+		},
+		"Powered by Open Meteo": {
+			"references": [
+				"www/js/modules/weather.js:903"
+			],
+			"notes": []
+		},
+		"Powered by OpenWeather": {
+			"references": [
+				"www/js/modules/weather.js:896"
+			],
+			"notes": []
+		},
+		"Powered by PirateWeather": {
+			"references": [
+				"www/js/modules/weather.js:911"
+			],
+			"notes": []
+		},
+		"Powered by Weather Underground": {
+			"references": [
+				"www/js/modules/weather.js:907"
+			],
+			"notes": []
+		},
+		"Powered by your Local PWS": {
+			"references": [
+				"www/js/modules/weather.js:918"
+			],
+			"notes": []
+		},
+		"Prevents watering when the selected restriction is met.": {
+			"references": [
+				"www/js/modules/options.js:888"
+			],
+			"notes": []
+		},
+		"Prevents watering when the selected restrictions are met.": {
+			"references": [
+				"www/js/modules/options.js:878"
+			],
+			"notes": []
+		},
+		"Preview Programs": {
+			"references": [
+				"www/js/modules/ui-dom.js:315"
+			],
+			"notes": []
+		},
+		"Program": {
+			"references": [
+				"www/js/modules/import-export.js:1271",
+				"www/js/modules/programs.js:2136",
+				"www/js/modules/programs.js:2181",
+				"www/js/modules/programs.js:2433",
+				"www/js/modules/programs.js:3273",
+				"www/js/modules/programs.js:499"
+			],
+			"notes": []
+		},
+		"Program Interval": {
+			"references": [
+				"www/js/modules/programs.js:2306"
+			],
+			"notes": []
+		},
+		"Program Name": {
+			"references": [
+				"www/js/modules/programs.js:2431"
+			],
+			"notes": []
+		},
+		"Program Preview": {
+			"references": [
+				"www/js/modules/programs.js:1952"
+			],
+			"notes": []
+		},
+		"Program Start": {
+			"references": [
+				"www/js/modules/options.js:33"
+			],
+			"notes": []
+		},
+		"Program Switch": {
+			"references": [
+				"www/js/modules/options.js:2022",
+				"www/js/modules/options.js:969",
+				"www/js/modules/sensors.js:101"
+			],
+			"notes": []
+		},
+		"Program Type": {
+			"references": [
+				"www/js/modules/programs.js:2522"
+			],
+			"notes": []
+		},
+		"Program added successfully": {
+			"references": [
+				"www/js/modules/programs.js:3353",
+				"www/js/modules/programs.js:3549"
+			],
+			"notes": []
+		},
+		"Program adjustments are unavailable.": {
+			"references": [
+				"www/js/modules/programs.js:3073"
+			],
+			"notes": []
+		},
+		"Program data is newer than the device firmware and cannot be imported": {
+			"references": [
+				"www/js/modules/import-export.js:885"
+			],
+			"notes": []
+		},
+		"Program has been updated": {
+			"references": [
+				"www/js/modules/programs.js:3366",
+				"www/js/modules/programs.js:3563"
+			],
+			"notes": []
+		},
+		"Program preview is unavailable because sensor adjustments could not be loaded.": {
+			"references": [
+				"www/js/modules/programs.js:1794"
+			],
+			"notes": []
+		},
+		"Program sensor adjustments that reference a sensor absent from both the backup and this controller will be disabled.": {
+			"references": [
+				"www/js/modules/import-export.js:916"
+			],
+			"notes": []
+		},
+		"Program to adjust": {
+			"references": [
+				"www/js/modules/analog.js:194"
+			],
+			"notes": []
+		},
+		"Programs": {
+			"references": [
+				"www/js/modules/programs.js:225"
+			],
+			"notes": []
+		},
+		"Programs have been deleted": {
+			"references": [
+				"www/js/modules/ui-dom.js:2100"
+			],
+			"notes": []
+		},
+		"Publish Topic": {
+			"references": [
+				"www/js/modules/options.js:2374"
+			],
+			"notes": []
+		},
+		"Purchase OpenSprinkler": {
+			"references": [
+				"www/js/modules/welcome.js:30"
+			],
+			"notes": []
+		},
+		"Quick Programs": {
+			"references": [
+				"www/js/modules/programs.js:493"
+			],
+			"notes": []
+		},
+		"RF": {
+			"references": [
+				"www/js/modules/dashboard.js:730",
+				"www/js/modules/stations.js:172"
+			],
+			"notes": []
+		},
+		"RF Code": {
+			"references": [
+				"www/js/modules/dashboard.js:333"
+			],
+			"notes": []
+		},
+		"RF code error.": {
+			"references": [
+				"www/js/modules/firmware.js:160"
+			],
+			"notes": []
+		},
+		"Rain": {
+			"references": [
+				"www/js/modules/analog.js:915",
+				"www/js/modules/analog.js:919",
+				"www/js/modules/options.js:2014",
+				"www/js/modules/options.js:965",
+				"www/js/modules/sensors.js:97",
+				"www/js/modules/weather.js:107"
+			],
+			"notes": []
+		},
+		"Rain Delay": {
+			"references": [
+				"www/js/modules/logs.js:623",
+				"www/js/modules/ui-dom.js:321"
+			],
+			"notes": []
+		},
+		"Rain Delay Update": {
+			"references": [
+				"www/js/modules/options.js:40"
+			],
+			"notes": []
+		},
+		"Rain Restriction": {
+			"references": [
+				"www/js/modules/options.js:1470"
+			],
+			"notes": []
+		},
+		"Rain Sensor": {
+			"references": [
+				"www/js/modules/logs.js:618",
+				"www/js/modules/logs.js:621",
+				"www/js/modules/sensors.js:97"
+			],
+			"notes": []
+		},
+		"Rain delay has been successfully set": {
+			"references": [
+				"www/js/modules/weather.js:1113"
+			],
+			"notes": []
+		},
+		"Rain delay until": {
+			"references": [
+				"www/js/modules/status.js:257"
+			],
+			"notes": []
+		},
+		"Rainfall": {
+			"references": [
+				"www/js/modules/analog.js:916",
+				"www/js/modules/analog.js:920"
+			],
+			"notes": []
+		},
+		"Read Interval (s)": {
+			"references": [
+				"www/js/modules/analog.js:386"
+			],
+			"notes": []
+		},
+		"Reboot OpenSprinkler": {
+			"references": [
+				"www/index.html:111"
+			],
+			"notes": []
+		},
+		"Reboot Reason": {
+			"references": [
+				"www/js/modules/system-diagnostics.js:37"
+			],
+			"notes": []
+		},
+		"Recipient Email": {
+			"references": [
+				"www/js/modules/options.js:2497"
+			],
+			"notes": []
+		},
+		"Refresh": {
+			"references": [
+				"www/js/modules/logs.js:644",
+				"www/js/modules/sensors.js:3244",
+				"www/js/modules/weather.js:812"
+			],
+			"notes": []
+		},
+		"Refresh Sensor data": {
+			"references": [
+				"www/js/modules/analog.js:727"
+			],
+			"notes": []
+		},
+		"Register here": {
+			"references": [
+				"www/js/modules/network.js:366"
+			],
+			"notes": []
+		},
+		"Relay Pulse": {
+			"references": [
+				"www/js/modules/options.js:1192"
+			],
+			"notes": []
+		},
+		"Relay pulsing is used for special situations where rapid pulsing is needed in the output with a range from 1 to 2000 milliseconds. A zero value disables the pulsing option.": {
+			"references": [
+				"www/js/modules/options.js:1194"
+			],
+			"notes": []
+		},
+		"Remote Address": {
+			"references": [
+				"www/js/modules/dashboard.js:340"
+			],
+			"notes": []
+		},
+		"Remote Extension mode is active": {
+			"references": [
+				"www/js/modules/sites.js:1097"
+			],
+			"notes": []
+		},
+		"Remote OTC Token": {
+			"references": [
+				"www/js/modules/dashboard.js:350"
+			],
+			"notes": []
+		},
+		"Remote Port": {
+			"references": [
+				"www/js/modules/dashboard.js:342"
+			],
+			"notes": []
+		},
+		"Remote Station": {
+			"references": [
+				"www/js/modules/dashboard.js:344",
+				"www/js/modules/dashboard.js:352"
+			],
+			"notes": []
+		},
+		"Remote Station (IP)": {
+			"references": [
+				"www/js/modules/dashboard.js:731",
+				"www/js/modules/stations.js:174"
+			],
+			"notes": []
+		},
+		"Remote Station (OTC)": {
+			"references": [
+				"www/js/modules/dashboard.js:739",
+				"www/js/modules/stations.js:182"
+			],
+			"notes": []
+		},
+		"Remote access is not enabled": {
+			"references": [
+				"www/js/modules/network.js:285"
+			],
+			"notes": []
+		},
+		"Remote controller is not configured as an extender. Would you like to do this now?": {
+			"references": [
+				"www/js/modules/dashboard.js:560"
+			],
+			"notes": []
+		},
+		"Remove this station from its Bundle Station before changing its type.": {
+			"references": [
+				"www/js/modules/dashboard.js:471"
+			],
+			"notes": []
+		},
+		"Remove unavailable members before saving.": {
+			"references": [
+				"www/js/modules/dashboard.js:308"
+			],
+			"notes": []
+		},
+		"Repeat Count": {
+			"references": [
+				"www/js/modules/programs.js:2636",
+				"www/js/modules/programs.js:2963",
+				"www/js/modules/programs.js:526",
+				"www/js/modules/programs.js:750"
+			],
+			"notes": []
+		},
+		"Repeat Every": {
+			"references": [
+				"www/js/modules/programs.js:2633",
+				"www/js/modules/programs.js:523"
+			],
+			"notes": []
+		},
+		"Repeating": {
+			"references": [
+				"www/js/modules/programs.js:2624"
+			],
+			"notes": []
+		},
+		"Replace cloud with local": {
+			"references": [
+				"www/js/modules/network.js:583"
+			],
+			"notes": []
+		},
+		"Replace local with cloud": {
+			"references": [
+				"www/js/modules/network.js:582"
+			],
+			"notes": []
+		},
+		"Requests declined because the queue was full": {
+			"references": [
+				"www/js/modules/dashboard.js:1340"
+			],
+			"notes": []
+		},
+		"Reset": {
+			"references": [
+				"www/js/modules/options.js:1262",
+				"www/js/modules/programs.js:581"
+			],
+			"notes": []
+		},
+		"Reset All Options": {
+			"references": [
+				"www/js/modules/options.js:1265",
+				"www/js/modules/sites.js:1687"
+			],
+			"notes": []
+		},
+		"Reset Button": {
+			"references": [
+				"www/js/modules/firmware.js:25"
+			],
+			"notes": []
+		},
+		"Reset Station Attributes": {
+			"references": [
+				"www/js/modules/options.js:1267"
+			],
+			"notes": []
+		},
+		"Reset Wireless Settings": {
+			"references": [
+				"www/js/modules/options.js:1270"
+			],
+			"notes": []
+		},
+		"Reset Zoom": {
+			"references": [
+				"www/js/modules/sensors.js:3005"
+			],
+			"notes": []
+		},
+		"Reset cycle and soak settings": {
+			"references": [
+				"www/js/modules/dashboard.js:1331"
+			],
+			"notes": []
+		},
+		"Reset cycle and soak settings for all stations?": {
+			"references": [
+				"www/js/modules/dashboard.js:1332"
+			],
+			"notes": []
+		},
+		"Restored sensor definitions did not pass verification. The restore was stopped before programs were changed.": {
+			"references": [
+				"www/js/modules/import-export.js:1427"
+			],
+			"notes": []
+		},
+		"Restrictions": {
+			"references": [
+				"www/js/modules/programs.js:2253",
+				"www/js/modules/programs.js:2577"
+			],
+			"notes": []
+		},
+		"Retrieving sensor logs": {
+			"references": [
+				"www/js/modules/sensors.js:2665"
+			],
+			"notes": []
+		},
+		"Romanian": {
+			"references": [
+				"www/js/modules/language.js:21"
+			],
+			"notes": []
+		},
+		"Run": {
+			"references": [
+				"www/js/modules/programs.js:2659",
+				"www/js/modules/programs.js:3613"
+			],
+			"notes": []
+		},
+		"Run After Others": {
+			"references": [
+				"www/js/modules/programs.js:3605"
+			],
+			"notes": []
+		},
+		"Run After Others (Append)": {
+			"references": [
+				"www/js/modules/programs.js:566"
+			],
+			"notes": []
+		},
+		"Run Now and Cancel Others": {
+			"references": [
+				"www/js/modules/programs.js:3607"
+			],
+			"notes": []
+		},
+		"Run Now and Cancel Others (Replace)": {
+			"references": [
+				"www/js/modules/programs.js:574"
+			],
+			"notes": []
+		},
+		"Run Now and Pause Others": {
+			"references": [
+				"www/js/modules/programs.js:3606"
+			],
+			"notes": []
+		},
+		"Run Now and Pause Others (Insert to front)": {
+			"references": [
+				"www/js/modules/programs.js:570"
+			],
+			"notes": []
+		},
+		"Run Program": {
+			"references": [
+				"www/js/modules/programs.js:2318"
+			],
+			"notes": []
+		},
+		"Run Time": {
+			"references": [
+				"www/js/modules/programs.js:1835"
+			],
+			"notes": []
+		},
+		"Run immediately (preempt other zones in this group)": {
+			"references": [
+				"www/js/modules/ui-dom.js:1552"
+			],
+			"notes": []
+		},
+		"Run this program?": {
+			"references": [
+				"www/js/modules/programs.js:3578"
+			],
+			"notes": []
+		},
+		"Run-Once": {
+			"references": [
+				"www/js/modules/programs.js:759",
+				"www/js/modules/ui-dom.js:320"
+			],
+			"notes": []
+		},
+		"Run-once program": {
+			"references": [
+				"www/js/modules/programs.js:2141"
+			],
+			"notes": []
+		},
+		"Run-once program has been scheduled": {
+			"references": [
+				"www/js/modules/stations.js:434"
+			],
+			"notes": []
+		},
+		"Running": {
+			"references": [
+				"www/js/modules/dashboard.js:1448",
+				"www/js/modules/dashboard.js:229"
+			],
+			"notes": []
+		},
+		"Running Bundle Station": {
+			"references": [
+				"www/js/modules/dashboard.js:136"
+			],
+			"notes": []
+		},
+		"Runtime": {
+			"references": [
+				"www/js/modules/logs.js:346"
+			],
+			"notes": []
+		},
+		"Russian": {
+			"references": [
+				"www/js/modules/language.js:21"
+			],
+			"notes": []
+		},
+		"SMT100 id assigned!": {
+			"references": [
+				"www/js/modules/analog.js:429"
+			],
+			"notes": []
+		},
+		"SMTP Server": {
+			"references": [
+				"www/js/modules/options.js:2469"
+			],
+			"notes": []
+		},
+		"Sat": {
+			"references": [
+				"www/js/modules/dates.js:171",
+				"www/js/modules/dates.js:238",
+				"www/js/modules/weather.js:848"
+			],
+			"notes": []
+		},
+		"Saturday": {
+			"references": [
+				"www/js/modules/dates.js:237",
+				"www/js/modules/programs.js:2218",
+				"www/js/modules/programs.js:2388"
+			],
+			"notes": []
+		},
+		"Save Changes to": {
+			"references": [
+				"www/js/modules/programs.js:2658",
+				"www/js/modules/sites.js:158"
+			],
+			"notes": []
+		},
+		"Save Changes to Program": {
+			"references": [
+				"www/js/modules/programs.js:2316"
+			],
+			"notes": []
+		},
+		"Save New Program": {
+			"references": [
+				"www/js/modules/programs.js:2313",
+				"www/js/modules/programs.js:2656"
+			],
+			"notes": []
+		},
+		"Save Password": {
+			"references": [
+				"www/js/modules/network.js:745",
+				"www/js/modules/sites.js:579"
+			],
+			"notes": []
+		},
+		"Scan For Device": {
+			"references": [
+				"www/js/modules/sites.js:50",
+				"www/js/modules/welcome.js:39"
+			],
+			"notes": []
+		},
+		"Scanning for OpenSprinkler": {
+			"references": [
+				"www/js/modules/network.js:160"
+			],
+			"notes": []
+		},
+		"Scanning for OpenSprinkler (1.8.3)": {
+			"references": [
+				"www/js/modules/network.js:164"
+			],
+			"notes": []
+		},
+		"Scanning for OpenSprinkler Pi": {
+			"references": [
+				"www/js/modules/network.js:162"
+			],
+			"notes": []
+		},
+		"Scanning for OpenSprinkler Pi (1.8.3)": {
+			"references": [
+				"www/js/modules/network.js:166"
+			],
+			"notes": []
+		},
+		"Scheduled": {
+			"references": [
+				"www/js/modules/dashboard.js:1448",
+				"www/js/modules/dashboard.js:229"
+			],
+			"notes": []
+		},
+		"Scheduling Option": {
+			"references": [
+				"www/js/modules/programs.js:3604",
+				"www/js/modules/programs.js:563"
+			],
+			"notes": []
+		},
+		"Seconds": {
+			"references": [
+				"www/js/modules/options.js:1857",
+				"www/js/modules/ui-dom.js:1576"
+			],
+			"notes": []
+		},
+		"See help documentation for details.": {
+			"references": [
+				"www/js/modules/analog.js:157",
+				"www/js/modules/analog.js:322"
+			],
+			"notes": []
+		},
+		"Select Export Method": {
+			"references": [
+				"www/js/modules/import-export.js:128"
+			],
+			"notes": []
+		},
+		"Select Import Method": {
+			"references": [
+				"www/js/modules/import-export.js:200"
+			],
+			"notes": []
+		},
+		"Select Merge Method": {
+			"references": [
+				"www/js/modules/network.js:579"
+			],
+			"notes": []
+		},
+		"Select Notification Events": {
+			"references": [
+				"www/js/modules/options.js:1934"
+			],
+			"notes": []
+		},
+		"Select Sensor": {
+			"references": [
+				"www/js/modules/programs.js:2489"
+			],
+			"notes": []
+		},
+		"Select Site": {
+			"references": [
+				"www/js/modules/sites.js:532"
+			],
+			"notes": []
+		},
+		"Select a compatible built-in sensor port.": {
+			"references": [
+				"www/js/modules/sensors.js:1149"
+			],
+			"notes": []
+		},
+		"Select notification events. Applicable to all of MQTT, Email, and IFTTT. <b>NOTE</b>: enabling too many events or notification methods may cause delays, missed responses, or skipped short watering events.": {
+			"references": [
+				"www/js/modules/options.js:1083"
+			],
+			"notes": []
+		},
+		"Select the station type using the dropdown selector above and configure the station properties.": {
+			"references": [
+				"www/js/modules/dashboard.js:326"
+			],
+			"notes": []
+		},
+		"Select your preferred weather service provider.": {
+			"references": [
+				"www/js/modules/options.js:1779",
+				"www/js/modules/options.js:909"
+			],
+			"notes": []
+		},
+		"Selected": {
+			"references": [
+				"www/js/modules/dashboard.js:310"
+			],
+			"notes": []
+		},
+		"Send notifications to an MQTT broker and/or receive command message from the broker.": {
+			"references": [
+				"www/js/modules/options.js:1047"
+			],
+			"notes": []
+		},
+		"Sender Email": {
+			"references": [
+				"www/js/modules/options.js:2483"
+			],
+			"notes": []
+		},
+		"Sensor": {
+			"references": [
+				"www/js/modules/analog.js:182",
+				"www/js/modules/options.js:1009",
+				"www/js/modules/options.js:2094",
+				"www/js/modules/sensors.js:103"
+			],
+			"notes": []
+		},
+		"Sensor 1 Update": {
+			"references": [
+				"www/js/modules/options.js:34"
+			],
+			"notes": []
+		},
+		"Sensor 2 Update": {
+			"references": [
+				"www/js/modules/options.js:39"
+			],
+			"notes": []
+		},
+		"Sensor 3 Update": {
+			"references": [
+				"www/js/modules/options.js:44"
+			],
+			"notes": []
+		},
+		"Sensor 4 Update": {
+			"references": [
+				"www/js/modules/options.js:45"
+			],
+			"notes": []
+		},
+		"Sensor Enabled": {
+			"references": [
+				"www/js/modules/analog.js:391"
+			],
+			"notes": []
+		},
+		"Sensor Logs": {
+			"references": [
+				"www/js/modules/sensors.js:3235",
+				"www/js/modules/ui-dom.js:317"
+			],
+			"notes": []
+		},
+		"Sensor Value": {
+			"references": [
+				"www/js/modules/programs.js:2502",
+				"www/js/modules/programs.js:2831",
+				"www/js/modules/programs.js:2870",
+				"www/js/modules/sensors.js:1325"
+			],
+			"notes": []
+		},
+		"Sensor added successfully": {
+			"references": [
+				"www/js/modules/sensors.js:2069"
+			],
+			"notes": []
+		},
+		"Sensor adjustment is unavailable; using 100%.": {
+			"references": [
+				"www/js/modules/programs.js:1801",
+				"www/js/modules/programs.js:3680"
+			],
+			"notes": []
+		},
+		"Sensor definitions in this backup reference unavailable child sensors.": {
+			"references": [
+				"www/js/modules/import-export.js:877"
+			],
+			"notes": []
+		},
+		"Sensor deleted successfully": {
+			"references": [
+				"www/js/modules/sensors.js:2082"
+			],
+			"notes": []
+		},
+		"Sensor log progress": {
+			"references": [
+				"www/js/modules/sensors.js:2463"
+			],
+			"notes": []
+		},
+		"Sensor number exists!": {
+			"references": [
+				"www/js/modules/analog.js:445"
+			],
+			"notes": []
+		},
+		"Sensor readings conflict with the restored built-in port modes.": {
+			"references": [
+				"www/js/modules/import-export.js:613"
+			],
+			"notes": []
+		},
+		"Sensor updated successfully": {
+			"references": [
+				"www/js/modules/sensors.js:2074"
+			],
+			"notes": []
+		},
+		"Sensor-Nr": {
+			"references": [
+				"www/js/modules/analog.js:326"
+			],
+			"notes": []
+		},
+		"Sensors": {
+			"references": [
+				"www/js/modules/sensors.js:568"
+			],
+			"notes": []
+		},
+		"Sep": {
+			"references": [
+				"www/js/modules/dates.js:173",
+				"www/js/modules/ui-dom.js:1396",
+				"www/js/modules/weather.js:378"
+			],
+			"notes": []
+		},
+		"Sequential": {
+			"references": [
+				"www/js/modules/dashboard.js:698",
+				"www/js/modules/options.js:834"
+			],
+			"notes": []
+		},
+		"Sequential Group": {
+			"references": [
+				"www/js/modules/cards.js:37",
+				"www/js/modules/dashboard.js:704"
+			],
+			"notes": []
+		},
+		"Server": {
+			"references": [
+				"www/js/modules/options.js:2577"
+			],
+			"notes": []
+		},
+		"Server Name": {
+			"references": [
+				"www/js/modules/dashboard.js:405"
+			],
+			"notes": []
+		},
+		"Server Port": {
+			"references": [
+				"www/js/modules/dashboard.js:407"
+			],
+			"notes": []
+		},
+		"Set SMT100 Modbus ID": {
+			"references": [
+				"www/js/modules/analog.js:341"
+			],
+			"notes": []
+		},
+		"Set either to 0 to disable.": {
+			"references": [
+				"www/js/modules/options.js:1482"
+			],
+			"notes": []
+		},
+		"Set the baseline potential evapotranspiration (ETo) and elevation for your location. ": {
+			"references": [
+				"www/js/modules/weather.js:514"
+			],
+			"notes": []
+		},
+		"Set the baseline weather conditions for your location. ": {
+			"references": [
+				"www/js/modules/weather.js:95"
+			],
+			"notes": []
+		},
+		"Set the sensitivity of the watering adjustment to changes in each of the above weather conditions.": {
+			"references": [
+				"www/js/modules/weather.js:119"
+			],
+			"notes": []
+		},
+		"Set this port to Analog in Built-in Sensors before adding an analog reading.": {
+			"references": [
+				"www/js/modules/sensors.js:164"
+			],
+			"notes": []
+		},
+		"Set to -40 (either °F or °C) to disable.": {
+			"references": [
+				"www/js/modules/options.js:1490"
+			],
+			"notes": []
+		},
+		"Settings have been saved": {
+			"references": [
+				"www/js/modules/options.js:1602",
+				"www/js/modules/options.js:598",
+				"www/js/modules/sites.js:1706"
+			],
+			"notes": []
+		},
+		"Settings were saved, but an invalid master station was ignored.": {
+			"references": [
+				"www/js/modules/options.js:597",
+				"www/js/modules/options.js:622"
+			],
+			"notes": []
+		},
+		"Show": {
+			"references": [
+				"www/js/modules/ui-dom.js:335"
+			],
+			"notes": []
+		},
+		"Show Disabled": {
+			"references": [
+				"www/js/modules/options.js:771"
+			],
+			"notes": []
+		},
+		"Show Inactive": {
+			"references": [
+				"www/js/modules/sensors.js:2437"
+			],
+			"notes": []
+		},
+		"Show Log": {
+			"references": [
+				"www/js/modules/analog.js:782"
+			],
+			"notes": []
+		},
+		"Show Sensor Log": {
+			"references": [
+				"www/js/modules/ui-dom.js:318"
+			],
+			"notes": []
+		},
+		"Show Station Number": {
+			"references": [
+				"www/js/modules/options.js:774"
+			],
+			"notes": []
+		},
+		"Show on Mainpage": {
+			"references": [
+				"www/js/modules/analog.js:399"
+			],
+			"notes": []
+		},
+		"Single Run": {
+			"references": [
+				"www/js/modules/programs.js:2536"
+			],
+			"notes": []
+		},
+		"Site Name": {
+			"references": [
+				"www/js/modules/errors.js:51"
+			],
+			"notes": []
+		},
+		"Site deleted successfully": {
+			"references": [
+				"www/js/modules/sites.js:335"
+			],
+			"notes": []
+		},
+		"Site updated successfully": {
+			"references": [
+				"www/js/modules/sites.js:295"
+			],
+			"notes": []
+		},
+		"Slovak": {
+			"references": [
+				"www/js/modules/language.js:21"
+			],
+			"notes": []
+		},
+		"Slovenian": {
+			"references": [
+				"www/js/modules/language.js:21"
+			],
+			"notes": []
+		},
+		"Soaking": {
+			"references": [
+				"www/js/modules/cycle-soak.js:45"
+			],
+			"notes": []
+		},
+		"Soil": {
+			"references": [
+				"www/js/modules/options.js:2019",
+				"www/js/modules/options.js:967",
+				"www/js/modules/sensors.js:99"
+			],
+			"notes": []
+		},
+		"Soil Sensor": {
+			"references": [
+				"www/js/modules/sensors.js:99"
+			],
+			"notes": []
+		},
+		"Soil moisture": {
+			"references": [
+				"www/js/modules/analog.js:888",
+				"www/js/modules/analog.js:889"
+			],
+			"notes": []
+		},
+		"Some program starts exceed the queue capacity and are not shown.": {
+			"references": [
+				"www/js/modules/programs.js:1364"
+			],
+			"notes": []
+		},
+		"Spanish": {
+			"references": [
+				"www/js/modules/language.js:21"
+			],
+			"notes": []
+		},
+		"Special Station": {
+			"references": [
+				"www/js/modules/bundles.js:142",
+				"www/js/modules/stations.js:186"
+			],
+			"notes": []
+		},
+		"Special Station Auto-Refresh": {
+			"references": [
+				"www/js/modules/options.js:1257"
+			],
+			"notes": []
+		},
+		"Sprinkler Logs": {
+			"references": [
+				"www/js/modules/ui-dom.js:316"
+			],
+			"notes": []
+		},
+		"Sprinkler Stations": {
+			"references": [
+				"www/js/modules/programs.js:376"
+			],
+			"notes": []
+		},
+		"Standard": {
+			"references": [
+				"www/js/modules/dashboard.js:729"
+			],
+			"notes": []
+		},
+		"Start Date (mm/dd/yyyy)": {
+			"references": [
+				"www/js/modules/programs.js:2566"
+			],
+			"notes": []
+		},
+		"Start Time": {
+			"references": [
+				"www/js/modules/logs.js:347",
+				"www/js/modules/programs.js:1834",
+				"www/js/modules/programs.js:2294",
+				"www/js/modules/programs.js:2469",
+				"www/js/modules/programs.js:2642",
+				"www/js/modules/programs.js:2946"
+			],
+			"notes": []
+		},
+		"Start time cannot be greater than end time": {
+			"references": [
+				"www/js/modules/logs.js:520"
+			],
+			"notes": []
+		},
+		"Start:": {
+			"references": [
+				"www/js/modules/logs.js:49"
+			],
+			"notes": []
+		},
+		"Starting In": {
+			"references": [
+				"www/js/modules/programs.js:2273",
+				"www/js/modules/programs.js:2559"
+			],
+			"notes": []
+		},
+		"Station": {
+			"references": [
+				"www/js/modules/logs.js:345",
+				"www/js/modules/logs.js:46"
+			],
+			"notes": []
+		},
+		"Station Delay": {
+			"references": [
+				"www/js/modules/options.js:825"
+			],
+			"notes": []
+		},
+		"Station Duration": {
+			"references": [
+				"www/js/modules/programs.js:2303"
+			],
+			"notes": []
+		},
+		"Station Finish": {
+			"references": [
+				"www/js/modules/options.js:38"
+			],
+			"notes": []
+		},
+		"Station Handling": {
+			"references": [
+				"www/js/modules/options.js:808"
+			],
+			"notes": []
+		},
+		"Station Name": {
+			"references": [
+				"www/js/modules/dashboard.js:687"
+			],
+			"notes": []
+		},
+		"Station Notes": {
+			"references": [
+				"www/js/modules/dashboard.js:711"
+			],
+			"notes": []
+		},
+		"Station Start": {
+			"references": [
+				"www/js/modules/options.js:41"
+			],
+			"notes": []
+		},
+		"Station Timer": {
+			"references": [
+				"www/js/modules/programs.js:268"
+			],
+			"notes": []
+		},
+		"Station Type": {
+			"references": [
+				"www/js/modules/dashboard.js:727"
+			],
+			"notes": []
+		},
+		"Station has been queued": {
+			"references": [
+				"www/js/modules/dashboard.js:1631"
+			],
+			"notes": []
+		},
+		"Station has been stopped": {
+			"references": [
+				"www/js/modules/dashboard.js:1660"
+			],
+			"notes": []
+		},
+		"Station timer prevents a station from running indefinitely and will automatically turn it off after the set duration (or when toggled off)": {
+			"references": [
+				"www/js/modules/programs.js:265"
+			],
+			"notes": []
+		},
+		"Stations": {
+			"references": [
+				"www/js/modules/programs.js:2588"
+			],
+			"notes": []
+		},
+		"Stations Currently Paused": {
+			"references": [
+				"www/js/modules/status.js:133"
+			],
+			"notes": []
+		},
+		"Stations have been updated": {
+			"references": [
+				"www/js/modules/dashboard.js:1124",
+				"www/js/modules/options.js:148"
+			],
+			"notes": []
+		},
+		"Stations:": {
+			"references": [
+				"www/js/modules/programs.js:2278"
+			],
+			"notes": []
+		},
+		"Stop": {
+			"references": [
+				"www/js/modules/sensors.js:2459",
+				"www/js/modules/sensors.js:2695"
+			],
+			"notes": []
+		},
+		"Stop All Stations": {
+			"references": [
+				"www/js/modules/ui-dom.js:104",
+				"www/js/modules/ui-dom.js:337",
+				"www/js/modules/ui-dom.js:339"
+			],
+			"notes": []
+		},
+		"Stopping": {
+			"references": [
+				"www/js/modules/sensors.js:3262"
+			],
+			"notes": []
+		},
+		"Stopping after the current page": {
+			"references": [
+				"www/js/modules/sensors.js:2700",
+				"www/js/modules/sensors.js:3263"
+			],
+			"notes": []
+		},
+		"Submit": {
+			"references": [
+				"www/js/modules/analog.js:228",
+				"www/js/modules/analog.js:404",
+				"www/js/modules/dashboard.js:827",
+				"www/js/modules/network.js:375",
+				"www/js/modules/network.js:686",
+				"www/js/modules/network.js:747",
+				"www/js/modules/options.js:1302",
+				"www/js/modules/options.js:1496",
+				"www/js/modules/options.js:1936",
+				"www/js/modules/options.js:2120",
+				"www/js/modules/options.js:2259",
+				"www/js/modules/options.js:2393",
+				"www/js/modules/options.js:2505",
+				"www/js/modules/options.js:2592",
+				"www/js/modules/options.js:683",
+				"www/js/modules/programs.js:3238",
+				"www/js/modules/programs.js:580",
+				"www/js/modules/programs.js:768",
+				"www/js/modules/sensors.js:1607",
+				"www/js/modules/sensors.js:2385",
+				"www/js/modules/sites.js:196",
+				"www/js/modules/sites.js:593",
+				"www/js/modules/sites.js:776",
+				"www/js/modules/ui-dom.js:1174",
+				"www/js/modules/ui-dom.js:1489",
+				"www/js/modules/ui-dom.js:1623",
+				"www/js/modules/ui-dom.js:1877",
+				"www/js/modules/weather.js:156",
+				"www/js/modules/weather.js:258",
+				"www/js/modules/weather.js:401",
+				"www/js/modules/weather.js:532"
+			],
+			"notes": []
+		},
+		"Subnet Mask": {
+			"references": [
+				"www/js/modules/options.js:1153"
+			],
+			"notes": []
+		},
+		"Subscribe Topic": {
+			"references": [
+				"www/js/modules/options.js:2382"
+			],
+			"notes": []
+		},
+		"Sun": {
+			"references": [
+				"www/js/modules/dates.js:170",
+				"www/js/modules/dates.js:238",
+				"www/js/modules/weather.js:848"
+			],
+			"notes": []
+		},
+		"Sunday": {
+			"references": [
+				"www/js/modules/dates.js:237",
+				"www/js/modules/programs.js:2218",
+				"www/js/modules/programs.js:2388"
+			],
+			"notes": []
+		},
+		"Sunrise": {
+			"references": [
+				"www/js/modules/programs.js:2119",
+				"www/js/modules/weather.js:854",
+				"www/js/modules/weather.js:872"
+			],
+			"notes": []
+		},
+		"Sunrise to Sunset": {
+			"references": [
+				"www/js/modules/dates.js:251",
+				"www/js/modules/ui-dom.js:1611"
+			],
+			"notes": []
+		},
+		"Sunset": {
+			"references": [
+				"www/js/modules/programs.js:2122",
+				"www/js/modules/weather.js:855",
+				"www/js/modules/weather.js:873"
+			],
+			"notes": []
+		},
+		"Sunset to Sunrise": {
+			"references": [
+				"www/js/modules/dates.js:249",
+				"www/js/modules/ui-dom.js:1614"
+			],
+			"notes": []
+		},
+		"Swedish": {
+			"references": [
+				"www/js/modules/language.js:21"
+			],
+			"notes": []
+		},
+		"Synced with OpenSprinkler.com": {
+			"references": [
+				"www/js/modules/network.js:340"
+			],
+			"notes": []
+		},
+		"System": {
+			"references": [
+				"www/js/modules/options.js:702"
+			],
+			"notes": []
+		},
+		"System Diagnostics": {
+			"references": [
+				"www/index.html:114"
+			],
+			"notes": []
+		},
+		"System Disabled": {
+			"references": [
+				"www/js/modules/status.js:120"
+			],
+			"notes": []
+		},
+		"System Idle": {
+			"references": [
+				"www/js/modules/status.js:331"
+			],
+			"notes": []
+		},
+		"Table": {
+			"references": [
+				"www/js/modules/logs.js:37"
+			],
+			"notes": []
+		},
+		"Tamil": {
+			"references": [
+				"www/js/modules/language.js:21"
+			],
+			"notes": []
+		},
+		"Tap to Configure": {
+			"references": [
+				"www/js/modules/options.js:1007",
+				"www/js/modules/options.js:1038",
+				"www/js/modules/options.js:1052",
+				"www/js/modules/options.js:1066",
+				"www/js/modules/options.js:2189",
+				"www/js/modules/options.js:870",
+				"www/js/modules/options.js:884"
+			],
+			"notes": []
+		},
+		"Tap to Configure Master": {
+			"references": [
+				"www/js/modules/options.js:796"
+			],
+			"notes": []
+		},
+		"Target PD Voltage": {
+			"references": [
+				"www/js/modules/options.js:1207"
+			],
+			"notes": []
+		},
+		"Temp": {
+			"references": [
+				"www/js/modules/weather.js:101"
+			],
+			"notes": []
+		},
+		"Temperature": {
+			"references": [
+				"www/js/modules/analog.js:895",
+				"www/js/modules/analog.js:899"
+			],
+			"notes": []
+		},
+		"Temperature Restriction": {
+			"references": [
+				"www/js/modules/options.js:1484"
+			],
+			"notes": []
+		},
+		"Test All Stations": {
+			"references": [
+				"www/js/modules/programs.js:493"
+			],
+			"notes": []
+		},
+		"Thai": {
+			"references": [
+				"www/js/modules/language.js:21"
+			],
+			"notes": []
+		},
+		"The ETo adjustment method will adjust the watering duration based on the difference between the baseline ETo and the current ETo.": {
+			"references": [
+				"www/js/modules/weather.js:515"
+			],
+			"notes": []
+		},
+		"The OpenSprinkler controller sent unexpected data, likely due to outdated firmware.": {
+			"references": [
+				"www/js/modules/errors.js:50"
+			],
+			"notes": []
+		},
+		"The Zimmerman method will adjust the watering duration based on differences from this reference point.": {
+			"references": [
+				"www/js/modules/weather.js:96"
+			],
+			"notes": []
+		},
+		"The active controller changed. Please restart the restore.": {
+			"references": [
+				"www/js/modules/import-export.js:980"
+			],
+			"notes": []
+		},
+		"The active controller changed. The restore finished without refreshing the new controller.": {
+			"references": [
+				"www/js/modules/import-export.js:1448"
+			],
+			"notes": []
+		},
+		"The active controller changed. The restore was stopped before completion.": {
+			"references": [
+				"www/js/modules/import-export.js:1323"
+			],
+			"notes": []
+		},
+		"The controller detected one or more zones drawing too much current, exceeding the limit. Please check your wiring and perform a <b>solenoid resistance test</b>. After fixing, you can clear the alert here. For more instructions, visit our support site": {
+			"references": [
+				"www/js/modules/status.js:213"
+			],
+			"notes": []
+		},
+		"The controller is at its sensor limit. Restoring this backup will delete sensor definitions that exist only on this controller.": {
+			"references": [
+				"www/js/modules/import-export.js:911"
+			],
+			"notes": []
+		},
+		"The holding current of your solenoid multiplied by its coil resistance (e.g. 0.25A×30Ω=7.5V). Set to 0 to use system default.": {
+			"references": [
+				"www/js/modules/options.js:1209"
+			],
+			"notes": []
+		},
+		"The passwords don't match. Please try again.": {
+			"references": [
+				"www/js/modules/network.js:784"
+			],
+			"notes": []
+		},
+		"The requested time span exceeds the maximum of 1 year and has been adjusted": {
+			"references": [
+				"www/js/modules/logs.js:528"
+			],
+			"notes": []
+		},
+		"The required hardware for this type was not detected.": {
+			"references": [
+				"www/js/modules/sensors.js:885"
+			],
+			"notes": []
+		},
+		"The selected station is already running or is scheduled to run.": {
+			"references": [
+				"www/js/modules/firmware.js:168"
+			],
+			"notes": []
+		},
+		"The watering percentage scales station run times by the set value.": {
+			"references": [
+				"www/js/modules/options.js:952"
+			],
+			"notes": []
+		},
+		"These options are only for an OpenSprinkler behind a proxy capable of SSL and/or Basic Authentication.": {
+			"references": [
+				"www/js/modules/sites.js:143"
+			],
+			"notes": []
+		},
+		"These settings are stored locally with the application and do not affect the controller. Changes are saved automatically.": {
+			"references": [
+				"www/js/modules/options.js:747"
+			],
+			"notes": []
+		},
+		"This Controller": {
+			"references": [
+				"www/js/modules/firmware.js:621"
+			],
+			"notes": []
+		},
+		"This UI has limited support for ASB firmware.": {
+			"references": [
+				"www/js/modules/about.js:82"
+			],
+			"notes": []
+		},
+		"This UI has limited support for it. Switch to OpenSprinklerASB app/UI.": {
+			"references": [
+				"www/js/modules/sites.js:1044"
+			],
+			"notes": []
+		},
+		"This action can take a while depending on the number of log records.": {
+			"references": [
+				"www/js/modules/sensors.js:3273"
+			],
+			"notes": []
+		},
+		"This backup cannot be restored without removing sensors referenced by its aggregate definitions.": {
+			"references": [
+				"www/js/modules/import-export.js:857"
+			],
+			"notes": []
+		},
+		"This backup contains Bundle Station assignments that are not supported by this controller.": {
+			"references": [
+				"www/js/modules/import-export.js:110",
+				"www/js/modules/import-export.js:48"
+			],
+			"notes": []
+		},
+		"This backup contains an incomplete Bundle Station definition.": {
+			"references": [
+				"www/js/modules/import-export.js:80"
+			],
+			"notes": []
+		},
+		"This backup contains more sensor definitions than this controller supports.": {
+			"references": [
+				"www/js/modules/import-export.js:791"
+			],
+			"notes": []
+		},
+		"This backup contains sensor definitions that are not supported by this controller.": {
+			"references": [
+				"www/js/modules/import-export.js:947"
+			],
+			"notes": []
+		},
+		"This backup contains sensor definitions that this controller does not support.": {
+			"references": [
+				"www/js/modules/import-export.js:774"
+			],
+			"notes": []
+		},
+		"This controller is using a default or empty device password. Change it to protect access.": {
+			"references": [
+				"www/js/modules/sites.js:1077"
+			],
+			"notes": []
+		},
+		"This function sets the Modbus ID for one SMT100 sensor. Disconnect all other sensors on this Modbus port. Please confirm.": {
+			"references": [
+				"www/js/modules/analog.js:426"
+			],
+			"notes": []
+		},
+		"This input does not support onboard analog readings.": {
+			"references": [
+				"www/js/modules/sensors.js:161"
+			],
+			"notes": []
+		},
+		"This is open source software: source code and changelog for this application can be found at": {
+			"references": [
+				"www/js/modules/about.js:39"
+			],
+			"notes": []
+		},
+		"This may take several minutes. Deleting a sensor's log does not free log capacity; use this only when you need to reset this sensor's recorded history.": {
+			"references": [
+				"www/js/modules/sensors.js:3045"
+			],
+			"notes": []
+		},
+		"This port has a conflicting sensor configuration. Remove it in Edit Sensors first.": {
+			"references": [
+				"www/js/modules/options.js:644"
+			],
+			"notes": []
+		},
+		"This port is configured as Analog and cannot provide a digital reading.": {
+			"references": [
+				"www/js/modules/sensors.js:167"
+			],
+			"notes": []
+		},
+		"This site is not found in the currently synced site list but may be added now.": {
+			"references": [
+				"www/js/modules/network.js:553"
+			],
+			"notes": []
+		},
+		"This station is a bundle member of": {
+			"references": [
+				"www/js/modules/dashboard.js:144"
+			],
+			"notes": []
+		},
+		"This station is active through a running Bundle Station.": {
+			"references": [
+				"www/js/modules/dashboard.js:137"
+			],
+			"notes": []
+		},
+		"This station is no longer part of a Bundle Station.": {
+			"references": [
+				"www/js/modules/dashboard.js:145"
+			],
+			"notes": []
+		},
+		"This will delete the stored SSID/password for your wireless network and return the device to access point mode": {
+			"references": [
+				"www/js/modules/options.js:1702"
+			],
+			"notes": []
+		},
+		"This will reset all station attributes": {
+			"references": [
+				"www/js/modules/options.js:1695"
+			],
+			"notes": []
+		},
+		"Thu": {
+			"references": [
+				"www/js/modules/dates.js:171",
+				"www/js/modules/dates.js:238",
+				"www/js/modules/weather.js:848"
+			],
+			"notes": []
+		},
+		"Thursday": {
+			"references": [
+				"www/js/modules/dates.js:237",
+				"www/js/modules/programs.js:2218",
+				"www/js/modules/programs.js:2388"
+			],
+			"notes": []
+		},
+		"Time": {
+			"references": [
+				"www/js/modules/ui-dom.js:1088"
+			],
+			"notes": []
+		},
+		"Timeline": {
+			"references": [
+				"www/js/modules/logs.js:35"
+			],
+			"notes": []
+		},
+		"Timezone": {
+			"references": [
+				"www/js/modules/options.js:719"
+			],
+			"notes": []
+		},
+		"To (mm/dd)": {
+			"references": [
+				"www/js/modules/programs.js:2459"
+			],
+			"notes": []
+		},
+		"To edit built-in sensors (e.g. rain, flow), open the {0} section under Edit Options.": {
+			"references": [
+				"www/js/modules/sensors.js:2215"
+			],
+			"notes": []
+		},
+		"To enable IFTTT, a Webhooks key is required which can be obtained from https://ifttt.com": {
+			"references": [
+				"www/js/modules/options.js:1074"
+			],
+			"notes": []
+		},
+		"To fix this, please update your firmware. Remember to use the \"API Tool\" to save your current settings beforehand!": {
+			"references": [
+				"www/js/modules/errors.js:52"
+			],
+			"notes": []
+		},
+		"Token": {
+			"references": [
+				"www/js/modules/options.js:2570"
+			],
+			"notes": []
+		},
+		"Total Rain": {
+			"references": [
+				"www/js/modules/system-diagnostics.js:57"
+			],
+			"notes": []
+		},
+		"Total Runtime": {
+			"references": [
+				"www/js/modules/logs.js:479"
+			],
+			"notes": []
+		},
+		"Total Station Events": {
+			"references": [
+				"www/js/modules/logs.js:478"
+			],
+			"notes": []
+		},
+		"Total Water Used": {
+			"references": [
+				"www/js/modules/logs.js:406",
+				"www/js/modules/logs.js:485"
+			],
+			"notes": []
+		},
+		"Tue": {
+			"references": [
+				"www/js/modules/dates.js:170",
+				"www/js/modules/dates.js:238",
+				"www/js/modules/weather.js:848"
+			],
+			"notes": []
+		},
+		"Tuesday": {
+			"references": [
+				"www/js/modules/dates.js:237",
+				"www/js/modules/programs.js:2218",
+				"www/js/modules/programs.js:2388"
+			],
+			"notes": []
+		},
+		"Turkish": {
+			"references": [
+				"www/js/modules/language.js:21"
+			],
+			"notes": []
+		},
+		"Type": {
+			"references": [
+				"www/js/modules/analog.js:170",
+				"www/js/modules/analog.js:331",
+				"www/js/modules/options.js:2098"
+			],
+			"notes": []
+		},
+		"Unable to change password. Please try again.": {
+			"references": [
+				"www/js/modules/network.js:813"
+			],
+			"notes": []
+		},
+		"Unable to connect to": {
+			"references": [
+				"www/js/modules/sites.js:1017"
+			],
+			"notes": []
+		},
+		"Unable to determine the UUID assigned to a restored sensor. The restore was stopped.": {
+			"references": [
+				"www/js/modules/import-export.js:1392"
+			],
+			"notes": []
+		},
+		"Unable to import configuration. The restore stopped before completion; review the controller before retrying.": {
+			"references": [
+				"www/js/modules/import-export.js:993"
+			],
+			"notes": []
+		},
+		"Unable to load Bundle Station configuration.": {
+			"references": [
+				"www/js/modules/dashboard.js:495",
+				"www/js/modules/dashboard.js:513",
+				"www/js/modules/import-export.js:961"
+			],
+			"notes": []
+		},
+		"Unable to load program adjustments. Try again.": {
+			"references": [
+				"www/js/modules/programs.js:133",
+				"www/js/modules/programs.js:912"
+			],
+			"notes": []
+		},
+		"Unable to load station configuration.": {
+			"references": [
+				"www/js/modules/dashboard.js:659",
+				"www/js/modules/dashboard.js:668",
+				"www/js/modules/options.js:2224",
+				"www/js/modules/options.js:2233",
+				"www/js/modules/ui-dom.js:655",
+				"www/js/modules/ui-dom.js:661"
+			],
+			"notes": []
+		},
+		"Unable to map an aggregate sensor during import. The restore was stopped.": {
+			"references": [
+				"www/js/modules/import-export.js:1408"
+			],
+			"notes": []
+		},
+		"Unable to reach the remote station.": {
+			"references": [
+				"www/js/modules/dashboard.js:552"
+			],
+			"notes": []
+		},
+		"Unable to read cloud data": {
+			"references": [
+				"www/js/modules/network.js:675"
+			],
+			"notes": []
+		},
+		"Unable to read the configuration file. Please check the file and try again.": {
+			"references": [
+				"www/js/modules/import-export.js:190",
+				"www/js/modules/import-export.js:226"
+			],
+			"notes": []
+		},
+		"Unable to reset all station attributes. Some changes may already have been applied. Review the controller before retrying.": {
+			"references": [
+				"www/js/modules/options.js:122"
+			],
+			"notes": []
+		},
+		"Unable to retrieve your current location": {
+			"references": [
+				"www/js/modules/options.js:2762"
+			],
+			"notes": []
+		},
+		"Unable to save settings. Controller settings were refreshed; review and try again.": {
+			"references": [
+				"www/js/modules/options.js:636"
+			],
+			"notes": []
+		},
+		"Unable to validate sensor definitions on this controller. No configuration changes were made.": {
+			"references": [
+				"www/js/modules/import-export.js:659",
+				"www/js/modules/import-export.js:666",
+				"www/js/modules/import-export.js:675",
+				"www/js/modules/import-export.js:973"
+			],
+			"notes": []
+		},
+		"Unable to verify sensor definitions during import. The restore was stopped.": {
+			"references": [
+				"www/js/modules/import-export.js:1344",
+				"www/js/modules/import-export.js:1357"
+			],
+			"notes": []
+		},
+		"Unable to verify sensor port ownership. No settings were changed.": {
+			"references": [
+				"www/js/modules/options.js:646",
+				"www/js/modules/options.js:660",
+				"www/js/modules/options.js:667"
+			],
+			"notes": []
+		},
+		"Uncheck All": {
+			"references": [
+				"www/js/modules/programs.js:2290"
+			],
+			"notes": []
+		},
+		"Under/Overcurrent Fault": {
+			"references": [
+				"www/js/modules/options.js:43"
+			],
+			"notes": []
+		},
+		"Undercurrent Threshold": {
+			"references": [
+				"www/js/modules/options.js:1219"
+			],
+			"notes": []
+		},
+		"Unified firmware is now available": {
+			"references": [
+				"www/js/modules/firmware.js:742"
+			],
+			"notes": []
+		},
+		"Unit": {
+			"references": [
+				"www/js/modules/analog.js:380"
+			],
+			"notes": []
+		},
+		"Unknown": {
+			"references": [
+				"www/js/modules/errors.js:40",
+				"www/js/modules/errors.js:42",
+				"www/js/modules/sensors.js:2795",
+				"www/js/modules/sensors.js:2796",
+				"www/js/modules/sensors.js:2978",
+				"www/js/modules/sensors.js:3012",
+				"www/js/modules/sensors.js:3013",
+				"www/js/modules/sensors.js:3016"
+			],
+			"notes": []
+		},
+		"Unrecognised": {
+			"references": [
+				"www/js/modules/firmware.js:762",
+				"www/js/modules/weather.js:1049"
+			],
+			"notes": []
+		},
+		"Unrecognised weather provider": {
+			"references": [
+				"www/js/modules/weather.js:924"
+			],
+			"notes": []
+		},
+		"Unsupported onboard analog readings will be skipped. Unsupported Analog port modes will be set to None.": {
+			"references": [
+				"www/js/modules/import-export.js:921"
+			],
+			"notes": []
+		},
+		"Unusable": {
+			"references": [
+				"www/js/modules/network.js:906"
+			],
+			"notes": []
+		},
+		"Unused Expanders Detected": {
+			"references": [
+				"www/js/modules/firmware.js:719"
+			],
+			"notes": []
+		},
+		"Update Firmware": {
+			"references": [
+				"www/index.html:112"
+			],
+			"notes": []
+		},
+		"Update Guide": {
+			"references": [
+				"www/js/modules/firmware.js:603",
+				"www/js/modules/firmware.js:626",
+				"www/js/modules/firmware.js:667"
+			],
+			"notes": []
+		},
+		"Update Now": {
+			"references": [
+				"www/js/modules/firmware.js:603",
+				"www/js/modules/firmware.js:630"
+			],
+			"notes": []
+		},
+		"Update Sensor": {
+			"references": [
+				"www/js/modules/sensors.js:2146"
+			],
+			"notes": []
+		},
+		"Update did not complete.": {
+			"references": [
+				"www/js/modules/firmware.js:666"
+			],
+			"notes": []
+		},
+		"Update successful": {
+			"references": [
+				"www/js/modules/firmware.js:661"
+			],
+			"notes": []
+		},
+		"Upload failed.": {
+			"references": [
+				"www/js/modules/firmware.js:162"
+			],
+			"notes": []
+		},
+		"Use 24 Hour Time": {
+			"references": [
+				"www/js/modules/options.js:760"
+			],
+			"notes": []
+		},
+		"Use Auth": {
+			"references": [
+				"www/js/modules/sites.js:155",
+				"www/js/modules/sites.js:590"
+			],
+			"notes": []
+		},
+		"Use DHCP (restart required)": {
+			"references": [
+				"www/js/modules/options.js:1143"
+			],
+			"notes": []
+		},
+		"Use Master": {
+			"references": [
+				"www/js/modules/dashboard.js:759",
+				"www/js/modules/dashboard.js:765",
+				"www/js/modules/dashboard.js:771",
+				"www/js/modules/dashboard.js:777"
+			],
+			"notes": []
+		},
+		"Use Metric": {
+			"references": [
+				"www/js/modules/options.js:757"
+			],
+			"notes": []
+		},
+		"Use SSL": {
+			"references": [
+				"www/js/modules/sites.js:149",
+				"www/js/modules/sites.js:588"
+			],
+			"notes": []
+		},
+		"Use Sensor Adjustment": {
+			"references": [
+				"www/js/modules/programs.js:2484"
+			],
+			"notes": []
+		},
+		"Use Sunrise": {
+			"references": [
+				"www/js/modules/ui-dom.js:1160"
+			],
+			"notes": []
+		},
+		"Use Sunset": {
+			"references": [
+				"www/js/modules/ui-dom.js:1163"
+			],
+			"notes": []
+		},
+		"Use Weather Adjustment": {
+			"references": [
+				"www/js/modules/programs.js:2476"
+			],
+			"notes": []
+		},
+		"Use up to 32 ASCII letters, numbers or hyphens. The hostname cannot begin or end with a hyphen or contain only numbers. Leave empty to restore the device default.": {
+			"references": [
+				"www/js/modules/options.js:27"
+			],
+			"notes": []
+		},
+		"Use your OpenSprinkler.com login and password to securely sync sites between all your devices.": {
+			"references": [
+				"www/js/modules/network.js:363"
+			],
+			"notes": []
+		},
+		"User manual for OpenSprinkler is available at": {
+			"references": [
+				"www/js/modules/about.js:29"
+			],
+			"notes": []
+		},
+		"Username": {
+			"references": [
+				"www/js/modules/options.js:2359"
+			],
+			"notes": []
+		},
+		"Username:": {
+			"references": [
+				"www/js/modules/network.js:370",
+				"www/js/modules/sites.js:191",
+				"www/js/modules/sites.js:770"
+			],
+			"notes": []
+		},
+		"Uses multiple days of historical weather data to calculate ETo or Zimmerman watering percentage for programs that run on a regular interval.": {
+			"references": [
+				"www/js/modules/options.js:864"
+			],
+			"notes": []
+		},
+		"Uses the provider configured on the custom weather server.": {
+			"references": [
+				"www/js/modules/options.js:1778",
+				"www/js/modules/options.js:909"
+			],
+			"notes": []
+		},
+		"Using manual weather adjustment": {
+			"references": [
+				"www/js/modules/weather.js:921"
+			],
+			"notes": []
+		},
+		"Verify": {
+			"references": [
+				"www/js/modules/options.js:944"
+			],
+			"notes": []
+		},
+		"View Changelog": {
+			"references": [
+				"www/js/modules/firmware.js:623"
+			],
+			"notes": []
+		},
+		"Volt": {
+			"references": [
+				"www/js/modules/analog.js:902"
+			],
+			"notes": []
+		},
+		"Voltage": {
+			"references": [
+				"www/js/modules/analog.js:903",
+				"www/js/modules/sensors.js:1324"
+			],
+			"notes": []
+		},
+		"Warning": {
+			"references": [
+				"www/js/modules/sensors.js:2751"
+			],
+			"notes": []
+		},
+		"Warning: Network changes will be made and the device may no longer be accessible from this address.": {
+			"references": [
+				"www/js/modules/import-export.js:899"
+			],
+			"notes": []
+		},
+		"Warning: The repeat interval": {
+			"references": [
+				"www/js/modules/programs.js:3529"
+			],
+			"notes": []
+		},
+		"Warning: The use of odd/even restrictions with the selected interval day may result in the program not running at all.": {
+			"references": [
+				"www/js/modules/programs.js:3538"
+			],
+			"notes": []
+		},
+		"Water Level": {
+			"references": [
+				"www/js/modules/dashboard.js:1732",
+				"www/js/modules/dashboard.js:37",
+				"www/js/modules/logs.js:401",
+				"www/js/modules/logs.js:481"
+			],
+			"notes": []
+		},
+		"Watering %": {
+			"references": [
+				"www/js/modules/programs.js:2503",
+				"www/js/modules/programs.js:2836",
+				"www/js/modules/programs.js:2861"
+			],
+			"notes": []
+		},
+		"Watering Level": {
+			"references": [
+				"www/js/modules/system-diagnostics.js:44"
+			],
+			"notes": []
+		},
+		"Weather API Key": {
+			"references": [
+				"www/js/modules/options.js:926"
+			],
+			"notes": []
+		},
+		"Weather Adjustment": {
+			"references": [
+				"www/js/modules/options.js:839"
+			],
+			"notes": []
+		},
+		"Weather Adjustment Options": {
+			"references": [
+				"www/js/modules/weather.js:246",
+				"www/js/modules/weather.js:317",
+				"www/js/modules/weather.js:510",
+				"www/js/modules/weather.js:91"
+			],
+			"notes": []
+		},
+		"Weather Adjustment Update": {
+			"references": [
+				"www/js/modules/options.js:36"
+			],
+			"notes": []
+		},
+		"Weather Data Provider": {
+			"references": [
+				"www/js/modules/options.js:907"
+			],
+			"notes": []
+		},
+		"Weather Failure": {
+			"references": [
+				"www/js/modules/firmware.js:25"
+			],
+			"notes": []
+		},
+		"Weather Options have Corrupted": {
+			"references": [
+				"www/js/modules/sites.js:1672"
+			],
+			"notes": []
+		},
+		"Weather Restri.": {
+			"references": [
+				"www/js/modules/system-diagnostics.js:46"
+			],
+			"notes": []
+		},
+		"Weather Restriction Active": {
+			"references": [
+				"www/js/modules/dashboard.js:30"
+			],
+			"notes": []
+		},
+		"Weather Restriction Options": {
+			"references": [
+				"www/js/modules/options.js:1466"
+			],
+			"notes": []
+		},
+		"Weather Restrictions": {
+			"references": [
+				"www/js/modules/options.js:877",
+				"www/js/modules/options.js:887"
+			],
+			"notes": []
+		},
+		"Weather Service": {
+			"references": [
+				"www/js/modules/system-diagnostics.js:39"
+			],
+			"notes": []
+		},
+		"Weather adjustment retrieves data from the chosen provider and applies the selected method to determine the watering percentage.": {
+			"references": [
+				"www/js/modules/options.js:844"
+			],
+			"notes": []
+		},
+		"Weather option data has corrupted": {
+			"references": [
+				"www/js/modules/sites.js:1679"
+			],
+			"notes": []
+		},
+		"Web Request": {
+			"references": [
+				"www/js/modules/firmware.js:25"
+			],
+			"notes": []
+		},
+		"Wed": {
+			"references": [
+				"www/js/modules/dates.js:171",
+				"www/js/modules/dates.js:238",
+				"www/js/modules/weather.js:848"
+			],
+			"notes": []
+		},
+		"Wednesday": {
+			"references": [
+				"www/js/modules/dates.js:237",
+				"www/js/modules/programs.js:2218",
+				"www/js/modules/programs.js:2388"
+			],
+			"notes": []
+		},
+		"Weekly": {
+			"references": [
+				"www/js/modules/programs.js:2247",
+				"www/js/modules/programs.js:2529"
+			],
+			"notes": []
+		},
+		"Welcome to the OpenSprinkler application. This app only works with the OpenSprinkler controller which must be installed and setup on your home network.": {
+			"references": [
+				"www/js/modules/welcome.js:27"
+			],
+			"notes": []
+		},
+		"When using program switch, a switch is connected to the sensor port to trigger Program 1 every time the switch is pressed for at least 1 second.": {
+			"references": [
+				"www/js/modules/options.js:2083"
+			],
+			"notes": []
+		},
+		"When using program switch, a switch is connected to the sensor port to trigger Program 2 every time the switch is pressed for at least 1 second.": {
+			"references": [
+				"www/js/modules/options.js:2085"
+			],
+			"notes": []
+		},
+		"When using program switch, a switch is connected to the sensor port to trigger Program 3 every time the switch is pressed for at least 1 second.": {
+			"references": [
+				"www/js/modules/options.js:2087"
+			],
+			"notes": []
+		},
+		"When using program switch, a switch is connected to the sensor port to trigger Program 4 every time the switch is pressed for at least 1 second.": {
+			"references": [
+				"www/js/modules/options.js:2089"
+			],
+			"notes": []
+		},
+		"WiFi Change": {
+			"references": [
+				"www/js/modules/firmware.js:25"
+			],
+			"notes": []
+		},
+		"WiFi Configure": {
+			"references": [
+				"www/js/modules/firmware.js:25"
+			],
+			"notes": []
+		},
+		"WiFi Strength": {
+			"references": [
+				"www/js/modules/system-diagnostics.js:38"
+			],
+			"notes": []
+		},
+		"Wind": {
+			"references": [
+				"www/js/modules/analog.js:924",
+				"www/js/modules/analog.js:925",
+				"www/js/modules/analog.js:929",
+				"www/js/modules/analog.js:930"
+			],
+			"notes": []
+		},
+		"Wireless settings have been reset. Please follow the OpenSprinkler user manual on restoring connectivity.": {
+			"references": [
+				"www/js/modules/options.js:1705"
+			],
+			"notes": []
+		},
+		"With manual mode turned on, tap a station to toggle it.": {
+			"references": [
+				"www/js/modules/programs.js:257"
+			],
+			"notes": []
+		},
+		"Yes": {
+			"references": [
+				"www/js/modules/ui-dom.js:1819"
+			],
+			"notes": []
+		},
+		"You have no programs currently added. Tap the Add button on the top right corner to get started.": {
+			"references": [
+				"www/js/modules/programs.js:2169"
+			],
+			"notes": []
+		},
+		"You must specify a baseline ETo adjustment method option to use the ET adjustment method.": {
+			"references": [
+				"www/js/modules/options.js:374"
+			],
+			"notes": []
+		},
+		"Your device runs the OpenSprinklerASB firmware. This UI has limited support for it. Please switch to the OpenSprinklerASB mobile app/UI for full support.": {
+			"references": [
+				"www/js/modules/sites.js:1129"
+			],
+			"notes": []
+		},
+		"Zero value excludes the station from the run-once program.": {
+			"references": [
+				"www/js/modules/programs.js:462"
+			],
+			"notes": []
+		},
+		"Zimmerman": {
+			"references": [
+				"www/js/modules/weather.js:23"
+			],
+			"notes": []
+		},
+		"Zone": {
+			"references": [
+				"www/js/modules/options.js:2247"
+			],
+			"notes": []
+		},
+		"Zoom in": {
+			"references": [
+				"www/js/modules/programs.js:794"
+			],
+			"notes": []
+		},
+		"Zoom out": {
+			"references": [
+				"www/js/modules/programs.js:795"
+			],
+			"notes": []
+		},
+		"ago": {
+			"references": [
+				"www/js/modules/dates.js:161"
+			],
+			"notes": []
+		},
+		"also active via Bundle Station": {
+			"references": [
+				"www/js/modules/dashboard.js:1465",
+				"www/js/modules/dashboard.js:238"
+			],
+			"notes": []
+		},
+		"and 128.": {
+			"references": [
+				"www/js/modules/programs.js:3403"
+			],
+			"notes": []
+		},
+		"app password": {
+			"references": [
+				"www/js/modules/options.js:2494"
+			],
+			"notes": []
+		},
+		"available": {
+			"references": [
+				"www/js/modules/options.js:814"
+			],
+			"notes": []
+		},
+		"broker": {
+			"references": [
+				"www/js/modules/options.js:2349"
+			],
+			"notes": []
+		},
+		"connect": {
+			"references": [
+				"www/js/modules/sites.js:121"
+			],
+			"notes": []
+		},
+		"copy": {
+			"references": [
+				"www/js/modules/programs.js:2191"
+			],
+			"notes": []
+		},
+		"d": {
+			"references": [
+				"www/js/modules/dates.js:284"
+			],
+			"notes": []
+		},
+		"day": {
+			"references": [
+				"www/js/modules/dates.js:140"
+			],
+			"notes": []
+		},
+		"days": {
+			"references": [
+				"www/js/modules/dates.js:140",
+				"www/js/modules/options.js:1480",
+				"www/js/modules/options.js:1519",
+				"www/js/modules/options.js:1526"
+			],
+			"notes": []
+		},
+		"degree celsius temperature": {
+			"references": [
+				"www/js/modules/analog.js:894"
+			],
+			"notes": []
+		},
+		"degree fahrenheit temperature": {
+			"references": [
+				"www/js/modules/analog.js:898"
+			],
+			"notes": []
+		},
+		"delete": {
+			"references": [
+				"www/js/modules/logs.js:390",
+				"www/js/modules/logs.js:457"
+			],
+			"notes": []
+		},
+		"deleted": {
+			"references": [
+				"www/js/modules/logs.js:461",
+				"www/js/modules/programs.js:3273"
+			],
+			"notes": []
+		},
+		"disabled": {
+			"references": [
+				"www/js/modules/bundles.js:148"
+			],
+			"notes": []
+		},
+		"disabled program hidden. Tap 'Show Disabled' in the footer menu to view": {
+			"references": [
+				"www/js/modules/programs.js:2200"
+			],
+			"notes": []
+		},
+		"disabled programs hidden. Tap 'Show Disabled' in the footer menu to view": {
+			"references": [
+				"www/js/modules/programs.js:2199"
+			],
+			"notes": []
+		},
+		"for": {
+			"references": [
+				"www/js/modules/dashboard.js:1449",
+				"www/js/modules/dashboard.js:230",
+				"www/js/modules/status.js:326"
+			],
+			"notes": []
+		},
+		"h": {
+			"references": [
+				"www/js/modules/dates.js:287"
+			],
+			"notes": []
+		},
+		"hour": {
+			"references": [
+				"www/js/modules/dates.js:144"
+			],
+			"notes": []
+		},
+		"hours": {
+			"references": [
+				"www/js/modules/dates.js:144"
+			],
+			"notes": []
+		},
+		"is less than the program run time": {
+			"references": [
+				"www/js/modules/programs.js:3529"
+			],
+			"notes": []
+		},
+		"is running on": {
+			"references": [
+				"www/js/modules/status.js:176"
+			],
+			"notes": []
+		},
+		"is running on station": {
+			"references": [
+				"www/js/modules/status.js:193"
+			],
+			"notes": []
+		},
+		"last 24h": {
+			"references": [
+				"www/js/modules/analog.js:838"
+			],
+			"notes": []
+		},
+		"last months": {
+			"references": [
+				"www/js/modules/analog.js:844"
+			],
+			"notes": []
+		},
+		"last ran station": {
+			"references": [
+				"www/js/modules/status.js:325"
+			],
+			"notes": []
+		},
+		"last weeks": {
+			"references": [
+				"www/js/modules/analog.js:841"
+			],
+			"notes": []
+		},
+		"m": {
+			"references": [
+				"www/js/modules/dates.js:290"
+			],
+			"notes": []
+		},
+		"master": {
+			"references": [
+				"www/js/modules/bundles.js:137"
+			],
+			"notes": []
+		},
+		"minute": {
+			"references": [
+				"www/js/modules/dates.js:148"
+			],
+			"notes": []
+		},
+		"minutes": {
+			"references": [
+				"www/js/modules/dates.js:148",
+				"www/js/modules/options.js:2109",
+				"www/js/modules/options.js:2113"
+			],
+			"notes": []
+		},
+		"month": {
+			"references": [
+				"www/js/modules/dates.js:136"
+			],
+			"notes": []
+		},
+		"months": {
+			"references": [
+				"www/js/modules/dates.js:136"
+			],
+			"notes": []
+		},
+		"of rain is forecasted in the next:": {
+			"references": [
+				"www/js/modules/options.js:1477"
+			],
+			"notes": []
+		},
+		"on": {
+			"references": [
+				"www/js/modules/status.js:327"
+			],
+			"notes": []
+		},
+		"operation?": {
+			"references": [
+				"www/js/modules/ui-dom.js:683"
+			],
+			"notes": []
+		},
+		"password (optional)": {
+			"references": [
+				"www/js/modules/options.js:2370"
+			],
+			"notes": []
+		},
+		"publish topic": {
+			"references": [
+				"www/js/modules/options.js:2378"
+			],
+			"notes": []
+		},
+		"records": {
+			"references": [
+				"www/js/modules/analog.js:646"
+			],
+			"notes": []
+		},
+		"remaining": {
+			"references": [
+				"www/js/modules/dashboard.js:1453",
+				"www/js/modules/dashboard.js:154",
+				"www/js/modules/dashboard.js:235",
+				"www/js/modules/status.js:136",
+				"www/js/modules/status.js:178",
+				"www/js/modules/status.js:196",
+				"www/js/modules/status.js:57"
+			],
+			"notes": []
+		},
+		"run": {
+			"references": [
+				"www/js/modules/logs.js:392"
+			],
+			"notes": []
+		},
+		"runs": {
+			"references": [
+				"www/js/modules/logs.js:392"
+			],
+			"notes": []
+		},
+		"s": {
+			"references": [
+				"www/js/modules/dates.js:293",
+				"www/js/modules/dates.js:296"
+			],
+			"notes": []
+		},
+		"sec": {
+			"references": [
+				"www/js/modules/programs.js:3529"
+			],
+			"notes": []
+		},
+		"second": {
+			"references": [
+				"www/js/modules/dates.js:151"
+			],
+			"notes": []
+		},
+		"seconds": {
+			"references": [
+				"www/js/modules/dates.js:151",
+				"www/js/modules/options.js:2251",
+				"www/js/modules/options.js:2255"
+			],
+			"notes": []
+		},
+		"server": {
+			"references": [
+				"www/js/modules/options.js:2581"
+			],
+			"notes": []
+		},
+		"smtp.gmail.com": {
+			"references": [
+				"www/js/modules/options.js:2473"
+			],
+			"notes": []
+		},
+		"stations": {
+			"references": [
+				"www/js/modules/options.js:818",
+				"www/js/modules/status.js:176"
+			],
+			"notes": []
+		},
+		"subscribe topic": {
+			"references": [
+				"www/js/modules/options.js:2386"
+			],
+			"notes": []
+		},
+		"this station": {
+			"references": [
+				"www/js/modules/bundles.js:134"
+			],
+			"notes": []
+		},
+		"token": {
+			"references": [
+				"www/js/modules/options.js:2574"
+			],
+			"notes": []
+		},
+		"total watering remaining": {
+			"references": [
+				"www/js/modules/cycle-soak.js:48"
+			],
+			"notes": []
+		},
+		"user@gmail.com": {
+			"references": [
+				"www/js/modules/options.js:2487",
+				"www/js/modules/options.js:2501"
+			],
+			"notes": []
+		},
+		"username (optional)": {
+			"references": [
+				"www/js/modules/options.js:2363"
+			],
+			"notes": []
+		},
+		"year": {
+			"references": [
+				"www/js/modules/dates.js:132"
+			],
+			"notes": []
+		},
+		"years": {
+			"references": [
+				"www/js/modules/dates.js:132"
+			],
+			"notes": []
+		}
+	},
+	"issues": [
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/analog.js",
+			"line": 156,
+			"key": "Notice: If you want to combine multiple sensors, then build a sensor group. "
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/analog.js",
+			"line": 157,
+			"key": "See help documentation for details."
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/analog.js",
+			"line": 321,
+			"key": "Edit Sensor Configuration. "
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/analog.js",
+			"line": 322,
+			"key": "See help documentation for details."
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/analog.js",
+			"line": 646,
+			"key": "Log cleared:"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/analog.js",
+			"line": 646,
+			"key": "records"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/analog.js",
+			"line": 889,
+			"key": "Soil moisture"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/analog.js",
+			"line": 895,
+			"key": "Temperature"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/analog.js",
+			"line": 899,
+			"key": "Temperature"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/analog.js",
+			"line": 903,
+			"key": "Voltage"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/analog.js",
+			"line": 910,
+			"key": "Air Humidity"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/analog.js",
+			"line": 916,
+			"key": "Rainfall"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/analog.js",
+			"line": 920,
+			"key": "Rainfall"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/analog.js",
+			"line": 925,
+			"key": "Wind"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/analog.js",
+			"line": 930,
+			"key": "Wind"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/analog.js",
+			"line": 935,
+			"key": "Level"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/cards.js",
+			"line": 37,
+			"key": "Sequential Group"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/cards.js",
+			"line": 40,
+			"key": "Cycle and Soak"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/cards.js",
+			"line": 41,
+			"key": "Maximum cycle (minutes)"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/cards.js",
+			"line": 42,
+			"key": "Minimum soak (minutes)"
+		},
+		{
+			"kind": "dynamic-key",
+			"source": "www/js/modules/cycle-soak.js",
+			"line": 47,
+			"expression": "OSApp.Language._( labels[ state ] )"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/cycle-soak.js",
+			"line": 48,
+			"key": "total watering remaining"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/dashboard.js",
+			"line": 76,
+			"key": "Bundle member of"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/dashboard.js",
+			"line": 136,
+			"key": "Running Bundle Station"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/dashboard.js",
+			"line": 154,
+			"key": "remaining"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/dashboard.js",
+			"line": 229,
+			"key": "Running"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/dashboard.js",
+			"line": 229,
+			"key": "Scheduled"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/dashboard.js",
+			"line": 230,
+			"key": "for"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/dashboard.js",
+			"line": 235,
+			"key": "remaining"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/dashboard.js",
+			"line": 717,
+			"key": "Image"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/dashboard.js",
+			"line": 730,
+			"key": "RF"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/dashboard.js",
+			"line": 731,
+			"key": "Remote Station (IP)"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/dashboard.js",
+			"line": 736,
+			"key": "GPIO"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/dashboard.js",
+			"line": 737,
+			"key": "HTTP"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/dashboard.js",
+			"line": 738,
+			"key": "HTTPS"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/dashboard.js",
+			"line": 739,
+			"key": "Remote Station (OTC)"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/dashboard.js",
+			"line": 742,
+			"key": "Bundle Station"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/dashboard.js",
+			"line": 759,
+			"key": "Use Master"
+		},
+		{
+			"kind": "dynamic-key",
+			"source": "www/js/modules/dashboard.js",
+			"line": 866,
+			"expression": "OSApp.Language._( label )"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/dashboard.js",
+			"line": 929,
+			"key": "Change"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/dashboard.js",
+			"line": 929,
+			"key": "Image"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/dashboard.js",
+			"line": 1340,
+			"key": "Requests declined because the queue was full"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/dashboard.js",
+			"line": 1448,
+			"key": "Running"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/dashboard.js",
+			"line": 1448,
+			"key": "Scheduled"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/dashboard.js",
+			"line": 1449,
+			"key": "for"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/dashboard.js",
+			"line": 1453,
+			"key": "remaining"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/dashboard.js",
+			"line": 1619,
+			"key": "Enter a duration to manually run "
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/dates.js",
+			"line": 159,
+			"key": "In"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/dates.js",
+			"line": 161,
+			"key": "ago"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/dates.js",
+			"line": 284,
+			"key": "d"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/dates.js",
+			"line": 287,
+			"key": "h"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/dates.js",
+			"line": 290,
+			"key": "m"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/dates.js",
+			"line": 293,
+			"key": "s"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/firmware.js",
+			"line": 621,
+			"key": "This Controller"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/firmware.js",
+			"line": 645,
+			"key": "Latest"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/firmware.js",
+			"line": 645,
+			"key": "Firmware"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/firmware.js",
+			"line": 747,
+			"key": "Back"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/firmware.js",
+			"line": 762,
+			"key": "Unrecognised"
+		},
+		{
+			"kind": "dynamic-key",
+			"source": "www/js/modules/firmware.js",
+			"line": 765,
+			"expression": "OSApp.Language._( OSApp.Firmware.Constants.rebootReasons[ reason ] )"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/import-export.js",
+			"line": 601,
+			"key": "An Aggregate Sensor references an unsupported analog reading. Resolve its dependencies before restoring."
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/import-export.js",
+			"line": 613,
+			"key": "Sensor readings conflict with the restored built-in port modes."
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/import-export.js",
+			"line": 911,
+			"key": "The controller is at its sensor limit. Restoring this backup will delete sensor definitions that exist only on this controller."
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/import-export.js",
+			"line": 916,
+			"key": "Program sensor adjustments that reference a sensor absent from both the backup and this controller will be disabled."
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/import-export.js",
+			"line": 921,
+			"key": "Unsupported onboard analog readings will be skipped. Unsupported Analog port modes will be set to None."
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/import-export.js",
+			"line": 947,
+			"key": "This backup contains sensor definitions that are not supported by this controller."
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/import-export.js",
+			"line": 1271,
+			"key": "Program"
+		},
+		{
+			"kind": "dynamic-key",
+			"source": "www/js/modules/language.js",
+			"line": 78,
+			"expression": "OSApp.Language._( txt )"
+		},
+		{
+			"kind": "dynamic-key",
+			"source": "www/js/modules/language.js",
+			"line": 85,
+			"expression": "OSApp.Language._( txt )"
+		},
+		{
+			"kind": "dynamic-key",
+			"source": "www/js/modules/language.js",
+			"line": 142,
+			"expression": "OSApp.Language._( name )"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/logs.js",
+			"line": 401,
+			"key": "Average"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/logs.js",
+			"line": 401,
+			"key": "Water Level"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/logs.js",
+			"line": 406,
+			"key": "Total Water Used"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/logs.js",
+			"line": 457,
+			"key": "Are you sure you want to "
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/logs.js",
+			"line": 457,
+			"key": "delete"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/logs.js",
+			"line": 461,
+			"key": "deleted"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/logs.js",
+			"line": 481,
+			"key": "Average"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/logs.js",
+			"line": 481,
+			"key": "Water Level"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/network.js",
+			"line": 115,
+			"key": "Firmware"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/network.js",
+			"line": 290,
+			"key": "Back"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/network.js",
+			"line": 340,
+			"key": "Synced with OpenSprinkler.com"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/network.js",
+			"line": 738,
+			"key": "Incorrect password for "
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/network.js",
+			"line": 739,
+			"key": "Please re-enter password to try again."
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/options.js",
+			"line": 796,
+			"key": "Tap to Configure Master"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/options.js",
+			"line": 812,
+			"key": "Number of Stations"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/options.js",
+			"line": 814,
+			"key": "available"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/options.js",
+			"line": 818,
+			"key": "stations"
+		},
+		{
+			"kind": "dynamic-key",
+			"source": "www/js/modules/options.js",
+			"line": 854,
+			"expression": "OSApp.Language._(adjustmentMethod.name)"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/options.js",
+			"line": 1009,
+			"key": "Sensor"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/options.js",
+			"line": 1212,
+			"key": "Actual"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/options.js",
+			"line": 1300,
+			"key": "Enter GPS Coordinates"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/options.js",
+			"line": 1480,
+			"key": "days"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/options.js",
+			"line": 1519,
+			"key": "days"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/options.js",
+			"line": 1526,
+			"key": "days"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/options.js",
+			"line": 2094,
+			"key": "Sensor"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/options.js",
+			"line": 2109,
+			"key": "Delayed On Time"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/options.js",
+			"line": 2109,
+			"key": "minutes"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/options.js",
+			"line": 2113,
+			"key": "Delayed Off Time"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/options.js",
+			"line": 2113,
+			"key": "minutes"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/options.js",
+			"line": 2243,
+			"key": "Master Station"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/options.js",
+			"line": 2251,
+			"key": "On Adj."
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/options.js",
+			"line": 2251,
+			"key": "seconds"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/options.js",
+			"line": 2255,
+			"key": "Off Adj."
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/options.js",
+			"line": 2255,
+			"key": "seconds"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/options.js",
+			"line": 2349,
+			"key": "broker"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/options.js",
+			"line": 2363,
+			"key": "username (optional)"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/options.js",
+			"line": 2370,
+			"key": "password (optional)"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/options.js",
+			"line": 2378,
+			"key": "publish topic"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/options.js",
+			"line": 2386,
+			"key": "subscribe topic"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/options.js",
+			"line": 2473,
+			"key": "smtp.gmail.com"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/options.js",
+			"line": 2487,
+			"key": "user@gmail.com"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/options.js",
+			"line": 2494,
+			"key": "app password"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/options.js",
+			"line": 2501,
+			"key": "user@gmail.com"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/options.js",
+			"line": 2574,
+			"key": "token"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/options.js",
+			"line": 2581,
+			"key": "server"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/programs.js",
+			"line": 383,
+			"key": "Master"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/programs.js",
+			"line": 499,
+			"key": "Program"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/programs.js",
+			"line": 1386,
+			"key": "Master"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/programs.js",
+			"line": 1834,
+			"key": "Start Time"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/programs.js",
+			"line": 1835,
+			"key": "Run Time"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/programs.js",
+			"line": 2136,
+			"key": "Program"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/programs.js",
+			"line": 2174,
+			"key": "Number of Programs"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/programs.js",
+			"line": 2181,
+			"key": "Program"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/programs.js",
+			"line": 2313,
+			"key": "Save New Program"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/programs.js",
+			"line": 2316,
+			"key": "Save Changes to Program"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/programs.js",
+			"line": 2318,
+			"key": "Run Program"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/programs.js",
+			"line": 2320,
+			"key": "Delete Program"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/programs.js",
+			"line": 2433,
+			"key": "Program"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/programs.js",
+			"line": 2872,
+			"key": "Delete"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/programs.js",
+			"line": 2872,
+			"key": "Point"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/programs.js",
+			"line": 3268,
+			"key": "Are you sure you want to delete program"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/programs.js",
+			"line": 3273,
+			"key": "Program"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/programs.js",
+			"line": 3273,
+			"key": "deleted"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/programs.js",
+			"line": 3403,
+			"key": "Error: Interval days must be between"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/programs.js",
+			"line": 3403,
+			"key": "and 128."
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/programs.js",
+			"line": 3529,
+			"key": "Warning: The repeat interval"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/programs.js",
+			"line": 3529,
+			"key": "sec"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/programs.js",
+			"line": 3529,
+			"key": "is less than the program run time"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/programs.js",
+			"line": 3529,
+			"key": "sec"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/sensors.js",
+			"line": 1347,
+			"key": "Delete"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/sensors.js",
+			"line": 1347,
+			"key": "Point"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/sensors.js",
+			"line": 1575,
+			"key": "Configure Child Sensor"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/sensors.js",
+			"line": 1782,
+			"key": "Options"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/sensors.js",
+			"line": 2192,
+			"key": "Number of Sensors"
+		},
+		{
+			"kind": "dynamic-key",
+			"source": "www/js/modules/sensors.js",
+			"line": 2665,
+			"expression": "OSApp.Language._(label || /* i18n-extract */ \"Retrieving sensor logs\")"
+		},
+		{
+			"kind": "dynamic-key",
+			"source": "www/js/modules/sensors.js",
+			"line": 2711,
+			"expression": "OSApp.Language._(message)"
+		},
+		{
+			"kind": "dynamic-key",
+			"source": "www/js/modules/sensors.js",
+			"line": 2733,
+			"expression": "OSApp.Language._(message)"
+		},
+		{
+			"kind": "dynamic-key",
+			"source": "www/js/modules/sensors.js",
+			"line": 2752,
+			"expression": "OSApp.Language._(message)"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/sensors.js",
+			"line": 3043,
+			"key": "Delete the entire log of"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/sites.js",
+			"line": 158,
+			"key": "Save Changes to"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/sites.js",
+			"line": 159,
+			"key": "Delete"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/sites.js",
+			"line": 315,
+			"key": "Are you sure you want to delete "
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/sites.js",
+			"line": 884,
+			"key": "Connecting to"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/sites.js",
+			"line": 1017,
+			"key": "Unable to connect to"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/status.js",
+			"line": 57,
+			"key": "remaining"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/status.js",
+			"line": 63,
+			"key": "Current"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/status.js",
+			"line": 72,
+			"key": "Flow"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/status.js",
+			"line": 136,
+			"key": "remaining"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/status.js",
+			"line": 176,
+			"key": "is running on"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/status.js",
+			"line": 176,
+			"key": "stations"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/status.js",
+			"line": 178,
+			"key": "remaining"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/status.js",
+			"line": 193,
+			"key": "is running on station"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/status.js",
+			"line": 196,
+			"key": "remaining"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/status.js",
+			"line": 210,
+			"key": "Overcurrent Fault detected"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/status.js",
+			"line": 211,
+			"key": " when opening Station "
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/status.js",
+			"line": 257,
+			"key": "Rain delay until"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/status.js",
+			"line": 277,
+			"key": "Activated"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/status.js",
+			"line": 325,
+			"key": "last ran station"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/status.js",
+			"line": 326,
+			"key": "for"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/status.js",
+			"line": 327,
+			"key": "on"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/ui-dom.js",
+			"line": 335,
+			"key": "Disabled"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/ui-dom.js",
+			"line": 683,
+			"key": "Are you sure you want to"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/ui-dom.js",
+			"line": 683,
+			"key": "operation?"
+		},
+		{
+			"kind": "dynamic-key",
+			"source": "www/js/modules/ui-dom.js",
+			"line": 1711,
+			"expression": "OSApp.Language._( text[ i ] )"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/ui-dom.js",
+			"line": 2155,
+			"key": "Logout"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/weather.js",
+			"line": 95,
+			"key": "Set the baseline weather conditions for your location. "
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/weather.js",
+			"line": 96,
+			"key": "The Zimmerman method will adjust the watering duration based on differences from this reference point."
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/weather.js",
+			"line": 101,
+			"key": "Temp"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/weather.js",
+			"line": 107,
+			"key": "Rain"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/weather.js",
+			"line": 514,
+			"key": "Set the baseline potential evapotranspiration (ETo) and elevation for your location. "
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/weather.js",
+			"line": 515,
+			"key": "The ETo adjustment method will adjust the watering duration based on the difference between the baseline ETo and the current ETo."
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/weather.js",
+			"line": 520,
+			"key": "Baseline ETo"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/weather.js",
+			"line": 526,
+			"key": "Elevation"
+		},
+		{
+			"kind": "dynamic-key",
+			"source": "www/js/modules/weather.js",
+			"line": 869,
+			"expression": "OSApp.Language._( weekdays[ date.getDay() ] )"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/weather.js",
+			"line": 1049,
+			"key": "Unrecognised"
+		},
+		{
+			"kind": "dynamic-key",
+			"source": "www/js/modules/weather.js",
+			"line": 1070,
+			"expression": "OSApp.Language._( OSApp.Weather.Constants.adjustmentMethods[ id & ~( 1 << 7 ) ] )"
+		}
+	]
+}

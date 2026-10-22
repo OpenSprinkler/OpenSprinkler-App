@@ -17,6 +17,72 @@
 var OSApp = OSApp || {};
 OSApp.Programs = OSApp.Programs || {};
 
+OSApp.Programs.bindPreviewTouchDetails = function( timeline, element, items ) {
+	var timer, origin, active = false, held = false,
+		byId = new Map( items.map( function( item ) { return [ item.id, item ]; } ) ),
+		tip = $( "<div class='preview-touch-details' role='status'></div>" ).hide().appendTo( document.body );
+	function cancel() { clearTimeout( timer ); timer = null; }
+	function start( event ) {
+		cancel();
+		tip.hide();
+		if ( event.touches.length !== 1 ) { active = false; return; }
+		held = false;
+		active = element.contains( event.target );
+		if ( !active ) { return; }
+		element.classList.add( "preview-touch-active" );
+		var touch = event.touches[ 0 ],
+			item = byId.get( timeline.getEventProperties( {
+				target: event.target, clientX: touch.clientX, clientY: touch.clientY,
+				pageX: touch.pageX, pageY: touch.pageY
+			} ).item );
+		if ( !item ) { return; }
+		origin = { x: touch.clientX, y: touch.clientY };
+		timer = setTimeout( function() {
+			held = true;
+			tip.text( item.previewDetails ).show();
+			tip.css( {
+				left: Math.max( 8, Math.min( origin.x, window.innerWidth - tip.outerWidth() - 8 ) ),
+				top: Math.max( 8, origin.y - tip.outerHeight() - 16 )
+			} );
+		}, 500 );
+	}
+	function move( event ) {
+		if ( !active || !origin ) { return; }
+		var touch = event.touches[ 0 ];
+		if ( event.touches.length !== 1 || Math.abs( touch.clientX - origin.x ) > 8 || Math.abs( touch.clientY - origin.y ) > 8 ) {
+			cancel(); tip.hide();
+		}
+	}
+	function end() { cancel(); active = false; }
+	function dismiss() { end(); tip.hide(); }
+	function mouse( event ) {
+		if ( event.pointerType === "mouse" ) {
+			held = false; dismiss(); element.classList.remove( "preview-touch-active" );
+		}
+	}
+	function contextMenu( event ) {
+		if ( element.contains( event.target ) && ( active || held ) ) { event.preventDefault(); }
+	}
+	var handlers = { touchstart: start, touchmove: move, touchend: end, touchcancel: dismiss, pointerdown: mouse, pointermove: mouse, contextmenu: contextMenu };
+	Object.keys( handlers ).forEach( function( name ) { document.addEventListener( name, handlers[ name ], true ); } );
+	window.addEventListener( "resize", dismiss );
+	return {
+		suppressesSelection: function( event ) {
+			if ( held || ( active && event?.type === "press" ) ) {
+				timeline.setSelection( [] );
+				return true;
+			}
+			return false;
+		},
+		destroy: function() {
+			cancel(); tip.remove();
+			element.classList.remove( "preview-touch-active" );
+			Object.keys( handlers ).forEach( function( name ) { document.removeEventListener( name, handlers[ name ], true ); } );
+			window.removeEventListener( "resize", dismiss );
+		}
+	};
+};
+
 OSApp.Programs.displayPage = function(programId) {
 	// Program management functions
 	var adjustmentRequest = null,
@@ -722,6 +788,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 					<button class="preview-plus ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border"></button>
 				</div>
 				<p id="preview-sensor-adjustment-warning" class="sensor-hw-missing center hidden"></p>
+				<p id="preview-queue-warning" class="sensor-hw-missing center hidden"></p>
 				<div id="timeline"></div>
 				<div data-role="controlgroup" data-type="horizontal" id="timeline-navigation">
 					<a class="ui-btn ui-corner-all ui-icon-plus ui-btn-icon-notext btn-no-border" title="${OSApp.Language._("Zoom in")}"></a>
@@ -740,10 +807,12 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 		sensorAdjustmentUnavailable = false,
 		timeline = null,
 		timelineResize = null,
+		touchDetails = null,
 		previewData, previewGroups, processPrograms, checkMatch, checkMatch183, checkMatch21, checkDayMatch, checkMatch216, runSched, runSched216,
 		timeToText, changeday, render, date, day, now, is21, is211, is216;
 
 	function destroyTimeline() {
+		if ( touchDetails ) { touchDetails.destroy(); touchDetails = null; }
 		$.mobile.window.off( ".programPreview" );
 		timelineResize = null;
 		placeholder.off( ".programPreview" );
@@ -932,7 +1001,21 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 			lastStopTime = 0,
 			lastSeqStopTime = 0,
 			lastSeqStopTimes = new Array( OSApp.Constants.options.NUM_SEQ_GROUPS ), // Use this array if seq group is available
-			busy, matchFound, prog, sid, qid, d, q, sqi, bid, bid2, s, s2;
+			busy, matchFound, prog, sid, qid, d, q, sqi, bid, bid2, s, s2,
+			cyclePreview = OSApp.CycleSoak.supported() ? OSApp.CycleSoak.createPreview( {
+				capacity: OSApp.currentSession.controller.stations.qmax,
+				delay: OSApp.currentSession.controller.options.sdt,
+				remote: !!OSApp.currentSession.controller.options.re,
+				policy: OSApp.CycleSoak.policy,
+				masters: OSApp.CycleSoak.masters,
+				minimum: function( station ) {
+					var count = OSApp.Bundles.getEligibleMembers( OSApp.Bundles.getMembers( station ), station ).length;
+					return count ? OSApp.Bundles.minimumDuration( count ) : 0;
+				}
+			}, function( segment ) {
+				pushMasterPreviews( segment.sid, segment.st, segment.st + segment.dur );
+				timeToText( segment.sid, segment.st, segment.pid, segment.st + segment.dur, simt );
+			} ) : null;
 
 		for ( sid = 0; sid < nstations; sid++ ) {
 			startArray[ sid ] = -1;
@@ -944,12 +1027,14 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 		for ( d = 0; d < OSApp.Constants.options.NUM_SEQ_GROUPS; d++ ) { lastSeqStopTimes[ d ] = 0; }
 
 		do {
+			if ( cyclePreview ) { cyclePreview.advance( simminutes * 60 - 1 ); }
 			busy = 0;
 			matchFound = 0;
 			for ( var pid = 0; pid < OSApp.currentSession.controller.programs.pd.length; pid++ ) {
 				prog = OSApp.currentSession.controller.programs.pd[ pid ];
 				let runcount = checkMatch( prog, simminutes, simt, simday, devday );
 				if ( runcount > 0 ) {
+					var cycleRequests = [];
 					let station_order = gen_station_runorder(runcount, nstations, prog);
 
 					// prepare watering level
@@ -1025,7 +1110,10 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 
 								// After weather scaling, we maybe getting 0 water time
 								if ( waterTime > 0 ) {
-									if ( is216 ) {
+									if ( cyclePreview ) {
+										cycleRequests.push( { sid: sid, pid: pid + 1, dur: waterTime,
+											gid: OSApp.currentSession.controller.stations.stn_grp[ sid ] } );
+									} else if ( is216 ) {
 										if ( rtQueue.length < nstations ) {
 
 											// Check if there is space in the queue (queue is as large as number of stations)
@@ -1053,7 +1141,13 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 							}
 						}
 					}
+					if ( cyclePreview ) { cyclePreview.admit( cycleRequests, simminutes * 60 ); }
 				}
+			}
+			if ( cyclePreview ) {
+				cyclePreview.advance( simminutes * 60 );
+				simminutes++;
+				continue;
 			}
 			if ( matchFound ) {
 				var acctime = simminutes * 60,
@@ -1263,6 +1357,11 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 				}
 			}
 		} while ( simminutes < 24 * 60 );
+		if ( cyclePreview ) {
+			cyclePreview.advance( Number.MAX_SAFE_INTEGER );
+		}
+		page.find( "#preview-queue-warning" ).toggleClass( "hidden", !cyclePreview || !cyclePreview.rejections() )
+			.text( OSApp.Language._( "Some program starts exceed the queue capacity and are not shown." ) );
 	};
 
 	// Push a preview entry per active master that this station is bound to.
@@ -1280,7 +1379,10 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 		masters.forEach( function( m ) {
 			if ( typeof opts[ m.mas ] === "undefined" || opts[ m.mas ] <= 0 ) { return; }
 			var mop = stations[ m.mop ];
-			if ( !mop || !( mop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) ) ) { return; }
+			var owners = [ sid ].concat( OSApp.CycleSoak.supported() ?
+				OSApp.Bundles.getEligibleMembers( OSApp.Bundles.getMembers( sid ), sid ) : [] );
+			if ( !mop || !owners.some( function( member ) { return mop[ member >> 3 ] & ( 1 << ( member & 7 ) ); } ) ) { return; }
+			if ( endTs + opts[ m.mtof ] < startTs + opts[ m.mton ] ) { return; }
 			var groupName = OSApp.Language._( "Master" ) + ( m.num === 1 ? "" : " " + m.num );
 			previewData.push( {
 				"start": startTs + opts[ m.mton ],
@@ -1714,6 +1816,8 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 		var max = new Date( date[ 0 ], date[ 1 ] - 1, date[ 2 ], 24 );
 
 		$.each( previewData, function() {
+			if ( typeof this.id === "undefined" ) { this.id = nextID++; }
+			var duration = this.end - this.start;
 			var total = this.start + this.end;
 
 			this.start = new Date( date[ 0 ], date[ 1 ] - 1, date[ 2 ], 0, 0, this.start );
@@ -1726,6 +1830,10 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 			} else {
 				this.end = new Date( date[ 0 ], date[ 1 ] - 1, date[ 2 ], 0, 0, this.end );
 			}
+			var startTime = OSApp.Dates.minutesToTime( this.start.getHours() * 60 + this.start.getMinutes(), this.start.getSeconds() );
+			this.previewDetails = OSApp.Language._( "Start Time" ) + ": " + startTime + "\n" +
+				OSApp.Language._( "Run Time" ) + ": " + OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( duration ) );
+			this.title = OSApp.Utils.htmlEscape( this.previewDetails ).replace( /\n/g, "<br>" );
 		} );
 
 		// Sync time format with 24 hour option
@@ -1762,6 +1870,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 			currentTime = new Date( now );
 
 		timeline = new vis.Timeline( placeholder[ 0 ], previewData, options );
+		touchDetails = OSApp.Programs.bindPreviewTouchDetails( timeline, placeholder[ 0 ], previewData );
 		timelineResize = function() {
 			if ( timeline ) {
 				timeline.redraw();
@@ -1775,9 +1884,10 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 
 		// When block clicked, open that program
 		timeline.on( "select", function( data ) {
+			if ( touchDetails && touchDetails.suppressesSelection( data.event ) ) { return; }
 			if ( data.items.length > 0 ) {
 				previewData.forEach( ( item ) => {
-					if ( item.id === data.items[0] ) {
+					if ( item.id === data.items[0] && typeof item.pid === "number" ) {
 						OSApp.UIDom.changePage( "#programs", {
 							"programToExpand": item.pid
 						} );
@@ -2085,11 +2195,10 @@ OSApp.Programs.makeAllPrograms = function() {
 	}
 
 	if ( numDisabledPrograms ) {
-		var pluralProgram = 'program';
-		if ( numDisabledPrograms > 1 ) {
-			pluralProgram = 'programs';
-		}
-		list += "<p class='center disabled-programs-note'>" + numDisabledPrograms + " " + OSApp.Language._( `disabled ${pluralProgram} hidden. Tap 'Show Disabled' in the footer menu to view` ) + "</p>";
+		var disabledMessage = numDisabledPrograms > 1 ?
+			OSApp.Language._( "disabled programs hidden. Tap 'Show Disabled' in the footer menu to view" ) :
+			OSApp.Language._( "disabled program hidden. Tap 'Show Disabled' in the footer menu to view" );
+		list += "<p class='center disabled-programs-note'>" + numDisabledPrograms + " " + disabledMessage + "</p>";
 	}
 
 	return list + "</div>";

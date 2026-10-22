@@ -39,7 +39,7 @@ module.exports = function( grunt ) {
 		jsFiles: grunt.file.expand("www/js/**/*.js").join(" "),
 
 		eslint: {
-			target: ["www/js/**/*.js"]
+			target: ["www/js/**/*.js", "scripts/**/*.cjs"]
 		},
 
 		csslint: {
@@ -66,26 +66,13 @@ module.exports = function( grunt ) {
 
 		shell: {
 			pushEng: {
-				command: [
-					"xgettext --keyword=OSApp.Language._ --output=- <%= jsFiles %> --force-po --from-code=UTF-8 --language='JavaScript' | sed '/^#/d' > .msgjs",
-					"sed -E 's/data-translate=\"([^\"]*)\"/_\(\"\\1\"\)/g' www/index.html > temp.html && xgettext --keyword=_ --output=- --language='Python' --force-po --from-code=UTF-8 temp.html | sed '/^#/d; s/charset=CHARSET/charset=UTF-8/' > .msghtml && rm temp.html",
-					"msgcat .msgjs .msghtml | sed '1,/^$/d; /^#/d' > www/locale/messages_en.po",
-					"rm .msgjs .msghtml",
-					"tx push",
-					"git add www/locale/messages_en.po",
-					"git diff-index --quiet HEAD || git commit -m 'Localization: Update English strings'",
-					"git push"
-				].join( "&&" )
+				command: "node scripts/translations.cjs extract && tx push"
 			},
 			updateLang: {
 				command: [
+					"node -e \"require('fs').mkdirSync('translations/incoming', {recursive:true})\"",
 					"tx pull --all",
-					"find . -type f -maxdepth 1 -iname 'messages_*.po' -print0 | while IFS= read -r -d $'\\0' line; do file=(${line//_/ }); lang=${file[1]}; file=(${lang//-/ }); " +
-						"lang=${file[0]}; file=(${lang//./ }); lang=${file[0]}; mv \"$line\" messages.po; npx po2json -p -f mf messages.po \"www/locale/$lang.js\"; rm messages.po; " +
-						"echo '{\"messages\":' | cat - \"www/locale/$lang.js\" | (cat && echo '}') > temp && mv temp \"www/locale/$lang.js\"; done",
-					"git add www/locale",
-					"git diff-index --quiet HEAD || git commit -m 'Localization: Update languages from Transifex'",
-					"git push"
+					"node scripts/translations.cjs import-po"
 				].join( "&&" )
 			}
 		}
@@ -132,6 +119,11 @@ module.exports = function( grunt ) {
 	} );
 
 	// Default task(s).
+	[ "extract", "coverage", "compile" ].forEach( function( command ) {
+		grunt.registerTask( command, function() {
+			require( "./scripts/translations.cjs" ).main( [ command ] );
+		} );
+	} );
 	grunt.registerTask( "default", [ "eslint" ] );
 	grunt.registerTask( "updateLang", [ "shell:updateLang" ] );
 	grunt.registerTask( "pushEng", [ "shell:pushEng" ] );

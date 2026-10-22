@@ -5,6 +5,13 @@ import pluginJs from "@eslint/js";
 /** @type {import('eslint').Linter.Config[]} */
 export default [
 	pluginJs.configs.recommended,
+	{
+		files: ["scripts/**/*.cjs"],
+		languageOptions: {
+			sourceType: "commonjs",
+			globals: globals.node
+		}
+	},
   {
 	  files: ["**/*.js"],
 	  languageOptions: {

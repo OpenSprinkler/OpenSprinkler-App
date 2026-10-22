@@ -1083,6 +1083,31 @@ OSApp.Sites.updatePasswordSecurityNotification = function() {
 	} );
 };
 
+OSApp.Sites.updateRemoteExtensionNotification = function() {
+	var controller = OSApp.currentSession.controller,
+		id = "remote-extension-mode";
+	if ( Number( controller?.options?.re ) !== 1 ) {
+		OSApp.Notifications.removeNotificationById( id );
+		delete OSApp.uiState.remoteExtensionNoticeDismissedFor;
+		return;
+	}
+	if ( OSApp.uiState.remoteExtensionNoticeDismissedFor === controller ) { return; }
+	OSApp.Notifications.addNotification( {
+		id: id,
+		title: OSApp.Language._( "Remote Extension mode is active" ),
+		desc: OSApp.Language._( "Automatic watering schedules, program-switch starts, weather queries and Cycle and Soak are disabled." ),
+		actionLabel: OSApp.Language._( "Disable Remote Extension" ),
+		on: function() {
+			if ( OSApp.currentSession.controller === controller ) { OSApp.Status.disableRemoteExtension(); }
+			return false;
+		},
+		off: function() {
+			OSApp.uiState.remoteExtensionNoticeDismissedFor = controller;
+			return true;
+		}
+	} );
+};
+
 OSApp.Sites.showASBCompatibilityNotice = function( siteName ) {
 	if ( !OSApp.Analog.checkAnalogSensorAvail() ) {
 		return;

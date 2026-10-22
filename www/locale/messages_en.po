@@ -1,2265 +1,3466 @@
-msgid "User manual for OpenSprinkler is available at"
-msgstr ""
-
 msgid ""
-"This is open source software: source code and changelog for this application "
-"can be found at"
 msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+"Content-Type: text/plain;\n"
 
-msgid "Language localization is crowdsourced using Transifex available at"
+#: www/js/modules/status.js:211
+msgid " when opening Station "
 msgstr ""
 
-msgid "Open source attributions"
-msgstr ""
-
-msgid "App Version"
-msgstr ""
-
-msgid "Firmware"
-msgstr ""
-
-msgid "Hardware Version"
-msgstr ""
-
-msgid "About"
-msgstr ""
-
-msgid "Back"
-msgstr ""
-
-msgid "Edit Program Adjustment"
-msgstr ""
-
-msgid "New Program Adjustment"
-msgstr ""
-
-msgid ""
-"Notice: If you want to combine multiple sensors, then build a sensor group. "
-msgstr ""
-
-msgid "See help documentation for details."
-msgstr ""
-
-msgid "Adjustment-Nr"
-msgstr ""
-
-msgid "Type"
-msgstr ""
-
-msgid "Sensor"
-msgstr ""
-
-msgid "Program to adjust"
-msgstr ""
-
-msgid "Factor 1 (adjustment for min)"
-msgstr ""
-
-msgid "Factor 2 (adjustment for max)"
-msgstr ""
-
-msgid "Min sensor value"
-msgstr ""
-
-msgid "Max sensor value"
-msgstr ""
-
-msgid "Submit"
-msgstr ""
-
-msgid "Edit Sensor"
-msgstr ""
-
-msgid "New Sensor"
-msgstr ""
-
-msgid "Edit Sensor Configuration. "
-msgstr ""
-
-msgid "Sensor-Nr"
-msgstr ""
-
-msgid "Set SMT100 Modbus ID"
-msgstr ""
-
-msgid "Group"
-msgstr ""
-
-msgid "Name"
-msgstr ""
-
-msgid "IP Address"
-msgstr ""
-
-msgid "Port"
-msgstr ""
-
-msgid "ID"
-msgstr ""
-
-msgid "Factor"
-msgstr ""
-
-msgid "Divider"
-msgstr ""
-
-msgid "Unit"
-msgstr ""
-
-msgid "Read Interval (s)"
-msgstr ""
-
-msgid "Sensor Enabled"
-msgstr ""
-
-msgid "Enable Data Logging"
-msgstr ""
-
-msgid "Show on Mainpage"
-msgstr ""
-
-msgid ""
-"This function sets the Modbus ID for one SMT100 sensor. Disconnect all other "
-"sensors on this Modbus port. Please confirm."
-msgstr ""
-
-msgid "SMT100 id assigned!"
-msgstr ""
-
-msgid "Sensor number exists!"
-msgstr ""
-
-msgid "Are you sure you want to delete the sensor?"
-msgstr ""
-
-msgid "Are you sure you want to delete this program adjustment?"
-msgstr ""
-
-msgid "Are you sure you want to clear the sensor log?"
-msgstr ""
-
-msgid "Log cleared:"
-msgstr ""
-
-msgid "records"
-msgstr ""
-
-msgid "Analog Sensor Config"
-msgstr ""
-
-msgid "Edit"
-msgstr ""
-
-msgid "Delete"
-msgstr ""
-
-msgid "Add Sensor"
-msgstr ""
-
-msgid "Refresh Sensor data"
-msgstr ""
-
-msgid "Add program adjustment"
-msgstr ""
-
-msgid "Clear Log"
-msgstr ""
-
-msgid "Download Log"
-msgstr ""
-
-msgid "Show Log"
-msgstr ""
-
-msgid "Analog Sensor Log"
-msgstr ""
-
-msgid "last 24h"
-msgstr ""
-
-msgid "last weeks"
-msgstr ""
-
-msgid "last months"
-msgstr ""
-
-msgid "Soil moisture"
-msgstr ""
-
-msgid "degree celsius temperature"
-msgstr ""
-
-msgid "Temperature"
-msgstr ""
-
-msgid "degree fahrenheit temperature"
-msgstr ""
-
-msgid "Volt"
-msgstr ""
-
-msgid "Voltage"
-msgstr ""
-
-msgid "Humidity"
-msgstr ""
-
-msgid "Air Humidity"
-msgstr ""
-
-msgid "Rain"
-msgstr ""
-
-msgid "Rainfall"
-msgstr ""
-
-msgid "Wind"
-msgstr ""
-
-msgid "Level"
-msgstr ""
-
-msgid "Weather Restriction Active"
-msgstr ""
-
-msgid "Water Level"
-msgstr ""
-
-msgid "remaining"
-msgstr ""
-
-msgid "Running"
-msgstr ""
-
-msgid "Scheduled"
-msgstr ""
-
-msgid "for"
-msgstr ""
-
-msgid ""
-"Select the station type using the dropdown selector above and configure the "
-"station properties."
-msgstr ""
-
-msgid "RF Code"
-msgstr ""
-
-msgid "Remote Address"
-msgstr ""
-
-msgid "Remote Port"
-msgstr ""
-
-msgid "Remote Station"
-msgstr ""
-
-msgid "Remote OTC Token"
-msgstr ""
-
-msgid "GPIO Pin"
-msgstr ""
-
-msgid "Active State"
-msgstr ""
-
-msgid "HIGH"
-msgstr ""
-
-msgid "LOW"
-msgstr ""
-
-msgid "Server Name"
-msgstr ""
-
-msgid "Server Port"
-msgstr ""
-
-msgid "On Command"
-msgstr ""
-
-msgid "Off Command"
-msgstr ""
-
-msgid ""
-"Note: There is a limit on the number of character used to configure this "
-"station type."
-msgstr ""
-
-msgid "Characters remaining"
-msgstr ""
-
-msgid "Unable to reach the remote station."
-msgstr ""
-
-msgid ""
-"Password on remote controller does not match the password on this "
-"OSApp.currentSession.controller."
-msgstr ""
-
-msgid ""
-"Remote controller is not configured as an extender. Would you like to do "
-"this now?"
-msgstr ""
-
-msgid "Cancel"
-msgstr ""
-
-msgid "Continue"
-msgstr ""
-
-msgid "Basic"
-msgstr ""
-
-msgid "Advanced"
-msgstr ""
-
-msgid "Station Name"
-msgstr ""
-
-msgid "Add"
-msgstr ""
-
-msgid "Change"
-msgstr ""
-
-msgid "Image"
-msgstr ""
-
-msgid "Use Master"
-msgstr ""
-
-msgid "Ignore Rain"
-msgstr ""
-
-msgid "Ignore Sensor 1"
-msgstr ""
-
-msgid "Ignore Sensor 2"
-msgstr ""
-
-msgid "Ignore Sensor 3"
-msgstr ""
-
-msgid "Ignore Sensor 4"
-msgstr ""
-
-msgid "Activate Relay"
-msgstr ""
-
-msgid "Disable"
-msgstr ""
-
-msgid "Sequential"
-msgstr ""
-
-msgid "Station Notes"
-msgstr ""
-
-msgid "Sequential Group"
-msgstr ""
-
-msgid "Station Type"
-msgstr ""
-
-msgid "Standard"
-msgstr ""
-
-msgid "RF"
-msgstr ""
-
-msgid "Remote Station (IP)"
-msgstr ""
-
-msgid "GPIO"
-msgstr ""
-
-msgid "HTTP"
-msgstr ""
-
-msgid "HTTPS"
-msgstr ""
-
-msgid "Remote Station (OTC)"
-msgstr ""
-
-msgid "Stations have been updated"
-msgstr ""
-
-msgid "Do you want to stop the selected station?"
-msgstr ""
-
-msgid "Do you want to unschedule the selected station?"
-msgstr ""
-
-msgid "Enter a duration to manually run "
-msgstr ""
-
-msgid "Station has been queued"
-msgstr ""
-
-msgid "Station has been stopped"
-msgstr ""
-
-msgid "Do you want to delete the current image?"
-msgstr ""
-
-msgid "Just Now"
-msgstr ""
-
-msgid "years"
-msgstr ""
-
-msgid "year"
-msgstr ""
-
-msgid "months"
-msgstr ""
-
-msgid "month"
-msgstr ""
-
-msgid "days"
-msgstr ""
-
-msgid "day"
-msgstr ""
-
-msgid "hours"
-msgstr ""
-
-msgid "hour"
-msgstr ""
-
-msgid "minutes"
-msgstr ""
-
-msgid "minute"
-msgstr ""
-
-msgid "seconds"
-msgstr ""
-
-msgid "second"
-msgstr ""
-
-msgid "In"
-msgstr ""
-
-msgid "ago"
-msgstr ""
-
-msgid "Sun"
-msgstr ""
-
-msgid "Mon"
-msgstr ""
-
-msgid "Tue"
-msgstr ""
-
-msgid "Wed"
-msgstr ""
-
-msgid "Thu"
-msgstr ""
-
-msgid "Fri"
-msgstr ""
-
-msgid "Sat"
-msgstr ""
-
-msgid "Jan"
-msgstr ""
-
-msgid "Feb"
-msgstr ""
-
-msgid "Mar"
-msgstr ""
-
-msgid "Apr"
-msgstr ""
-
-msgid "May"
-msgstr ""
-
-msgid "Jun"
-msgstr ""
-
-msgid "Jul"
-msgstr ""
-
-msgid "Aug"
-msgstr ""
-
-msgid "Sep"
-msgstr ""
-
-msgid "Oct"
-msgstr ""
-
-msgid "Nov"
-msgstr ""
-
-msgid "Dec"
-msgstr ""
-
-msgid "Sunday"
-msgstr ""
-
-msgid "Monday"
-msgstr ""
-
-msgid "Tuesday"
-msgstr ""
-
-msgid "Wednesday"
-msgstr ""
-
-msgid "Thursday"
-msgstr ""
-
-msgid "Friday"
-msgstr ""
-
-msgid "Saturday"
-msgstr ""
-
-msgid "Sunset to Sunrise"
-msgstr ""
-
-msgid "Sunrise to Sunset"
-msgstr ""
-
-msgid "d"
-msgstr ""
-
-msgid "h"
-msgstr ""
-
-msgid "m"
-msgstr ""
-
-msgid "s"
-msgstr ""
-
-msgid "Unknown"
-msgstr ""
-
-msgid "Corrupted Response"
-msgstr ""
-
-msgid ""
-"The OpenSprinkler controller sent unexpected data, likely due to outdated "
-"firmware."
-msgstr ""
-
-msgid "Site Name"
-msgstr ""
-
-msgid ""
-"To fix this, please update your firmware. Remember to use the \"API Tool\" "
-"to save your current settings beforehand!"
-msgstr ""
-
-msgid "API Tool"
-msgstr ""
-
-msgid "Help"
-msgstr ""
-
-msgid "Check device password and try again."
-msgstr ""
-
-msgid "Item mismatch."
-msgstr ""
-
-msgid "A required field is missing."
-msgstr ""
-
-msgid "A value is out of range."
-msgstr ""
-
-msgid "A field has an invalid format."
-msgstr ""
-
-msgid "RF code error."
-msgstr ""
-
-msgid "Operation not permitted."
-msgstr ""
-
-msgid "Upload failed."
-msgstr ""
-
-msgid "Internal firmware error."
-msgstr ""
-
-msgid "The selected station is already running or is scheduled to run."
-msgstr ""
-
-msgid "Please check input and try again."
-msgstr ""
-
-msgid "Connection timed-out. Please try again."
-msgstr ""
-
-msgid "Firmware update available"
-msgstr ""
-
-msgid "This Controller"
-msgstr ""
-
-msgid "View Changelog"
-msgstr ""
-
-msgid "Update Guide"
-msgstr ""
-
-msgid "Update Now"
-msgstr ""
-
-msgid "Dismiss"
-msgstr ""
-
-msgid "Latest"
-msgstr ""
-
-msgid "Update successful"
-msgstr ""
-
-msgid "Update did not complete."
-msgstr ""
-
-msgid "Unused Expanders Detected"
-msgstr ""
-
-msgid "Click here to enable all connected stations."
-msgstr ""
-
-msgid "Unified firmware is now available"
-msgstr ""
-
-msgid "Click here for more details"
-msgstr ""
-
-msgid "Unrecognised"
-msgstr ""
-
-msgid "Select Export Method"
-msgstr ""
-
-msgid "File"
-msgstr ""
-
-msgid "Email"
-msgstr ""
-
-msgid "Internal (within app)"
-msgstr ""
-
-msgid "Backup saved on this device"
-msgstr ""
-
-msgid "Paste your backup here"
-msgstr ""
-
-msgid "Import"
-msgstr ""
-
-msgid ""
-"Unable to read the configuration file. Please check the file and try again."
-msgstr ""
-
-msgid "Select Import Method"
-msgstr ""
-
-msgid "Email (copy/paste)"
-msgstr ""
-
-msgid "Invalid configuration"
-msgstr ""
-
-msgid "Invalid program configuration in backup."
-msgstr ""
-
-msgid "Invalid program sensor adjustment in backup."
-msgstr ""
-
-msgid ""
-"This backup contains sensor definitions that this controller does not "
-"support."
-msgstr ""
-
-msgid "Invalid sensor configuration in backup."
-msgstr ""
-
-msgid ""
-"This backup contains more sensor definitions than this controller supports."
-msgstr ""
-
-msgid ""
-"This backup cannot be restored without removing sensors referenced by its "
-"aggregate definitions."
-msgstr ""
-
-msgid "Sensor definitions in this backup reference unavailable child sensors."
-msgstr ""
-
-msgid "Program data is newer than the device firmware and cannot be imported"
-msgstr ""
-
-msgid ""
-"Warning: Network changes will be made and the device may no longer be "
-"accessible from this address."
-msgstr ""
-
-msgid ""
-"The controller is at its sensor limit. Restoring this backup will delete "
-"sensor definitions that exist only on this controller."
-msgstr ""
-
-msgid ""
-"Program sensor adjustments that reference a sensor absent from both the "
-"backup and this controller will be disabled."
-msgstr ""
-
-msgid "Are you sure you want to restore the configuration?"
-msgstr ""
-
-msgid "The active controller changed. Please restart the restore."
-msgstr ""
-
-msgid ""
-"Unable to import configuration. The restore stopped before completion; "
-"review the controller before retrying."
-msgstr ""
-
-msgid "Program"
-msgstr ""
-
-msgid ""
-"The active controller changed. The restore was stopped before completion."
-msgstr ""
-
-msgid ""
-"Unable to verify sensor definitions during import. The restore was stopped."
-msgstr ""
-
-msgid ""
-"Unable to validate sensor definitions on this controller. No configuration "
-"changes were made."
-msgstr ""
-
-msgid ""
-"This backup contains sensor definitions that are not supported by this "
-"controller."
-msgstr ""
-
-msgid ""
-"Unable to determine the UUID assigned to a restored sensor. The restore was "
-"stopped."
-msgstr ""
-
-msgid ""
-"Unable to map an aggregate sensor during import. The restore was stopped."
-msgstr ""
-
-msgid ""
-"Restored sensor definitions did not pass verification. The restore was "
-"stopped before programs were changed."
-msgstr ""
-
-msgid ""
-"The active controller changed. The restore finished without refreshing the "
-"new controller."
-msgstr ""
-
-msgid "Backup restored to your device"
-msgstr ""
-
-msgid "Localization"
-msgstr ""
-
-msgid "Timeline"
-msgstr ""
-
-msgid "Table"
-msgstr ""
-
-msgid "Options"
-msgstr ""
-
-msgid "Grouping:"
-msgstr ""
-
-msgid "Day"
-msgstr ""
-
-msgid "Station"
-msgstr ""
-
-msgid "Start:"
-msgstr ""
-
-msgid "End:"
-msgstr ""
-
-msgid "Export"
-msgstr ""
-
-msgid "Clear Logs"
-msgstr ""
-
-msgid "Rain Sensor"
-msgstr ""
-
-msgid "Rain Delay"
-msgstr ""
-
-msgid "Soil Sensor"
-msgstr ""
-
-msgid "Flow Sensor"
-msgstr ""
-
-msgid "Runtime"
-msgstr ""
-
-msgid "Start Time"
-msgstr ""
-
-msgid "End Time"
-msgstr ""
-
-msgid "Flow Rate"
-msgstr ""
-
-msgid "delete"
-msgstr ""
-
-msgid "run"
-msgstr ""
-
-msgid "runs"
-msgstr ""
-
-msgid "Average"
-msgstr ""
-
-msgid "Total Water Used"
-msgstr ""
-
-msgid "Are you sure you want to "
-msgstr ""
-
-msgid "deleted"
-msgstr ""
-
-msgid "Total Station Events"
-msgstr ""
-
-msgid "Total Runtime"
-msgstr ""
-
-msgid "No entries found in the selected date range"
-msgstr ""
-
-msgid "Error retrieving log data. Please refresh to try again."
-msgstr ""
-
-msgid "Start time cannot be greater than end time"
-msgstr ""
-
-msgid ""
-"The requested time span exceeds the maximum of 1 year and has been adjusted"
-msgstr ""
-
-msgid "Logs"
-msgstr ""
-
-msgid "Refresh"
-msgstr ""
-
-msgid "Are you sure you want to clear ALL your log data?"
-msgstr ""
-
-msgid "Logs have been cleared"
-msgstr ""
-
-msgid "No new devices were detected on your network"
-msgstr ""
-
-msgid "Scanning for OpenSprinkler"
-msgstr ""
-
-msgid "Scanning for OpenSprinkler Pi"
-msgstr ""
-
-msgid "Scanning for OpenSprinkler (1.8.3)"
-msgstr ""
-
-msgid "Scanning for OpenSprinkler Pi (1.8.3)"
-msgstr ""
-
-msgid "Remote access is not enabled"
-msgstr ""
-
-msgid "Click here to troubleshoot remote access issues"
-msgstr ""
-
-msgid "Synced with OpenSprinkler.com"
-msgstr ""
-
-msgid "OpenSprinkler.com Login"
-msgstr ""
-
-msgid ""
-"Use your OpenSprinkler.com login and password to securely sync sites between "
-"all your devices."
-msgstr ""
-
-msgid "Don't have an account?"
-msgstr ""
-
-msgid "Register here"
-msgstr ""
-
-msgid "Username:"
-msgstr ""
-
-msgid "Password:"
-msgstr ""
-
-msgid "Invalid username/password combination. Please try again."
-msgstr ""
-
-msgid "Do you wish to add this location to your cloud synced site list?"
-msgstr ""
-
-msgid ""
-"This site is not found in the currently synced site list but may be added "
-"now."
-msgstr ""
-
-msgid "Select Merge Method"
-msgstr ""
-
-msgid "Merge"
-msgstr ""
-
-msgid "Replace local with cloud"
-msgstr ""
-
-msgid "Replace cloud with local"
-msgstr ""
-
-msgid "OpenSprinkler.com Login Expired"
-msgstr ""
-
-msgid "Click here to re-login to OpenSprinkler.com"
-msgstr ""
-
-msgid "Unable to read cloud data"
-msgstr ""
-
-msgid "Click here to enter a valid password to decrypt the data"
-msgstr ""
-
-msgid ""
-"Please enter your OpenSprinkler.com password. If you have recently changed "
-"your password, you may need to enter your previous password to decrypt the "
-"data."
-msgstr ""
-
-msgid "Password"
-msgstr ""
-
-msgid "Change Password"
-msgstr ""
-
-msgid "Incorrect password for "
-msgstr ""
-
-msgid "Please re-enter password to try again."
-msgstr ""
-
-msgid "New Password"
-msgstr ""
-
-msgid "Confirm New Password"
-msgstr ""
-
-msgid "Save Password"
-msgstr ""
-
-msgid "The passwords don't match. Please try again."
-msgstr ""
-
-msgid "Password cannot be empty"
-msgstr ""
-
-msgid "Password cannot be longer than 32 characters"
-msgstr ""
-
-msgid "Please check the current device password is correct then try again"
-msgstr ""
-
-msgid "Unable to change password. Please try again."
-msgstr ""
-
-msgid "Password changed successfully"
-msgstr ""
-
-msgid "Unusable"
-msgstr ""
-
-msgid "Poor"
-msgstr ""
-
-msgid "Fair"
-msgstr ""
-
-msgid "Good"
-msgstr ""
-
-msgid "Excellent"
-msgstr ""
-
-msgid "Network Error"
-msgstr ""
-
-msgid "Are you sure you want to logout?"
-msgstr ""
-
-msgid "Notifications"
-msgstr ""
-
-msgid "Clear"
-msgstr ""
-
-msgid "A valid IP address is required when DHCP is not used"
-msgstr ""
-
-msgid "A valid subnet address is required when DHCP is not used"
-msgstr ""
-
-msgid "A valid gateway address is required when DHCP is not used"
-msgstr ""
-
-msgid "A valid DNS address is required when DHCP is not used"
-msgstr ""
-
-msgid ""
-"You must specify a baseline ETo adjustment method option to use the ET "
-"adjustment method."
-msgstr ""
-
-msgid "Settings have been saved"
-msgstr ""
-
-msgid "Edit Options"
-msgstr ""
-
-msgid "System"
-msgstr ""
-
-msgid "Device Time"
-msgstr ""
-
-msgid "Timezone"
-msgstr ""
-
-msgid "Location"
-msgstr ""
-
-msgid "Not specified"
-msgstr ""
-
-msgid "Enable Logging"
-msgstr ""
-
-msgid "App Settings"
-msgstr ""
-
-msgid ""
-"These settings are stored locally with the application and do not affect the "
-"controller. Changes are saved automatically."
-msgstr ""
-
-msgid "Use Metric"
-msgstr ""
-
-msgid "Use 24 Hour Time"
-msgstr ""
-
-msgid "Order Stations by Groups"
-msgstr ""
-
-msgid "Order Stations by Name"
-msgstr ""
-
-msgid "Show Disabled"
-msgstr ""
-
-msgid "Show Station Number"
-msgstr ""
-
-msgid "Configure Master"
-msgstr ""
-
-msgid "Tap to Configure Master"
-msgstr ""
-
-msgid "Station Handling"
-msgstr ""
-
-msgid "Number of Stations"
-msgstr ""
-
-msgid "available"
-msgstr ""
-
-msgid "stations"
-msgstr ""
-
-msgid "Station Delay"
-msgstr ""
-
-msgid "Weather Adjustment"
-msgstr ""
-
-msgid "Built-in Sensors"
-msgstr ""
-
-msgid "Adjustment Method"
-msgstr ""
-
-msgid ""
-"Weather adjustment retrieves data from the chosen provider and applies the "
-"selected method to determine the watering percentage."
-msgstr ""
-
-msgid ""
-"Uses multiple days of historical weather data to calculate ETo or Zimmerman "
-"watering percentage for programs that run on a regular interval."
-msgstr ""
-
-msgid "Adjust Interval Programs Using Multiple Days of Weather Data"
-msgstr ""
-
-msgid "Adjustment Method Options"
-msgstr ""
-
-msgid "Tap to Configure"
-msgstr ""
-
-msgid "Weather Restrictions"
-msgstr ""
-
-msgid "Prevents watering when the selected restrictions are met."
-msgstr ""
-
-msgid "Prevents watering when the selected restriction is met."
-msgstr ""
-
-msgid "Weather Data Provider"
-msgstr ""
-
-msgid "Select your preferred weather service provider."
-msgstr ""
-
-msgid "Uses the provider configured on the custom weather server."
-msgstr ""
-
-msgid "Default Provider"
-msgstr ""
-
-msgid "Weather API Key"
-msgstr ""
-
-msgid "Please enter an API key for your selected weather provider."
-msgstr ""
-
-msgid "An invalid API key has been detected."
-msgstr ""
-
-msgid "Verify"
-msgstr ""
-
+#: www/js/modules/options.js:1833
+#: www/js/modules/options.js:950
 msgid "% Watering"
 msgstr ""
 
-msgid "The watering percentage scales station run times by the set value."
+#: www/js/modules/logs.js:486
+msgid "%s saved"
 msgstr ""
 
-msgid "Flow"
+#: www/js/modules/sites.js:564
+msgid "A custom name for this device"
 msgstr ""
 
-msgid "Soil"
+#: www/js/modules/firmware.js:159
+msgid "A field has an invalid format."
 msgstr ""
 
-msgid "Program Switch"
+#: www/js/modules/firmware.js:157
+msgid "A required field is missing."
 msgstr ""
 
-msgid "Integrations"
+#: www/js/modules/options.js:289
+msgid "A valid DNS address is required when DHCP is not used"
 msgstr ""
 
-msgid "OTC"
+#: www/js/modules/options.js:244
+msgid "A valid IP address is required when DHCP is not used"
 msgstr ""
 
-msgid "OpenThings Cloud (OTC) allows remote access using OTC Token ."
+#: www/js/modules/options.js:274
+msgid "A valid gateway address is required when DHCP is not used"
 msgstr ""
 
-msgid "MQTT"
+#: www/js/modules/options.js:259
+msgid "A valid subnet address is required when DHCP is not used"
 msgstr ""
 
+#: www/js/modules/firmware.js:158
+msgid "A value is out of range."
+msgstr ""
+
+#: www/js/modules/dates.js:224
+#: www/js/modules/ui-dom.js:1113
+msgid "AM"
+msgstr ""
+
+#: www/js/modules/errors.js:54
+msgid "API Tool"
+msgstr ""
+
+#: www/js/modules/sites.js:1043
+msgid "ASB firmware detected"
+msgstr ""
+
+#: www/index.html:100
+#: www/js/modules/about.js:90
+msgid "About"
+msgstr ""
+
+#: www/js/modules/sensors.js:2710
+#: www/js/modules/sensors.js:2732
+msgid "About %d minute remaining"
+msgstr ""
+
+#: www/js/modules/sensors.js:2710
+#: www/js/modules/sensors.js:2732
+msgid "About %d minutes remaining"
+msgstr ""
+
+#: www/js/modules/dashboard.js:783
+msgid "Activate Relay"
+msgstr ""
+
+#: www/js/modules/status.js:277
+msgid "Activated"
+msgstr ""
+
+#: www/js/modules/dashboard.js:394
+msgid "Active State"
+msgstr ""
+
+#: www/js/modules/dashboard.js:139
+#: www/js/modules/dashboard.js:1439
+#: www/js/modules/dashboard.js:159
+#: www/js/modules/dashboard.js:225
+msgid "Active via Bundle Station"
+msgstr ""
+
+#: www/js/modules/options.js:1212
+msgid "Actual"
+msgstr ""
+
+#: www/js/modules/dashboard.js:717
+#: www/js/modules/programs.js:234
+#: www/js/modules/sensors.js:2282
+#: www/js/modules/sites.js:368
+msgid "Add"
+msgstr ""
+
+#: www/js/modules/welcome.js:44
+#: www/js/modules/welcome.js:68
+msgid "Add Controller"
+msgstr ""
+
+#: www/js/modules/programs.js:3229
+#: www/js/modules/ui-dom.js:99
+msgid "Add Program"
+msgstr ""
+
+#: www/js/modules/analog.js:726
+msgid "Add Sensor"
+msgstr ""
+
+#: www/js/modules/programs.js:2508
+#: www/js/modules/sensors.js:1334
+msgid "Add a Point"
+msgstr ""
+
+#: www/js/modules/sensors.js:2376
+msgid "Add a Sensor"
+msgstr ""
+
+#: www/js/modules/analog.js:776
+msgid "Add program adjustment"
+msgstr ""
+
+#: www/js/modules/programs.js:2617
+msgid "Additional Start Times"
+msgstr ""
+
+#: www/js/modules/options.js:866
+msgid "Adjust Interval Programs Using Multiple Days of Weather Data"
+msgstr ""
+
+#: www/js/modules/options.js:842
+msgid "Adjustment Method"
+msgstr ""
+
+#: www/js/modules/options.js:868
+msgid "Adjustment Method Options"
+msgstr ""
+
+#: www/js/modules/programs.js:534
+msgid "Adjustment Option"
+msgstr ""
+
+#: www/js/modules/analog.js:164
+msgid "Adjustment-Nr"
+msgstr ""
+
+#: www/index.html:104
+#: www/js/modules/options.js:1188
+#: www/js/modules/sites.js:141
+#: www/js/modules/sites.js:584
+msgid "Advanced"
+msgstr ""
+
+#: www/js/modules/language.js:21
+msgid "Afrikaans"
+msgstr ""
+
+#: www/js/modules/analog.js:910
+msgid "Air Humidity"
+msgstr ""
+
+#: www/js/modules/sensors.js:2445
+msgid "All"
+msgstr ""
+
+#: www/js/modules/stations.js:216
+msgid "All stations have been stopped"
+msgstr ""
+
+#: www/js/modules/language.js:21
+msgid "Amharic"
+msgstr ""
+
+#: www/js/modules/import-export.js:601
 msgid ""
-"Send notifications to an MQTT broker and/or receive command message from the "
-"broker."
+"An Aggregate Sensor references an unsupported analog reading. Resolve its "
+"dependencies before restoring."
 msgstr ""
 
-msgid "Email Notifications"
+#: www/js/modules/sites.js:791
+msgid "An IP address, URL, or token is required to continue."
 msgstr ""
 
+#: www/js/modules/options.js:939
+msgid "An invalid API key has been detected."
+msgstr ""
+
+#: www/js/modules/options.js:2025
+#: www/js/modules/options.js:2028
+#: www/js/modules/options.js:968
+#: www/js/modules/sensors.js:100
+msgid "Analog"
+msgstr ""
+
+#: www/js/modules/sensors.js:100
+msgid "Analog Sensor"
+msgstr ""
+
+#: www/js/modules/analog.js:675
+#: www/js/modules/ui-dom.js:330
+msgid "Analog Sensor Config"
+msgstr ""
+
+#: www/js/modules/analog.js:825
+msgid "Analog Sensor Log"
+msgstr ""
+
+#: www/js/modules/options.js:2490
+msgid "App Password"
+msgstr ""
+
+#: www/js/modules/options.js:746
+msgid "App Settings"
+msgstr ""
+
+#: www/js/modules/about.js:59
+msgid "App Version"
+msgstr ""
+
+#: www/js/modules/programs.js:541
+msgid "Apply Current Weather Adjustment"
+msgstr ""
+
+#: www/js/modules/programs.js:545
+msgid "Apply Custom Adjustment"
+msgstr ""
+
+#: www/js/modules/ui-dom.js:1618
+msgid "Apply Cycle and Soak"
+msgstr ""
+
+#: www/js/modules/programs.js:3590
+msgid "Apply Sensor Adjustment"
+msgstr ""
+
+#: www/js/modules/programs.js:3583
+msgid "Apply Weather Adjustment"
+msgstr ""
+
+#: www/js/modules/dates.js:172
+#: www/js/modules/ui-dom.js:1395
+#: www/js/modules/weather.js:344
+msgid "Apr"
+msgstr ""
+
+#: www/js/modules/ui-dom.js:683
+msgid "Are you sure you want to"
+msgstr ""
+
+#: www/js/modules/logs.js:457
+msgid "Are you sure you want to "
+msgstr ""
+
+#: www/js/modules/logs.js:658
+msgid "Are you sure you want to clear ALL your log data?"
+msgstr ""
+
+#: www/js/modules/options.js:1326
+msgid "Are you sure you want to clear the current location?"
+msgstr ""
+
+#: www/js/modules/analog.js:644
+msgid "Are you sure you want to clear the sensor log?"
+msgstr ""
+
+#: www/js/modules/sites.js:315
+msgid "Are you sure you want to delete "
+msgstr ""
+
+#: www/js/modules/ui-dom.js:2093
+msgid "Are you sure you want to delete ALL programs?"
+msgstr ""
+
+#: www/js/modules/sensors.js:3280
+msgid "Are you sure you want to delete all sensor logs?"
+msgstr ""
+
+#: www/js/modules/ui-dom.js:2107
 msgid ""
-"OpenSprinkler can send notifications to a specified email address using a "
-"given email and SMTP server."
+"Are you sure you want to delete all settings and return to the default "
+"settings?"
 msgstr ""
 
-msgid "IFTTT Notifications"
+#: www/js/modules/programs.js:3268
+msgid "Are you sure you want to delete program"
 msgstr ""
 
+#: www/js/modules/analog.js:529
+msgid "Are you sure you want to delete the sensor?"
+msgstr ""
+
+#: www/js/modules/analog.js:588
+msgid "Are you sure you want to delete this program adjustment?"
+msgstr ""
+
+#: www/js/modules/sensors.js:2164
+msgid "Are you sure you want to delete this sensor?"
+msgstr ""
+
+#: www/js/modules/ui-dom.js:712
+msgid "Are you sure you want to downgrade the UI?"
+msgstr ""
+
+#: www/js/modules/sensors.js:3272
+msgid "Are you sure you want to download all log data?"
+msgstr ""
+
+#: www/js/modules/network.js:935
+msgid "Are you sure you want to logout?"
+msgstr ""
+
+#: www/js/modules/ui-dom.js:699
+msgid "Are you sure you want to reboot OpenSprinkler?"
+msgstr ""
+
+#: www/js/modules/options.js:1695
+msgid "Are you sure you want to reset station attributes?"
+msgstr ""
+
+#: www/js/modules/options.js:1701
+msgid "Are you sure you want to reset the wireless settings?"
+msgstr ""
+
+#: www/js/modules/import-export.js:978
+msgid "Are you sure you want to restore the configuration?"
+msgstr ""
+
+#: www/js/modules/stations.js:205
+msgid "Are you sure you want to stop all stations?"
+msgstr ""
+
+#: www/js/modules/options.js:2772
+msgid "Attempting to retrieve your current location"
+msgstr ""
+
+#: www/js/modules/dates.js:173
+#: www/js/modules/ui-dom.js:1396
+#: www/js/modules/weather.js:370
+msgid "Aug"
+msgstr ""
+
+#: www/js/modules/sites.js:769
+msgid "Authorization Required"
+msgstr ""
+
+#: www/js/modules/weather.js:23
+msgid "Auto Rain Delay"
+msgstr ""
+
+#: www/js/modules/options.js:1138
+msgid "Auto Reconnect"
+msgstr ""
+
+#: www/js/modules/sites.js:1098
 msgid ""
-"To enable IFTTT, a Webhooks key is required which can be obtained from "
-"https://ifttt.com"
+"Automatic watering schedules, program-switch starts, weather queries and "
+"Cycle and Soak are disabled."
 msgstr ""
 
-msgid "Notification Events"
+#: www/js/modules/logs.js:401
+#: www/js/modules/logs.js:481
+msgid "Average"
 msgstr ""
 
+#: www/js/modules/about.js:93
+#: www/js/modules/analog.js:678
+#: www/js/modules/analog.js:828
+#: www/js/modules/firmware.js:747
+#: www/js/modules/language.js:88
+#: www/js/modules/logs.js:638
+#: www/js/modules/network.js:290
+#: www/js/modules/options.js:677
+#: www/js/modules/programs.js:1955
+#: www/js/modules/programs.js:228
+#: www/js/modules/programs.js:3232
+#: www/js/modules/programs.js:399
+#: www/js/modules/programs.js:762
+#: www/js/modules/sensors.js:2276
+#: www/js/modules/sensors.js:2379
+#: www/js/modules/sensors.js:3238
+#: www/js/modules/sites.js:359
+#: www/js/modules/ui-dom.js:492
+#: www/js/modules/weather.js:806
+msgid "Back"
+msgstr ""
+
+#: www/js/modules/import-export.js:1455
+msgid "Backup restored to your device"
+msgstr ""
+
+#: www/js/modules/import-export.js:157
+msgid "Backup saved on this device"
+msgstr ""
+
+#: www/js/modules/weather.js:520
+msgid "Baseline ETo"
+msgstr ""
+
+#: www/js/modules/dashboard.js:682
+msgid "Basic"
+msgstr ""
+
+#: www/js/modules/dashboard.js:1415
+#: www/js/modules/dashboard.js:1416
+#: www/js/modules/dashboard.js:179
+#: www/js/modules/programs.js:2427
+msgid "Basic Settings"
+msgstr ""
+
+#: www/js/modules/sites.js:1682
 msgid ""
-"Select notification events. Applicable to all of MQTT, Email, and IFTTT. "
-"<b>NOTE</b>: enabling too many events or notification methods may cause "
-"delays, missed responses, or skipped short watering events."
+"Below is the corrupt data which could not be parsed but may be useful for "
+"restoration."
 msgstr ""
 
-msgid "Configure Events"
-msgstr ""
-
-msgid "Device Name"
-msgstr ""
-
-msgid ""
-"Device name is attached to all IFTTT and email notifications to help "
-"distinguish multiple devices"
-msgstr ""
-
-msgid "LCD Screen"
-msgstr ""
-
-msgid "Contrast"
-msgstr ""
-
-msgid "Brightness"
-msgstr ""
-
-msgid "Idle Brightness"
-msgstr ""
-
-msgid "HTTP Port (restart required)"
-msgstr ""
-
-msgid "Device ID (restart required)"
-msgstr ""
-
-msgid "Device ID modifies the last byte of the MAC address."
-msgstr ""
-
-msgid "Relay Pulse"
-msgstr ""
-
-msgid ""
-"Relay pulsing is used for special situations where rapid pulsing is needed "
-"in the output with a range from 1 to 2000 milliseconds. A zero value "
-"disables the pulsing option."
-msgstr ""
-
+#: www/js/modules/options.js:1199
 msgid "Boost Time"
 msgstr ""
 
+#: www/js/modules/options.js:1201
 msgid ""
 "Boost time changes how long the boost converter is activated with a range "
 "from 0 to 1000 milliseconds."
 msgstr ""
 
-msgid "Target PD Voltage"
+#: www/js/modules/options.js:1108
+msgid "Brightness"
 msgstr ""
 
+#: www/js/modules/options.js:2345
+msgid "Broker/Server"
+msgstr ""
+
+#: www/js/modules/options.js:1020
+#: www/js/modules/sensors.js:1163
+#: www/js/modules/sensors.js:2217
+msgid "Built-in Sensors"
+msgstr ""
+
+#: www/js/modules/language.js:21
+msgid "Bulgarian"
+msgstr ""
+
+#: www/js/modules/dashboard.js:147
+#: www/js/modules/options.js:2001
+msgid "Bundle Member"
+msgstr ""
+
+#: www/js/modules/dashboard.js:742
+#: www/js/modules/options.js:2000
+#: www/js/modules/stations.js:184
+#: www/js/modules/status.js:173
+msgid "Bundle Station"
+msgstr ""
+
+#: www/js/modules/dashboard.js:1138
 msgid ""
-"The holding current of your solenoid multiplied by its coil resistance (e.g. "
-"0.25A×30Ω=7.5V). Set to 0 to use system default."
+"Bundle Station configuration was rejected. Station settings have been "
+"refreshed."
 msgstr ""
 
-msgid "Actual"
+#: www/js/modules/dashboard.js:504
+msgid "Bundle Station members changed. Review the selection and try again."
 msgstr ""
 
-msgid "Undercurrent Threshold"
+#: www/js/modules/dashboard.js:76
+msgid "Bundle member of"
 msgstr ""
 
+#: www/js/modules/weather.js:1087
+msgid "California Restriction"
+msgstr ""
+
+#: www/js/modules/dashboard.js:570
+#: www/js/modules/network.js:171
+#: www/js/modules/programs.js:3612
+msgid "Cancel"
+msgstr ""
+
+#: www/js/modules/dashboard.js:717
+#: www/js/modules/dashboard.js:929
+msgid "Change"
+msgstr ""
+
+#: www/js/modules/sites.js:129
+msgid "Change IP/URL"
+msgstr ""
+
+#: www/js/modules/sites.js:126
+msgid "Change Name"
+msgstr ""
+
+#: www/index.html:110
+#: www/js/modules/network.js:736
+#: www/js/modules/sites.js:1078
+#: www/js/modules/sites.js:137
+msgid "Change Password"
+msgstr ""
+
+#: www/js/modules/ui-dom.js:1942
+#: www/js/modules/ui-dom.js:323
+msgid "Change Pause"
+msgstr ""
+
+#: www/js/modules/weather.js:951
+msgid "Change Rain Delay"
+msgstr ""
+
+#: www/js/modules/sites.js:133
+msgid "Change Token"
+msgstr ""
+
+#: www/js/modules/dashboard.js:706
+msgid "Changing group designation is prohibited while station is running"
+msgstr ""
+
+#: www/js/modules/dashboard.js:415
+msgid "Characters remaining"
+msgstr ""
+
+#: www/js/modules/programs.js:2289
+msgid "Check All"
+msgstr ""
+
+#: www/js/modules/sites.js:740
+#: www/js/modules/sites.js:750
+msgid "Check IP/URL/Port and try again."
+msgstr ""
+
+#: www/js/modules/firmware.js:132
+#: www/js/modules/firmware.js:281
+#: www/js/modules/options.js:638
+msgid "Check device password and try again."
+msgstr ""
+
+#: www/js/modules/language.js:21
+msgid "Chinese"
+msgstr ""
+
+#: www/js/modules/programs.js:2262
+#: www/js/modules/programs.js:2548
+msgid "Choose day(s)"
+msgstr ""
+
+#: www/js/modules/notifications.js:93
+msgid "Clear"
+msgstr ""
+
+#: www/js/modules/analog.js:780
+msgid "Clear Log"
+msgstr ""
+
+#: www/js/modules/options.js:1264
+msgid "Clear Log Data"
+msgstr ""
+
+#: www/js/modules/logs.js:56
+msgid "Clear Logs"
+msgstr ""
+
+#: www/js/modules/status.js:225
+msgid "Clear this alert"
+msgstr ""
+
+#: www/js/modules/programs.js:2173
+msgid "Click any program below to expand/edit. Be sure to save changes."
+msgstr ""
+
+#: www/js/modules/sensors.js:2191
+msgid "Click below to expand/edit. Be sure to save changes."
+msgstr ""
+
+#: www/js/modules/firmware.js:743
+msgid "Click here for more details"
+msgstr ""
+
+#: www/js/modules/firmware.js:720
+msgid "Click here to enable all connected stations."
+msgstr ""
+
+#: www/js/modules/network.js:676
+msgid "Click here to enter a valid password to decrypt the data"
+msgstr ""
+
+#: www/js/modules/network.js:653
+msgid "Click here to re-login to OpenSprinkler.com"
+msgstr ""
+
+#: www/js/modules/sites.js:1673
+msgid "Click here to retrieve the partial weather option data"
+msgstr ""
+
+#: www/js/modules/network.js:286
+msgid "Click here to troubleshoot remote access issues"
+msgstr ""
+
+#: www/js/modules/firmware.js:25
+msgid "Clock Update"
+msgstr ""
+
+#: www/js/modules/options.js:2741
+msgid "Close"
+msgstr ""
+
+#: www/js/modules/ui-dom.js:326
+msgid "Configuration"
+msgstr ""
+
+#: www/js/modules/sensors.js:1575
+msgid "Configure Child Sensor"
+msgstr ""
+
+#: www/js/modules/options.js:1085
+msgid "Configure Events"
+msgstr ""
+
+#: www/js/modules/options.js:779
+msgid "Configure Master"
+msgstr ""
+
+#: www/js/modules/status.js:112
+msgid "Configured as Extender"
+msgstr ""
+
+#: www/js/modules/network.js:743
+msgid "Confirm New Password"
+msgstr ""
+
+#: www/js/modules/sensors.js:151
+msgid "Conflicting sensor configuration: %s. Remove it in Edit Sensors first."
+msgstr ""
+
+#: www/js/modules/system-diagnostics.js:98
+msgid "Connected"
+msgstr ""
+
+#: www/js/modules/sites.js:884
+msgid "Connecting to"
+msgstr ""
+
+#: www/js/modules/system-diagnostics.js:94
+msgid "Connecting..."
+msgstr ""
+
+#: www/js/modules/firmware.js:277
+msgid "Connection timed-out. Please try again."
+msgstr ""
+
+#: www/js/modules/dashboard.js:571
+#: www/js/modules/sites.js:1132
+msgid "Continue"
+msgstr ""
+
+#: www/js/modules/options.js:1103
+msgid "Contrast"
+msgstr ""
+
+#: www/js/modules/options.js:37
+msgid "Controller Reboot"
+msgstr ""
+
+#: www/js/modules/options.js:613
+#: www/js/modules/options.js:618
+#: www/js/modules/options.js:627
+#: www/js/modules/options.js:630
+#: www/js/modules/options.js:635
+msgid "Controller rejected one or more invalid options. Review and try again."
+msgstr ""
+
+#: www/js/modules/errors.js:49
+msgid "Corrupted Response"
+msgstr ""
+
+#: www/js/modules/programs.js:3598
+msgid "Create a single-run program for repeats"
+msgstr ""
+
+#: www/js/modules/language.js:21
+msgid "Croatian"
+msgstr ""
+
+#: www/js/modules/status.js:63
+msgid "Current"
+msgstr ""
+
+#: www/js/modules/programs.js:2493
+msgid "Current Sensor Value"
+msgstr ""
+
+#: www/js/modules/sensors.js:2128
+msgid "Current Value"
+msgstr ""
+
+#: www/js/modules/weather.js:774
+msgid "Current Weather"
+msgstr ""
+
+#: www/js/modules/programs.js:551
+msgid "Custom Adjustment"
+msgstr ""
+
+#: www/js/modules/cards.js:40
+msgid "Cycle and Soak"
+msgstr ""
+
+#: www/js/modules/dashboard.js:1330
 msgid ""
-"If the current draw (mA) falls below this threshold when a station finishes "
-"running, a low-current fault notification is triggered. The recommended "
-"value is 100. Set to 0 to disable this feature."
+"Cycle and Soak reported an error. Some stations may water without cycling. "
+"If this persists after restarting the controller, reset the cycle and soak "
+"settings."
 msgstr ""
 
-msgid "Overcurrent Limit"
+#: www/js/modules/dashboard.js:461
+msgid "Cycle and soak times must be between 1 and 240 minutes."
 msgstr ""
 
+#: www/js/modules/cycle-soak.js:45
+msgid "Cycle paused"
+msgstr ""
+
+#: www/js/modules/cycle-soak.js:45
+msgid "Cycle queued"
+msgstr ""
+
+#: www/js/modules/cycle-soak.js:45
+msgid "Cycle running"
+msgstr ""
+
+#: www/js/modules/language.js:21
+msgid "Czech"
+msgstr ""
+
+#: www/js/modules/options.js:1162
+msgid "DNS Address"
+msgstr ""
+
+#: www/js/modules/logs.js:44
+msgid "Day"
+msgstr ""
+
+#: www/js/modules/programs.js:2572
+msgid "Day of the Month (Use 0 for the last day)"
+msgstr ""
+
+#: www/js/modules/ui-dom.js:1576
+msgid "Days"
+msgstr ""
+
+#: www/js/modules/programs.js:2260
+#: www/js/modules/programs.js:2545
+msgid "Days of the Week"
+msgstr ""
+
+#: www/js/modules/dates.js:173
+#: www/js/modules/ui-dom.js:1396
+#: www/js/modules/weather.js:396
+msgid "Dec"
+msgstr ""
+
+#: www/js/modules/options.js:1132
+msgid "Default"
+msgstr ""
+
+#: www/js/modules/options.js:918
+msgid "Default Provider"
+msgstr ""
+
+#: www/js/modules/weather.js:252
+msgid "Delay Duration (hours)"
+msgstr ""
+
+#: www/js/modules/options.js:2113
+msgid "Delayed Off Time"
+msgstr ""
+
+#: www/js/modules/options.js:2109
+msgid "Delayed On Time"
+msgstr ""
+
+#: www/js/modules/analog.js:720
+#: www/js/modules/analog.js:770
+#: www/js/modules/programs.js:2660
+#: www/js/modules/programs.js:2872
+#: www/js/modules/sensors.js:1347
+#: www/js/modules/sensors.js:3039
+#: www/js/modules/sites.js:159
+msgid "Delete"
+msgstr ""
+
+#: www/js/modules/sensors.js:2449
+msgid "Delete All"
+msgstr ""
+
+#: www/js/modules/options.js:1266
+msgid "Delete All Programs"
+msgstr ""
+
+#: www/js/modules/programs.js:2320
+msgid "Delete Program"
+msgstr ""
+
+#: www/js/modules/sensors.js:2158
+msgid "Delete Sensor"
+msgstr ""
+
+#: www/js/modules/sensors.js:3043
+msgid "Delete the entire log of"
+msgstr ""
+
+#: www/js/modules/sensors.js:2715
+msgid "Deleting sensor log"
+msgstr ""
+
+#: www/js/modules/weather.js:531
+msgid "Detect baseline ETo"
+msgstr ""
+
+#: www/js/modules/sites.js:569
+msgid "Device Address:"
+msgstr ""
+
+#: www/js/modules/options.js:1179
+msgid "Device ID (restart required)"
+msgstr ""
+
+#: www/js/modules/options.js:1181
+msgid "Device ID modifies the last byte of the MAC address."
+msgstr ""
+
+#: www/js/modules/options.js:1089
+msgid "Device Name"
+msgstr ""
+
+#: www/js/modules/sites.js:562
+msgid "Device Name:"
+msgstr ""
+
+#: www/js/modules/sites.js:577
+msgid "Device Password:"
+msgstr ""
+
+#: www/js/modules/options.js:705
+msgid "Device Time"
+msgstr ""
+
+#: www/js/modules/options.js:1091
+msgid ""
+"Device name is attached to all IFTTT and email notifications to help "
+"distinguish multiple devices"
+msgstr ""
+
+#: www/js/modules/sites.js:1074
+msgid "Device password is not secure"
+msgstr ""
+
+#: www/index.html:106
+#: www/js/modules/dashboard.js:819
+#: www/js/modules/ui-dom.js:616
+#: www/js/modules/ui-dom.js:731
+msgid "Disable"
+msgstr ""
+
+#: www/js/modules/sites.js:1099
+msgid "Disable Remote Extension"
+msgstr ""
+
+#: www/js/modules/ui-dom.js:335
+msgid "Disabled"
+msgstr ""
+
+#: www/js/modules/options.js:1485
+msgid ""
+"Disallow watering if the current\n"
+"temperature is below:"
+msgstr ""
+
+#: www/js/modules/options.js:1471
+msgid "Disallow watering if:"
+msgstr ""
+
+#: www/js/modules/system-diagnostics.js:96
+msgid "Disconnected"
+msgstr ""
+
+#: www/js/modules/firmware.js:634
+#: www/js/modules/sites.js:1690
+msgid "Dismiss"
+msgstr ""
+
+#: www/js/modules/analog.js:375
+msgid "Divider"
+msgstr ""
+
+#: www/js/modules/programs.js:3529
+#: www/js/modules/programs.js:3538
+msgid "Do you want to continue?"
+msgstr ""
+
+#: www/js/modules/dashboard.js:1671
+msgid "Do you want to delete the current image?"
+msgstr ""
+
+#: www/js/modules/status.js:121
+msgid "Do you want to re-enable system operation?"
+msgstr ""
+
+#: www/js/modules/ui-dom.js:1932
+#: www/js/modules/ui-dom.js:1983
+msgid "Do you want to resume program operation?"
+msgstr ""
+
+#: www/js/modules/programs.js:171
+#: www/js/modules/ui-dom.js:945
+msgid "Do you want to save your changes?"
+msgstr ""
+
+#: www/js/modules/stations.js:454
+msgid "Do you want to stop the currently running program?"
+msgstr ""
+
+#: www/js/modules/dashboard.js:1609
+msgid "Do you want to stop the selected station?"
+msgstr ""
+
+#: www/js/modules/status.js:297
+msgid "Do you want to turn off manual mode?"
+msgstr ""
+
+#: www/js/modules/status.js:259
+msgid "Do you want to turn off rain delay?"
+msgstr ""
+
+#: www/js/modules/dashboard.js:1612
+msgid "Do you want to unschedule the selected station?"
+msgstr ""
+
+#: www/js/modules/network.js:552
+msgid "Do you wish to add this location to your cloud synced site list?"
+msgstr ""
+
+#: www/js/modules/status.js:88
+msgid "Do you wish to disable extender mode?"
+msgstr ""
+
+#: www/js/modules/network.js:365
+msgid "Don't have an account?"
+msgstr ""
+
+#: www/js/modules/ui-dom.js:492
+msgid "Done"
+msgstr ""
+
+#: www/index.html:113
+msgid "Downgrade UI"
+msgstr ""
+
+#: www/js/modules/sensors.js:3010
+msgid "Download"
+msgstr ""
+
+#: www/js/modules/sensors.js:2448
+msgid "Download All"
+msgstr ""
+
+#: www/js/modules/analog.js:781
+#: www/js/modules/sensors.js:2598
+msgid "Download Log"
+msgstr ""
+
+#: www/js/modules/ui-dom.js:1467
+#: www/js/modules/ui-dom.js:1544
+#: www/js/modules/weather.js:953
+msgid "Duration"
+msgstr ""
+
+#: www/js/modules/language.js:21
+msgid "Dutch"
+msgstr ""
+
+#: www/js/modules/system-diagnostics.js:58
+#: www/js/modules/weather.js:23
+msgid "ETo"
+msgstr ""
+
+#: www/js/modules/analog.js:719
+#: www/js/modules/analog.js:769
+msgid "Edit"
+msgstr ""
+
+#: www/js/modules/options.js:674
+#: www/js/modules/ui-dom.js:327
+msgid "Edit Options"
+msgstr ""
+
+#: www/js/modules/analog.js:151
+msgid "Edit Program Adjustment"
+msgstr ""
+
+#: www/js/modules/ui-dom.js:328
+msgid "Edit Programs"
+msgstr ""
+
+#: www/js/modules/analog.js:317
+msgid "Edit Sensor"
+msgstr ""
+
+#: www/js/modules/analog.js:321
+msgid "Edit Sensor Configuration. "
+msgstr ""
+
+#: www/js/modules/options.js:2118
+#: www/js/modules/sensors.js:2273
+#: www/js/modules/ui-dom.js:329
+msgid "Edit Sensors"
+msgstr ""
+
+#: www/js/modules/weather.js:526
+msgid "Elevation"
+msgstr ""
+
+#: www/js/modules/import-export.js:131
+msgid "Email"
+msgstr ""
+
+#: www/js/modules/import-export.js:203
+msgid "Email (copy/paste)"
+msgstr ""
+
+#: www/js/modules/options.js:1059
+msgid "Email Notifications"
+msgstr ""
+
+#: www/js/modules/options.js:2460
+msgid "Email Settings"
+msgstr ""
+
+#: www/js/modules/options.js:2339
+#: www/js/modules/options.js:2463
+#: www/js/modules/options.js:2564
+#: www/js/modules/programs.js:2642
+#: www/js/modules/ui-dom.js:616
+#: www/js/modules/ui-dom.js:731
+msgid "Enable"
+msgstr ""
+
+#: www/js/modules/options.js:1492
+msgid "Enable California Restriction"
+msgstr ""
+
+#: www/js/modules/cycle-soak.js:33
+msgid "Enable Cycle and Soak"
+msgstr ""
+
+#: www/js/modules/analog.js:395
+msgid "Enable Data Logging"
+msgstr ""
+
+#: www/js/modules/programs.js:2447
+msgid "Enable Date Range"
+msgstr ""
+
+#: www/js/modules/options.js:739
+msgid "Enable Logging"
+msgstr ""
+
+#: www/js/modules/weather.js:960
+msgid ""
+"Enable manual rain delay by entering a value into the input below. To turn "
+"off a currently enabled rain delay use a value of 0."
+msgstr ""
+
+#: www/js/modules/programs.js:2243
+#: www/js/modules/programs.js:2437
+msgid "Enabled"
+msgstr ""
+
+#: www/js/modules/logs.js:348
+#: www/js/modules/programs.js:2297
+msgid "End Time"
+msgstr ""
+
+#: www/js/modules/logs.js:51
+msgid "End:"
+msgstr ""
+
+#: www/js/modules/language.js:21
+msgid "English"
+msgstr ""
+
+#: www/js/modules/ui-dom.js:1399
+msgid "Enter Date/Time"
+msgstr ""
+
+#: www/js/modules/options.js:1295
+#: www/js/modules/options.js:1300
+msgid "Enter GPS Coordinates"
+msgstr ""
+
+#: www/js/modules/ui-dom.js:1842
+msgid "Enter IP Address"
+msgstr ""
+
+#: www/js/modules/dashboard.js:1619
+msgid "Enter a duration to manually run "
+msgstr ""
+
+#: www/js/modules/weather.js:1056
+msgid "Error"
+msgstr ""
+
+#: www/js/modules/logs.js:501
+msgid "Error retrieving log data. Please refresh to try again."
+msgstr ""
+
+#: www/js/modules/programs.js:3202
+msgid "Error: Add at least one sensor adjustment point."
+msgstr ""
+
+#: www/js/modules/programs.js:3184
+msgid "Error: Complete or remove every sensor adjustment point."
+msgstr ""
+
+#: www/js/modules/programs.js:3418
+msgid "Error: Day of month is out of bounds."
+msgstr ""
+
+#: www/js/modules/programs.js:3403
+msgid "Error: Interval days must be between"
+msgstr ""
+
+#: www/js/modules/programs.js:3315
+msgid "Error: Interval days must be between 2 and 128."
+msgstr ""
+
+#: www/js/modules/programs.js:3171
+msgid "Error: Select a sensor before enabling sensor adjustment."
+msgstr ""
+
+#: www/js/modules/programs.js:3426
+msgid "Error: Start date is input incorrectly."
+msgstr ""
+
+#: www/js/modules/programs.js:3326
+msgid "Error: Start time must be prior to end time."
+msgstr ""
+
+#: www/js/modules/programs.js:3317
+#: www/js/modules/programs.js:3410
+msgid "Error: Starting in days wrong."
+msgstr ""
+
+#: www/js/modules/programs.js:3190
+msgid "Error: Watering percentages cannot be negative."
+msgstr ""
+
+#: www/js/modules/programs.js:3305
+#: www/js/modules/programs.js:3442
+msgid "Error: You have not selected any days of the week."
+msgstr ""
+
+#: www/js/modules/programs.js:3347
+#: www/js/modules/programs.js:3521
+msgid "Error: You have not selected any stations."
+msgstr ""
+
+#: www/js/modules/programs.js:3498
+msgid "Error: date range is malformed"
+msgstr ""
+
+#: www/js/modules/language.js:21
+msgid "Estonian"
+msgstr ""
+
+#: www/js/modules/programs.js:2257
+#: www/js/modules/programs.js:2580
+msgid "Even Days Only"
+msgstr ""
+
+#: www/js/modules/network.js:914
+msgid "Excellent"
+msgstr ""
+
+#: www/js/modules/logs.js:54
+msgid "Export"
+msgstr ""
+
+#: www/index.html:97
+msgid "Export Configuration"
+msgstr ""
+
+#: www/js/modules/analog.js:370
+msgid "Factor"
+msgstr ""
+
+#: www/js/modules/analog.js:208
+msgid "Factor 1 (adjustment for min)"
+msgstr ""
+
+#: www/js/modules/analog.js:213
+msgid "Factor 2 (adjustment for max)"
+msgstr ""
+
+#: www/js/modules/firmware.js:25
+msgid "Factory Reset"
+msgstr ""
+
+#: www/js/modules/sensors.js:3200
+msgid "Failed to delete sensor logs"
+msgstr ""
+
+#: www/js/modules/sensors.js:2558
+#: www/js/modules/sensors.js:2841
+msgid "Failed to download sensor logs"
+msgstr ""
+
+#: www/js/modules/sensors.js:2227
+#: www/js/modules/sensors.js:2356
+msgid "Failed to load sensor descriptions"
+msgstr ""
+
+#: www/js/modules/sensors.js:3154
+msgid "Failed to load sensor logs"
+msgstr ""
+
+#: www/js/modules/network.js:910
+msgid "Fair"
+msgstr ""
+
+#: www/js/modules/language.js:21
+msgid "Farsi"
+msgstr ""
+
+#: www/js/modules/dates.js:172
+#: www/js/modules/ui-dom.js:1395
+#: www/js/modules/weather.js:332
+msgid "Feb"
+msgstr ""
+
+#: www/js/modules/import-export.js:130
+#: www/js/modules/import-export.js:202
+msgid "File"
+msgstr ""
+
+#: www/js/modules/dashboard.js:284
+msgid "Filter stations"
+msgstr ""
+
+#: www/js/modules/about.js:61
+#: www/js/modules/firmware.js:645
+#: www/js/modules/network.js:115
+msgid "Firmware"
+msgstr ""
+
+#: www/js/modules/firmware.js:25
+msgid "Firmware Update"
+msgstr ""
+
+#: www/js/modules/firmware.js:601
+msgid "Firmware update available"
+msgstr ""
+
+#: www/js/modules/firmware.js:616
+#: www/js/modules/ui-dom.js:740
+msgid "Firmware update requires a local network connection to the controller."
+msgstr ""
+
+#: www/js/modules/programs.js:2627
+msgid "Fixed"
+msgstr ""
+
+#: www/js/modules/options.js:2016
+#: www/js/modules/options.js:966
+#: www/js/modules/sensors.js:98
+#: www/js/modules/status.js:72
+msgid "Flow"
+msgstr ""
+
+#: www/js/modules/options.js:42
+msgid "Flow Alert"
+msgstr ""
+
+#: www/js/modules/options.js:2066
+msgid "Flow Pulse Rate"
+msgstr ""
+
+#: www/js/modules/logs.js:349
+msgid "Flow Rate"
+msgstr ""
+
+#: www/js/modules/logs.js:206
+#: www/js/modules/logs.js:208
+#: www/js/modules/logs.js:210
+#: www/js/modules/logs.js:211
+#: www/js/modules/sensors.js:98
+msgid "Flow Sensor"
+msgstr ""
+
+#: www/js/modules/options.js:35
+msgid "Flow Sensor Update"
+msgstr ""
+
+#: www/js/modules/weather.js:803
+msgid "Forecast"
+msgstr ""
+
+#: www/js/modules/weather.js:856
+#: www/js/modules/weather.js:875
+msgid "Forecasted Rain"
+msgstr ""
+
+#: www/js/modules/language.js:21
+msgid "French"
+msgstr ""
+
+#: www/js/modules/dates.js:171
+#: www/js/modules/dates.js:238
+#: www/js/modules/weather.js:848
+msgid "Fri"
+msgstr ""
+
+#: www/js/modules/dates.js:237
+#: www/js/modules/programs.js:2218
+#: www/js/modules/programs.js:2388
+msgid "Friday"
+msgstr ""
+
+#: www/js/modules/programs.js:2453
+msgid "From (mm/dd)"
+msgstr ""
+
+#: www/js/modules/dashboard.js:736
+#: www/js/modules/stations.js:176
+msgid "GPIO"
+msgstr ""
+
+#: www/js/modules/dashboard.js:380
+msgid "GPIO Pin"
+msgstr ""
+
+#: www/js/modules/options.js:1157
+msgid "Gateway Address"
+msgstr ""
+
+#: www/js/modules/language.js:21
+msgid "German"
+msgstr ""
+
+#: www/js/modules/network.js:912
+msgid "Good"
+msgstr ""
+
+#: www/js/modules/language.js:21
+msgid "Greek"
+msgstr ""
+
+#: www/js/modules/analog.js:344
+msgid "Group"
+msgstr ""
+
+#: www/js/modules/logs.js:42
+msgid "Grouping:"
+msgstr ""
+
+#: www/js/modules/dashboard.js:396
+msgid "HIGH"
+msgstr ""
+
+#: www/js/modules/dashboard.js:737
+#: www/js/modules/stations.js:178
+msgid "HTTP"
+msgstr ""
+
+#: www/js/modules/options.js:1122
+msgid "HTTP Port (restart required)"
+msgstr ""
+
+#: www/js/modules/dashboard.js:738
+#: www/js/modules/stations.js:180
+msgid "HTTPS"
+msgstr ""
+
+#: www/js/modules/about.js:67
+msgid "Hardware Version"
+msgstr ""
+
+#: www/js/modules/language.js:21
+msgid "Hebrew"
+msgstr ""
+
+#: www/js/modules/errors.js:55
+msgid "Help"
+msgstr ""
+
+#: www/index.html:99
+msgid "Help & Support"
+msgstr ""
+
+#: www/js/modules/ui-dom.js:335
+msgid "Hide"
+msgstr ""
+
+#: www/js/modules/weather.js:871
+msgid "High"
+msgstr ""
+
+#: www/js/modules/options.js:1128
+msgid "Hostname (restart required)"
+msgstr ""
+
+#: www/js/modules/ui-dom.js:1576
+msgid "Hours"
+msgstr ""
+
+#: www/js/modules/analog.js:909
+#: www/js/modules/weather.js:113
+msgid "Humidity"
+msgstr ""
+
+#: www/js/modules/language.js:21
+msgid "Hungarian"
+msgstr ""
+
+#: www/js/modules/analog.js:364
+msgid "ID"
+msgstr ""
+
+#: www/js/modules/options.js:1072
+msgid "IFTTT Notifications"
+msgstr ""
+
+#: www/js/modules/analog.js:354
+#: www/js/modules/options.js:1149
+msgid "IP Address"
+msgstr ""
+
+#: www/js/modules/language.js:21
+msgid "Icelandic"
+msgstr ""
+
+#: www/js/modules/options.js:1113
+msgid "Idle Brightness"
+msgstr ""
+
+#: www/js/modules/options.js:1229
 msgid ""
 "If the current draw (mA) exceeds this threshold when stations are running, "
 "an overcurrent fault notification is triggered. Set to 0 to use the system "
 "default. Set to maximum (2550) to disable this feature."
 msgstr ""
 
-msgid "Latch On Voltage"
+#: www/js/modules/options.js:1221
+msgid ""
+"If the current draw (mA) falls below this threshold when a station finishes "
+"running, a low-current fault notification is triggered. The recommended "
+"value is 100. Set to 0 to disable this feature."
 msgstr ""
 
-msgid "Maximum is 24V. Set to 0 for default."
+#: www/js/modules/weather.js:250
+msgid ""
+"If the current weather condition reports rain, a rain delay is "
+"automatically issued using the duration below."
 msgstr ""
 
-msgid "Latch Off Voltage"
-msgstr ""
-
-msgid "NTP IP Address"
-msgstr ""
-
-msgid "Gateway Address"
-msgstr ""
-
-msgid "Subnet Mask"
-msgstr ""
-
-msgid "DNS Address"
-msgstr ""
-
-msgid "Use DHCP (restart required)"
-msgstr ""
-
-msgid "NTP Sync"
-msgstr ""
-
-msgid "Auto Reconnect"
-msgstr ""
-
+#: www/js/modules/options.js:1252
 msgid "Ignore Password"
 msgstr ""
 
-msgid "Special Station Auto-Refresh"
+#: www/js/modules/dashboard.js:789
+msgid "Ignore Rain"
 msgstr ""
 
-msgid "Reset"
+#: www/js/modules/dashboard.js:795
+msgid "Ignore Sensor 1"
 msgstr ""
 
-msgid "Reset Zoom"
+#: www/js/modules/dashboard.js:801
+msgid "Ignore Sensor 2"
 msgstr ""
 
-msgid "Clear Log Data"
+#: www/js/modules/dashboard.js:807
+msgid "Ignore Sensor 3"
 msgstr ""
 
-msgid "Reset All Options"
+#: www/js/modules/dashboard.js:813
+msgid "Ignore Sensor 4"
 msgstr ""
 
-msgid "Delete All Programs"
+#: www/js/modules/dashboard.js:717
+#: www/js/modules/dashboard.js:929
+msgid "Image"
 msgstr ""
 
-msgid "Reset Station Attributes"
+#: www/js/modules/import-export.js:170
+msgid "Import"
 msgstr ""
 
-msgid "Reset Wireless Settings"
+#: www/index.html:98
+msgid "Import Configuration"
 msgstr ""
 
-msgid "Enter GPS Coordinates"
+#: www/js/modules/dates.js:159
+msgid "In"
 msgstr ""
 
-msgid "Are you sure you want to clear the current location?"
+#: www/js/modules/network.js:738
+msgid "Incorrect password for "
 msgstr ""
 
-msgid "Weather Restriction Options"
-msgstr ""
-
-msgid "Rain Restriction"
-msgstr ""
-
-msgid "Disallow watering if:"
-msgstr ""
-
-msgid "of rain is forecasted in the next:"
-msgstr ""
-
-msgid "Set either to 0 to disable."
-msgstr ""
-
-msgid "Temperature Restriction"
-msgstr ""
-
-msgid ""
-"Disallow watering if the current\n"
-"temperature is below:"
-msgstr ""
-
-msgid "Set to -40 (either °F or °C) to disable."
-msgstr ""
-
-msgid "Enable California Restriction"
-msgstr ""
-
-msgid "Are you sure you want to reset station attributes?"
-msgstr ""
-
-msgid "This will reset all station attributes"
-msgstr ""
-
-msgid "Are you sure you want to reset the wireless settings?"
-msgstr ""
-
-msgid ""
-"This will delete the stored SSID/password for your wireless network and "
-"return the device to access point mode"
-msgstr ""
-
-msgid ""
-"Wireless settings have been reset. Please follow the OpenSprinkler user "
-"manual on restoring connectivity."
-msgstr ""
-
-msgid "Milliseconds"
-msgstr ""
-
-msgid "Seconds"
-msgstr ""
-
-msgid "Milliamperes"
-msgstr ""
-
-msgid "Program Start"
-msgstr ""
-
-msgid "Sensor 1 Update"
-msgstr ""
-
-msgid "Flow Sensor Update"
-msgstr ""
-
-msgid "Weather Adjustment Update"
-msgstr ""
-
-msgid "Controller Reboot"
-msgstr ""
-
-msgid "Station Finish"
-msgstr ""
-
-msgid "Sensor 2 Update"
-msgstr ""
-
-msgid "Rain Delay Update"
-msgstr ""
-
-msgid "Station Start"
-msgstr ""
-
-msgid "Flow Alert"
-msgstr ""
-
-msgid "Under/Overcurrent Fault"
-msgstr ""
-
-msgid "Select Notification Events"
-msgstr ""
-
-msgid "None"
-msgstr ""
-
-msgid "Flow Pulse Rate"
-msgstr ""
-
-msgid ""
-"When using program switch, a switch is connected to the sensor port to "
-"trigger Program 1 every time the switch is pressed for at least 1 second."
-msgstr ""
-
-msgid ""
-"When using program switch, a switch is connected to the sensor port to "
-"trigger Program 2 every time the switch is pressed for at least 1 second."
-msgstr ""
-
-msgid ""
-"When using program switch, a switch is connected to the sensor port to "
-"trigger Program 3 every time the switch is pressed for at least 1 second."
-msgstr ""
-
-msgid ""
-"When using program switch, a switch is connected to the sensor port to "
-"trigger Program 4 every time the switch is pressed for at least 1 second."
-msgstr ""
-
-msgid "Option"
-msgstr ""
-
-msgid "Normally Open"
-msgstr ""
-
-msgid "Delayed On Time"
-msgstr ""
-
-msgid "Delayed Off Time"
-msgstr ""
-
-msgid "Master Station"
-msgstr ""
-
-msgid "Zone"
-msgstr ""
-
-msgid "On Adj."
-msgstr ""
-
-msgid "Off Adj."
-msgstr ""
-
-msgid "On/Off adjustments are in 5-second increments."
-msgstr ""
-
-msgid "MQTT Settings"
-msgstr ""
-
-msgid "Enable"
-msgstr ""
-
-msgid "Broker/Server"
-msgstr ""
-
-msgid "broker"
-msgstr ""
-
-msgid "Username"
-msgstr ""
-
-msgid "username (optional)"
-msgstr ""
-
-msgid "password (optional)"
-msgstr ""
-
-msgid "Publish Topic"
-msgstr ""
-
-msgid "publish topic"
-msgstr ""
-
-msgid "Subscribe Topic"
-msgstr ""
-
-msgid "subscribe topic"
-msgstr ""
-
-msgid "Email Settings"
-msgstr ""
-
-msgid "SMTP Server"
-msgstr ""
-
-msgid "smtp.gmail.com"
-msgstr ""
-
-msgid "Sender Email"
-msgstr ""
-
-msgid "user@gmail.com"
-msgstr ""
-
-msgid "App Password"
-msgstr ""
-
-msgid "app password"
-msgstr ""
-
-msgid "Recipient Email"
-msgstr ""
-
-msgid "OpenThings Cloud (OTC) Settings"
-msgstr ""
-
-msgid "Token"
-msgstr ""
-
-msgid "token"
-msgstr ""
-
-msgid "Server"
-msgstr ""
-
-msgid "server"
-msgstr ""
-
-msgid "OpenThings Token must be 32 characters long."
-msgstr ""
-
-msgid "Close"
-msgstr ""
-
-msgid "Unable to retrieve your current location"
-msgstr ""
-
-msgid "Attempting to retrieve your current location"
-msgstr ""
-
-msgid "Unable to load program adjustments. Try again."
-msgstr ""
-
-msgid "Do you want to save your changes?"
-msgstr ""
-
-msgid "Programs"
-msgstr ""
-
-msgid "With manual mode turned on, tap a station to toggle it."
-msgstr ""
-
-msgid "Manual Mode"
-msgstr ""
-
-msgid ""
-"Station timer prevents a station from running indefinitely and will "
-"automatically turn it off after the set duration (or when toggled off)"
-msgstr ""
-
-msgid "Station Timer"
-msgstr ""
-
-msgid "Manual mode is not enabled. Please enable manual mode then try again."
-msgstr ""
-
-msgid "Sprinkler Stations"
-msgstr ""
-
-msgid "Master"
-msgstr ""
-
-msgid "Manual Control"
-msgstr ""
-
-msgid "Last Used Program"
-msgstr ""
-
-msgid "Zero value excludes the station from the run-once program."
-msgstr ""
-
-msgid "Test All Stations"
-msgstr ""
-
-msgid "Quick Programs"
-msgstr ""
-
-msgid "Repeat Every"
-msgstr ""
-
-msgid "Repeat Count"
-msgstr ""
-
-msgid "Adjustment Option"
-msgstr ""
-
-msgid "No Adjustment"
-msgstr ""
-
-msgid "Apply Current Weather Adjustment"
-msgstr ""
-
-msgid "Apply Custom Adjustment"
-msgstr ""
-
-msgid "Custom Adjustment"
-msgstr ""
-
-msgid "Scheduling Option"
-msgstr ""
-
-msgid "Run After Others (Append)"
-msgstr ""
-
-msgid "Run Now and Pause Others (Insert to front)"
-msgstr ""
-
-msgid "Run Now and Cancel Others (Replace)"
-msgstr ""
-
-msgid "Run-Once"
-msgstr ""
-
-msgid "Zoom in"
-msgstr ""
-
-msgid "Zoom out"
-msgstr ""
-
-msgid "Move left"
-msgstr ""
-
-msgid "Move right"
-msgstr ""
-
-msgid "Loading program adjustments…"
-msgstr ""
-
-msgid ""
-"Program preview is unavailable because sensor adjustments could not be "
-"loaded."
-msgstr ""
-
-msgid "No stations set to run on this day."
-msgstr ""
-
-msgid "Program Preview"
-msgstr ""
-
-msgid "Sunrise"
-msgstr ""
-
-msgid "Sunset"
-msgstr ""
-
-msgid "Manual program"
-msgstr ""
-
-msgid "Run-once program"
-msgstr ""
-
-msgid ""
-"You have no programs currently added. Tap the Add button on the top right "
-"corner to get started."
-msgstr ""
-
-msgid "Click any program below to expand/edit. Be sure to save changes."
-msgstr ""
-
-msgid "Number of Programs"
-msgstr ""
-
-msgid "copy"
-msgstr ""
-
-msgid "Enabled"
-msgstr ""
-
-msgid "Weekly"
-msgstr ""
-
-msgid "Interval"
-msgstr ""
-
-msgid "Restrictions"
-msgstr ""
-
-msgid "Odd Days Only"
-msgstr ""
-
-msgid "Even Days Only"
-msgstr ""
-
-msgid "Days of the Week"
-msgstr ""
-
-msgid "Choose day(s)"
-msgstr ""
-
-msgid "Interval (Days)"
-msgstr ""
-
-msgid "Starting In"
-msgstr ""
-
-msgid "Stations:"
-msgstr ""
-
-msgid "Check All"
-msgstr ""
-
-msgid "Uncheck All"
-msgstr ""
-
-msgid "Station Duration"
-msgstr ""
-
-msgid "Program Interval"
-msgstr ""
-
-msgid "Save New Program"
-msgstr ""
-
-msgid "Save Changes to Program"
-msgstr ""
-
-msgid "Run Program"
-msgstr ""
-
-msgid "Delete Program"
-msgstr ""
-
-msgid "Basic Settings"
-msgstr ""
-
-msgid "Program Name"
-msgstr ""
-
-msgid "Enable Date Range"
-msgstr ""
-
-msgid "From (mm/dd)"
-msgstr ""
-
-msgid "To (mm/dd)"
-msgstr ""
-
-msgid "Use Weather Adjustment"
-msgstr ""
-
-msgid "Use Sensor Adjustment"
-msgstr ""
-
-msgid "Select Sensor"
-msgstr ""
-
-msgid "Current Sensor Value"
-msgstr ""
-
-msgid "Point"
-msgstr ""
-
-msgid "Sensor Value"
-msgstr ""
-
-msgid "Watering %"
-msgstr ""
-
-msgid "Add a Point"
-msgstr ""
-
-msgid "Program Type"
-msgstr ""
-
-msgid "Single Run"
-msgstr ""
-
-msgid "Monthly"
-msgstr ""
-
-msgid "Start Date (mm/dd/yyyy)"
-msgstr ""
-
-msgid "Day of the Month (Use 0 for the last day)"
-msgstr ""
-
-msgid "Stations"
-msgstr ""
-
-msgid "Additional Start Times"
-msgstr ""
-
-msgid "Repeating"
-msgstr ""
-
-msgid "Fixed"
-msgstr ""
-
-msgid "Save Changes to"
-msgstr ""
-
-msgid "Run"
-msgstr ""
-
-msgid "Program adjustments are unavailable."
-msgstr ""
-
-msgid "Error: Select a sensor before enabling sensor adjustment."
-msgstr ""
-
-msgid "Error: Complete or remove every sensor adjustment point."
-msgstr ""
-
-msgid "Error: Watering percentages cannot be negative."
-msgstr ""
-
-msgid "Error: Add at least one sensor adjustment point."
-msgstr ""
-
-msgid "Add Program"
-msgstr ""
-
-msgid "Are you sure you want to delete program"
-msgstr ""
-
-msgid "Error: You have not selected any days of the week."
-msgstr ""
-
-msgid "Error: Interval days must be between 2 and 128."
-msgstr ""
-
-msgid "Error: Starting in days wrong."
-msgstr ""
-
-msgid "Error: Start time must be prior to end time."
-msgstr ""
-
-msgid "Error: You have not selected any stations."
-msgstr ""
-
-msgid "Program added successfully"
-msgstr ""
-
-msgid "Program has been updated"
-msgstr ""
-
-msgid "Error: Interval days must be between"
-msgstr ""
-
-msgid "and 128."
-msgstr ""
-
-msgid "Error: Day of month is out of bounds."
-msgstr ""
-
-msgid "Error: Start date is input incorrectly."
-msgstr ""
-
-msgid "Error: date range is malformed"
-msgstr ""
-
-msgid "Warning: The repeat interval"
-msgstr ""
-
-msgid "sec"
-msgstr ""
-
-msgid "is less than the program run time"
-msgstr ""
-
-msgid "Do you want to continue?"
-msgstr ""
-
-msgid ""
-"Warning: The use of odd/even restrictions with the selected interval day may "
-"result in the program not running at all."
-msgstr ""
-
-msgid "Run this program?"
-msgstr ""
-
-msgid "Apply Weather Adjustment"
-msgstr ""
-
-msgid "Apply Sensor Adjustment"
-msgstr ""
-
-msgid "Create a single-run program for repeats"
-msgstr ""
-
-msgid "Run After Others"
-msgstr ""
-
-msgid "Run Now and Pause Others"
-msgstr ""
-
-msgid "Run Now and Cancel Others"
-msgstr ""
-
-msgid "Sensors"
-msgstr ""
-
-msgid "The required hardware for this type was not detected."
-msgstr ""
-
-msgid "Configure Child Sensor"
-msgstr ""
-
-msgid "Sensor added successfully"
-msgstr ""
-
-msgid "Sensor updated successfully"
-msgstr ""
-
-msgid "Sensor deleted successfully"
-msgstr ""
-
-msgid "Current Value"
-msgstr ""
-
-msgid "Update Sensor"
-msgstr ""
-
-msgid "Please fill in all required fields"
-msgstr ""
-
-msgid "Delete Sensor"
-msgstr ""
-
-msgid "Are you sure you want to delete this sensor?"
-msgstr ""
-
-msgid "Click below to expand/edit. Be sure to save changes."
-msgstr ""
-
-msgid "Number of Sensors"
-msgstr ""
-
-msgid "Note: this page is for external (e.g. analog) and virtual sensors."
-msgstr ""
-
-msgid ""
-"To edit built-in sensors (e.g. rain, flow), open the {0} section under Edit "
-"Options."
-msgstr ""
-
-msgid "Failed to load sensor descriptions"
-msgstr ""
-
-msgid "Edit Sensors"
-msgstr ""
-
-msgid "Add a Sensor"
-msgstr ""
-
-msgid "Show Inactive"
-msgstr ""
-
-msgid "Download All"
-msgstr ""
-
-msgid "Delete All"
-msgstr ""
-
-msgid "Failed to download sensor logs"
-msgstr ""
-
-msgid "No sensor logs found."
-msgstr ""
-
-msgid "Loading sensor data"
-msgstr ""
-
-msgid "No sensor data in the selected time range. Older data may exist; choose a longer range above."
-msgstr ""
-
-msgid "Failed to load sensor logs"
-msgstr ""
-
-msgid "Sensor Logs"
-msgstr ""
-
-msgid "Are you sure you want to delete all sensor logs?"
-msgstr ""
-
-msgid "Are you sure you want to download all log data?"
-msgstr ""
-
-msgid "This action can take a while depending on the number of log records."
-msgstr ""
-
-msgid "Retrieving sensor logs"
-msgstr ""
-
-msgid "Deleting sensor log"
-msgstr ""
-
-msgid "Delete the entire log of"
-msgstr ""
-
-msgid "Warning"
-msgstr ""
-
-msgid "This may take several minutes. Deleting a sensor's log does not free log capacity; use this only when you need to reset this sensor's recorded history."
-msgstr ""
-
-msgid "Loading log data"
-msgstr ""
-
-msgid "Stop"
-msgstr ""
-
-msgid "Stopping"
-msgstr ""
-
-msgid "Stopping after the current page"
-msgstr ""
-
-msgid "Less than a minute remaining"
-msgstr ""
-
-msgid "About %d minute remaining"
-msgstr ""
-
-msgid "About %d minutes remaining"
-msgstr ""
-
-msgid "Failed to delete sensor logs"
-msgstr ""
-
-msgid "Sensor log progress"
-msgstr ""
-
-msgid "Scan For Device"
-msgstr ""
-
-msgid "Manually Add Device"
-msgstr ""
-
-msgid "Please add a site by tapping the 'Add' button in the top right corner."
-msgstr ""
-
-msgid "connect"
-msgstr ""
-
-msgid "Change Name"
-msgstr ""
-
-msgid "Change IP/URL"
-msgstr ""
-
-msgid "Change Token"
-msgstr ""
-
-msgid ""
-"These options are only for an OpenSprinkler behind a proxy capable of SSL "
-"and/or Basic Authentication."
-msgstr ""
-
-msgid "Use SSL"
-msgstr ""
-
-msgid "Use Auth"
-msgstr ""
-
-msgid "Invalid new OTC token. Any other changes were made successfully."
-msgstr ""
-
-msgid "Site updated successfully"
-msgstr ""
-
-msgid "Are you sure you want to delete "
-msgstr ""
-
-msgid "Site deleted successfully"
-msgstr ""
-
-msgid "Manage Sites"
-msgstr ""
-
-msgid "Select Site"
-msgstr ""
-
-msgid "New OpenSprinkler Device"
-msgstr ""
-
-msgid "Device Name:"
-msgstr ""
-
-msgid "A custom name for this device"
-msgstr ""
-
-msgid "Device Address:"
-msgstr ""
-
-msgid "May be an IP, URL, or OTC Token"
-msgstr ""
-
-msgid "Device Password:"
-msgstr ""
-
-msgid "Check IP/URL/Port and try again."
-msgstr ""
-
-msgid "Authorization Required"
-msgstr ""
-
-msgid "An IP address, URL, or token is required to continue."
-msgstr ""
-
-msgid "Connecting to"
-msgstr ""
-
-msgid "Loading"
-msgstr ""
-
+#: www/js/modules/sites.js:950
+#: www/js/modules/ui-dom.js:314
 msgid "Information"
 msgstr ""
 
-msgid "Unable to connect to"
+#: www/js/modules/weather.js:321
+msgid "Input Monthly Watering Percentage Values"
 msgstr ""
 
-msgid "Weather Options have Corrupted"
+#: www/js/modules/options.js:1027
+msgid "Integrations"
 msgstr ""
 
-msgid "Click here to retrieve the partial weather option data"
+#: www/js/modules/import-export.js:132
+#: www/js/modules/import-export.js:204
+msgid "Internal (within app)"
 msgstr ""
 
-msgid "Weather option data has corrupted"
+#: www/js/modules/firmware.js:163
+msgid "Internal firmware error."
 msgstr ""
 
+#: www/js/modules/programs.js:2250
+#: www/js/modules/programs.js:2532
+msgid "Interval"
+msgstr ""
+
+#: www/js/modules/programs.js:2270
+#: www/js/modules/programs.js:2556
+msgid "Interval (Days)"
+msgstr ""
+
+#: www/js/modules/import-export.js:628
+msgid "Invalid configuration"
+msgstr ""
+
+#: www/js/modules/import-export.js:719
+msgid "Invalid cycle and soak configuration"
+msgstr ""
+
+#: www/js/modules/sites.js:271
+msgid "Invalid new OTC token. Any other changes were made successfully."
+msgstr ""
+
+#: www/js/modules/import-export.js:728
+msgid "Invalid program configuration in backup."
+msgstr ""
+
+#: www/js/modules/import-export.js:769
+msgid "Invalid program sensor adjustment in backup."
+msgstr ""
+
+#: www/js/modules/import-export.js:560
+#: www/js/modules/import-export.js:781
+msgid "Invalid sensor configuration in backup."
+msgstr ""
+
+#: www/js/modules/network.js:386
+msgid "Invalid username/password combination. Please try again."
+msgstr ""
+
+#: www/js/modules/language.js:21
+msgid "Italian"
+msgstr ""
+
+#: www/js/modules/firmware.js:156
+msgid "Item mismatch."
+msgstr ""
+
+#: www/js/modules/dates.js:172
+#: www/js/modules/ui-dom.js:1395
+#: www/js/modules/weather.js:326
+msgid "Jan"
+msgstr ""
+
+#: www/js/modules/dates.js:173
+#: www/js/modules/ui-dom.js:1395
+#: www/js/modules/weather.js:364
+msgid "Jul"
+msgstr ""
+
+#: www/js/modules/dates.js:172
+#: www/js/modules/ui-dom.js:1395
+#: www/js/modules/weather.js:358
+msgid "Jun"
+msgstr ""
+
+#: www/js/modules/dates.js:127
+msgid "Just Now"
+msgstr ""
+
+#: www/js/modules/options.js:1100
+msgid "LCD Screen"
+msgstr ""
+
+#: www/js/modules/dashboard.js:397
+msgid "LOW"
+msgstr ""
+
+#: www/js/modules/about.js:45
+msgid "Language localization is crowdsourced using Transifex available at"
+msgstr ""
+
+#: www/js/modules/system-diagnostics.js:35
+msgid "Last Reboot"
+msgstr ""
+
+#: www/js/modules/system-diagnostics.js:67
+msgid "Last Request"
+msgstr ""
+
+#: www/js/modules/system-diagnostics.js:68
+msgid "Last Response"
+msgstr ""
+
+#: www/js/modules/system-diagnostics.js:47
+msgid "Last Updated"
+msgstr ""
+
+#: www/js/modules/programs.js:420
+msgid "Last Used Program"
+msgstr ""
+
+#: www/js/modules/options.js:1243
+msgid "Latch Off Voltage"
+msgstr ""
+
+#: www/js/modules/options.js:1235
+msgid "Latch On Voltage"
+msgstr ""
+
+#: www/js/modules/firmware.js:645
+msgid "Latest"
+msgstr ""
+
+#: www/js/modules/language.js:21
+msgid "Latvian"
+msgstr ""
+
+#: www/js/modules/sensors.js:2707
+#: www/js/modules/sensors.js:2729
+msgid "Less than a minute remaining"
+msgstr ""
+
+#: www/js/modules/analog.js:934
+#: www/js/modules/analog.js:935
+msgid "Level"
+msgstr ""
+
+#: www/js/modules/sites.js:890
+msgid "Loading"
+msgstr ""
+
+#: www/js/modules/sensors.js:2737
+msgid "Loading log data"
+msgstr ""
+
+#: www/js/modules/programs.js:1789
+#: www/js/modules/programs.js:896
+msgid "Loading program adjustments…"
+msgstr ""
+
+#: www/js/modules/sensors.js:2689
+msgid "Loading sensor data"
+msgstr ""
+
+#: www/index.html:101
+#: www/js/modules/language.js:139
+msgid "Localization"
+msgstr ""
+
+#: www/js/modules/options.js:729
+msgid "Location"
+msgstr ""
+
+#: www/js/modules/analog.js:646
+msgid "Log cleared:"
+msgstr ""
+
+#: www/index.html:102
+#: www/js/modules/ui-dom.js:2149
+#: www/js/modules/ui-dom.js:2155
+msgid "Logout"
+msgstr ""
+
+#: www/js/modules/logs.js:635
+msgid "Logs"
+msgstr ""
+
+#: www/js/modules/logs.js:665
+msgid "Logs have been cleared"
+msgstr ""
+
+#: www/js/modules/weather.js:870
+msgid "Low"
+msgstr ""
+
+#: www/js/modules/options.js:1045
+msgid "MQTT"
+msgstr ""
+
+#: www/js/modules/options.js:2336
+msgid "MQTT Settings"
+msgstr ""
+
+#: www/index.html:96
+#: www/js/modules/sites.js:355
+#: www/js/modules/ui-dom.js:94
+msgid "Manage Sites"
+msgstr ""
+
+#: www/js/modules/weather.js:23
+msgid "Manual"
+msgstr ""
+
+#: www/js/modules/programs.js:396
+#: www/js/modules/ui-dom.js:319
+msgid "Manual Control"
+msgstr ""
+
+#: www/js/modules/programs.js:261
+msgid "Manual Mode"
+msgstr ""
+
+#: www/js/modules/status.js:296
+msgid "Manual mode enabled"
+msgstr ""
+
+#: www/js/modules/programs.js:299
+msgid "Manual mode is not enabled. Please enable manual mode then try again."
+msgstr ""
+
+#: www/js/modules/programs.js:2139
+msgid "Manual program"
+msgstr ""
+
+#: www/js/modules/sites.js:53
+#: www/js/modules/welcome.js:63
+msgid "Manually Add Device"
+msgstr ""
+
+#: www/js/modules/dates.js:172
+#: www/js/modules/ui-dom.js:1395
+#: www/js/modules/weather.js:338
+msgid "Mar"
+msgstr ""
+
+#: www/js/modules/programs.js:1386
+#: www/js/modules/programs.js:1446
+#: www/js/modules/programs.js:1448
+#: www/js/modules/programs.js:1450
+#: www/js/modules/programs.js:1451
+#: www/js/modules/programs.js:1473
+#: www/js/modules/programs.js:1475
+#: www/js/modules/programs.js:1477
+#: www/js/modules/programs.js:1478
+#: www/js/modules/programs.js:2602
+#: www/js/modules/programs.js:383
+#: www/js/modules/programs.js:509
+msgid "Master"
+msgstr ""
+
+#: www/js/modules/dashboard.js:1399
+#: www/js/modules/dashboard.js:1400
+#: www/js/modules/dashboard.js:179
+#: www/js/modules/options.js:2243
+msgid "Master Station"
+msgstr ""
+
+#: www/js/modules/cycle-soak.js:45
+msgid "Master finishing"
+msgstr ""
+
+#: www/js/modules/system-diagnostics.js:63
+msgid "Max Humidity"
+msgstr ""
+
+#: www/js/modules/system-diagnostics.js:61
+msgid "Max Temp"
+msgstr ""
+
+#: www/js/modules/analog.js:223
+msgid "Max sensor value"
+msgstr ""
+
+#: www/js/modules/cards.js:41
+#: www/js/modules/cycle-soak.js:35
+msgid "Maximum cycle (minutes)"
+msgstr ""
+
+#: www/js/modules/options.js:1237
+#: www/js/modules/options.js:1245
+msgid "Maximum is 24V. Set to 0 for default."
+msgstr ""
+
+#: www/js/modules/dates.js:172
+#: www/js/modules/ui-dom.js:1395
+#: www/js/modules/weather.js:352
+msgid "May"
+msgstr ""
+
+#: www/js/modules/sites.js:571
+msgid "May be an IP, URL, or OTC Token"
+msgstr ""
+
+#: www/js/modules/system-diagnostics.js:55
+msgid "Mean Humidity"
+msgstr ""
+
+#: www/js/modules/system-diagnostics.js:59
+msgid "Mean Radiation"
+msgstr ""
+
+#: www/js/modules/system-diagnostics.js:56
+msgid "Mean Temp"
+msgstr ""
+
+#: www/js/modules/system-diagnostics.js:64
+msgid "Mean Wind"
+msgstr ""
+
+#: www/js/modules/network.js:581
+msgid "Merge"
+msgstr ""
+
+#: www/js/modules/system-diagnostics.js:43
+msgid "Method"
+msgstr ""
+
+#: www/js/modules/options.js:1872
+msgid "Milliamperes"
+msgstr ""
+
+#: www/js/modules/options.js:1822
+msgid "Milliseconds"
+msgstr ""
+
+#: www/js/modules/system-diagnostics.js:62
+msgid "Min Humidity"
+msgstr ""
+
+#: www/js/modules/system-diagnostics.js:60
+msgid "Min Temp"
+msgstr ""
+
+#: www/js/modules/analog.js:218
+msgid "Min sensor value"
+msgstr ""
+
+#: www/js/modules/dashboard.js:311
+msgid "Minimum runtime"
+msgstr ""
+
+#: www/js/modules/cards.js:42
+#: www/js/modules/cycle-soak.js:37
+msgid "Minimum soak (minutes)"
+msgstr ""
+
+#: www/js/modules/ui-dom.js:1576
+msgid "Minutes"
+msgstr ""
+
+#: www/js/modules/dates.js:170
+#: www/js/modules/dates.js:238
+#: www/js/modules/weather.js:848
+msgid "Mon"
+msgstr ""
+
+#: www/js/modules/dates.js:237
+#: www/js/modules/programs.js:2218
+#: www/js/modules/programs.js:2388
+msgid "Monday"
+msgstr ""
+
+#: www/js/modules/language.js:21
+msgid "Mongolian"
+msgstr ""
+
+#: www/js/modules/programs.js:2539
+#: www/js/modules/weather.js:23
+msgid "Monthly"
+msgstr ""
+
+#: www/js/modules/programs.js:796
+msgid "Move left"
+msgstr ""
+
+#: www/js/modules/programs.js:797
+msgid "Move right"
+msgstr ""
+
+#: www/js/modules/system-diagnostics.js:45
+msgid "Multi-Day Levels"
+msgstr ""
+
+#: www/js/modules/options.js:1175
+msgid "NTP IP Address"
+msgstr ""
+
+#: www/js/modules/options.js:1169
+msgid "NTP Sync"
+msgstr ""
+
+#: www/js/modules/analog.js:349
+msgid "Name"
+msgstr ""
+
+#: www/js/modules/options.js:1119
+msgid "Network"
+msgstr ""
+
+#: www/js/modules/firmware.js:285
+#: www/js/modules/network.js:921
+msgid "Network Error"
+msgstr ""
+
+#: www/js/modules/firmware.js:25
+msgid "Network Failure"
+msgstr ""
+
+#: www/js/modules/options.js:1129
+msgid ""
+"Network name advertised to your router when using DHCP. Leave empty to "
+"restore the device default. Use up to 32 letters, numbers or hyphens. This "
+"is separate from Device Name."
+msgstr ""
+
+#: www/js/modules/system-diagnostics.js:48
+msgid "Never"
+msgstr ""
+
+#: www/js/modules/sites.js:558
+msgid "New OpenSprinkler Device"
+msgstr ""
+
+#: www/js/modules/network.js:741
+msgid "New Password"
+msgstr ""
+
+#: www/js/modules/analog.js:151
+msgid "New Program Adjustment"
+msgstr ""
+
+#: www/js/modules/analog.js:317
+#: www/js/modules/sensors.js:1890
+msgid "New Sensor"
+msgstr ""
+
+#: www/js/modules/ui-dom.js:1820
+msgid "No"
+msgstr ""
+
+#: www/js/modules/programs.js:537
+msgid "No Adjustment"
+msgstr ""
+
+#: www/js/modules/logs.js:495
+msgid "No entries found in the selected date range"
+msgstr ""
+
+#: www/js/modules/network.js:141
+msgid "No new devices were detected on your network"
+msgstr ""
+
+#: www/js/modules/sensors.js:2951
+msgid ""
+"No sensor data in the selected time range. Older data may exist; choose a "
+"longer range above."
+msgstr ""
+
+#: www/js/modules/sensors.js:2952
+msgid "No sensor logs found."
+msgstr ""
+
+#: www/js/modules/programs.js:1807
+msgid "No stations set to run on this day."
+msgstr ""
+
+#: www/js/modules/firmware.js:25
+#: www/js/modules/options.js:1992
+#: www/js/modules/options.js:2013
+#: www/js/modules/programs.js:2255
+#: www/js/modules/programs.js:2578
+#: www/js/modules/sensors.js:689
+#: www/js/modules/weather.js:1083
+msgid "None"
+msgstr ""
+
+#: www/js/modules/options.js:2105
+msgid "Normally Open"
+msgstr ""
+
+#: www/js/modules/language.js:21
+msgid "Norwegian"
+msgstr ""
+
+#: www/js/modules/system-diagnostics.js:92
+msgid "Not Enabled"
+msgstr ""
+
+#: www/js/modules/options.js:1301
+#: www/js/modules/options.js:1327
+#: www/js/modules/options.js:730
+msgid "Not specified"
+msgstr ""
+
+#: www/js/modules/dashboard.js:414
+msgid ""
+"Note: There is a limit on the number of character used to configure this "
+"station type."
+msgstr ""
+
+#: www/js/modules/sensors.js:2210
+msgid "Note: this page is for external (e.g. analog) and virtual sensors."
+msgstr ""
+
+#: www/js/modules/analog.js:156
+msgid "Notice: If you want to combine multiple sensors, then build a sensor group. "
+msgstr ""
+
+#: www/js/modules/options.js:1081
+msgid "Notification Events"
+msgstr ""
+
+#: www/js/modules/notifications.js:85
+msgid "Notifications"
+msgstr ""
+
+#: www/js/modules/dates.js:173
+#: www/js/modules/ui-dom.js:1396
+#: www/js/modules/weather.js:390
+msgid "Nov"
+msgstr ""
+
+#: www/js/modules/weather.js:851
+msgid "Now"
+msgstr ""
+
+#: www/js/modules/programs.js:2174
+msgid "Number of Programs"
+msgstr ""
+
+#: www/js/modules/sensors.js:2192
+msgid "Number of Sensors"
+msgstr ""
+
+#: www/js/modules/options.js:812
+msgid "Number of Stations"
+msgstr ""
+
+#: www/js/modules/dashboard.js:124
+msgid "OK"
+msgstr ""
+
+#: www/js/modules/options.js:1031
+msgid "OTC"
+msgstr ""
+
+#: www/js/modules/dates.js:173
+#: www/js/modules/ui-dom.js:1396
+#: www/js/modules/weather.js:384
+msgid "Oct"
+msgstr ""
+
+#: www/js/modules/programs.js:2256
+#: www/js/modules/programs.js:2579
+msgid "Odd Days Only"
+msgstr ""
+
+#: www/js/modules/options.js:2255
+msgid "Off Adj."
+msgstr ""
+
+#: www/js/modules/dashboard.js:411
+msgid "Off Command"
+msgstr ""
+
+#: www/js/modules/weather.js:1054
+msgid "Offline"
+msgstr ""
+
+#: www/js/modules/ui-dom.js:1167
+msgid "Offset (minutes)"
+msgstr ""
+
+#: www/js/modules/options.js:2251
+msgid "On Adj."
+msgstr ""
+
+#: www/js/modules/dashboard.js:409
+msgid "On Command"
+msgstr ""
+
+#: www/js/modules/options.js:2258
+msgid "On/Off adjustments are in 5-second increments."
+msgstr ""
+
+#: www/js/modules/sensors.js:670
+msgid "Onboard Analog"
+msgstr ""
+
+#: www/js/modules/weather.js:1058
+msgid "Online"
+msgstr ""
+
+#: www/js/modules/about.js:51
+msgid "Open source attributions"
+msgstr ""
+
+#: www/js/modules/options.js:1061
+msgid ""
+"OpenSprinkler can send notifications to a specified email address using a "
+"given email and SMTP server."
+msgstr ""
+
+#: www/js/modules/ui-dom.js:703
+msgid "OpenSprinkler is rebooting now"
+msgstr ""
+
+#: www/index.html:103
+#: www/js/modules/network.js:361
+#: www/js/modules/welcome.js:34
+msgid "OpenSprinkler.com Login"
+msgstr ""
+
+#: www/js/modules/network.js:652
+msgid "OpenSprinkler.com Login Expired"
+msgstr ""
+
+#: www/js/modules/sites.js:1126
+msgid "OpenSprinklerASB Firmware Detected"
+msgstr ""
+
+#: www/js/modules/options.js:2561
+msgid "OpenThings Cloud (OTC) Settings"
+msgstr ""
+
+#: www/js/modules/options.js:1033
+msgid "OpenThings Cloud (OTC) allows remote access using OTC Token ."
+msgstr ""
+
+#: www/js/modules/options.js:2605
+#: www/js/modules/sites.js:796
+msgid "OpenThings Token must be 32 characters long."
+msgstr ""
+
+#: www/index.html:108
+msgid "Operation"
+msgstr ""
+
+#: www/js/modules/firmware.js:161
+msgid "Operation not permitted."
+msgstr ""
+
+#: www/js/modules/options.js:2102
+msgid "Option"
+msgstr ""
+
+#: www/js/modules/dashboard.js:683
+#: www/js/modules/logs.js:40
+#: www/js/modules/programs.js:259
+#: www/js/modules/sensors.js:1782
+msgid "Options"
+msgstr ""
+
+#: www/js/modules/options.js:764
+msgid "Order Stations by Groups"
+msgstr ""
+
+#: www/js/modules/options.js:768
+msgid "Order Stations by Name"
+msgstr ""
+
+#: www/js/modules/dashboard.js:684
+msgid "Output"
+msgstr ""
+
+#: www/js/modules/status.js:210
+msgid "Overcurrent Fault detected"
+msgstr ""
+
+#: www/js/modules/options.js:1227
+msgid "Overcurrent Limit"
+msgstr ""
+
+#: www/js/modules/dates.js:224
+#: www/js/modules/ui-dom.js:1113
+msgid "PM"
+msgstr ""
+
+#: www/js/modules/network.js:685
+#: www/js/modules/options.js:2366
+msgid "Password"
+msgstr ""
+
+#: www/js/modules/network.js:789
+msgid "Password cannot be empty"
+msgstr ""
+
+#: www/js/modules/network.js:796
+msgid "Password cannot be longer than 32 characters"
+msgstr ""
+
+#: www/js/modules/network.js:826
+msgid "Password changed successfully"
+msgstr ""
+
+#: www/js/modules/dashboard.js:556
+msgid ""
+"Password on remote controller does not match the password on this "
+"OSApp.currentSession.controller."
+msgstr ""
+
+#: www/js/modules/sites.js:1076
+msgid ""
+"Password protection is disabled. Set a secure device password and turn off "
+"Ignore Password in Edit Options."
+msgstr ""
+
+#: www/js/modules/network.js:373
+#: www/js/modules/network.js:741
+#: www/js/modules/sites.js:194
+#: www/js/modules/sites.js:774
+msgid "Password:"
+msgstr ""
+
+#: www/js/modules/import-export.js:169
+msgid "Paste your backup here"
+msgstr ""
+
+#: www/js/modules/ui-dom.js:324
+msgid "Pause Runs"
+msgstr ""
+
+#: www/js/modules/sites.js:93
+msgid "Please add a site by tapping the 'Add' button in the top right corner."
+msgstr ""
+
+#: www/js/modules/firmware.js:141
+#: www/js/modules/firmware.js:171
+#: www/js/modules/options.js:1982
+#: www/js/modules/options.js:640
+msgid "Please check input and try again."
+msgstr ""
+
+#: www/js/modules/network.js:811
+msgid "Please check the current device password is correct then try again"
+msgstr ""
+
+#: www/js/modules/options.js:928
+msgid "Please enter an API key for your selected weather provider."
+msgstr ""
+
+#: www/js/modules/network.js:682
+msgid ""
+"Please enter your OpenSprinkler.com password. If you have recently changed "
+"your password, you may need to enter your previous password to decrypt the "
+"data."
+msgstr ""
+
+#: www/js/modules/sensors.js:2154
+#: www/js/modules/sensors.js:2332
+msgid "Please fill in all required fields"
+msgstr ""
+
+#: www/js/modules/sites.js:1681
 msgid ""
 "Please note this may indicate other data corruption as well, please verify "
 "all settings."
 msgstr ""
 
+#: www/js/modules/network.js:739
+msgid "Please re-enter password to try again."
+msgstr ""
+
+#: www/js/modules/programs.js:2501
+#: www/js/modules/programs.js:2872
+#: www/js/modules/sensors.js:1323
+#: www/js/modules/sensors.js:1347
+msgid "Point"
+msgstr ""
+
+#: www/js/modules/language.js:21
+msgid "Polish"
+msgstr ""
+
+#: www/js/modules/network.js:908
+msgid "Poor"
+msgstr ""
+
+#: www/js/modules/analog.js:359
+#: www/js/modules/options.js:2352
+#: www/js/modules/options.js:2476
+#: www/js/modules/options.js:2584
+msgid "Port"
+msgstr ""
+
+#: www/js/modules/firmware.js:615
+#: www/js/modules/ui-dom.js:739
+msgid "Port 8080 is reserved for firmware update. Choose another HTTP port first."
+msgstr ""
+
+#: www/js/modules/options.js:360
+msgid "Port 8080 is reserved for firmware update. Please choose another HTTP port."
+msgstr ""
+
+#: www/js/modules/language.js:21
+msgid "Portuguese"
+msgstr ""
+
+#: www/js/modules/firmware.js:25
+msgid "Power On"
+msgstr ""
+
+#: www/js/modules/weather.js:915
+msgid "Powered by AccuWeather"
+msgstr ""
+
+#: www/js/modules/weather.js:889
+msgid "Powered by Apple"
+msgstr ""
+
+#: www/js/modules/weather.js:899
+msgid "Powered by Bright Sky+DWD"
+msgstr ""
+
+#: www/js/modules/weather.js:893
+msgid "Powered by Dark Sky"
+msgstr ""
+
+#: www/js/modules/weather.js:903
+msgid "Powered by Open Meteo"
+msgstr ""
+
+#: www/js/modules/weather.js:896
+msgid "Powered by OpenWeather"
+msgstr ""
+
+#: www/js/modules/weather.js:911
+msgid "Powered by PirateWeather"
+msgstr ""
+
+#: www/js/modules/weather.js:907
+msgid "Powered by Weather Underground"
+msgstr ""
+
+#: www/js/modules/weather.js:918
+msgid "Powered by your Local PWS"
+msgstr ""
+
+#: www/js/modules/options.js:888
+msgid "Prevents watering when the selected restriction is met."
+msgstr ""
+
+#: www/js/modules/options.js:878
+msgid "Prevents watering when the selected restrictions are met."
+msgstr ""
+
+#: www/js/modules/ui-dom.js:315
+msgid "Preview Programs"
+msgstr ""
+
+#: www/js/modules/import-export.js:1271
+#: www/js/modules/programs.js:2136
+#: www/js/modules/programs.js:2181
+#: www/js/modules/programs.js:2433
+#: www/js/modules/programs.js:3273
+#: www/js/modules/programs.js:499
+msgid "Program"
+msgstr ""
+
+#: www/js/modules/programs.js:2306
+msgid "Program Interval"
+msgstr ""
+
+#: www/js/modules/programs.js:2431
+msgid "Program Name"
+msgstr ""
+
+#: www/js/modules/programs.js:1952
+msgid "Program Preview"
+msgstr ""
+
+#: www/js/modules/options.js:33
+msgid "Program Start"
+msgstr ""
+
+#: www/js/modules/options.js:2022
+#: www/js/modules/options.js:969
+#: www/js/modules/sensors.js:101
+msgid "Program Switch"
+msgstr ""
+
+#: www/js/modules/programs.js:2522
+msgid "Program Type"
+msgstr ""
+
+#: www/js/modules/programs.js:3353
+#: www/js/modules/programs.js:3549
+msgid "Program added successfully"
+msgstr ""
+
+#: www/js/modules/programs.js:3073
+msgid "Program adjustments are unavailable."
+msgstr ""
+
+#: www/js/modules/import-export.js:885
+msgid "Program data is newer than the device firmware and cannot be imported"
+msgstr ""
+
+#: www/js/modules/programs.js:3366
+#: www/js/modules/programs.js:3563
+msgid "Program has been updated"
+msgstr ""
+
+#: www/js/modules/programs.js:1794
 msgid ""
-"Below is the corrupt data which could not be parsed but may be useful for "
-"restoration."
+"Program preview is unavailable because sensor adjustments could not be "
+"loaded."
 msgstr ""
 
-msgid "Are you sure you want to stop all stations?"
+#: www/js/modules/import-export.js:916
+msgid ""
+"Program sensor adjustments that reference a sensor absent from both the "
+"backup and this controller will be disabled."
 msgstr ""
 
-msgid "All stations have been stopped"
+#: www/js/modules/analog.js:194
+msgid "Program to adjust"
 msgstr ""
 
+#: www/js/modules/programs.js:225
+msgid "Programs"
+msgstr ""
+
+#: www/js/modules/ui-dom.js:2100
+msgid "Programs have been deleted"
+msgstr ""
+
+#: www/js/modules/options.js:2374
+msgid "Publish Topic"
+msgstr ""
+
+#: www/js/modules/welcome.js:30
+msgid "Purchase OpenSprinkler"
+msgstr ""
+
+#: www/js/modules/programs.js:493
+msgid "Quick Programs"
+msgstr ""
+
+#: www/js/modules/dashboard.js:730
+#: www/js/modules/stations.js:172
+msgid "RF"
+msgstr ""
+
+#: www/js/modules/dashboard.js:333
+msgid "RF Code"
+msgstr ""
+
+#: www/js/modules/firmware.js:160
+msgid "RF code error."
+msgstr ""
+
+#: www/js/modules/analog.js:915
+#: www/js/modules/analog.js:919
+#: www/js/modules/options.js:2014
+#: www/js/modules/options.js:965
+#: www/js/modules/sensors.js:97
+#: www/js/modules/weather.js:107
+msgid "Rain"
+msgstr ""
+
+#: www/js/modules/logs.js:623
+#: www/js/modules/ui-dom.js:321
+msgid "Rain Delay"
+msgstr ""
+
+#: www/js/modules/options.js:40
+msgid "Rain Delay Update"
+msgstr ""
+
+#: www/js/modules/options.js:1470
+msgid "Rain Restriction"
+msgstr ""
+
+#: www/js/modules/logs.js:618
+#: www/js/modules/logs.js:621
+#: www/js/modules/sensors.js:97
+msgid "Rain Sensor"
+msgstr ""
+
+#: www/js/modules/weather.js:1113
+msgid "Rain delay has been successfully set"
+msgstr ""
+
+#: www/js/modules/status.js:257
+msgid "Rain delay until"
+msgstr ""
+
+#: www/js/modules/analog.js:916
+#: www/js/modules/analog.js:920
+msgid "Rainfall"
+msgstr ""
+
+#: www/js/modules/analog.js:386
+msgid "Read Interval (s)"
+msgstr ""
+
+#: www/index.html:111
+msgid "Reboot OpenSprinkler"
+msgstr ""
+
+#: www/js/modules/system-diagnostics.js:37
+msgid "Reboot Reason"
+msgstr ""
+
+#: www/js/modules/options.js:2497
+msgid "Recipient Email"
+msgstr ""
+
+#: www/js/modules/logs.js:644
+#: www/js/modules/sensors.js:3244
+#: www/js/modules/weather.js:812
+msgid "Refresh"
+msgstr ""
+
+#: www/js/modules/analog.js:727
+msgid "Refresh Sensor data"
+msgstr ""
+
+#: www/js/modules/network.js:366
+msgid "Register here"
+msgstr ""
+
+#: www/js/modules/options.js:1192
+msgid "Relay Pulse"
+msgstr ""
+
+#: www/js/modules/options.js:1194
+msgid ""
+"Relay pulsing is used for special situations where rapid pulsing is needed "
+"in the output with a range from 1 to 2000 milliseconds. A zero value "
+"disables the pulsing option."
+msgstr ""
+
+#: www/js/modules/dashboard.js:340
+msgid "Remote Address"
+msgstr ""
+
+#: www/js/modules/sites.js:1097
+msgid "Remote Extension mode is active"
+msgstr ""
+
+#: www/js/modules/dashboard.js:350
+msgid "Remote OTC Token"
+msgstr ""
+
+#: www/js/modules/dashboard.js:342
+msgid "Remote Port"
+msgstr ""
+
+#: www/js/modules/dashboard.js:344
+#: www/js/modules/dashboard.js:352
+msgid "Remote Station"
+msgstr ""
+
+#: www/js/modules/dashboard.js:731
+#: www/js/modules/stations.js:174
+msgid "Remote Station (IP)"
+msgstr ""
+
+#: www/js/modules/dashboard.js:739
+#: www/js/modules/stations.js:182
+msgid "Remote Station (OTC)"
+msgstr ""
+
+#: www/js/modules/network.js:285
+msgid "Remote access is not enabled"
+msgstr ""
+
+#: www/js/modules/dashboard.js:560
+msgid ""
+"Remote controller is not configured as an extender. Would you like to do "
+"this now?"
+msgstr ""
+
+#: www/js/modules/dashboard.js:471
+msgid "Remove this station from its Bundle Station before changing its type."
+msgstr ""
+
+#: www/js/modules/dashboard.js:308
+msgid "Remove unavailable members before saving."
+msgstr ""
+
+#: www/js/modules/programs.js:2636
+#: www/js/modules/programs.js:2963
+#: www/js/modules/programs.js:526
+#: www/js/modules/programs.js:750
+msgid "Repeat Count"
+msgstr ""
+
+#: www/js/modules/programs.js:2633
+#: www/js/modules/programs.js:523
+msgid "Repeat Every"
+msgstr ""
+
+#: www/js/modules/programs.js:2624
+msgid "Repeating"
+msgstr ""
+
+#: www/js/modules/network.js:583
+msgid "Replace cloud with local"
+msgstr ""
+
+#: www/js/modules/network.js:582
+msgid "Replace local with cloud"
+msgstr ""
+
+#: www/js/modules/dashboard.js:1340
+msgid "Requests declined because the queue was full"
+msgstr ""
+
+#: www/js/modules/options.js:1262
+#: www/js/modules/programs.js:581
+msgid "Reset"
+msgstr ""
+
+#: www/js/modules/options.js:1265
+#: www/js/modules/sites.js:1687
+msgid "Reset All Options"
+msgstr ""
+
+#: www/js/modules/firmware.js:25
+msgid "Reset Button"
+msgstr ""
+
+#: www/js/modules/options.js:1267
+msgid "Reset Station Attributes"
+msgstr ""
+
+#: www/js/modules/options.js:1270
+msgid "Reset Wireless Settings"
+msgstr ""
+
+#: www/js/modules/sensors.js:3005
+msgid "Reset Zoom"
+msgstr ""
+
+#: www/js/modules/dashboard.js:1331
+msgid "Reset cycle and soak settings"
+msgstr ""
+
+#: www/js/modules/dashboard.js:1332
+msgid "Reset cycle and soak settings for all stations?"
+msgstr ""
+
+#: www/js/modules/import-export.js:1427
+msgid ""
+"Restored sensor definitions did not pass verification. The restore was "
+"stopped before programs were changed."
+msgstr ""
+
+#: www/js/modules/programs.js:2253
+#: www/js/modules/programs.js:2577
+msgid "Restrictions"
+msgstr ""
+
+#: www/js/modules/sensors.js:2665
+msgid "Retrieving sensor logs"
+msgstr ""
+
+#: www/js/modules/language.js:21
+msgid "Romanian"
+msgstr ""
+
+#: www/js/modules/programs.js:2659
+#: www/js/modules/programs.js:3613
+msgid "Run"
+msgstr ""
+
+#: www/js/modules/programs.js:3605
+msgid "Run After Others"
+msgstr ""
+
+#: www/js/modules/programs.js:566
+msgid "Run After Others (Append)"
+msgstr ""
+
+#: www/js/modules/programs.js:3607
+msgid "Run Now and Cancel Others"
+msgstr ""
+
+#: www/js/modules/programs.js:574
+msgid "Run Now and Cancel Others (Replace)"
+msgstr ""
+
+#: www/js/modules/programs.js:3606
+msgid "Run Now and Pause Others"
+msgstr ""
+
+#: www/js/modules/programs.js:570
+msgid "Run Now and Pause Others (Insert to front)"
+msgstr ""
+
+#: www/js/modules/programs.js:2318
+msgid "Run Program"
+msgstr ""
+
+#: www/js/modules/programs.js:1835
+msgid "Run Time"
+msgstr ""
+
+#: www/js/modules/ui-dom.js:1552
+msgid "Run immediately (preempt other zones in this group)"
+msgstr ""
+
+#: www/js/modules/programs.js:3578
+msgid "Run this program?"
+msgstr ""
+
+#: www/js/modules/programs.js:759
+#: www/js/modules/ui-dom.js:320
+msgid "Run-Once"
+msgstr ""
+
+#: www/js/modules/programs.js:2141
+msgid "Run-once program"
+msgstr ""
+
+#: www/js/modules/stations.js:434
 msgid "Run-once program has been scheduled"
 msgstr ""
 
-msgid "Do you want to stop the currently running program?"
+#: www/js/modules/dashboard.js:1448
+#: www/js/modules/dashboard.js:229
+msgid "Running"
 msgstr ""
 
-msgid "Current"
+#: www/js/modules/dashboard.js:136
+msgid "Running Bundle Station"
 msgstr ""
 
-msgid "Configured as Extender"
+#: www/js/modules/logs.js:346
+msgid "Runtime"
 msgstr ""
 
-msgid "Do you wish to disable extender mode?"
+#: www/js/modules/language.js:21
+msgid "Russian"
 msgstr ""
 
-msgid "System Disabled"
+#: www/js/modules/analog.js:429
+msgid "SMT100 id assigned!"
 msgstr ""
 
-msgid "Do you want to re-enable system operation?"
+#: www/js/modules/options.js:2469
+msgid "SMTP Server"
 msgstr ""
 
+#: www/js/modules/dates.js:171
+#: www/js/modules/dates.js:238
+#: www/js/modules/weather.js:848
+msgid "Sat"
+msgstr ""
+
+#: www/js/modules/dates.js:237
+#: www/js/modules/programs.js:2218
+#: www/js/modules/programs.js:2388
+msgid "Saturday"
+msgstr ""
+
+#: www/js/modules/programs.js:2658
+#: www/js/modules/sites.js:158
+msgid "Save Changes to"
+msgstr ""
+
+#: www/js/modules/programs.js:2316
+msgid "Save Changes to Program"
+msgstr ""
+
+#: www/js/modules/programs.js:2313
+#: www/js/modules/programs.js:2656
+msgid "Save New Program"
+msgstr ""
+
+#: www/js/modules/network.js:745
+#: www/js/modules/sites.js:579
+msgid "Save Password"
+msgstr ""
+
+#: www/js/modules/sites.js:50
+#: www/js/modules/welcome.js:39
+msgid "Scan For Device"
+msgstr ""
+
+#: www/js/modules/network.js:160
+msgid "Scanning for OpenSprinkler"
+msgstr ""
+
+#: www/js/modules/network.js:164
+msgid "Scanning for OpenSprinkler (1.8.3)"
+msgstr ""
+
+#: www/js/modules/network.js:162
+msgid "Scanning for OpenSprinkler Pi"
+msgstr ""
+
+#: www/js/modules/network.js:166
+msgid "Scanning for OpenSprinkler Pi (1.8.3)"
+msgstr ""
+
+#: www/js/modules/dashboard.js:1448
+#: www/js/modules/dashboard.js:229
+msgid "Scheduled"
+msgstr ""
+
+#: www/js/modules/programs.js:3604
+#: www/js/modules/programs.js:563
+msgid "Scheduling Option"
+msgstr ""
+
+#: www/js/modules/options.js:1857
+#: www/js/modules/ui-dom.js:1576
+msgid "Seconds"
+msgstr ""
+
+#: www/js/modules/analog.js:157
+#: www/js/modules/analog.js:322
+msgid "See help documentation for details."
+msgstr ""
+
+#: www/js/modules/import-export.js:128
+msgid "Select Export Method"
+msgstr ""
+
+#: www/js/modules/import-export.js:200
+msgid "Select Import Method"
+msgstr ""
+
+#: www/js/modules/network.js:579
+msgid "Select Merge Method"
+msgstr ""
+
+#: www/js/modules/options.js:1934
+msgid "Select Notification Events"
+msgstr ""
+
+#: www/js/modules/programs.js:2489
+msgid "Select Sensor"
+msgstr ""
+
+#: www/js/modules/sites.js:532
+msgid "Select Site"
+msgstr ""
+
+#: www/js/modules/sensors.js:1149
+msgid "Select a compatible built-in sensor port."
+msgstr ""
+
+#: www/js/modules/options.js:1083
+msgid ""
+"Select notification events. Applicable to all of MQTT, Email, and IFTTT. "
+"<b>NOTE</b>: enabling too many events or notification methods may cause "
+"delays, missed responses, or skipped short watering events."
+msgstr ""
+
+#: www/js/modules/dashboard.js:326
+msgid ""
+"Select the station type using the dropdown selector above and configure the "
+"station properties."
+msgstr ""
+
+#: www/js/modules/options.js:1779
+#: www/js/modules/options.js:909
+msgid "Select your preferred weather service provider."
+msgstr ""
+
+#: www/js/modules/dashboard.js:310
+msgid "Selected"
+msgstr ""
+
+#: www/js/modules/options.js:1047
+msgid ""
+"Send notifications to an MQTT broker and/or receive command message from "
+"the broker."
+msgstr ""
+
+#: www/js/modules/options.js:2483
+msgid "Sender Email"
+msgstr ""
+
+#: www/js/modules/analog.js:182
+#: www/js/modules/options.js:1009
+#: www/js/modules/options.js:2094
+#: www/js/modules/sensors.js:103
+msgid "Sensor"
+msgstr ""
+
+#: www/js/modules/options.js:34
+msgid "Sensor 1 Update"
+msgstr ""
+
+#: www/js/modules/options.js:39
+msgid "Sensor 2 Update"
+msgstr ""
+
+#: www/js/modules/options.js:44
+msgid "Sensor 3 Update"
+msgstr ""
+
+#: www/js/modules/options.js:45
+msgid "Sensor 4 Update"
+msgstr ""
+
+#: www/js/modules/analog.js:391
+msgid "Sensor Enabled"
+msgstr ""
+
+#: www/js/modules/sensors.js:3235
+#: www/js/modules/ui-dom.js:317
+msgid "Sensor Logs"
+msgstr ""
+
+#: www/js/modules/programs.js:2502
+#: www/js/modules/programs.js:2831
+#: www/js/modules/programs.js:2870
+#: www/js/modules/sensors.js:1325
+msgid "Sensor Value"
+msgstr ""
+
+#: www/js/modules/sensors.js:2069
+msgid "Sensor added successfully"
+msgstr ""
+
+#: www/js/modules/programs.js:1801
+#: www/js/modules/programs.js:3680
+msgid "Sensor adjustment is unavailable; using 100%."
+msgstr ""
+
+#: www/js/modules/import-export.js:877
+msgid "Sensor definitions in this backup reference unavailable child sensors."
+msgstr ""
+
+#: www/js/modules/sensors.js:2082
+msgid "Sensor deleted successfully"
+msgstr ""
+
+#: www/js/modules/sensors.js:2463
+msgid "Sensor log progress"
+msgstr ""
+
+#: www/js/modules/analog.js:445
+msgid "Sensor number exists!"
+msgstr ""
+
+#: www/js/modules/import-export.js:613
+msgid "Sensor readings conflict with the restored built-in port modes."
+msgstr ""
+
+#: www/js/modules/sensors.js:2074
+msgid "Sensor updated successfully"
+msgstr ""
+
+#: www/js/modules/analog.js:326
+msgid "Sensor-Nr"
+msgstr ""
+
+#: www/js/modules/sensors.js:568
+msgid "Sensors"
+msgstr ""
+
+#: www/js/modules/dates.js:173
+#: www/js/modules/ui-dom.js:1396
+#: www/js/modules/weather.js:378
+msgid "Sep"
+msgstr ""
+
+#: www/js/modules/dashboard.js:698
+#: www/js/modules/options.js:834
+msgid "Sequential"
+msgstr ""
+
+#: www/js/modules/cards.js:37
+#: www/js/modules/dashboard.js:704
+msgid "Sequential Group"
+msgstr ""
+
+#: www/js/modules/options.js:2577
+msgid "Server"
+msgstr ""
+
+#: www/js/modules/dashboard.js:405
+msgid "Server Name"
+msgstr ""
+
+#: www/js/modules/dashboard.js:407
+msgid "Server Port"
+msgstr ""
+
+#: www/js/modules/analog.js:341
+msgid "Set SMT100 Modbus ID"
+msgstr ""
+
+#: www/js/modules/options.js:1482
+msgid "Set either to 0 to disable."
+msgstr ""
+
+#: www/js/modules/weather.js:514
+msgid ""
+"Set the baseline potential evapotranspiration (ETo) and elevation for your "
+"location. "
+msgstr ""
+
+#: www/js/modules/weather.js:95
+msgid "Set the baseline weather conditions for your location. "
+msgstr ""
+
+#: www/js/modules/weather.js:119
+msgid ""
+"Set the sensitivity of the watering adjustment to changes in each of the "
+"above weather conditions."
+msgstr ""
+
+#: www/js/modules/sensors.js:164
+msgid "Set this port to Analog in Built-in Sensors before adding an analog reading."
+msgstr ""
+
+#: www/js/modules/options.js:1490
+msgid "Set to -40 (either °F or °C) to disable."
+msgstr ""
+
+#: www/js/modules/options.js:1602
+#: www/js/modules/options.js:598
+#: www/js/modules/sites.js:1706
+msgid "Settings have been saved"
+msgstr ""
+
+#: www/js/modules/options.js:597
+#: www/js/modules/options.js:622
+msgid "Settings were saved, but an invalid master station was ignored."
+msgstr ""
+
+#: www/js/modules/ui-dom.js:335
+msgid "Show"
+msgstr ""
+
+#: www/js/modules/options.js:771
+msgid "Show Disabled"
+msgstr ""
+
+#: www/js/modules/sensors.js:2437
+msgid "Show Inactive"
+msgstr ""
+
+#: www/js/modules/analog.js:782
+msgid "Show Log"
+msgstr ""
+
+#: www/js/modules/ui-dom.js:318
+msgid "Show Sensor Log"
+msgstr ""
+
+#: www/js/modules/options.js:774
+msgid "Show Station Number"
+msgstr ""
+
+#: www/js/modules/analog.js:399
+msgid "Show on Mainpage"
+msgstr ""
+
+#: www/js/modules/programs.js:2536
+msgid "Single Run"
+msgstr ""
+
+#: www/js/modules/errors.js:51
+msgid "Site Name"
+msgstr ""
+
+#: www/js/modules/sites.js:335
+msgid "Site deleted successfully"
+msgstr ""
+
+#: www/js/modules/sites.js:295
+msgid "Site updated successfully"
+msgstr ""
+
+#: www/js/modules/language.js:21
+msgid "Slovak"
+msgstr ""
+
+#: www/js/modules/language.js:21
+msgid "Slovenian"
+msgstr ""
+
+#: www/js/modules/cycle-soak.js:45
+msgid "Soaking"
+msgstr ""
+
+#: www/js/modules/options.js:2019
+#: www/js/modules/options.js:967
+#: www/js/modules/sensors.js:99
+msgid "Soil"
+msgstr ""
+
+#: www/js/modules/sensors.js:99
+msgid "Soil Sensor"
+msgstr ""
+
+#: www/js/modules/analog.js:888
+#: www/js/modules/analog.js:889
+msgid "Soil moisture"
+msgstr ""
+
+#: www/js/modules/programs.js:1364
+msgid "Some program starts exceed the queue capacity and are not shown."
+msgstr ""
+
+#: www/js/modules/language.js:21
+msgid "Spanish"
+msgstr ""
+
+#: www/js/modules/bundles.js:142
+#: www/js/modules/stations.js:186
+msgid "Special Station"
+msgstr ""
+
+#: www/js/modules/options.js:1257
+msgid "Special Station Auto-Refresh"
+msgstr ""
+
+#: www/js/modules/ui-dom.js:316
+msgid "Sprinkler Logs"
+msgstr ""
+
+#: www/js/modules/programs.js:376
+msgid "Sprinkler Stations"
+msgstr ""
+
+#: www/js/modules/dashboard.js:729
+msgid "Standard"
+msgstr ""
+
+#: www/js/modules/programs.js:2566
+msgid "Start Date (mm/dd/yyyy)"
+msgstr ""
+
+#: www/js/modules/logs.js:347
+#: www/js/modules/programs.js:1834
+#: www/js/modules/programs.js:2294
+#: www/js/modules/programs.js:2469
+#: www/js/modules/programs.js:2642
+#: www/js/modules/programs.js:2946
+msgid "Start Time"
+msgstr ""
+
+#: www/js/modules/logs.js:520
+msgid "Start time cannot be greater than end time"
+msgstr ""
+
+#: www/js/modules/logs.js:49
+msgid "Start:"
+msgstr ""
+
+#: www/js/modules/programs.js:2273
+#: www/js/modules/programs.js:2559
+msgid "Starting In"
+msgstr ""
+
+#: www/js/modules/logs.js:345
+#: www/js/modules/logs.js:46
+msgid "Station"
+msgstr ""
+
+#: www/js/modules/options.js:825
+msgid "Station Delay"
+msgstr ""
+
+#: www/js/modules/programs.js:2303
+msgid "Station Duration"
+msgstr ""
+
+#: www/js/modules/options.js:38
+msgid "Station Finish"
+msgstr ""
+
+#: www/js/modules/options.js:808
+msgid "Station Handling"
+msgstr ""
+
+#: www/js/modules/dashboard.js:687
+msgid "Station Name"
+msgstr ""
+
+#: www/js/modules/dashboard.js:711
+msgid "Station Notes"
+msgstr ""
+
+#: www/js/modules/options.js:41
+msgid "Station Start"
+msgstr ""
+
+#: www/js/modules/programs.js:268
+msgid "Station Timer"
+msgstr ""
+
+#: www/js/modules/dashboard.js:727
+msgid "Station Type"
+msgstr ""
+
+#: www/js/modules/dashboard.js:1631
+msgid "Station has been queued"
+msgstr ""
+
+#: www/js/modules/dashboard.js:1660
+msgid "Station has been stopped"
+msgstr ""
+
+#: www/js/modules/programs.js:265
+msgid ""
+"Station timer prevents a station from running indefinitely and will "
+"automatically turn it off after the set duration (or when toggled off)"
+msgstr ""
+
+#: www/js/modules/programs.js:2588
+msgid "Stations"
+msgstr ""
+
+#: www/js/modules/status.js:133
 msgid "Stations Currently Paused"
 msgstr ""
 
-msgid "is running on"
+#: www/js/modules/dashboard.js:1124
+#: www/js/modules/options.js:148
+msgid "Stations have been updated"
 msgstr ""
 
-msgid "is running on station"
+#: www/js/modules/programs.js:2278
+msgid "Stations:"
 msgstr ""
 
-msgid "Overcurrent Fault detected"
+#: www/js/modules/sensors.js:2459
+#: www/js/modules/sensors.js:2695
+msgid "Stop"
 msgstr ""
 
-msgid " when opening Station "
+#: www/js/modules/ui-dom.js:104
+#: www/js/modules/ui-dom.js:337
+#: www/js/modules/ui-dom.js:339
+msgid "Stop All Stations"
 msgstr ""
 
+#: www/js/modules/sensors.js:3262
+msgid "Stopping"
+msgstr ""
+
+#: www/js/modules/sensors.js:2700
+#: www/js/modules/sensors.js:3263
+msgid "Stopping after the current page"
+msgstr ""
+
+#: www/js/modules/analog.js:228
+#: www/js/modules/analog.js:404
+#: www/js/modules/dashboard.js:827
+#: www/js/modules/network.js:375
+#: www/js/modules/network.js:686
+#: www/js/modules/network.js:747
+#: www/js/modules/options.js:1302
+#: www/js/modules/options.js:1496
+#: www/js/modules/options.js:1936
+#: www/js/modules/options.js:2120
+#: www/js/modules/options.js:2259
+#: www/js/modules/options.js:2393
+#: www/js/modules/options.js:2505
+#: www/js/modules/options.js:2592
+#: www/js/modules/options.js:683
+#: www/js/modules/programs.js:3238
+#: www/js/modules/programs.js:580
+#: www/js/modules/programs.js:768
+#: www/js/modules/sensors.js:1607
+#: www/js/modules/sensors.js:2385
+#: www/js/modules/sites.js:196
+#: www/js/modules/sites.js:593
+#: www/js/modules/sites.js:776
+#: www/js/modules/ui-dom.js:1174
+#: www/js/modules/ui-dom.js:1489
+#: www/js/modules/ui-dom.js:1623
+#: www/js/modules/ui-dom.js:1877
+#: www/js/modules/weather.js:156
+#: www/js/modules/weather.js:258
+#: www/js/modules/weather.js:401
+#: www/js/modules/weather.js:532
+msgid "Submit"
+msgstr ""
+
+#: www/js/modules/options.js:1153
+msgid "Subnet Mask"
+msgstr ""
+
+#: www/js/modules/options.js:2382
+msgid "Subscribe Topic"
+msgstr ""
+
+#: www/js/modules/dates.js:170
+#: www/js/modules/dates.js:238
+#: www/js/modules/weather.js:848
+msgid "Sun"
+msgstr ""
+
+#: www/js/modules/dates.js:237
+#: www/js/modules/programs.js:2218
+#: www/js/modules/programs.js:2388
+msgid "Sunday"
+msgstr ""
+
+#: www/js/modules/programs.js:2119
+#: www/js/modules/weather.js:854
+#: www/js/modules/weather.js:872
+msgid "Sunrise"
+msgstr ""
+
+#: www/js/modules/dates.js:251
+#: www/js/modules/ui-dom.js:1611
+msgid "Sunrise to Sunset"
+msgstr ""
+
+#: www/js/modules/programs.js:2122
+#: www/js/modules/weather.js:855
+#: www/js/modules/weather.js:873
+msgid "Sunset"
+msgstr ""
+
+#: www/js/modules/dates.js:249
+#: www/js/modules/ui-dom.js:1614
+msgid "Sunset to Sunrise"
+msgstr ""
+
+#: www/js/modules/language.js:21
+msgid "Swedish"
+msgstr ""
+
+#: www/js/modules/network.js:340
+msgid "Synced with OpenSprinkler.com"
+msgstr ""
+
+#: www/js/modules/options.js:702
+msgid "System"
+msgstr ""
+
+#: www/index.html:114
+msgid "System Diagnostics"
+msgstr ""
+
+#: www/js/modules/status.js:120
+msgid "System Disabled"
+msgstr ""
+
+#: www/js/modules/status.js:331
+msgid "System Idle"
+msgstr ""
+
+#: www/js/modules/logs.js:37
+msgid "Table"
+msgstr ""
+
+#: www/js/modules/language.js:21
+msgid "Tamil"
+msgstr ""
+
+#: www/js/modules/options.js:1007
+#: www/js/modules/options.js:1038
+#: www/js/modules/options.js:1052
+#: www/js/modules/options.js:1066
+#: www/js/modules/options.js:2189
+#: www/js/modules/options.js:870
+#: www/js/modules/options.js:884
+msgid "Tap to Configure"
+msgstr ""
+
+#: www/js/modules/options.js:796
+msgid "Tap to Configure Master"
+msgstr ""
+
+#: www/js/modules/options.js:1207
+msgid "Target PD Voltage"
+msgstr ""
+
+#: www/js/modules/weather.js:101
+msgid "Temp"
+msgstr ""
+
+#: www/js/modules/analog.js:895
+#: www/js/modules/analog.js:899
+msgid "Temperature"
+msgstr ""
+
+#: www/js/modules/options.js:1484
+msgid "Temperature Restriction"
+msgstr ""
+
+#: www/js/modules/programs.js:493
+msgid "Test All Stations"
+msgstr ""
+
+#: www/js/modules/language.js:21
+msgid "Thai"
+msgstr ""
+
+#: www/js/modules/weather.js:515
+msgid ""
+"The ETo adjustment method will adjust the watering duration based on the "
+"difference between the baseline ETo and the current ETo."
+msgstr ""
+
+#: www/js/modules/errors.js:50
+msgid ""
+"The OpenSprinkler controller sent unexpected data, likely due to outdated "
+"firmware."
+msgstr ""
+
+#: www/js/modules/weather.js:96
+msgid ""
+"The Zimmerman method will adjust the watering duration based on differences "
+"from this reference point."
+msgstr ""
+
+#: www/js/modules/import-export.js:980
+msgid "The active controller changed. Please restart the restore."
+msgstr ""
+
+#: www/js/modules/import-export.js:1448
+msgid ""
+"The active controller changed. The restore finished without refreshing the "
+"new controller."
+msgstr ""
+
+#: www/js/modules/import-export.js:1323
+msgid "The active controller changed. The restore was stopped before completion."
+msgstr ""
+
+#: www/js/modules/status.js:213
 msgid ""
 "The controller detected one or more zones drawing too much current, "
 "exceeding the limit. Please check your wiring and perform a <b>solenoid "
@@ -2267,510 +3468,1013 @@ msgid ""
 "instructions, visit our support site"
 msgstr ""
 
-msgid "Clear this alert"
+#: www/js/modules/import-export.js:911
+msgid ""
+"The controller is at its sensor limit. Restoring this backup will delete "
+"sensor definitions that exist only on this controller."
 msgstr ""
 
-msgid "Rain delay until"
+#: www/js/modules/options.js:1209
+msgid ""
+"The holding current of your solenoid multiplied by its coil resistance "
+"(e.g. 0.25A×30Ω=7.5V). Set to 0 to use system default."
 msgstr ""
 
-msgid "Do you want to turn off rain delay?"
+#: www/js/modules/network.js:784
+msgid "The passwords don't match. Please try again."
 msgstr ""
 
-msgid "Activated"
+#: www/js/modules/logs.js:528
+msgid "The requested time span exceeds the maximum of 1 year and has been adjusted"
 msgstr ""
 
-msgid "Manual mode enabled"
+#: www/js/modules/sensors.js:885
+msgid "The required hardware for this type was not detected."
 msgstr ""
 
-msgid "Do you want to turn off manual mode?"
+#: www/js/modules/firmware.js:168
+msgid "The selected station is already running or is scheduled to run."
 msgstr ""
 
-msgid "last ran station"
+#: www/js/modules/options.js:952
+msgid "The watering percentage scales station run times by the set value."
 msgstr ""
 
-msgid "on"
+#: www/js/modules/sites.js:143
+msgid ""
+"These options are only for an OpenSprinkler behind a proxy capable of SSL "
+"and/or Basic Authentication."
 msgstr ""
 
-msgid "System Idle"
+#: www/js/modules/options.js:747
+msgid ""
+"These settings are stored locally with the application and do not affect "
+"the controller. Changes are saved automatically."
 msgstr ""
 
-msgid "Last Reboot"
+#: www/js/modules/firmware.js:621
+msgid "This Controller"
 msgstr ""
 
-msgid "Reboot Reason"
+#: www/js/modules/about.js:82
+msgid "This UI has limited support for ASB firmware."
 msgstr ""
 
-msgid "WiFi Strength"
+#: www/js/modules/sites.js:1044
+msgid "This UI has limited support for it. Switch to OpenSprinklerASB app/UI."
 msgstr ""
 
-msgid "Weather Service"
+#: www/js/modules/sensors.js:3273
+msgid "This action can take a while depending on the number of log records."
 msgstr ""
 
-msgid "Method"
+#: www/js/modules/import-export.js:857
+msgid ""
+"This backup cannot be restored without removing sensors referenced by its "
+"aggregate definitions."
 msgstr ""
 
-msgid "Watering Level"
+#: www/js/modules/import-export.js:110
+#: www/js/modules/import-export.js:48
+msgid ""
+"This backup contains Bundle Station assignments that are not supported by "
+"this controller."
 msgstr ""
 
-msgid "Multi-Day Levels"
+#: www/js/modules/import-export.js:80
+msgid "This backup contains an incomplete Bundle Station definition."
 msgstr ""
 
-msgid "Weather Restri."
+#: www/js/modules/import-export.js:791
+msgid "This backup contains more sensor definitions than this controller supports."
 msgstr ""
 
-msgid "Last Updated"
+#: www/js/modules/import-export.js:947
+msgid ""
+"This backup contains sensor definitions that are not supported by this "
+"controller."
 msgstr ""
 
-msgid "Never"
+#: www/js/modules/import-export.js:774
+msgid ""
+"This backup contains sensor definitions that this controller does not "
+"support."
 msgstr ""
 
-msgid "Mean Humidity"
+#: www/js/modules/sites.js:1077
+msgid ""
+"This controller is using a default or empty device password. Change it to "
+"protect access."
 msgstr ""
 
-msgid "Mean Temp"
+#: www/js/modules/analog.js:426
+msgid ""
+"This function sets the Modbus ID for one SMT100 sensor. Disconnect all "
+"other sensors on this Modbus port. Please confirm."
 msgstr ""
 
-msgid "Total Rain"
+#: www/js/modules/sensors.js:161
+msgid "This input does not support onboard analog readings."
 msgstr ""
 
-msgid "ETo"
+#: www/js/modules/about.js:39
+msgid ""
+"This is open source software: source code and changelog for this "
+"application can be found at"
 msgstr ""
 
-msgid "Mean Radiation"
+#: www/js/modules/sensors.js:3045
+msgid ""
+"This may take several minutes. Deleting a sensor's log does not free log "
+"capacity; use this only when you need to reset this sensor's recorded "
+"history."
 msgstr ""
 
-msgid "Min Temp"
+#: www/js/modules/options.js:644
+msgid ""
+"This port has a conflicting sensor configuration. Remove it in Edit Sensors "
+"first."
 msgstr ""
 
-msgid "Max Temp"
+#: www/js/modules/sensors.js:167
+msgid "This port is configured as Analog and cannot provide a digital reading."
 msgstr ""
 
-msgid "Min Humidity"
+#: www/js/modules/network.js:553
+msgid ""
+"This site is not found in the currently synced site list but may be added "
+"now."
 msgstr ""
 
-msgid "Max Humidity"
+#: www/js/modules/dashboard.js:144
+msgid "This station is a bundle member of"
 msgstr ""
 
-msgid "Mean Wind"
+#: www/js/modules/dashboard.js:137
+msgid "This station is active through a running Bundle Station."
 msgstr ""
 
-msgid "Last Request"
+#: www/js/modules/dashboard.js:145
+msgid "This station is no longer part of a Bundle Station."
 msgstr ""
 
-msgid "Last Response"
+#: www/js/modules/options.js:1702
+msgid ""
+"This will delete the stored SSID/password for your wireless network and "
+"return the device to access point mode"
 msgstr ""
 
-msgid "Not Enabled"
+#: www/js/modules/options.js:1695
+msgid "This will reset all station attributes"
 msgstr ""
 
-msgid "Connecting..."
+#: www/js/modules/dates.js:171
+#: www/js/modules/dates.js:238
+#: www/js/modules/weather.js:848
+msgid "Thu"
 msgstr ""
 
-msgid "Disconnected"
+#: www/js/modules/dates.js:237
+#: www/js/modules/programs.js:2218
+#: www/js/modules/programs.js:2388
+msgid "Thursday"
 msgstr ""
 
-msgid "Connected"
-msgstr ""
-
-msgid "Stop All Stations"
-msgstr ""
-
-msgid "Preview Programs"
-msgstr ""
-
-msgid "Sprinkler Logs"
-msgstr ""
-
-msgid "Show Sensor Log"
-msgstr ""
-
-msgid "Change Pause"
-msgstr ""
-
-msgid "Pause Runs"
-msgstr ""
-
-msgid "Configuration"
-msgstr ""
-
-msgid "Edit Programs"
-msgstr ""
-
-msgid "Hide"
-msgstr ""
-
-msgid "Show"
-msgstr ""
-
-msgid "Disabled"
-msgstr ""
-
-msgid "Done"
-msgstr ""
-
-msgid "Are you sure you want to"
-msgstr ""
-
-msgid "operation?"
-msgstr ""
-
-msgid "Are you sure you want to reboot OpenSprinkler?"
-msgstr ""
-
-msgid "OpenSprinkler is rebooting now"
-msgstr ""
-
-msgid "Are you sure you want to downgrade the UI?"
-msgstr ""
-
+#: www/js/modules/ui-dom.js:1088
 msgid "Time"
 msgstr ""
 
-msgid "PM"
+#: www/js/modules/logs.js:35
+msgid "Timeline"
 msgstr ""
 
-msgid "AM"
+#: www/js/modules/options.js:719
+msgid "Timezone"
 msgstr ""
 
-msgid "Use Sunrise"
+#: www/js/modules/programs.js:2459
+msgid "To (mm/dd)"
 msgstr ""
 
-msgid "Use Sunset"
-msgstr ""
-
-msgid "Offset (minutes)"
-msgstr ""
-
-msgid "Enter Date/Time"
-msgstr ""
-
-msgid "Duration"
-msgstr ""
-
-msgid "Run immediately (preempt other zones in this group)"
-msgstr ""
-
-msgid "Days"
-msgstr ""
-
-msgid "Hours"
-msgstr ""
-
-msgid "Minutes"
-msgstr ""
-
-msgid "Yes"
-msgstr ""
-
-msgid "No"
-msgstr ""
-
-msgid "Enter IP Address"
-msgstr ""
-
-msgid "Do you want to resume program operation?"
-msgstr ""
-
-msgid "Are you sure you want to delete ALL programs?"
-msgstr ""
-
-msgid "Programs have been deleted"
-msgstr ""
-
+#: www/js/modules/sensors.js:2215
 msgid ""
-"Are you sure you want to delete all settings and return to the default "
-"settings?"
+"To edit built-in sensors (e.g. rain, flow), open the {0} section under Edit "
+"Options."
 msgstr ""
 
-msgid "Logout"
-msgstr ""
-
-msgid "Weather Adjustment Options"
-msgstr ""
-
-msgid "Set the baseline weather conditions for your location. "
-msgstr ""
-
+#: www/js/modules/options.js:1074
 msgid ""
-"The Zimmerman method will adjust the watering duration based on differences "
-"from this reference point."
+"To enable IFTTT, a Webhooks key is required which can be obtained from "
+"https://ifttt.com"
 msgstr ""
 
-msgid "Temp"
-msgstr ""
-
+#: www/js/modules/errors.js:52
 msgid ""
-"Set the sensitivity of the watering adjustment to changes in each of the "
-"above weather conditions."
+"To fix this, please update your firmware. Remember to use the \"API Tool\" "
+"to save your current settings beforehand!"
 msgstr ""
 
+#: www/js/modules/options.js:2570
+msgid "Token"
+msgstr ""
+
+#: www/js/modules/system-diagnostics.js:57
+msgid "Total Rain"
+msgstr ""
+
+#: www/js/modules/logs.js:479
+msgid "Total Runtime"
+msgstr ""
+
+#: www/js/modules/logs.js:478
+msgid "Total Station Events"
+msgstr ""
+
+#: www/js/modules/logs.js:406
+#: www/js/modules/logs.js:485
+msgid "Total Water Used"
+msgstr ""
+
+#: www/js/modules/dates.js:170
+#: www/js/modules/dates.js:238
+#: www/js/modules/weather.js:848
+msgid "Tue"
+msgstr ""
+
+#: www/js/modules/dates.js:237
+#: www/js/modules/programs.js:2218
+#: www/js/modules/programs.js:2388
+msgid "Tuesday"
+msgstr ""
+
+#: www/js/modules/language.js:21
+msgid "Turkish"
+msgstr ""
+
+#: www/js/modules/analog.js:170
+#: www/js/modules/analog.js:331
+#: www/js/modules/options.js:2098
+msgid "Type"
+msgstr ""
+
+#: www/js/modules/network.js:813
+msgid "Unable to change password. Please try again."
+msgstr ""
+
+#: www/js/modules/sites.js:1017
+msgid "Unable to connect to"
+msgstr ""
+
+#: www/js/modules/import-export.js:1392
 msgid ""
-"If the current weather condition reports rain, a rain delay is automatically "
-"issued using the duration below."
+"Unable to determine the UUID assigned to a restored sensor. The restore was "
+"stopped."
 msgstr ""
 
-msgid "Delay Duration (hours)"
-msgstr ""
-
-msgid "Input Monthly Watering Percentage Values"
-msgstr ""
-
+#: www/js/modules/import-export.js:993
 msgid ""
-"Set the baseline potential evapotranspiration (ETo) and elevation for your "
-"location. "
+"Unable to import configuration. The restore stopped before completion; "
+"review the controller before retrying."
 msgstr ""
 
+#: www/js/modules/dashboard.js:495
+#: www/js/modules/dashboard.js:513
+#: www/js/modules/import-export.js:961
+msgid "Unable to load Bundle Station configuration."
+msgstr ""
+
+#: www/js/modules/programs.js:133
+#: www/js/modules/programs.js:912
+msgid "Unable to load program adjustments. Try again."
+msgstr ""
+
+#: www/js/modules/dashboard.js:659
+#: www/js/modules/dashboard.js:668
+#: www/js/modules/options.js:2224
+#: www/js/modules/options.js:2233
+#: www/js/modules/ui-dom.js:655
+#: www/js/modules/ui-dom.js:661
+msgid "Unable to load station configuration."
+msgstr ""
+
+#: www/js/modules/import-export.js:1408
+msgid "Unable to map an aggregate sensor during import. The restore was stopped."
+msgstr ""
+
+#: www/js/modules/dashboard.js:552
+msgid "Unable to reach the remote station."
+msgstr ""
+
+#: www/js/modules/network.js:675
+msgid "Unable to read cloud data"
+msgstr ""
+
+#: www/js/modules/import-export.js:190
+#: www/js/modules/import-export.js:226
+msgid "Unable to read the configuration file. Please check the file and try again."
+msgstr ""
+
+#: www/js/modules/options.js:122
 msgid ""
-"The ETo adjustment method will adjust the watering duration based on the "
-"difference between the baseline ETo and the current ETo."
+"Unable to reset all station attributes. Some changes may already have been "
+"applied. Review the controller before retrying."
 msgstr ""
 
-msgid "Baseline ETo"
+#: www/js/modules/options.js:2762
+msgid "Unable to retrieve your current location"
 msgstr ""
 
-msgid "Elevation"
+#: www/js/modules/options.js:636
+msgid ""
+"Unable to save settings. Controller settings were refreshed; review and try "
+"again."
 msgstr ""
 
-msgid "Detect baseline ETo"
+#: www/js/modules/import-export.js:659
+#: www/js/modules/import-export.js:666
+#: www/js/modules/import-export.js:675
+#: www/js/modules/import-export.js:973
+msgid ""
+"Unable to validate sensor definitions on this controller. No configuration "
+"changes were made."
 msgstr ""
 
-msgid "Current Weather"
+#: www/js/modules/import-export.js:1344
+#: www/js/modules/import-export.js:1357
+msgid "Unable to verify sensor definitions during import. The restore was stopped."
 msgstr ""
 
-msgid "Forecast"
+#: www/js/modules/options.js:646
+#: www/js/modules/options.js:660
+#: www/js/modules/options.js:667
+msgid "Unable to verify sensor port ownership. No settings were changed."
 msgstr ""
 
-msgid "Now"
+#: www/js/modules/programs.js:2290
+msgid "Uncheck All"
 msgstr ""
 
-msgid "Forecasted Rain"
+#: www/js/modules/options.js:43
+msgid "Under/Overcurrent Fault"
 msgstr ""
 
-msgid "Low"
+#: www/js/modules/options.js:1219
+msgid "Undercurrent Threshold"
 msgstr ""
 
-msgid "High"
+#: www/js/modules/firmware.js:742
+msgid "Unified firmware is now available"
 msgstr ""
 
-msgid "Powered by Apple"
+#: www/js/modules/analog.js:380
+msgid "Unit"
 msgstr ""
 
-msgid "Powered by Dark Sky"
+#: www/js/modules/errors.js:40
+#: www/js/modules/errors.js:42
+#: www/js/modules/sensors.js:2795
+#: www/js/modules/sensors.js:2796
+#: www/js/modules/sensors.js:2978
+#: www/js/modules/sensors.js:3012
+#: www/js/modules/sensors.js:3013
+#: www/js/modules/sensors.js:3016
+msgid "Unknown"
 msgstr ""
 
-msgid "Powered by OpenWeather"
+#: www/js/modules/firmware.js:762
+#: www/js/modules/weather.js:1049
+msgid "Unrecognised"
 msgstr ""
 
-msgid "Powered by Bright Sky+DWD"
-msgstr ""
-
-msgid "Powered by Open Meteo"
-msgstr ""
-
-msgid "Powered by Weather Underground"
-msgstr ""
-
-msgid "Powered by PirateWeather"
-msgstr ""
-
-msgid "Powered by AccuWeather"
-msgstr ""
-
-msgid "Powered by your Local PWS"
-msgstr ""
-
-msgid "Using manual weather adjustment"
-msgstr ""
-
+#: www/js/modules/weather.js:924
 msgid "Unrecognised weather provider"
 msgstr ""
 
-msgid "Change Rain Delay"
-msgstr ""
-
+#: www/js/modules/import-export.js:921
 msgid ""
-"Enable manual rain delay by entering a value into the input below. To turn "
-"off a currently enabled rain delay use a value of 0."
+"Unsupported onboard analog readings will be skipped. Unsupported Analog "
+"port modes will be set to None."
 msgstr ""
 
-msgid "Offline"
+#: www/js/modules/network.js:906
+msgid "Unusable"
 msgstr ""
 
-msgid "Error"
+#: www/js/modules/firmware.js:719
+msgid "Unused Expanders Detected"
 msgstr ""
 
-msgid "Online"
+#: www/index.html:112
+msgid "Update Firmware"
 msgstr ""
 
-msgid "California Restriction"
+#: www/js/modules/firmware.js:603
+#: www/js/modules/firmware.js:626
+#: www/js/modules/firmware.js:667
+msgid "Update Guide"
 msgstr ""
 
-msgid "Rain delay has been successfully set"
+#: www/js/modules/firmware.js:603
+#: www/js/modules/firmware.js:630
+msgid "Update Now"
 msgstr ""
 
+#: www/js/modules/sensors.js:2146
+msgid "Update Sensor"
+msgstr ""
+
+#: www/js/modules/firmware.js:666
+msgid "Update did not complete."
+msgstr ""
+
+#: www/js/modules/firmware.js:661
+msgid "Update successful"
+msgstr ""
+
+#: www/js/modules/firmware.js:162
+msgid "Upload failed."
+msgstr ""
+
+#: www/js/modules/options.js:760
+msgid "Use 24 Hour Time"
+msgstr ""
+
+#: www/js/modules/sites.js:155
+#: www/js/modules/sites.js:590
+msgid "Use Auth"
+msgstr ""
+
+#: www/js/modules/options.js:1143
+msgid "Use DHCP (restart required)"
+msgstr ""
+
+#: www/js/modules/dashboard.js:759
+#: www/js/modules/dashboard.js:765
+#: www/js/modules/dashboard.js:771
+#: www/js/modules/dashboard.js:777
+msgid "Use Master"
+msgstr ""
+
+#: www/js/modules/options.js:757
+msgid "Use Metric"
+msgstr ""
+
+#: www/js/modules/sites.js:149
+#: www/js/modules/sites.js:588
+msgid "Use SSL"
+msgstr ""
+
+#: www/js/modules/programs.js:2484
+msgid "Use Sensor Adjustment"
+msgstr ""
+
+#: www/js/modules/ui-dom.js:1160
+msgid "Use Sunrise"
+msgstr ""
+
+#: www/js/modules/ui-dom.js:1163
+msgid "Use Sunset"
+msgstr ""
+
+#: www/js/modules/programs.js:2476
+msgid "Use Weather Adjustment"
+msgstr ""
+
+#: www/js/modules/options.js:27
+msgid ""
+"Use up to 32 ASCII letters, numbers or hyphens. The hostname cannot begin "
+"or end with a hyphen or contain only numbers. Leave empty to restore the "
+"device default."
+msgstr ""
+
+#: www/js/modules/network.js:363
+msgid ""
+"Use your OpenSprinkler.com login and password to securely sync sites "
+"between all your devices."
+msgstr ""
+
+#: www/js/modules/about.js:29
+msgid "User manual for OpenSprinkler is available at"
+msgstr ""
+
+#: www/js/modules/options.js:2359
+msgid "Username"
+msgstr ""
+
+#: www/js/modules/network.js:370
+#: www/js/modules/sites.js:191
+#: www/js/modules/sites.js:770
+msgid "Username:"
+msgstr ""
+
+#: www/js/modules/options.js:864
+msgid ""
+"Uses multiple days of historical weather data to calculate ETo or Zimmerman "
+"watering percentage for programs that run on a regular interval."
+msgstr ""
+
+#: www/js/modules/options.js:1778
+#: www/js/modules/options.js:909
+msgid "Uses the provider configured on the custom weather server."
+msgstr ""
+
+#: www/js/modules/weather.js:921
+msgid "Using manual weather adjustment"
+msgstr ""
+
+#: www/js/modules/options.js:944
+msgid "Verify"
+msgstr ""
+
+#: www/js/modules/firmware.js:623
+msgid "View Changelog"
+msgstr ""
+
+#: www/js/modules/analog.js:902
+msgid "Volt"
+msgstr ""
+
+#: www/js/modules/analog.js:903
+#: www/js/modules/sensors.js:1324
+msgid "Voltage"
+msgstr ""
+
+#: www/js/modules/sensors.js:2751
+msgid "Warning"
+msgstr ""
+
+#: www/js/modules/import-export.js:899
+msgid ""
+"Warning: Network changes will be made and the device may no longer be "
+"accessible from this address."
+msgstr ""
+
+#: www/js/modules/programs.js:3529
+msgid "Warning: The repeat interval"
+msgstr ""
+
+#: www/js/modules/programs.js:3538
+msgid ""
+"Warning: The use of odd/even restrictions with the selected interval day "
+"may result in the program not running at all."
+msgstr ""
+
+#: www/js/modules/dashboard.js:1732
+#: www/js/modules/dashboard.js:37
+#: www/js/modules/logs.js:401
+#: www/js/modules/logs.js:481
+msgid "Water Level"
+msgstr ""
+
+#: www/js/modules/programs.js:2503
+#: www/js/modules/programs.js:2836
+#: www/js/modules/programs.js:2861
+msgid "Watering %"
+msgstr ""
+
+#: www/js/modules/system-diagnostics.js:44
+msgid "Watering Level"
+msgstr ""
+
+#: www/js/modules/options.js:926
+msgid "Weather API Key"
+msgstr ""
+
+#: www/js/modules/options.js:839
+msgid "Weather Adjustment"
+msgstr ""
+
+#: www/js/modules/weather.js:246
+#: www/js/modules/weather.js:317
+#: www/js/modules/weather.js:510
+#: www/js/modules/weather.js:91
+msgid "Weather Adjustment Options"
+msgstr ""
+
+#: www/js/modules/options.js:36
+msgid "Weather Adjustment Update"
+msgstr ""
+
+#: www/js/modules/options.js:907
+msgid "Weather Data Provider"
+msgstr ""
+
+#: www/js/modules/firmware.js:25
+msgid "Weather Failure"
+msgstr ""
+
+#: www/js/modules/sites.js:1672
+msgid "Weather Options have Corrupted"
+msgstr ""
+
+#: www/js/modules/system-diagnostics.js:46
+msgid "Weather Restri."
+msgstr ""
+
+#: www/js/modules/dashboard.js:30
+msgid "Weather Restriction Active"
+msgstr ""
+
+#: www/js/modules/options.js:1466
+msgid "Weather Restriction Options"
+msgstr ""
+
+#: www/js/modules/options.js:877
+#: www/js/modules/options.js:887
+msgid "Weather Restrictions"
+msgstr ""
+
+#: www/js/modules/system-diagnostics.js:39
+msgid "Weather Service"
+msgstr ""
+
+#: www/js/modules/options.js:844
+msgid ""
+"Weather adjustment retrieves data from the chosen provider and applies the "
+"selected method to determine the watering percentage."
+msgstr ""
+
+#: www/js/modules/sites.js:1679
+msgid "Weather option data has corrupted"
+msgstr ""
+
+#: www/js/modules/firmware.js:25
+msgid "Web Request"
+msgstr ""
+
+#: www/js/modules/dates.js:171
+#: www/js/modules/dates.js:238
+#: www/js/modules/weather.js:848
+msgid "Wed"
+msgstr ""
+
+#: www/js/modules/dates.js:237
+#: www/js/modules/programs.js:2218
+#: www/js/modules/programs.js:2388
+msgid "Wednesday"
+msgstr ""
+
+#: www/js/modules/programs.js:2247
+#: www/js/modules/programs.js:2529
+msgid "Weekly"
+msgstr ""
+
+#: www/js/modules/welcome.js:27
 msgid ""
 "Welcome to the OpenSprinkler application. This app only works with the "
 "OpenSprinkler controller which must be installed and setup on your home "
 "network."
 msgstr ""
 
-msgid "Purchase OpenSprinkler"
+#: www/js/modules/options.js:2083
+msgid ""
+"When using program switch, a switch is connected to the sensor port to "
+"trigger Program 1 every time the switch is pressed for at least 1 second."
 msgstr ""
 
-msgid "Add Controller"
+#: www/js/modules/options.js:2085
+msgid ""
+"When using program switch, a switch is connected to the sensor port to "
+"trigger Program 2 every time the switch is pressed for at least 1 second."
 msgstr ""
 
-msgid "Export Configuration"
+#: www/js/modules/options.js:2087
+msgid ""
+"When using program switch, a switch is connected to the sensor port to "
+"trigger Program 3 every time the switch is pressed for at least 1 second."
 msgstr ""
 
-msgid "Import Configuration"
+#: www/js/modules/options.js:2089
+msgid ""
+"When using program switch, a switch is connected to the sensor port to "
+"trigger Program 4 every time the switch is pressed for at least 1 second."
 msgstr ""
 
-msgid "Help & Support"
+#: www/js/modules/firmware.js:25
+msgid "WiFi Change"
 msgstr ""
 
-msgid "Operation"
+#: www/js/modules/firmware.js:25
+msgid "WiFi Configure"
 msgstr ""
 
-msgid "Reboot OpenSprinkler"
+#: www/js/modules/system-diagnostics.js:38
+msgid "WiFi Strength"
 msgstr ""
 
-msgid "Update Firmware"
+#: www/js/modules/analog.js:924
+#: www/js/modules/analog.js:925
+#: www/js/modules/analog.js:929
+#: www/js/modules/analog.js:930
+msgid "Wind"
 msgstr ""
 
-msgid "Downgrade UI"
+#: www/js/modules/options.js:1705
+msgid ""
+"Wireless settings have been reset. Please follow the OpenSprinkler user "
+"manual on restoring connectivity."
 msgstr ""
 
-msgid "System Diagnostics"
+#: www/js/modules/programs.js:257
+msgid "With manual mode turned on, tap a station to toggle it."
 msgstr ""
 
-msgid "Sensor 3 Update"
+#: www/js/modules/ui-dom.js:1819
+msgid "Yes"
 msgstr ""
 
-msgid "Sensor 4 Update"
+#: www/js/modules/programs.js:2169
+msgid ""
+"You have no programs currently added. Tap the Add button on the top right "
+"corner to get started."
 msgstr ""
 
-msgid "This UI has limited support for ASB firmware."
+#: www/js/modules/options.js:374
+msgid ""
+"You must specify a baseline ETo adjustment method option to use the ET "
+"adjustment method."
 msgstr ""
 
-msgid "ASB firmware detected"
-msgstr ""
-
-msgid "This UI has limited support for it. Switch to OpenSprinklerASB app/UI."
-msgstr ""
-
-msgid "OpenSprinklerASB Firmware Detected"
-msgstr ""
-
+#: www/js/modules/sites.js:1129
 msgid ""
 "Your device runs the OpenSprinklerASB firmware. This UI has limited support "
-"for it. Please switch to the OpenSprinklerASB mobile app/UI for full support."
+"for it. Please switch to the OpenSprinklerASB mobile app/UI for full "
+"support."
 msgstr ""
 
-msgid "Bundle Station"
+#: www/js/modules/programs.js:462
+msgid "Zero value excludes the station from the run-once program."
 msgstr ""
 
-msgid "Bundle member of"
+#: www/js/modules/weather.js:23
+msgid "Zimmerman"
 msgstr ""
 
-msgid "Bundle Member"
+#: www/js/modules/options.js:2247
+msgid "Zone"
 msgstr ""
 
-msgid "Active via Bundle Station"
+#: www/js/modules/programs.js:794
+msgid "Zoom in"
 msgstr ""
 
-msgid "Running Bundle Station"
+#: www/js/modules/programs.js:795
+msgid "Zoom out"
 msgstr ""
 
-msgid "This station is active through a running Bundle Station."
+#: www/js/modules/dates.js:161
+msgid "ago"
 msgstr ""
 
+#: www/js/modules/dashboard.js:1465
+#: www/js/modules/dashboard.js:238
 msgid "also active via Bundle Station"
 msgstr ""
 
-msgid "Filter stations"
+#: www/js/modules/programs.js:3403
+msgid "and 128."
 msgstr ""
 
-msgid "Remove unavailable members before saving."
+#: www/js/modules/options.js:2494
+msgid "app password"
 msgstr ""
 
-msgid "Selected"
+#: www/js/modules/options.js:814
+msgid "available"
 msgstr ""
 
-msgid "active"
+#: www/js/modules/options.js:2349
+msgid "broker"
 msgstr ""
 
-msgid "Minimum runtime"
+#: www/js/modules/sites.js:121
+msgid "connect"
 msgstr ""
 
-msgid "this station"
+#: www/js/modules/programs.js:2191
+msgid "copy"
 msgstr ""
 
-msgid "master"
+#: www/js/modules/dates.js:284
+msgid "d"
 msgstr ""
 
+#: www/js/modules/dates.js:140
+msgid "day"
+msgstr ""
+
+#: www/js/modules/dates.js:140
+#: www/js/modules/options.js:1480
+#: www/js/modules/options.js:1519
+#: www/js/modules/options.js:1526
+msgid "days"
+msgstr ""
+
+#: www/js/modules/analog.js:894
+msgid "degree celsius temperature"
+msgstr ""
+
+#: www/js/modules/analog.js:898
+msgid "degree fahrenheit temperature"
+msgstr ""
+
+#: www/js/modules/logs.js:390
+#: www/js/modules/logs.js:457
+msgid "delete"
+msgstr ""
+
+#: www/js/modules/logs.js:461
+#: www/js/modules/programs.js:3273
+msgid "deleted"
+msgstr ""
+
+#: www/js/modules/bundles.js:148
 msgid "disabled"
 msgstr ""
 
-msgid "Special Station"
+#: www/js/modules/programs.js:2200
+msgid "disabled program hidden. Tap 'Show Disabled' in the footer menu to view"
 msgstr ""
 
-msgid "Remove this station from its Bundle Station before changing its type."
+#: www/js/modules/programs.js:2199
+msgid "disabled programs hidden. Tap 'Show Disabled' in the footer menu to view"
 msgstr ""
 
-msgid "Unable to load Bundle Station configuration."
+#: www/js/modules/dashboard.js:1449
+#: www/js/modules/dashboard.js:230
+#: www/js/modules/status.js:326
+msgid "for"
 msgstr ""
 
-msgid "Bundle Station members changed. Review the selection and try again."
+#: www/js/modules/dates.js:287
+msgid "h"
 msgstr ""
 
-msgid "Unable to load station configuration."
+#: www/js/modules/dates.js:144
+msgid "hour"
 msgstr ""
 
-msgid "This backup contains an incomplete Bundle Station definition."
+#: www/js/modules/dates.js:144
+msgid "hours"
 msgstr ""
 
-msgid "This backup contains Bundle Station assignments that are not supported by this controller."
+#: www/js/modules/programs.js:3529
+msgid "is less than the program run time"
 msgstr ""
 
-msgid "Controller settings were refreshed after a rejected change. Review and try again."
+#: www/js/modules/status.js:176
+msgid "is running on"
 msgstr ""
 
-msgid "Settings were saved, but an invalid master station was ignored."
+#: www/js/modules/status.js:193
+msgid "is running on station"
 msgstr ""
 
-msgid "Bundle Station configuration was rejected. Station settings have been refreshed."
+#: www/js/modules/analog.js:838
+msgid "last 24h"
 msgstr ""
 
-msgid "This station is no longer part of a Bundle Station."
+#: www/js/modules/analog.js:844
+msgid "last months"
 msgstr ""
 
-msgid "This station is a bundle member of"
+#: www/js/modules/status.js:325
+msgid "last ran station"
 msgstr ""
 
-msgid "Port 8080 is reserved for firmware update. Choose another HTTP port first."
+#: www/js/modules/analog.js:841
+msgid "last weeks"
 msgstr ""
 
-msgid "Firmware update requires a local network connection to the controller."
+#: www/js/modules/dates.js:290
+msgid "m"
 msgstr ""
 
-msgid "Port 8080 is reserved for firmware update. Please choose another HTTP port."
+#: www/js/modules/bundles.js:137
+msgid "master"
 msgstr ""
 
-msgid "Controller rejected one or more invalid options. Review and try again."
+#: www/js/modules/dates.js:148
+msgid "minute"
 msgstr ""
 
-msgid "Unable to save settings. Controller settings were refreshed; review and try again."
+#: www/js/modules/dates.js:148
+#: www/js/modules/options.js:2109
+#: www/js/modules/options.js:2113
+msgid "minutes"
 msgstr ""
 
-msgid "Sensor adjustment is unavailable; using 100%."
+#: www/js/modules/dates.js:136
+msgid "month"
 msgstr ""
 
-msgid "Device password is not secure"
+#: www/js/modules/dates.js:136
+msgid "months"
 msgstr ""
 
-msgid "Password protection is disabled. Set a secure device password and turn off Ignore Password in Edit Options."
+#: www/js/modules/options.js:1477
+msgid "of rain is forecasted in the next:"
 msgstr ""
 
-msgid "This controller is using a default or empty device password. Change it to protect access."
+#: www/js/modules/status.js:327
+msgid "on"
+msgstr ""
+
+#: www/js/modules/ui-dom.js:683
+msgid "operation?"
+msgstr ""
+
+#: www/js/modules/options.js:2370
+msgid "password (optional)"
+msgstr ""
+
+#: www/js/modules/options.js:2378
+msgid "publish topic"
+msgstr ""
+
+#: www/js/modules/analog.js:646
+msgid "records"
+msgstr ""
+
+#: www/js/modules/dashboard.js:1453
+#: www/js/modules/dashboard.js:154
+#: www/js/modules/dashboard.js:235
+#: www/js/modules/status.js:136
+#: www/js/modules/status.js:178
+#: www/js/modules/status.js:196
+#: www/js/modules/status.js:57
+msgid "remaining"
+msgstr ""
+
+#: www/js/modules/logs.js:392
+msgid "run"
+msgstr ""
+
+#: www/js/modules/logs.js:392
+msgid "runs"
+msgstr ""
+
+#: www/js/modules/dates.js:293
+#: www/js/modules/dates.js:296
+msgid "s"
+msgstr ""
+
+#: www/js/modules/programs.js:3529
+msgid "sec"
+msgstr ""
+
+#: www/js/modules/dates.js:151
+msgid "second"
+msgstr ""
+
+#: www/js/modules/dates.js:151
+#: www/js/modules/options.js:2251
+#: www/js/modules/options.js:2255
+msgid "seconds"
+msgstr ""
+
+#: www/js/modules/options.js:2581
+msgid "server"
+msgstr ""
+
+#: www/js/modules/options.js:2473
+msgid "smtp.gmail.com"
+msgstr ""
+
+#: www/js/modules/options.js:818
+#: www/js/modules/status.js:176
+msgid "stations"
+msgstr ""
+
+#: www/js/modules/options.js:2386
+msgid "subscribe topic"
+msgstr ""
+
+#: www/js/modules/bundles.js:134
+msgid "this station"
+msgstr ""
+
+#: www/js/modules/options.js:2574
+msgid "token"
+msgstr ""
+
+#: www/js/modules/cycle-soak.js:48
+msgid "total watering remaining"
+msgstr ""
+
+#: www/js/modules/options.js:2487
+#: www/js/modules/options.js:2501
+msgid "user@gmail.com"
+msgstr ""
+
+#: www/js/modules/options.js:2363
+msgid "username (optional)"
+msgstr ""
+
+#: www/js/modules/dates.js:132
+msgid "year"
+msgstr ""
+
+#: www/js/modules/dates.js:132
+msgid "years"
 msgstr ""

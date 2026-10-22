@@ -21,11 +21,16 @@
 	"main": "index.html",
 	"scripts": {
 		"postinstall": "patch-package",
-		"lint": "eslint ./www/js/**",
+		"lint": "eslint ./www/js/** scripts/",
 		"prepare": "husky",
 		"start": "npx http-server --port 8080 --cors '*' -c-1 ./www",
 		"test": "npm run test:build && npx karma start --browsers ChromeHeadless test/karma.conf.js",
-		"test:build": "node --test test/build_checks/*.js"
+		"test:build": "node --test test/build_checks/*.js",
+		"test:translations": "node scripts/test/translations.test.cjs",
+		"translations:check": "node scripts/translations.cjs check",
+		"translations:compile": "node scripts/translations.cjs compile",
+		"translations:coverage": "node scripts/translations.cjs coverage",
+		"translations:extract": "node scripts/translations.cjs extract"
 	},
 	"lint-staged": {
 		"package.json": "sort-package-json"
@@ -47,6 +52,8 @@
 		"cordova-plugin-transport-security": "^0.1.2",
 		"cordova-plugin-x-socialsharing": "^6.0.4",
 		"eslint": "^9.15.0",
+		"espree": "10.3.0",
+		"gettext-parser": "1.1.0",
 		"globals": "^15.12.0",
 		"grunt": "^1.6.1",
 		"grunt-contrib-compress": "^2.0.0",
@@ -63,6 +70,7 @@
 		"mocha": "^10.8.2",
 		"patch-package": "^8.0.0",
 		"po2json": "^0.4.5",
+		"sax": "1.1.4",
 		"sinon": "^19.0.2",
 		"sort-package-json": "^2.10.1"
 	},

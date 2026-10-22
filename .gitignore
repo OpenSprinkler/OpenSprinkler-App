@@ -28,6 +28,7 @@ typings/
 
 # Local environment variables
 .secrets.json
+translations/incoming/
 
 # OS Meta data files
 Thumbs.db
