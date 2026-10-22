@@ -332,7 +332,7 @@ describe("Dashboard Bundle Station Checks", function () {
 		assert.equal($("#stn_attrib #prohibit-change").text(), "Localized group warning");
 	});
 
-	it("keeps edits across Basic, Watering and Output and submits them together", function () {
+	it("keeps edits across Basic, Options and Output and submits them together", function () {
 		sandbox.stub(OSApp.CycleSoak, "supported").returns(true);
 		sandbox.stub(OSApp.Sites, "updateController");
 		controller.options.mas = 8;
@@ -346,20 +346,36 @@ describe("Dashboard Bundle Station Checks", function () {
 		assert.lengthOf(popup.find(".tabs li"), 3);
 		assert.deepEqual(popup.find(".tabs li").map(function () {
 			return $(this).data("tab");
-		}).get(), ["tab-basic", "tab-output", "tab-watering"]);
-		assert.lengthOf(popup.find("#tab-basic #ir"), 1);
+		}).get(), ["tab-basic", "tab-options", "tab-output"]);
+		assert.deepEqual(popup.find("#tab-basic #stn-name, #tab-basic #gid, #tab-basic #cycle-enabled, #tab-basic .changeBackground, #tab-basic #stn-notes").map(function () {
+			return this.id || "image";
+		}).get(), ["stn-name", "cycle-enabled", "gid", "stn-notes", "image"]);
+		assert.isFalse(popup.find("#tab-basic .ui-bar").toArray().some(function (heading) {
+			return $(heading).text() === OSApp.Language._("Cycle and Soak");
+		}));
+		assert.lengthOf(popup.find("#tab-options #ir"), 1);
 		assert.isBelow(popup.find("input").index(popup.find("#ir")), popup.find("input").index(popup.find("#sd")));
-		assert.isBelow(popup.find("input, select").index(popup.find("#um")), popup.find("input, select").index(popup.find("#hs")));
-		assert.lengthOf(popup.find("#tab-basic #sd"), 1);
-		assert.lengthOf(popup.find("#tab-watering #gid"), 1);
-		assert.lengthOf(popup.find("#tab-output #um"), 1);
+		assert.isBelow(popup.find("input").index(popup.find("#um")), popup.find("input").index(popup.find("#ir")));
+		assert.lengthOf(popup.find("#tab-options #sd"), 1);
+		assert.lengthOf(popup.find("#tab-basic #gid"), 1);
+		assert.lengthOf(popup.find("#tab-basic #cycle-enabled"), 1);
+		assert.lengthOf(popup.find("#tab-options #um"), 1);
+		assert.lengthOf(popup.find("#tab-options .ui-bar"), 0);
+		assert.lengthOf(popup.find("#tab-output #hs"), 1);
 		popup.find("#stn-name").val("Cycle zone");
-		popup.find("[data-tab='tab-watering']").trigger("click");
+		assert.isTrue(popup.find(".cycle-timing-fields").hasClass("hidden"));
 		popup.find("#cycle-enabled").prop("checked", true).trigger("change");
+		assert.isFalse(popup.find(".cycle-timing-fields").hasClass("hidden"));
 		popup.find("#cycle-minutes").val("5");
 		popup.find("#soak-minutes").val("12");
+		popup.find("#cycle-enabled").prop("checked", false).trigger("change");
+		assert.isTrue(popup.find(".cycle-timing-fields").hasClass("hidden"));
+		assert.isTrue(popup.find("#cycle-minutes").prop("disabled"));
+		assert.isFalse(popup.find("#cycle-minutes").prop("required"));
+		popup.find("#cycle-enabled").prop("checked", true).trigger("change");
+		assert.equal(popup.find("#soak-minutes").val(), "12");
 		popup.find("#gid").val("1").trigger("change");
-		popup.find("[data-tab='tab-output']").trigger("click");
+		popup.find("[data-tab='tab-options']").trigger("click");
 		popup.find("#um").prop("checked", true);
 		popup.find("[data-tab='tab-basic']").trigger("click");
 		assert.equal(popup.find("#cycle-minutes").val(), "5");
@@ -374,7 +390,63 @@ describe("Dashboard Bundle Station Checks", function () {
 		assert.equal(Number(params.get("m0")) & 1, 1);
 	});
 
-	it("opens Watering for empty enabled cycle values, including native validation", function () {
+	it("shows saved cycle timings on Basic and preserves them when disabling", function () {
+		sandbox.stub(OSApp.CycleSoak, "supported").returns(true);
+		sandbox.stub(OSApp.Sites, "updateController");
+		controller.stations.cs[0] = [1, 300, 720];
+		var send = sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (url) {
+			return $.Deferred().resolve(url.indexOf("/je") === 0 ? controller.special : {result: 1}).promise();
+		});
+		OSApp.Dashboard.displayPage();
+		$("#attrib-0").trigger("click");
+		var popup = $("#stn_attrib");
+		assert.isFalse(popup.find(".cycle-timing-fields").hasClass("hidden"));
+		assert.equal(popup.find("#cycle-minutes").val(), "5");
+		assert.equal(popup.find("#soak-minutes").val(), "12");
+		popup.find("#cycle-enabled").prop("checked", false).trigger("change");
+		assert.isTrue(popup.find(".cycle-timing-fields").hasClass("hidden"));
+		assert.isTrue(popup.find("form")[0].checkValidity());
+		popup.find("form").trigger("submit");
+		var command = send.getCalls().map(function (call) {return call.args[0];})
+			.find(function (url) {return url.indexOf("/cs?") === 0;});
+		var params = new URLSearchParams(command.split("?")[1]);
+		assert.equal(params.get("cse"), "0");
+		assert.equal(params.get("csc"), "300");
+		assert.equal(params.get("css"), "720");
+	});
+
+	[
+		{cycle: "500", soak: "12", expected: [300, 720]},
+		{cycle: "5", soak: "500", expected: [300, 720]},
+		{cycle: "", soak: "12", expected: [300, 720]},
+		{cycle: "6", soak: "14", expected: [360, 840]}
+	].forEach(function (values) {
+		it("disables cycle and soak with hidden timings " + JSON.stringify(values), function () {
+			sandbox.stub(OSApp.CycleSoak, "supported").returns(true);
+			sandbox.stub(OSApp.Sites, "updateController");
+			controller.stations.cs[0] = [1, 300, 720];
+			var send = sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (url) {
+				return $.Deferred().resolve(url.indexOf("/je") === 0 ? controller.special : {result: 1}).promise();
+			});
+			OSApp.Dashboard.displayPage();
+			$("#attrib-0").trigger("click");
+			var popup = $("#stn_attrib");
+			popup.find("#cycle-minutes").val(values.cycle);
+			popup.find("#soak-minutes").val(values.soak);
+			popup.find("#cycle-enabled").prop("checked", false).trigger("change");
+			assert.isTrue(popup.find("form")[0].checkValidity());
+			popup.find("form").trigger("submit");
+			var command = send.getCalls().map(function (call) {return call.args[0];})
+				.find(function (url) {return url.indexOf("/cs?") === 0;});
+			var params = new URLSearchParams(command.split("?")[1]);
+			assert.equal(params.get("cse"), "0");
+			assert.equal(Number(params.get("csc")), values.expected[0]);
+			assert.equal(Number(params.get("css")), values.expected[1]);
+			assert.isFalse(OSApp.Errors.showError.calledWith(OSApp.Language._("Cycle and soak times must be between 1 and 240 minutes.")));
+		});
+	});
+
+	it("opens Basic for empty enabled cycle values, including native validation", function () {
 		sandbox.stub(OSApp.CycleSoak, "supported").returns(true);
 		sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (url) {
 			return $.Deferred().resolve(url.indexOf("/je") === 0 ? controller.special : {result: 1}).promise();
@@ -384,11 +456,12 @@ describe("Dashboard Bundle Station Checks", function () {
 		var popup = $("#stn_attrib");
 		popup.find("#cycle-enabled").prop("checked", true).trigger("change");
 		assert.isTrue(popup.find("#cycle-minutes").prop("required"));
+		popup.find("[data-tab='tab-options']").trigger("click");
 		assert.isFalse(popup.find("form")[0].checkValidity());
-		assert.isTrue(popup.find("#tab-watering").hasClass("current"));
-		popup.find("[data-tab='tab-basic']").trigger("click");
+		assert.isTrue(popup.find("#tab-basic").hasClass("current"));
+		popup.find("[data-tab='tab-output']").trigger("click");
 		popup.find("form").trigger("submit");
-		assert.isTrue(popup.find("#tab-watering").hasClass("current"));
+		assert.isTrue(popup.find("#tab-basic").hasClass("current"));
 	});
 
 	it("saves cycle settings independently of special-station support", function () {
@@ -465,9 +538,10 @@ describe("Dashboard Bundle Station Checks", function () {
 		OSApp.Dashboard.displayPage();
 		$("#attrib-0").trigger("click");
 		var popup = $("#stn_attrib");
-		assert.lengthOf(popup.find("#tab-output #um"), 1);
-		assert.lengthOf(popup.find("#tab-output #ar"), 1);
-		assert.lengthOf(popup.find("#tab-watering #us"), 1);
+		assert.lengthOf(popup.find("#tab-options #um"), 1);
+		assert.lengthOf(popup.find("#tab-options #ar"), 1);
+		assert.lengthOf(popup.find("#tab-basic #us"), 1);
+		assert.lengthOf(popup.find("#tab-output"), 0);
 		assert.lengthOf(popup.find("#hs, #cycle-enabled, #tab-alert"), 0);
 	});
 

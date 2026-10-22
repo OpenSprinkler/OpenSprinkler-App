@@ -29,13 +29,13 @@ OSApp.CycleSoak.enabled = function( sid ) {
 
 OSApp.CycleSoak.fields = function( sid ) {
 	var policy = OSApp.CycleSoak.policy( sid );
-	return "<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Cycle and Soak" ) + "</div>" +
-		"<label for='cycle-enabled'><input class='needsclick' data-iconpos='right' id='cycle-enabled' type='checkbox'" + ( policy[ 0 ] ? " checked" : "" ) + ">" +
+	return "<label for='cycle-enabled'><input class='needsclick' data-iconpos='right' id='cycle-enabled' type='checkbox'" + ( policy[ 0 ] ? " checked" : "" ) + ">" +
 		OSApp.Language._( "Enable Cycle and Soak" ) + "</label>" +
+		"<div class='cycle-timing-fields" + ( policy[ 0 ] ? "" : " hidden" ) + "'>" +
 		"<label for='cycle-minutes'>" + OSApp.Language._( "Maximum cycle (minutes)" ) + "</label>" +
 		"<input id='cycle-minutes' type='number' min='1' max='240' step='1' value='" + ( policy[ 1 ] / 60 || "" ) + "'>" +
 		"<label for='soak-minutes'>" + OSApp.Language._( "Minimum soak (minutes)" ) + "</label>" +
-		"<input id='soak-minutes' type='number' min='1' max='240' step='1' value='" + ( policy[ 2 ] / 60 || "" ) + "'>";
+		"<input id='soak-minutes' type='number' min='1' max='240' step='1' value='" + ( policy[ 2 ] / 60 || "" ) + "'></div>";
 };
 
 OSApp.CycleSoak.runtimeText = function( sid ) {

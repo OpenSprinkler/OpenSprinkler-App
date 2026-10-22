@@ -78,7 +78,7 @@ msgstr ""
 msgid "About %d minutes remaining"
 msgstr ""
 
-#: www/js/modules/dashboard.js:778
+#: www/js/modules/dashboard.js:783
 msgid "Activate Relay"
 msgstr ""
 
@@ -91,7 +91,7 @@ msgid "Active State"
 msgstr ""
 
 #: www/js/modules/dashboard.js:139
-#: www/js/modules/dashboard.js:1443
+#: www/js/modules/dashboard.js:1439
 #: www/js/modules/dashboard.js:159
 #: www/js/modules/dashboard.js:225
 msgid "Active via Bundle Station"
@@ -101,7 +101,7 @@ msgstr ""
 msgid "Actual"
 msgstr ""
 
-#: www/js/modules/dashboard.js:692
+#: www/js/modules/dashboard.js:717
 #: www/js/modules/programs.js:234
 #: www/js/modules/sensors.js:2280
 #: www/js/modules/sites.js:368
@@ -415,8 +415,8 @@ msgstr ""
 msgid "Basic"
 msgstr ""
 
-#: www/js/modules/dashboard.js:1419
-#: www/js/modules/dashboard.js:1420
+#: www/js/modules/dashboard.js:1415
+#: www/js/modules/dashboard.js:1416
 #: www/js/modules/dashboard.js:179
 #: www/js/modules/programs.js:2427
 msgid "Basic Settings"
@@ -461,20 +461,20 @@ msgstr ""
 msgid "Bundle Member"
 msgstr ""
 
-#: www/js/modules/dashboard.js:800
+#: www/js/modules/dashboard.js:742
 #: www/js/modules/options.js:2000
 #: www/js/modules/stations.js:184
 #: www/js/modules/status.js:173
 msgid "Bundle Station"
 msgstr ""
 
-#: www/js/modules/dashboard.js:1142
+#: www/js/modules/dashboard.js:1138
 msgid ""
 "Bundle Station configuration was rejected. Station settings have been "
 "refreshed."
 msgstr ""
 
-#: www/js/modules/dashboard.js:501
+#: www/js/modules/dashboard.js:504
 msgid "Bundle Station members changed. Review the selection and try again."
 msgstr ""
 
@@ -486,14 +486,14 @@ msgstr ""
 msgid "California Restriction"
 msgstr ""
 
-#: www/js/modules/dashboard.js:567
+#: www/js/modules/dashboard.js:570
 #: www/js/modules/network.js:171
 #: www/js/modules/programs.js:3612
 msgid "Cancel"
 msgstr ""
 
-#: www/js/modules/dashboard.js:692
-#: www/js/modules/dashboard.js:933
+#: www/js/modules/dashboard.js:717
+#: www/js/modules/dashboard.js:929
 msgid "Change"
 msgstr ""
 
@@ -525,7 +525,7 @@ msgstr ""
 msgid "Change Token"
 msgstr ""
 
-#: www/js/modules/dashboard.js:820
+#: www/js/modules/dashboard.js:706
 msgid "Changing group designation is prohibited while station is running"
 msgstr ""
 
@@ -661,7 +661,7 @@ msgstr ""
 msgid "Connection timed-out. Please try again."
 msgstr ""
 
-#: www/js/modules/dashboard.js:568
+#: www/js/modules/dashboard.js:571
 #: www/js/modules/sites.js:1132
 msgid "Continue"
 msgstr ""
@@ -715,17 +715,16 @@ msgid "Custom Adjustment"
 msgstr ""
 
 #: www/js/modules/cards.js:40
-#: www/js/modules/cycle-soak.js:32
 msgid "Cycle and Soak"
 msgstr ""
 
-#: www/js/modules/dashboard.js:1334
+#: www/js/modules/dashboard.js:1330
 msgid ""
 "Cycle and soak settings could not be read. Affected stations water without "
 "cycling."
 msgstr ""
 
-#: www/js/modules/dashboard.js:458
+#: www/js/modules/dashboard.js:461
 msgid "Cycle and soak times must be between 1 and 240 minutes."
 msgstr ""
 
@@ -869,7 +868,7 @@ msgid "Device password is not secure"
 msgstr ""
 
 #: www/index.html:106
-#: www/js/modules/dashboard.js:728
+#: www/js/modules/dashboard.js:819
 #: www/js/modules/ui-dom.js:616
 #: www/js/modules/ui-dom.js:731
 msgid "Disable"
@@ -911,7 +910,7 @@ msgstr ""
 msgid "Do you want to continue?"
 msgstr ""
 
-#: www/js/modules/dashboard.js:1675
+#: www/js/modules/dashboard.js:1671
 msgid "Do you want to delete the current image?"
 msgstr ""
 
@@ -933,7 +932,7 @@ msgstr ""
 msgid "Do you want to stop the currently running program?"
 msgstr ""
 
-#: www/js/modules/dashboard.js:1613
+#: www/js/modules/dashboard.js:1609
 msgid "Do you want to stop the selected station?"
 msgstr ""
 
@@ -945,7 +944,7 @@ msgstr ""
 msgid "Do you want to turn off rain delay?"
 msgstr ""
 
-#: www/js/modules/dashboard.js:1616
+#: www/js/modules/dashboard.js:1612
 msgid "Do you want to unschedule the selected station?"
 msgstr ""
 
@@ -1062,7 +1061,7 @@ msgstr ""
 msgid "Enable California Restriction"
 msgstr ""
 
-#: www/js/modules/cycle-soak.js:34
+#: www/js/modules/cycle-soak.js:33
 msgid "Enable Cycle and Soak"
 msgstr ""
 
@@ -1115,7 +1114,7 @@ msgstr ""
 msgid "Enter IP Address"
 msgstr ""
 
-#: www/js/modules/dashboard.js:1623
+#: www/js/modules/dashboard.js:1619
 msgid "Enter a duration to manually run "
 msgstr ""
 
@@ -1343,7 +1342,7 @@ msgstr ""
 msgid "From (mm/dd)"
 msgstr ""
 
-#: www/js/modules/dashboard.js:794
+#: www/js/modules/dashboard.js:736
 #: www/js/modules/stations.js:176
 msgid "GPIO"
 msgstr ""
@@ -1380,7 +1379,7 @@ msgstr ""
 msgid "HIGH"
 msgstr ""
 
-#: www/js/modules/dashboard.js:795
+#: www/js/modules/dashboard.js:737
 #: www/js/modules/stations.js:178
 msgid "HTTP"
 msgstr ""
@@ -1389,7 +1388,7 @@ msgstr ""
 msgid "HTTP Port (restart required)"
 msgstr ""
 
-#: www/js/modules/dashboard.js:796
+#: www/js/modules/dashboard.js:738
 #: www/js/modules/stations.js:180
 msgid "HTTPS"
 msgstr ""
@@ -1480,28 +1479,28 @@ msgstr ""
 msgid "Ignore Password"
 msgstr ""
 
-#: www/js/modules/dashboard.js:698
+#: www/js/modules/dashboard.js:789
 msgid "Ignore Rain"
 msgstr ""
 
-#: www/js/modules/dashboard.js:704
+#: www/js/modules/dashboard.js:795
 msgid "Ignore Sensor 1"
 msgstr ""
 
-#: www/js/modules/dashboard.js:710
+#: www/js/modules/dashboard.js:801
 msgid "Ignore Sensor 2"
 msgstr ""
 
-#: www/js/modules/dashboard.js:716
+#: www/js/modules/dashboard.js:807
 msgid "Ignore Sensor 3"
 msgstr ""
 
-#: www/js/modules/dashboard.js:722
+#: www/js/modules/dashboard.js:813
 msgid "Ignore Sensor 4"
 msgstr ""
 
-#: www/js/modules/dashboard.js:692
-#: www/js/modules/dashboard.js:933
+#: www/js/modules/dashboard.js:717
+#: www/js/modules/dashboard.js:929
 msgid "Image"
 msgstr ""
 
@@ -1783,8 +1782,8 @@ msgstr ""
 msgid "Master"
 msgstr ""
 
-#: www/js/modules/dashboard.js:1403
-#: www/js/modules/dashboard.js:1404
+#: www/js/modules/dashboard.js:1399
+#: www/js/modules/dashboard.js:1400
 #: www/js/modules/dashboard.js:179
 #: www/js/modules/options.js:2243
 msgid "Master Station"
@@ -1792,10 +1791,6 @@ msgstr ""
 
 #: www/js/modules/cycle-soak.js:45
 msgid "Master finishing"
-msgstr ""
-
-#: www/js/modules/dashboard.js:744
-msgid "Masters"
 msgstr ""
 
 #: www/js/modules/system-diagnostics.js:63
@@ -2183,6 +2178,7 @@ msgstr ""
 msgid "Option"
 msgstr ""
 
+#: www/js/modules/dashboard.js:683
 #: www/js/modules/logs.js:40
 #: www/js/modules/programs.js:259
 #: www/js/modules/sensors.js:1780
@@ -2197,7 +2193,7 @@ msgstr ""
 msgid "Order Stations by Name"
 msgstr ""
 
-#: www/js/modules/dashboard.js:683
+#: www/js/modules/dashboard.js:684
 msgid "Output"
 msgstr ""
 
@@ -2231,7 +2227,7 @@ msgstr ""
 msgid "Password changed successfully"
 msgstr ""
 
-#: www/js/modules/dashboard.js:553
+#: www/js/modules/dashboard.js:556
 msgid ""
 "Password on remote controller does not match the password on this "
 "OSApp.currentSession.controller."
@@ -2475,7 +2471,7 @@ msgstr ""
 msgid "Quick Programs"
 msgstr ""
 
-#: www/js/modules/dashboard.js:788
+#: www/js/modules/dashboard.js:730
 #: www/js/modules/stations.js:172
 msgid "RF"
 msgstr ""
@@ -2591,12 +2587,12 @@ msgstr ""
 msgid "Remote Station"
 msgstr ""
 
-#: www/js/modules/dashboard.js:789
+#: www/js/modules/dashboard.js:731
 #: www/js/modules/stations.js:174
 msgid "Remote Station (IP)"
 msgstr ""
 
-#: www/js/modules/dashboard.js:797
+#: www/js/modules/dashboard.js:739
 #: www/js/modules/stations.js:182
 msgid "Remote Station (OTC)"
 msgstr ""
@@ -2605,13 +2601,13 @@ msgstr ""
 msgid "Remote access is not enabled"
 msgstr ""
 
-#: www/js/modules/dashboard.js:557
+#: www/js/modules/dashboard.js:560
 msgid ""
 "Remote controller is not configured as an extender. Would you like to do "
 "this now?"
 msgstr ""
 
-#: www/js/modules/dashboard.js:468
+#: www/js/modules/dashboard.js:471
 msgid "Remove this station from its Bundle Station before changing its type."
 msgstr ""
 
@@ -2643,7 +2639,7 @@ msgstr ""
 msgid "Replace local with cloud"
 msgstr ""
 
-#: www/js/modules/dashboard.js:1344
+#: www/js/modules/dashboard.js:1340
 msgid "Requests declined because the queue was full"
 msgstr ""
 
@@ -2673,11 +2669,11 @@ msgstr ""
 msgid "Reset Zoom"
 msgstr ""
 
-#: www/js/modules/dashboard.js:1335
+#: www/js/modules/dashboard.js:1331
 msgid "Reset cycle and soak settings"
 msgstr ""
 
-#: www/js/modules/dashboard.js:1336
+#: www/js/modules/dashboard.js:1332
 msgid "Reset cycle and soak settings for all stations?"
 msgstr ""
 
@@ -2758,7 +2754,7 @@ msgstr ""
 msgid "Run-once program has been scheduled"
 msgstr ""
 
-#: www/js/modules/dashboard.js:1452
+#: www/js/modules/dashboard.js:1448
 #: www/js/modules/dashboard.js:229
 msgid "Running"
 msgstr ""
@@ -2835,7 +2831,7 @@ msgstr ""
 msgid "Scanning for OpenSprinkler Pi (1.8.3)"
 msgstr ""
 
-#: www/js/modules/dashboard.js:1452
+#: www/js/modules/dashboard.js:1448
 #: www/js/modules/dashboard.js:229
 msgid "Scheduled"
 msgstr ""
@@ -3001,13 +2997,13 @@ msgstr ""
 msgid "Sep"
 msgstr ""
 
-#: www/js/modules/dashboard.js:812
+#: www/js/modules/dashboard.js:698
 #: www/js/modules/options.js:834
 msgid "Sequential"
 msgstr ""
 
 #: www/js/modules/cards.js:37
-#: www/js/modules/dashboard.js:818
+#: www/js/modules/dashboard.js:704
 msgid "Sequential Group"
 msgstr ""
 
@@ -3162,7 +3158,7 @@ msgstr ""
 msgid "Sprinkler Stations"
 msgstr ""
 
-#: www/js/modules/dashboard.js:787
+#: www/js/modules/dashboard.js:729
 msgid "Standard"
 msgstr ""
 
@@ -3217,7 +3213,7 @@ msgstr ""
 msgid "Station Name"
 msgstr ""
 
-#: www/js/modules/dashboard.js:734
+#: www/js/modules/dashboard.js:711
 msgid "Station Notes"
 msgstr ""
 
@@ -3229,15 +3225,15 @@ msgstr ""
 msgid "Station Timer"
 msgstr ""
 
-#: www/js/modules/dashboard.js:785
+#: www/js/modules/dashboard.js:727
 msgid "Station Type"
 msgstr ""
 
-#: www/js/modules/dashboard.js:1635
+#: www/js/modules/dashboard.js:1631
 msgid "Station has been queued"
 msgstr ""
 
-#: www/js/modules/dashboard.js:1664
+#: www/js/modules/dashboard.js:1660
 msgid "Station has been stopped"
 msgstr ""
 
@@ -3255,7 +3251,7 @@ msgstr ""
 msgid "Stations Currently Paused"
 msgstr ""
 
-#: www/js/modules/dashboard.js:1128
+#: www/js/modules/dashboard.js:1124
 #: www/js/modules/options.js:148
 msgid "Stations have been updated"
 msgstr ""
@@ -3286,7 +3282,7 @@ msgstr ""
 
 #: www/js/modules/analog.js:228
 #: www/js/modules/analog.js:404
-#: www/js/modules/dashboard.js:832
+#: www/js/modules/dashboard.js:827
 #: www/js/modules/network.js:375
 #: www/js/modules/network.js:686
 #: www/js/modules/network.js:747
@@ -3740,8 +3736,8 @@ msgid ""
 "review the controller before retrying."
 msgstr ""
 
-#: www/js/modules/dashboard.js:492
-#: www/js/modules/dashboard.js:510
+#: www/js/modules/dashboard.js:495
+#: www/js/modules/dashboard.js:513
 #: www/js/modules/import-export.js:961
 msgid "Unable to load Bundle Station configuration."
 msgstr ""
@@ -3751,8 +3747,8 @@ msgstr ""
 msgid "Unable to load program adjustments. Try again."
 msgstr ""
 
-#: www/js/modules/dashboard.js:656
-#: www/js/modules/dashboard.js:665
+#: www/js/modules/dashboard.js:659
+#: www/js/modules/dashboard.js:668
 #: www/js/modules/options.js:2224
 #: www/js/modules/options.js:2233
 #: www/js/modules/ui-dom.js:655
@@ -3764,7 +3760,7 @@ msgstr ""
 msgid "Unable to map an aggregate sensor during import. The restore was stopped."
 msgstr ""
 
-#: www/js/modules/dashboard.js:549
+#: www/js/modules/dashboard.js:552
 msgid "Unable to reach the remote station."
 msgstr ""
 
@@ -3911,10 +3907,10 @@ msgstr ""
 msgid "Use DHCP (restart required)"
 msgstr ""
 
-#: www/js/modules/dashboard.js:754
-#: www/js/modules/dashboard.js:760
-#: www/js/modules/dashboard.js:766
-#: www/js/modules/dashboard.js:772
+#: www/js/modules/dashboard.js:759
+#: www/js/modules/dashboard.js:765
+#: www/js/modules/dashboard.js:771
+#: www/js/modules/dashboard.js:777
 msgid "Use Master"
 msgstr ""
 
@@ -4022,15 +4018,11 @@ msgid ""
 "may result in the program not running at all."
 msgstr ""
 
-#: www/js/modules/dashboard.js:1736
+#: www/js/modules/dashboard.js:1732
 #: www/js/modules/dashboard.js:37
 #: www/js/modules/logs.js:401
 #: www/js/modules/logs.js:481
 msgid "Water Level"
-msgstr ""
-
-#: www/js/modules/dashboard.js:684
-msgid "Watering"
 msgstr ""
 
 #: www/js/modules/programs.js:2503
@@ -4233,7 +4225,7 @@ msgstr ""
 msgid "ago"
 msgstr ""
 
-#: www/js/modules/dashboard.js:1469
+#: www/js/modules/dashboard.js:1465
 #: www/js/modules/dashboard.js:238
 msgid "also active via Bundle Station"
 msgstr ""
@@ -4307,7 +4299,7 @@ msgstr ""
 msgid "disabled programs hidden. Tap 'Show Disabled' in the footer menu to view"
 msgstr ""
 
-#: www/js/modules/dashboard.js:1453
+#: www/js/modules/dashboard.js:1449
 #: www/js/modules/dashboard.js:230
 #: www/js/modules/status.js:326
 msgid "for"
@@ -4403,7 +4395,7 @@ msgstr ""
 msgid "records"
 msgstr ""
 
-#: www/js/modules/dashboard.js:1457
+#: www/js/modules/dashboard.js:1453
 #: www/js/modules/dashboard.js:154
 #: www/js/modules/dashboard.js:235
 #: www/js/modules/status.js:136

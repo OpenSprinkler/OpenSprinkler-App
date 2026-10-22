@@ -110,7 +110,7 @@
 		},
 		"Activate Relay": {
 			"references": [
-				"www/js/modules/dashboard.js:778"
+				"www/js/modules/dashboard.js:783"
 			],
 			"notes": []
 		},
@@ -129,7 +129,7 @@
 		"Active via Bundle Station": {
 			"references": [
 				"www/js/modules/dashboard.js:139",
-				"www/js/modules/dashboard.js:1443",
+				"www/js/modules/dashboard.js:1439",
 				"www/js/modules/dashboard.js:159",
 				"www/js/modules/dashboard.js:225"
 			],
@@ -143,7 +143,7 @@
 		},
 		"Add": {
 			"references": [
-				"www/js/modules/dashboard.js:692",
+				"www/js/modules/dashboard.js:717",
 				"www/js/modules/programs.js:234",
 				"www/js/modules/sensors.js:2280",
 				"www/js/modules/sites.js:368"
@@ -587,8 +587,8 @@
 		},
 		"Basic Settings": {
 			"references": [
-				"www/js/modules/dashboard.js:1419",
-				"www/js/modules/dashboard.js:1420",
+				"www/js/modules/dashboard.js:1415",
+				"www/js/modules/dashboard.js:1416",
 				"www/js/modules/dashboard.js:179",
 				"www/js/modules/programs.js:2427"
 			],
@@ -647,7 +647,7 @@
 		},
 		"Bundle Station": {
 			"references": [
-				"www/js/modules/dashboard.js:800",
+				"www/js/modules/dashboard.js:742",
 				"www/js/modules/options.js:2000",
 				"www/js/modules/stations.js:184",
 				"www/js/modules/status.js:173"
@@ -656,13 +656,13 @@
 		},
 		"Bundle Station configuration was rejected. Station settings have been refreshed.": {
 			"references": [
-				"www/js/modules/dashboard.js:1142"
+				"www/js/modules/dashboard.js:1138"
 			],
 			"notes": []
 		},
 		"Bundle Station members changed. Review the selection and try again.": {
 			"references": [
-				"www/js/modules/dashboard.js:501"
+				"www/js/modules/dashboard.js:504"
 			],
 			"notes": []
 		},
@@ -680,7 +680,7 @@
 		},
 		"Cancel": {
 			"references": [
-				"www/js/modules/dashboard.js:567",
+				"www/js/modules/dashboard.js:570",
 				"www/js/modules/network.js:171",
 				"www/js/modules/programs.js:3612"
 			],
@@ -688,8 +688,8 @@
 		},
 		"Change": {
 			"references": [
-				"www/js/modules/dashboard.js:692",
-				"www/js/modules/dashboard.js:933"
+				"www/js/modules/dashboard.js:717",
+				"www/js/modules/dashboard.js:929"
 			],
 			"notes": []
 		},
@@ -735,7 +735,7 @@
 		},
 		"Changing group designation is prohibited while station is running": {
 			"references": [
-				"www/js/modules/dashboard.js:820"
+				"www/js/modules/dashboard.js:706"
 			],
 			"notes": []
 		},
@@ -937,7 +937,7 @@
 		},
 		"Continue": {
 			"references": [
-				"www/js/modules/dashboard.js:568",
+				"www/js/modules/dashboard.js:571",
 				"www/js/modules/sites.js:1132"
 			],
 			"notes": []
@@ -1014,20 +1014,19 @@
 		},
 		"Cycle and Soak": {
 			"references": [
-				"www/js/modules/cards.js:40",
-				"www/js/modules/cycle-soak.js:32"
+				"www/js/modules/cards.js:40"
 			],
 			"notes": []
 		},
 		"Cycle and soak settings could not be read. Affected stations water without cycling.": {
 			"references": [
-				"www/js/modules/dashboard.js:1334"
+				"www/js/modules/dashboard.js:1330"
 			],
 			"notes": []
 		},
 		"Cycle and soak times must be between 1 and 240 minutes.": {
 			"references": [
-				"www/js/modules/dashboard.js:458"
+				"www/js/modules/dashboard.js:461"
 			],
 			"notes": []
 		},
@@ -1235,7 +1234,7 @@
 		"Disable": {
 			"references": [
 				"www/index.html:106",
-				"www/js/modules/dashboard.js:728",
+				"www/js/modules/dashboard.js:819",
 				"www/js/modules/ui-dom.js:616",
 				"www/js/modules/ui-dom.js:731"
 			],
@@ -1293,7 +1292,7 @@
 		},
 		"Do you want to delete the current image?": {
 			"references": [
-				"www/js/modules/dashboard.js:1675"
+				"www/js/modules/dashboard.js:1671"
 			],
 			"notes": []
 		},
@@ -1325,7 +1324,7 @@
 		},
 		"Do you want to stop the selected station?": {
 			"references": [
-				"www/js/modules/dashboard.js:1613"
+				"www/js/modules/dashboard.js:1609"
 			],
 			"notes": []
 		},
@@ -1343,7 +1342,7 @@
 		},
 		"Do you want to unschedule the selected station?": {
 			"references": [
-				"www/js/modules/dashboard.js:1616"
+				"www/js/modules/dashboard.js:1612"
 			],
 			"notes": []
 		},
@@ -1512,7 +1511,7 @@
 		},
 		"Enable Cycle and Soak": {
 			"references": [
-				"www/js/modules/cycle-soak.js:34"
+				"www/js/modules/cycle-soak.js:33"
 			],
 			"notes": []
 		},
@@ -1587,7 +1586,7 @@
 		},
 		"Enter a duration to manually run ": {
 			"references": [
-				"www/js/modules/dashboard.js:1623"
+				"www/js/modules/dashboard.js:1619"
 			],
 			"notes": []
 		},
@@ -1917,7 +1916,7 @@
 		},
 		"GPIO": {
 			"references": [
-				"www/js/modules/dashboard.js:794",
+				"www/js/modules/dashboard.js:736",
 				"www/js/modules/stations.js:176"
 			],
 			"notes": []
@@ -1972,7 +1971,7 @@
 		},
 		"HTTP": {
 			"references": [
-				"www/js/modules/dashboard.js:795",
+				"www/js/modules/dashboard.js:737",
 				"www/js/modules/stations.js:178"
 			],
 			"notes": []
@@ -1985,7 +1984,7 @@
 		},
 		"HTTPS": {
 			"references": [
-				"www/js/modules/dashboard.js:796",
+				"www/js/modules/dashboard.js:738",
 				"www/js/modules/stations.js:180"
 			],
 			"notes": []
@@ -2108,38 +2107,38 @@
 		},
 		"Ignore Rain": {
 			"references": [
-				"www/js/modules/dashboard.js:698"
+				"www/js/modules/dashboard.js:789"
 			],
 			"notes": []
 		},
 		"Ignore Sensor 1": {
 			"references": [
-				"www/js/modules/dashboard.js:704"
+				"www/js/modules/dashboard.js:795"
 			],
 			"notes": []
 		},
 		"Ignore Sensor 2": {
 			"references": [
-				"www/js/modules/dashboard.js:710"
+				"www/js/modules/dashboard.js:801"
 			],
 			"notes": []
 		},
 		"Ignore Sensor 3": {
 			"references": [
-				"www/js/modules/dashboard.js:716"
+				"www/js/modules/dashboard.js:807"
 			],
 			"notes": []
 		},
 		"Ignore Sensor 4": {
 			"references": [
-				"www/js/modules/dashboard.js:722"
+				"www/js/modules/dashboard.js:813"
 			],
 			"notes": []
 		},
 		"Image": {
 			"references": [
-				"www/js/modules/dashboard.js:692",
-				"www/js/modules/dashboard.js:933"
+				"www/js/modules/dashboard.js:717",
+				"www/js/modules/dashboard.js:929"
 			],
 			"notes": []
 		},
@@ -2545,8 +2544,8 @@
 		},
 		"Master Station": {
 			"references": [
-				"www/js/modules/dashboard.js:1403",
-				"www/js/modules/dashboard.js:1404",
+				"www/js/modules/dashboard.js:1399",
+				"www/js/modules/dashboard.js:1400",
 				"www/js/modules/dashboard.js:179",
 				"www/js/modules/options.js:2243"
 			],
@@ -2555,12 +2554,6 @@
 		"Master finishing": {
 			"references": [
 				"www/js/modules/cycle-soak.js:45"
-			],
-			"notes": []
-		},
-		"Masters": {
-			"references": [
-				"www/js/modules/dashboard.js:744"
 			],
 			"notes": []
 		},
@@ -3116,6 +3109,7 @@
 		},
 		"Options": {
 			"references": [
+				"www/js/modules/dashboard.js:683",
 				"www/js/modules/logs.js:40",
 				"www/js/modules/programs.js:259",
 				"www/js/modules/sensors.js:1780"
@@ -3136,7 +3130,7 @@
 		},
 		"Output": {
 			"references": [
-				"www/js/modules/dashboard.js:683"
+				"www/js/modules/dashboard.js:684"
 			],
 			"notes": []
 		},
@@ -3186,7 +3180,7 @@
 		},
 		"Password on remote controller does not match the password on this OSApp.currentSession.controller.": {
 			"references": [
-				"www/js/modules/dashboard.js:553"
+				"www/js/modules/dashboard.js:556"
 			],
 			"notes": []
 		},
@@ -3521,7 +3515,7 @@
 		},
 		"RF": {
 			"references": [
-				"www/js/modules/dashboard.js:788",
+				"www/js/modules/dashboard.js:730",
 				"www/js/modules/stations.js:172"
 			],
 			"notes": []
@@ -3684,14 +3678,14 @@
 		},
 		"Remote Station (IP)": {
 			"references": [
-				"www/js/modules/dashboard.js:789",
+				"www/js/modules/dashboard.js:731",
 				"www/js/modules/stations.js:174"
 			],
 			"notes": []
 		},
 		"Remote Station (OTC)": {
 			"references": [
-				"www/js/modules/dashboard.js:797",
+				"www/js/modules/dashboard.js:739",
 				"www/js/modules/stations.js:182"
 			],
 			"notes": []
@@ -3704,13 +3698,13 @@
 		},
 		"Remote controller is not configured as an extender. Would you like to do this now?": {
 			"references": [
-				"www/js/modules/dashboard.js:557"
+				"www/js/modules/dashboard.js:560"
 			],
 			"notes": []
 		},
 		"Remove this station from its Bundle Station before changing its type.": {
 			"references": [
-				"www/js/modules/dashboard.js:468"
+				"www/js/modules/dashboard.js:471"
 			],
 			"notes": []
 		},
@@ -3756,7 +3750,7 @@
 		},
 		"Requests declined because the queue was full": {
 			"references": [
-				"www/js/modules/dashboard.js:1344"
+				"www/js/modules/dashboard.js:1340"
 			],
 			"notes": []
 		},
@@ -3800,13 +3794,13 @@
 		},
 		"Reset cycle and soak settings": {
 			"references": [
-				"www/js/modules/dashboard.js:1335"
+				"www/js/modules/dashboard.js:1331"
 			],
 			"notes": []
 		},
 		"Reset cycle and soak settings for all stations?": {
 			"references": [
-				"www/js/modules/dashboard.js:1336"
+				"www/js/modules/dashboard.js:1332"
 			],
 			"notes": []
 		},
@@ -3923,7 +3917,7 @@
 		},
 		"Running": {
 			"references": [
-				"www/js/modules/dashboard.js:1452",
+				"www/js/modules/dashboard.js:1448",
 				"www/js/modules/dashboard.js:229"
 			],
 			"notes": []
@@ -4034,7 +4028,7 @@
 		},
 		"Scheduled": {
 			"references": [
-				"www/js/modules/dashboard.js:1452",
+				"www/js/modules/dashboard.js:1448",
 				"www/js/modules/dashboard.js:229"
 			],
 			"notes": []
@@ -4265,7 +4259,7 @@
 		},
 		"Sequential": {
 			"references": [
-				"www/js/modules/dashboard.js:812",
+				"www/js/modules/dashboard.js:698",
 				"www/js/modules/options.js:834"
 			],
 			"notes": []
@@ -4273,7 +4267,7 @@
 		"Sequential Group": {
 			"references": [
 				"www/js/modules/cards.js:37",
-				"www/js/modules/dashboard.js:818"
+				"www/js/modules/dashboard.js:704"
 			],
 			"notes": []
 		},
@@ -4496,7 +4490,7 @@
 		},
 		"Standard": {
 			"references": [
-				"www/js/modules/dashboard.js:787"
+				"www/js/modules/dashboard.js:729"
 			],
 			"notes": []
 		},
@@ -4575,7 +4569,7 @@
 		},
 		"Station Notes": {
 			"references": [
-				"www/js/modules/dashboard.js:734"
+				"www/js/modules/dashboard.js:711"
 			],
 			"notes": []
 		},
@@ -4593,19 +4587,19 @@
 		},
 		"Station Type": {
 			"references": [
-				"www/js/modules/dashboard.js:785"
+				"www/js/modules/dashboard.js:727"
 			],
 			"notes": []
 		},
 		"Station has been queued": {
 			"references": [
-				"www/js/modules/dashboard.js:1635"
+				"www/js/modules/dashboard.js:1631"
 			],
 			"notes": []
 		},
 		"Station has been stopped": {
 			"references": [
-				"www/js/modules/dashboard.js:1664"
+				"www/js/modules/dashboard.js:1660"
 			],
 			"notes": []
 		},
@@ -4629,7 +4623,7 @@
 		},
 		"Stations have been updated": {
 			"references": [
-				"www/js/modules/dashboard.js:1128",
+				"www/js/modules/dashboard.js:1124",
 				"www/js/modules/options.js:148"
 			],
 			"notes": []
@@ -4672,7 +4666,7 @@
 			"references": [
 				"www/js/modules/analog.js:228",
 				"www/js/modules/analog.js:404",
-				"www/js/modules/dashboard.js:832",
+				"www/js/modules/dashboard.js:827",
 				"www/js/modules/network.js:375",
 				"www/js/modules/network.js:686",
 				"www/js/modules/network.js:747",
@@ -5245,8 +5239,8 @@
 		},
 		"Unable to load Bundle Station configuration.": {
 			"references": [
-				"www/js/modules/dashboard.js:492",
-				"www/js/modules/dashboard.js:510",
+				"www/js/modules/dashboard.js:495",
+				"www/js/modules/dashboard.js:513",
 				"www/js/modules/import-export.js:961"
 			],
 			"notes": []
@@ -5260,8 +5254,8 @@
 		},
 		"Unable to load station configuration.": {
 			"references": [
-				"www/js/modules/dashboard.js:656",
-				"www/js/modules/dashboard.js:665",
+				"www/js/modules/dashboard.js:659",
+				"www/js/modules/dashboard.js:668",
 				"www/js/modules/options.js:2224",
 				"www/js/modules/options.js:2233",
 				"www/js/modules/ui-dom.js:655",
@@ -5277,7 +5271,7 @@
 		},
 		"Unable to reach the remote station.": {
 			"references": [
-				"www/js/modules/dashboard.js:549"
+				"www/js/modules/dashboard.js:552"
 			],
 			"notes": []
 		},
@@ -5476,10 +5470,10 @@
 		},
 		"Use Master": {
 			"references": [
-				"www/js/modules/dashboard.js:754",
-				"www/js/modules/dashboard.js:760",
-				"www/js/modules/dashboard.js:766",
-				"www/js/modules/dashboard.js:772"
+				"www/js/modules/dashboard.js:759",
+				"www/js/modules/dashboard.js:765",
+				"www/js/modules/dashboard.js:771",
+				"www/js/modules/dashboard.js:777"
 			],
 			"notes": []
 		},
@@ -5622,16 +5616,10 @@
 		},
 		"Water Level": {
 			"references": [
-				"www/js/modules/dashboard.js:1736",
+				"www/js/modules/dashboard.js:1732",
 				"www/js/modules/dashboard.js:37",
 				"www/js/modules/logs.js:401",
 				"www/js/modules/logs.js:481"
-			],
-			"notes": []
-		},
-		"Watering": {
-			"references": [
-				"www/js/modules/dashboard.js:684"
 			],
 			"notes": []
 		},
@@ -5897,7 +5885,7 @@
 		},
 		"also active via Bundle Station": {
 			"references": [
-				"www/js/modules/dashboard.js:1469",
+				"www/js/modules/dashboard.js:1465",
 				"www/js/modules/dashboard.js:238"
 			],
 			"notes": []
@@ -6005,7 +5993,7 @@
 		},
 		"for": {
 			"references": [
-				"www/js/modules/dashboard.js:1453",
+				"www/js/modules/dashboard.js:1449",
 				"www/js/modules/dashboard.js:230",
 				"www/js/modules/status.js:326"
 			],
@@ -6147,7 +6135,7 @@
 		},
 		"remaining": {
 			"references": [
-				"www/js/modules/dashboard.js:1457",
+				"www/js/modules/dashboard.js:1453",
 				"www/js/modules/dashboard.js:154",
 				"www/js/modules/dashboard.js:235",
 				"www/js/modules/status.js:136",
@@ -6443,109 +6431,109 @@
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/dashboard.js",
-			"line": 692,
+			"line": 717,
 			"key": "Image"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/dashboard.js",
-			"line": 754,
-			"key": "Use Master"
-		},
-		{
-			"kind": "concatenation-candidate",
-			"source": "www/js/modules/dashboard.js",
-			"line": 788,
+			"line": 730,
 			"key": "RF"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/dashboard.js",
-			"line": 789,
+			"line": 731,
 			"key": "Remote Station (IP)"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/dashboard.js",
-			"line": 794,
+			"line": 736,
 			"key": "GPIO"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/dashboard.js",
-			"line": 795,
+			"line": 737,
 			"key": "HTTP"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/dashboard.js",
-			"line": 796,
+			"line": 738,
 			"key": "HTTPS"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/dashboard.js",
-			"line": 797,
+			"line": 739,
 			"key": "Remote Station (OTC)"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/dashboard.js",
-			"line": 800,
+			"line": 742,
 			"key": "Bundle Station"
+		},
+		{
+			"kind": "concatenation-candidate",
+			"source": "www/js/modules/dashboard.js",
+			"line": 759,
+			"key": "Use Master"
 		},
 		{
 			"kind": "dynamic-key",
 			"source": "www/js/modules/dashboard.js",
-			"line": 870,
+			"line": 866,
 			"expression": "OSApp.Language._( label )"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/dashboard.js",
-			"line": 933,
+			"line": 929,
 			"key": "Change"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/dashboard.js",
-			"line": 933,
+			"line": 929,
 			"key": "Image"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/dashboard.js",
-			"line": 1344,
+			"line": 1340,
 			"key": "Requests declined because the queue was full"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/dashboard.js",
-			"line": 1452,
+			"line": 1448,
 			"key": "Running"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/dashboard.js",
-			"line": 1452,
+			"line": 1448,
 			"key": "Scheduled"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/dashboard.js",
-			"line": 1453,
+			"line": 1449,
 			"key": "for"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/dashboard.js",
-			"line": 1457,
+			"line": 1453,
 			"key": "remaining"
 		},
 		{
 			"kind": "concatenation-candidate",
 			"source": "www/js/modules/dashboard.js",
-			"line": 1623,
+			"line": 1619,
 			"key": "Enter a duration to manually run "
 		},
 		{
