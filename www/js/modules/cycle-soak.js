@@ -20,7 +20,7 @@ OSApp.CycleSoak.policy = function( sid ) {
 OSApp.CycleSoak.readablePolicy = function( sid ) {
 	var controller = OSApp.currentSession.controller,
 		policy = controller.stations.cs?.[ sid ];
-	return !controller.settings.cserr && OSApp.CycleSoak.validPolicy( policy ) ? policy.slice() : null;
+	return OSApp.CycleSoak.validPolicy( policy ) ? policy.slice() : null;
 };
 
 OSApp.CycleSoak.enabled = function( sid ) {

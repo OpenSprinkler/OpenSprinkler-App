@@ -14,6 +14,26 @@ describe( "Cycle and soak preview policy", function() {
 		assert.deepEqual( simulate( [ { sid: 0, pid: 1, gid: 0, dur: 121 } ] ).map( function( q ) { return [ q.st, q.dur ]; } ),
 			[ [ 1001, 41 ], [ 1102, 40 ], [ 1202, 40 ] ] );
 	} );
+	it( "uses each station policy despite a controller-wide cycle diagnostic", function() {
+		var controller = OSApp.currentSession.controller;
+		try {
+			OSApp.currentSession.controller = {
+				settings: { cserr: 1 },
+				stations: { csver: 1, cs: [ [ 1, 60, 60 ], [ 0, 0, 0 ], [ 1, -1, 60 ] ] }
+			};
+			assert.deepEqual( OSApp.CycleSoak.readablePolicy( 0 ), [ 1, 60, 60 ] );
+			assert.deepEqual( OSApp.CycleSoak.readablePolicy( 1 ), [ 0, 0, 0 ] );
+			assert.isNull( OSApp.CycleSoak.readablePolicy( 2 ) );
+			assert.isNull( OSApp.CycleSoak.readablePolicy( 3 ) );
+			var trace = simulate( [ { sid: 0, pid: 1, gid: 0, dur: 121 }, { sid: 1, pid: 1, gid: 1, dur: 121 } ], {
+				policy: OSApp.CycleSoak.policy
+			} );
+			assert.lengthOf( trace.filter( function( segment ) { return segment.sid === 0; } ), 3 );
+			assert.deepEqual( trace.filter( function( segment ) { return segment.sid === 1; } ).map( function( segment ) { return segment.dur; } ), [ 121 ] );
+		} finally {
+			OSApp.currentSession.controller = controller;
+		}
+	} );
 	it( "reserves same-station cooldown across separate requests", function() {
 		assert.deepEqual( simulate( [ { sid: 0, pid: 1, gid: 0, dur: 120 }, { sid: 0, pid: 2, gid: 0, dur: 60 } ] )
 			.map( function( q ) { return [ q.pid, q.st, q.dur ]; } ), [ [ 1, 1001, 60 ], [ 2, 1121, 60 ], [ 1, 1241, 60 ] ] );

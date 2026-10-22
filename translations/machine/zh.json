@@ -1,5 +1,14 @@
 {
 	"messages": {
+		"Cycle and Soak reported an error. Some stations may water without cycling. If this persists after restarting the controller, reset the cycle and soak settings.": {
+			"text": "循环渗透功能出现错误。部分浇水站可能会连续浇水，不进行分段。如果重启控制器后问题仍然存在，请重置循环渗透设置。",
+			"sourceHash": "f0e378476d6c5a1758e82cde42110d4b89637166ef80c41b31806582e59a09f1",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "2f6a1d51c8dc181abfb10f5142e359fb4eec1e0aa9da50d0814f55959cf8c93d",
+			"generator": "Codex assisted translation / cycle diagnostic clarification / 2026-10-22",
+			"review": "reviewed"
+		},
 		" when opening Station ": {
 			"text": "，发生于开启浇水站 ",
 			"sourceHash": "174fa264c69244ca66530dffb37bab7e1ce4b37ec9fd06921bdb18f6a94129fc",

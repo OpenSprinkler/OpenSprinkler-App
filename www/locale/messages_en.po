@@ -720,8 +720,9 @@ msgstr ""
 
 #: www/js/modules/dashboard.js:1330
 msgid ""
-"Cycle and soak settings could not be read. Affected stations water without "
-"cycling."
+"Cycle and Soak reported an error. Some stations may water without cycling. "
+"If this persists after restarting the controller, reset the cycle and soak "
+"settings."
 msgstr ""
 
 #: www/js/modules/dashboard.js:461

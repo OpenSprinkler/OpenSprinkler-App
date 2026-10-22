@@ -1327,7 +1327,7 @@ OSApp.Dashboard.displayPage = function() {
 			page.find( ".cycle-diagnostic" ).remove();
 			if ( OSApp.currentSession.controller.settings.cserr ) {
 				var diagnostic = $( "<div class='cycle-diagnostic ui-body ui-body-a' role='alert'></div>" );
-				diagnostic.append( $( "<p></p>" ).text( OSApp.Language._( "Cycle and soak settings could not be read. Affected stations water without cycling." ) ) );
+				diagnostic.append( $( "<p></p>" ).text( OSApp.Language._( "Cycle and Soak reported an error. Some stations may water without cycling. If this persists after restarting the controller, reset the cycle and soak settings." ) ) );
 				diagnostic.append( $( "<button class='ui-btn ui-mini'></button>" ).text( OSApp.Language._( "Reset cycle and soak settings" ) ).on( "click", function() {
 					OSApp.UIDom.areYouSure( OSApp.Language._( "Reset cycle and soak settings for all stations?" ), "", function() {
 						OSApp.Firmware.sendToOS( "/cs?pw=&csreset=1" ).done( function() { OSApp.Sites.updateController(); } );

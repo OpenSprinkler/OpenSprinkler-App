@@ -161,7 +161,7 @@
 		"Current Weather": "Condiciones meteorológicas actuales",
 		"Custom Adjustment": "Ajuste personalizado",
 		"Cycle and Soak": "Ciclo e infiltración",
-		"Cycle and soak settings could not be read. Affected stations water without cycling.": "No se pudo leer la configuración de ciclo e infiltración. Las estaciones afectadas riegan sin dividir el riego en ciclos.",
+		"Cycle and Soak reported an error. Some stations may water without cycling. If this persists after restarting the controller, reset the cycle and soak settings.": "Se ha detectado un error en «Ciclo e infiltración». Es posible que algunas estaciones rieguen sin ciclos. Si el problema persiste después de reiniciar el controlador, restablezca la configuración de ciclo e infiltración.",
 		"Cycle and soak times must be between 1 and 240 minutes.": "Los tiempos de ciclo e infiltración deben estar entre 1 y 240 minutos.",
 		"Cycle paused": "Ciclo en pausa",
 		"Cycle queued": "Ciclo en cola",

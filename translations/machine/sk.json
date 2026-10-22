@@ -1,5 +1,14 @@
 {
 	"messages": {
+		"Cycle and Soak reported an error. Some stations may water without cycling. If this persists after restarting the controller, reset the cycle and soak settings.": {
+			"text": "Funkcia „Cykly a vsakovanie“ nahlásila chybu. Niektoré vetvy môžu zavlažovať bez cyklov. Ak problém pretrváva aj po reštartovaní riadiacej jednotky, obnovte nastavenia cyklov a vsakovania.",
+			"sourceHash": "f0e378476d6c5a1758e82cde42110d4b89637166ef80c41b31806582e59a09f1",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "161958999c3f9e620371b17344cd539c6d3e14aeffa96613e3d2aa1f2d533f5d",
+			"generator": "Codex assisted translation / cycle diagnostic clarification / 2026-10-22",
+			"review": "reviewed"
+		},
 		"%s saved": {
 			"text": "Ušetrené %s",
 			"sourceHash": "126d88d26c3e4ce654e8aba096d57666aa3da446a3a619d49a21d96207af6ae2",

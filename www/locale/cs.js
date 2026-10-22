@@ -161,7 +161,7 @@
 		"Current Weather": "Aktuální počasí",
 		"Custom Adjustment": "Vlastní úprava",
 		"Cycle and Soak": "Cykly a vsakování",
-		"Cycle and soak settings could not be read. Affected stations water without cycling.": "Nastavení cyklů a vsakování nelze načíst. Dotčené stanice zavlažují bez rozdělení do cyklů.",
+		"Cycle and Soak reported an error. Some stations may water without cycling. If this persists after restarting the controller, reset the cycle and soak settings.": "Funkce „Cykly a vsakování“ nahlásila chybu. Některé stanice mohou zavlažovat bez cyklů. Pokud problém přetrvává i po restartování řídicí jednotky, obnovte nastavení cyklů a vsakování.",
 		"Cycle and soak times must be between 1 and 240 minutes.": "Doba cyklu a vsakování musí být v rozmezí 1 až 240 minut.",
 		"Cycle paused": "Cyklus pozastaven",
 		"Cycle queued": "Cyklus ve frontě",

@@ -496,7 +496,7 @@ describe("Dashboard Bundle Station Checks", function () {
 			});
 			OSApp.Dashboard.displayPage();
 			$("#attrib-0").trigger("click");
-			assert.equal($("#cycle-enabled").prop("disabled"), mode !== "unchanged");
+			assert.equal($("#cycle-enabled").prop("disabled"), mode === "missing" || mode === "invalid");
 			$("#stn-name").val("Renamed");
 			$("#stn_attrib form").trigger("submit");
 			var command = send.getCalls().map(function (call) { return call.args[0]; }).find(function (url) { return url.indexOf("/cs?") === 0; });
@@ -570,7 +570,37 @@ describe("Dashboard Bundle Station Checks", function () {
 
 		controller.settings.cserr = 1;
 		OSApp.Dashboard.displayPage();
-		assert.isFalse($("#attrib-0").hasClass("station-cycle"));
+		assert.isTrue($("#attrib-0").hasClass("station-cycle"));
+		assert.include($("#attrib-0").attr("title"), "Maximum cycle (minutes): 2");
+		assert.isFalse($("#attrib-1").hasClass("station-cycle"));
+	});
+
+	it("allows editing valid station policies despite a controller-wide cycle error", function () {
+		sandbox.stub(OSApp.CycleSoak, "supported").returns(true);
+		sandbox.stub(OSApp.Sites, "updateController");
+		controller.settings.cserr = 1;
+		controller.stations.cs[0] = [1, 300, 600];
+		var send = sandbox.stub(OSApp.Firmware, "sendToOS").callsFake(function (url) {
+			return $.Deferred().resolve(url.indexOf("/je") === 0 ? controller.special : {result: 1}).promise();
+		});
+		OSApp.Dashboard.displayPage();
+		var page = $("#station_0").closest("[data-role='page']").addClass("ui-page-active");
+		page.trigger("pageshow");
+		$("html").trigger("datarefresh");
+		page.removeClass("ui-page-active");
+		assert.equal($(".cycle-diagnostic p").first().text(), OSApp.Language._("Cycle and Soak reported an error. Some stations may water without cycling. If this persists after restarting the controller, reset the cycle and soak settings."));
+		assert.isFalse(send.getCalls().some(function (call) { return call.args[0].indexOf("/cs?") === 0; }));
+		$("#attrib-0").trigger("click");
+		assert.isFalse($("#cycle-enabled").prop("disabled"));
+		assert.isTrue($("#cycle-enabled").prop("checked"));
+		$("#cycle-minutes").val("6");
+		$("#stn_attrib form").trigger("submit");
+		var command = send.getCalls().map(function (call) {return call.args[0];})
+			.find(function (url) {return url.indexOf("/cs?") === 0;});
+		var params = new URLSearchParams(command.split("?")[1]);
+		assert.equal(params.get("cse"), "1");
+		assert.equal(params.get("csc"), "360");
+		assert.equal(params.get("css"), "600");
 	});
 
 	it("drops the member badge once the station leaves the bundle", function () {

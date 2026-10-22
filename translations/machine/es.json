@@ -1,5 +1,14 @@
 {
 	"messages": {
+		"Cycle and Soak reported an error. Some stations may water without cycling. If this persists after restarting the controller, reset the cycle and soak settings.": {
+			"text": "Se ha detectado un error en «Ciclo e infiltración». Es posible que algunas estaciones rieguen sin ciclos. Si el problema persiste después de reiniciar el controlador, restablezca la configuración de ciclo e infiltración.",
+			"sourceHash": "f0e378476d6c5a1758e82cde42110d4b89637166ef80c41b31806582e59a09f1",
+			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
+			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
+			"translationHash": "3939a3f23e45f30d351c1c82930328a49ce430bbea1c32de8a24bbe44890b90a",
+			"generator": "Codex assisted translation / cycle diagnostic clarification / 2026-10-22",
+			"review": "reviewed"
+		},
 		" when opening Station ": {
 			"text": " al abrir la estación ",
 			"sourceHash": "174fa264c69244ca66530dffb37bab7e1ce4b37ec9fd06921bdb18f6a94129fc",

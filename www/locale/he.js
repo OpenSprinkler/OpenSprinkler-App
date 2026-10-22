@@ -161,7 +161,7 @@
 		"Current Weather": "מזג האוויר הנוכחי",
 		"Custom Adjustment": "התאמה אישית",
 		"Cycle and Soak": "מחזורי השקיה והשהיה לספיגה",
-		"Cycle and soak settings could not be read. Affected stations water without cycling.": "לא ניתן לקרוא את הגדרות מחזורי ההשקיה וההשהיה לספיגה. התחנות המושפעות משקות ללא חלוקה למחזורי השקיה.",
+		"Cycle and Soak reported an error. Some stations may water without cycling. If this persists after restarting the controller, reset the cycle and soak settings.": "דווחה שגיאה במחזורי השקיה והשהיה לספיגה. ייתכן שתחנות מסוימות ישקו ללא חלוקה למחזורי השקיה. אם הבעיה נמשכת לאחר הפעלה מחדש של הבקר, אפסו את הגדרות מחזורי ההשקיה וההשהיה לספיגה.",
 		"Cycle and soak times must be between 1 and 240 minutes.": "משך מחזור ההשקיה וההשהיה לספיגה חייב להיות בין 1 ל-240 דקות.",
 		"Cycle paused": "מחזור ההשקיה מושהה",
 		"Cycle queued": "מחזור ההשקיה ממתין בתור",

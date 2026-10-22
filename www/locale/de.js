@@ -161,7 +161,7 @@
 		"Current Weather": "Aktuelles Wetter",
 		"Custom Adjustment": "Benutzerdefinierte Anpassung",
 		"Cycle and Soak": "Zyklus und Sickerpause",
-		"Cycle and soak settings could not be read. Affected stations water without cycling.": "Die Einstellungen für Zyklus und Sickerpause konnten nicht gelesen werden. Betroffene Bewässerungskreise bewässern ohne Zyklusunterteilung.",
+		"Cycle and Soak reported an error. Some stations may water without cycling. If this persists after restarting the controller, reset the cycle and soak settings.": "Bei „Zyklus und Sickerpause“ ist ein Fehler aufgetreten. Einige Bewässerungskreise bewässern möglicherweise ohne Zyklen. Wenn das Problem nach einem Neustart der Steuerung weiterhin besteht, setzen Sie die Einstellungen für Zyklus und Sickerpause zurück.",
 		"Cycle and soak times must be between 1 and 240 minutes.": "Die Zeiten für Zyklus und Sickerpause müssen zwischen 1 und 240 Minuten liegen.",
 		"Cycle paused": "Bewässerungszyklus pausiert",
 		"Cycle queued": "Bewässerungszyklus wartet",
