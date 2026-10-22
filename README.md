@@ -115,7 +115,39 @@ This project uses Grunt to automate various development tasks. Here are some of 
 
 #### Building and Deployment
 
-* **`grunt compress:makeFW`**: Creates a ZIP archive of the application files for firmware updates.
+* **`grunt prepareFW`**: Builds the hosted firmware UI and its `build/firmware/UI.zip` archive.
+
+#### Firmware UI caching
+
+The firmware loads the stable `js/home.js` URL. Each build stamps this loader with an `assets/<content-hash>/` directory.
+That directory contains the matching module list, scripts, styles, HTML, images, and translations.
+The hash changes when any packaged file changes, even when the application version stays the same.
+Root files remain available for older loaders. The source files and native app bundles remain unchanged.
+
+Firebase requires revalidation for mutable URLs, including `js/home.js`, `modules.json`, and `index.html`.
+Files under `assets/` can use long cache lifetimes because their paths identify their contents.
+
+The UI hosts are `ui.opensprinkler.com`, `betaui.opensprinkler.com`, and `devui.opensprinkler.com`.
+Before deploying this change, the release owner must configure Cloudflare to respect origin cache headers for these hosts:
+
+* Set Browser Cache TTL to **Respect Existing Headers**.
+* For matching Cache Rules, set Browser TTL to **Respect origin** and Edge TTL to use the origin's cache-control header.
+* Remove conflicting cache rules or page rules that override these headers.
+
+[Browser Cache TTL](https://developers.cloudflare.com/cache/how-to/edge-browser-cache-ttl/set-browser-ttl/) and
+[Cache Rules settings](https://developers.cloudflare.com/cache/how-to/cache-rules/settings/#browser-ttl) explain these controls.
+The deployment workflow purges the selected host after deployment.
+A successful Firebase preview does not verify Cloudflare settings on these public hosts.
+
+After each deployment, check the selected public host, including Cloudflare, with `curl -I`:
+
+* `/js/home.js` and `/modules.json` must return `Cache-Control: no-cache, max-age=0, must-revalidate`.
+* `/assets/<content-hash>/js/main.js` must return `Cache-Control: public, max-age=31536000, immutable`.
+
+Do not complete the release while these header checks fail.
+Purging Cloudflare does not remove browser copies. These copies can persist until they expire or the user reloads without cached files.
+If a versioned loader requests a removed build, it shows a Reload button instead of mixing files from different builds.
+Verify a returning browser after deployment, including the controller password prompt and the loaded application.
 
 #### Localization
 

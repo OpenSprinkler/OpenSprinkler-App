@@ -23,6 +23,7 @@ module.exports = function (config) {
 			{ pattern: 'www/vendor-js/vis-timeline-graph2d.min.js', included: true, watched: false},
 			{ pattern: 'www/css/vis-timeline-graph2d.min.css', included: true, watched: false},
 			{ pattern: 'www/index.html', included: false, watched: false, served: true },
+			{ pattern: 'www/js/home.js', included: false, watched: false, served: true },
 			{ pattern: 'www/sw.js', included: false, watched: false, served: true },
 			{ pattern: 'www/locale/*.js', included: false, watched: false, served: true },
 			{ pattern: 'www/css/images/ajax-loader.gif', included: false, watched: false, served: true },
