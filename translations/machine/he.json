@@ -846,15 +846,6 @@
 			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
 			"review": "unreviewed"
 		},
-		"Cycle and soak settings could not be read. Affected stations water without cycling.": {
-			"text": "לא ניתן לקרוא את הגדרות מחזורי ההשקיה וההשהיה לספיגה. התחנות המושפעות משקות ללא חלוקה למחזורי השקיה.",
-			"sourceHash": "9f0b9d1ef5c3d30fe44179d3c3acd0b92d104984c4b7709d711a3cdd14108af5",
-			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
-			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
-			"translationHash": "c540d7f85d20d4efd6111b3145224abe2c30c48c56cd2e73dcb8b35c3791ca47",
-			"generator": "Codex assisted translation / Hebrew completion-v1 / 2026-10-21",
-			"review": "unreviewed"
-		},
 		"Cycle and soak times must be between 1 and 240 minutes.": {
 			"text": "משך מחזור ההשקיה וההשהיה לספיגה חייב להיות בין 1 ל-240 דקות.",
 			"sourceHash": "1cfb6958acb3d34c4e7a7fb6a6c055b1809ccc10b0b5485cc128842ce27c18e1",

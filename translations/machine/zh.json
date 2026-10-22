@@ -1,14 +1,5 @@
 {
 	"messages": {
-		"Cycle and Soak reported an error. Some stations may water without cycling. If this persists after restarting the controller, reset the cycle and soak settings.": {
-			"text": "循环渗透功能出现错误。部分浇水站可能会连续浇水，不进行分段。如果重启控制器后问题仍然存在，请重置循环渗透设置。",
-			"sourceHash": "f0e378476d6c5a1758e82cde42110d4b89637166ef80c41b31806582e59a09f1",
-			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
-			"glossaryHash": "24f15d043617232b80d960f98781346922d793ce992a7a94d5269866822690b1",
-			"translationHash": "2f6a1d51c8dc181abfb10f5142e359fb4eec1e0aa9da50d0814f55959cf8c93d",
-			"generator": "Codex assisted translation / cycle diagnostic clarification / 2026-10-22",
-			"review": "reviewed"
-		},
 		" when opening Station ": {
 			"text": "，发生于开启浇水站 ",
 			"sourceHash": "174fa264c69244ca66530dffb37bab7e1ce4b37ec9fd06921bdb18f6a94129fc",
@@ -494,15 +485,6 @@
 			"translationHash": "68e3868303c1c76ff037714ab2bb9eafa52c75bd64ee14e52e55f1e242c80bd0",
 			"generator": "Codex assisted translation / trial-v1 / 2026-10-07",
 			"review": "unreviewed"
-		},
-		"Cycle and soak settings could not be read. Affected stations water without cycling.": {
-			"text": "无法读取分段与渗透设置。受影响的浇水站将连续浇水，不进行分段。",
-			"sourceHash": "9f0b9d1ef5c3d30fe44179d3c3acd0b92d104984c4b7709d711a3cdd14108af5",
-			"contextHash": "379c84ded842b20caedb33c65871631c60e6d8e1eacc9d8ab28d9f955cedd56a",
-			"glossaryHash": "d54f261760d15bbe1c7beca9f72cb6d224f2d4bba4bf459e7bfd01f7fa849d53",
-			"translationHash": "1e10fcf34b14817a7bb965720c38e8d650cfcbf5ca2f69f1b2d712d412ea6482",
-			"generator": "Codex assisted translation / Chinese station batch 1 / 2026-10-07",
-			"review": "reviewed"
 		},
 		"Cycle and soak times must be between 1 and 240 minutes.": {
 			"text": "每段浇水时间和渗透间隔必须在1到240分钟之间。",

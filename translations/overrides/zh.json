@@ -67,7 +67,7 @@
 		"Current Value": "当前读数",
 		"Custom Adjustment": "自定义调整",
 		"Cycle and Soak": "循环渗透",
-		"Cycle and soak settings could not be read. Affected stations water without cycling.": "无法读取循环渗透设置。受影响的浇水站将连续浇水，不进行分段。",
+		"Cycle and Soak reported an error. Some stations may water without cycling. If this persists after restarting the controller, reset the cycle and soak settings.": "循环渗透功能出现错误。部分浇水站可能会连续浇水，不进行分段。如果重启控制器后问题仍然存在，请重置循环渗透设置。",
 		"Cycle and soak times must be between 1 and 240 minutes.": "每段浇水时间和渗透间隔必须在1到240分钟之间。",
 		"Cycle paused": "分段浇水暂停",
 		"Cycle queued": "分段浇水等待中",
