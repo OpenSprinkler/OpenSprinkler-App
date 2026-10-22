@@ -1212,6 +1212,8 @@ OSApp.Sites.updateController = function( callback, fail ) {
 			// Preserve bundle-applied output claims before flattening /js to its station array.
 			controller.bundleApplied = Array.isArray( controller.status?.bap ) ? controller.status.bap :
 				( Array.isArray( controller.settings?.bap ) ? controller.settings.bap : [] );
+			controller.remoteStations = controller.status?.rst && typeof controller.status.rst === "object" ?
+				controller.status.rst : {};
 			controller.status = controller.status.sn;
 
 			// /ja includes live sensor data, but the firmware intentionally keeps
@@ -1440,6 +1442,7 @@ OSApp.Sites.updateControllerStatus = function( callback, expectedContext ) {
 					return rejectStaleSiteControllerRefresh();
 				}
 				controller.bundleApplied = Array.isArray( status.bap ) ? status.bap : [];
+				controller.remoteStations = status.rst && typeof status.rst === "object" ? status.rst : {};
 				controller.status = status.sn;
 				callback();
 				return controller.status;
@@ -1449,6 +1452,7 @@ OSApp.Sites.updateControllerStatus = function( callback, expectedContext ) {
 					return rejectStaleSiteControllerRefresh();
 				}
 				controller.bundleApplied = [];
+				controller.remoteStations = {};
 				controller.status = [];
 				return controller.status;
 			} );

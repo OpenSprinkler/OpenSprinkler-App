@@ -107,6 +107,19 @@ OSApp.Stations.isRunning = function( sid ) {
 	return OSApp.Stations.getStatus( sid ) > 0;
 };
 
+OSApp.Stations.getRemoteRuntime = function( sid ) {
+	var statuses = OSApp.currentSession.controller.remoteStations,
+		status = statuses && statuses[ sid ];
+
+	return Array.isArray( status ) && status.length >= 4 ? status : undefined;
+};
+
+OSApp.Stations.isRemote = function( sid ) {
+	var type = OSApp.Stations.getSpecialType( sid );
+	return type === OSApp.Constants.stations.SPECIAL_TYPE_REMOTE_IP ||
+		type === OSApp.Constants.stations.SPECIAL_TYPE_REMOTE_OTC;
+};
+
 OSApp.Stations.isMaster = function( sid ) {
 	var m1 = typeof OSApp.currentSession.controller.options.mas === "number" ? OSApp.currentSession.controller.options.mas : 0,
 		m2 = typeof OSApp.currentSession.controller.options.mas2 === "number" ? OSApp.currentSession.controller.options.mas2 : 0,

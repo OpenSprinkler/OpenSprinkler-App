@@ -371,6 +371,7 @@ hr.section-divider {
     padding: 5px;
     margin: 0 auto;
     cursor: pointer;
+    position: relative;
 }
 .card > .ui-body {
     min-height: 20px;
@@ -995,6 +996,123 @@ input[type=number] {
 }
 .station-status.off:after {
     background-color:#C96161;
+}
+.remote-station-status {
+	position: absolute;
+	top: 6px;
+	right: 43px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 20px;
+	height: 20px;
+	margin: 0;
+	cursor: help;
+	z-index: 2;
+}
+.remote-station-status:focus {
+	outline: 2px solid rgba(34, 105, 137, 0.75);
+	outline-offset: 3px;
+	border-radius: 50%;
+}
+.remote-station-status-icon {
+	position: relative;
+	display: block;
+	box-sizing: border-box;
+	width: 18px;
+	height: 18px;
+}
+.remote-station-status.confirmed .remote-station-status-icon {
+	background: #147260;
+	border-radius: 4px;
+}
+.remote-station-status.confirmed .remote-station-status-icon:after {
+	position: absolute;
+	top: 3px;
+	left: 6px;
+	width: 4px;
+	height: 8px;
+	border: solid #f7fbfa;
+	border-width: 0 2px 2px 0;
+	content: "";
+	transform: rotate(45deg);
+}
+.remote-station-status.pending .remote-station-status-icon,
+.remote-station-status.retrying .remote-station-status-icon {
+	border: 3px solid #d5a21e;
+	border-right-color: transparent;
+	border-radius: 50%;
+	animation: remote-status-spin 0.8s linear infinite;
+}
+.remote-station-status.retrying .remote-station-status-icon {
+	border-color: #d87920;
+	border-right-color: transparent;
+}
+.remote-station-status.failed .remote-station-status-icon {
+	background: #a63333;
+	border-radius: 50%;
+}
+.remote-station-status.failed .remote-station-status-icon:before {
+	position: absolute;
+	top: 3px;
+	left: 8px;
+	width: 2px;
+	height: 7px;
+	background: #fff7f7;
+	border-radius: 1px;
+	content: "";
+}
+.remote-station-status.failed .remote-station-status-icon:after {
+	position: absolute;
+	top: 12px;
+	left: 8px;
+	width: 2px;
+	height: 2px;
+	background: #fff7f7;
+	border-radius: 50%;
+	content: "";
+}
+.remote-station-status:after {
+	position: absolute;
+	bottom: calc(100% + 7px);
+	right: -38px;
+	width: max-content;
+	max-width: calc(100vw - 32px);
+	padding: 6px 8px;
+	background: #25323a;
+	border-radius: 4px;
+	box-sizing: border-box;
+	box-shadow: 0 3px 9px rgba(12, 25, 31, 0.24);
+	color: #f4f8f7;
+	content: attr(data-tooltip);
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 1.25;
+	opacity: 0;
+	pointer-events: none;
+	text-align: center;
+	text-shadow: none;
+	transform: translateY(4px);
+	transition: opacity 120ms ease-out, transform 120ms ease-out;
+	visibility: hidden;
+	white-space: normal;
+	z-index: 20;
+}
+.remote-station-status:hover:after,
+.remote-station-status:focus:after {
+	opacity: 1;
+	transform: translateY(0);
+	visibility: visible;
+}
+@keyframes remote-status-spin {
+	from { transform: rotate(0deg); }
+	to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+	.remote-station-status.pending .remote-station-status-icon,
+	.remote-station-status.retrying .remote-station-status-icon {
+		animation: none;
+	}
 }
 #os-stations-list img, #os-running-stations img {
 	display: none;
