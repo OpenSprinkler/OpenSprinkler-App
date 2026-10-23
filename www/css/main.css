@@ -847,7 +847,7 @@ input[type=number] {
     flex: 0 1 auto;
     max-width: 100%;
     min-width: 0;
-    padding: 10px 15px;
+    padding: 10px;
     text-align: center;
     overflow-wrap: anywhere;
 }

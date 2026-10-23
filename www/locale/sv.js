@@ -91,7 +91,7 @@
 		"Backup restored to your device": "Backup återställd till enheten",
 		"Backup saved on this device": "Backup sparad på denna enhet",
 		"Baseline ETo": "Basvärde för ETo",
-		"Basic": "Grundläggande",
+		"Basic": "Allmänt",
 		"Basic Settings": "Basinställningar",
 		"Below is the corrupt data which could not be parsed but may be useful for restoration.": "Nedan finns skadade data som inte kunde tolkas men kan vara användbara vid återställning.",
 		"Boost Time": "Boost-tid",

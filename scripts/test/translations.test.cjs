@@ -332,6 +332,47 @@ test("Transifex corrections replace machine drafts while unchanged rejected draf
 	assert.deepEqual(load("translations/machine/de.json"), machine);
 });
 
+test("PO import reports new human wording that replaces reviewed translations without changing precedence", () => {
+	t.importMachine(root, {language: "de", generator: "test/v1", messages: {Master: "Hauptventil", Empty: "Leer"}});
+	const machine = load("translations/machine/de.json");
+	machine.messages.Master.review = "reviewed";
+	save("translations/machine/de.json", machine);
+	save("translations/incoming/messages_de.po", 'msgid ""\nmsgstr ""\n"Content-Type: text/plain; charset=UTF-8\\n"\n"Content-Transfer-Encoding: 8bit\\n"\n\nmsgid "Master"\nmsgstr "Hauptbewässerungskreis"\n\nmsgid "Empty"\nmsgstr "Nichts"\n');
+	const importWarnings = () => {
+		const warnings = [], originalWarn = console.warn;
+		console.warn = message => warnings.push(message);
+		try { t.importPO(root); } finally { console.warn = originalWarn; }
+		return warnings.filter(warning => /replaces a reviewed translation/.test(warning));
+	};
+	const reported = importWarnings();
+	assert.equal(reported.length, 1);
+	assert.match(reported[0], /de: "Master": reviewed "Hauptventil"; incoming "Hauptbewässerungskreis"/);
+	// Human wording still takes effect; unreviewed drafts are replaced silently as before.
+	assert.equal(load("www/locale/de.js").messages.Master, "Hauptbewässerungskreis");
+	assert.equal(load("www/locale/de.js").messages.Empty, "Nichts");
+	const current = [{key: "Master", reviewed: "Hauptventil", current: "Hauptbewässerungskreis"}];
+	assert.deepEqual(t.coverage(root)[0].reviewedReplaced, current);
+	// Reimporting the same wording is not new, but coverage keeps it visible.
+	assert.deepEqual(importWarnings(), []);
+	assert.deepEqual(t.coverage(root)[0].reviewedReplaced, current);
+});
+
+test("override-protected and identical wording is not reported as replacing reviewed translations", () => {
+	t.importMachine(root, {language: "de", generator: "test/v1", messages: {Master: "Hauptventil", Empty: "Leer"}});
+	const machine = load("translations/machine/de.json");
+	machine.messages.Master.review = machine.messages.Empty.review = "reviewed";
+	save("translations/machine/de.json", machine);
+	save("translations/human/de.json", {messages: {Station: "Station", Empty: "Alt"}});
+	save("translations/overrides/de.json", {messages: {Master: "Hauptstation"}});
+	save("translations/incoming/messages_de.po", 'msgid "Master"\nmsgstr "Hauptbewässerungskreis"\n\nmsgid "Empty"\nmsgstr "Leer"\n');
+	const warnings = [], originalWarn = console.warn;
+	console.warn = message => warnings.push(message);
+	try { t.importPO(root); } finally { console.warn = originalWarn; }
+	assert.equal(warnings.length, 1);
+	assert.match(warnings[0], /override retained/);
+	assert.deepEqual(t.coverage(root)[0].reviewedReplaced, []);
+});
+
 test("PO export excludes obsolete keys and rejected machine drafts", () => {
 	save("translations/human/de.json", {messages: {Station: "Station", Obsolete: "Alt", Empty: ""}});
 	t.importMachine(root, {language: "de", generator: "test/v1", messages: {Master: "Hauptventil"}});

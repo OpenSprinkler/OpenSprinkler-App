@@ -1,12 +1,16 @@
 {
 	"messages": {
+		"Afrikaans": "Afrikáans",
 		"Are you sure you want to downgrade the UI?": "¿Desea volver a una versión anterior de la interfaz?",
+		"Auto Rain Delay": "Retraso automático por lluvia",
 		"Check All": "Seleccionar todas",
 		"Current": "Corriente",
 		"Downgrade UI": "Volver a una versión anterior de la interfaz",
+		"Dutch": "Neerlandés",
 		"Email": "Correo electrónico",
 		"Fixed": "Fijo",
 		"Flow Sensor": "Sensor de flujo",
+		"French": "Francés",
 		"Ignore Rain": "Ignorar lluvia",
 		"Settings have been saved": "La configuración se ha guardado",
 		"Thai": "Tailandés",
