@@ -1,0 +1,12 @@
+{
+	"messages": {
+		"Change Name": "Adı Değiştir",
+		"Current": "Akım",
+		"Flow Pulse Rate": "Darbe başına hacim",
+		"Master": "Ana",
+		"Reset": "Sıfırla",
+		"Use Master": "Ana İstasyonu Kullan",
+		"on": "tarih:",
+		"stations": "istasyon"
+	}
+}

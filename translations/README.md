@@ -2,6 +2,10 @@
 
 Translations are generated before release. The app still loads one local dictionary per language, using English for missing entries. No translation service is contacted by the app or by normal builds.
 
+All 31 dictionaries now cover the 971 current catalog strings. All 30 Transifex
+target languages match the local translations. See [the all-language review](all-languages-review.md)
+for counts, context decisions, validation, and native-review limits.
+
 ## Files and Precedence
 
 - `human/<lang>.json`: existing translations and subsequent Transifex contributions. The initial import preserves all existing values, including obsolete keys and empty entries. Treat legacy contributions as protected, not as newly verified translations.
@@ -57,28 +61,16 @@ npm run translations:check
 
 Import validates the entire batch before writing it. Unknown keys, empty text, damaged placeholders/markup, changed numeric values or protected identifiers, stale request hashes, and replacement of an existing machine translation are rejected. Reimporting identical results is safe. Human-translated entries are skipped. A failed batch leaves the machine file unchanged.
 
-German now has complete catalog coverage: eight local overrides, 693 human translations and 272 machine entries (including its 19 initial trial entries). Following Claude's independent LLM review and wording corrections, 263 machine entries are marked reviewed; nine naming Cycle and Soak await native-speaker confirmation. See `de-review.md` for review attribution and terminology. Tamil retains 19 initial trial messages awaiting native review. Chinese has also completed the catalog, with 390 locally approved entries pinned in `overrides/zh.json` and the remaining 583 supplied by existing human translations. This is catalog coverage, not a claim that all runtime text is localized; `/jsd` labels remain deferred. See `zh-review.md`.
-
-Czech and Slovak now have complete coverage too: respectively 701/700 human and
-272/273 machine entries. After Claude's LLM review, 248 Czech and 246 Slovak
-entries are reviewed; 24/27 await native terminology confirmation. See
-`cs-sk-review.md`.
-
-Hebrew has six overrides, 398 human and 569 machine entries (19 preserved trial
-texts plus 550 new drafts), covering all 973 catalog strings. After Claude's LLM
-review, 539 machine entries are reviewed; 30 await native terminology confirmation.
-See `he-review.md` for corrections and RTL-layout limitations. Native review is
-still needed before treating Hebrew as fully accepted.
-This closes the selected language-completion work for this release. Additional
-languages remain deferred pending user feedback.
+Earlier targeted reviews are recorded in `de-review.md`, `zh-review.md`,
+`cs-sk-review.md`, and `he-review.md`. Those reports retain their original review
+snapshots and attribution. The all-language review records current coverage.
+Previous machine records and review decisions are preserved. New completion
+drafts remain unreviewed pending native-speaker acceptance.
 
 ## Reviewing and Correcting
 
-Spanish also has complete catalog coverage: 10 overrides, 377 human translations
-and 586 machine entries. After Claude's LLM review and wording corrections, 562
-machine entries are marked reviewed; 24 naming Cycle and Soak or Bundle Station
-await native terminology confirmation. `es-review.md` records terminology, review scope,
-and corrections to human entries without changing the Transifex source layer.
+`es-review.md` records the earlier Spanish terminology review and its original
+counts. The all-language review includes subsequent source changes and corrections.
 
 Use a PR to review source, translation, and context together. Mark acceptable machine entries `reviewed`; mark unsuitable entries `needs-revision` to restore English fallback. To explicitly correct a machine entry, edit its text and recompute `translationHash` using the exported `hash(text)` helper, then run the checks. Update its context/glossary hashes only after checking the new context. Avoid automatic replacement of previously reviewed wording.
 
@@ -103,6 +95,24 @@ includes details in `terminologyWarnings`.
 
 `grunt pushEng` (also `grunt shell:pushEng`) extracts and uploads the English catalog. `grunt updateLang` (also `grunt shell:updateLang`) explicitly contacts Transifex, downloads PO files into ignored `incoming/`, imports non-empty, non-fuzzy entries into human sources, then compiles. Neither command commits or pushes Git changes anymore.
 
+To prepare translation uploads, export the effective merged dictionaries as PO files:
+
+```sh
+node scripts/translations.cjs export-po /tmp/opensprinkler-transifex/outgoing
+```
+
+The export contains current catalog keys with actual translations. It applies
+the same precedence as the app and omits missing entries, rejected machine
+drafts, and obsolete keys. Exporting does not contact Transifex or mark text as
+reviewed. Upload these PO files as translations for the existing App resource.
+The project uses `fa` for Persian; `pes` is a local runtime alias, so its export
+does not require a second Transifex language.
+
+When a subsequent pull returns an unchanged machine translation, the importer
+retains its machine provenance and review status. A changed Transifex translation
+can still enter the human source layer. PO files do not establish that a native
+speaker reviewed an unchanged draft.
+
 The importer preserves existing human text when a pull omits a key or leaves it empty, and never copies compiled machine text into the human layer. Incoming nonempty translations update the human layer even for overridden keys, but the compiled UI retains the override. Conflicts print both local and incoming wording for review; identical translations do not warn. Review human changes in Git before accepting them. Unknown locale codes, duplicate PO entries, and unsupported contextual/plural entries fail explicitly instead of flattening or truncating them. The legacy `fa` and `pes` files are both preserved; any locale alias changes require a separate deliberate decision.
 
 ## CI and Next Phases
@@ -111,9 +121,14 @@ CI checks extraction freshness, deterministic compilation, merge/validation test
 
 Line-number-only shifts do not require re-extraction. New/removed messages, changed source-file context, translator notes, or audit candidates do. The catalog retains reference line numbers from the last extraction.
 
-The bulk backlog now measures 18,814 missing language/string pairs across 31 files, not 18,814 distinct English messages. Provider-backed generation should be the main path for filling that backlog, following the small assisted trial; do not plan on manually translating every language first. Select a provider and budget next, with bounded batches, spending limits, safe resume and review PRs. No API credentials or paid translation calls have been configured. Runtime translation and downloadable language packs remain deferred.
+The current catalog has no missing locale/string pairs. Native review and device
+layout acceptance remain open. Runtime translation and downloadable language
+packs remain deferred.
 
-Do not spend duplicate translation effort on `fa` and `pes` until their alias policy is decided. `pes` appears in the language menu, but `fa` is also reachable through automatic detection of browser locales such as `fa-IR`; neither can simply be deleted. Preserve their existing human translations when consolidating, and review conflicts explicitly.
+`pes` appears in the language menu, while browser detection can select `fa`.
+Both files are retained. Persian completion reused one set of new translations
+and preserved existing human contributions. Both runtime aliases now match for
+all current catalog keys; Transifex uses `fa`.
 
 ## Initial Verification
 
@@ -124,4 +139,4 @@ Do not spend duplicate translation effort on `fa` and `pes` until their alias po
 - Network options were inspected at 390px and desktop widths for German, Chinese, Hebrew, and Tamil. No page-width overflow was measured. These are limited smoke checks, not full localization acceptance.
 - Tamil exposes a font limitation in this environment: some labels use missing glyphs from the web Lato font despite correct Tamil DOM text. A Tamil system font is installed and the input placeholder renders correctly, so this is not simply evidence of an absent font. Verify on native devices before treating it as a general app defect. Hebrew also still uses the existing layout; this work does not add full RTL mirroring.
 - Hebrew Bundle terminology was corrected to the provisional technical term `מקבץ`, replacing the society/association wording. The glossary pins this preference, but both trial entries remain unreviewed pending native-speaker approval.
-- Transifex synchronization was tested with local PO fixtures only; no live pull or upload was performed.
+- Initial Transifex tests used local PO fixtures. The all-language review records the later live upload and exact download verification.

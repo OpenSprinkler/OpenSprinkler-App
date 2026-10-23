@@ -1,0 +1,11 @@
+{
+	"messages": {
+		"Current": "Corrente",
+		"Flow Pulse Rate": "Volume per impulso",
+		"Max Temp": "Temp. max",
+		"Min Temp": "Temp. min",
+		"Runtime": "Durata di esecuzione",
+		"Subnet Mask": "Maschera di sottorete",
+		"Web Request": "Richiesta web"
+	}
+}

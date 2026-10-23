@@ -302,6 +302,48 @@ test("PO import updates human translations without erasing machine-only or missi
 	assert.equal(load("translations/human/de.json").messages.Master, undefined);
 });
 
+test("PO export includes effective current translations and retains provenance on reimport", () => {
+	t.importMachine(root, {language: "de", generator: "test/v1", messages: {Master: "Hauptventil"}});
+	save("translations/overrides/de.json", {messages: {Station: "Bewässerungskreis"}});
+	const human = load("translations/human/de.json"), machine = load("translations/machine/de.json");
+	assert.equal(t.exportPO(root, "translations/outgoing"), 1);
+	const exported = fs.readFileSync(path.join(root, "translations/outgoing/messages_de.po"), "utf8");
+	assert.deepEqual({...t.poMessages(exported)}, {Master: "Hauptventil", Station: "Bewässerungskreis"});
+	assert.equal(Object.keys(t.poMessages(exported)).includes("Empty"), false);
+	// Uploading and downloading a machine entry unchanged must not relabel it as human.
+	save("translations/incoming/messages_de.po", exported);
+	t.importPO(root);
+	assert.equal(load("translations/human/de.json").messages.Master, undefined);
+	assert.deepEqual(load("translations/machine/de.json"), machine);
+	assert.equal(load("translations/human/de.json").messages.Station, "Bewässerungskreis");
+	assert.equal(human.messages.Station, "Station");
+});
+
+test("Transifex corrections replace machine drafts while unchanged rejected drafts stay excluded", () => {
+	t.importMachine(root, {language: "de", generator: "test/v1", messages: {Master: "Hauptventil", Empty: "Leer"}});
+	const machine = load("translations/machine/de.json");
+	machine.messages.Empty.review = "needs-revision";
+	save("translations/machine/de.json", machine);
+	save("translations/incoming/messages_de.po", 'msgid ""\nmsgstr ""\n"Content-Type: text/plain; charset=UTF-8\\n"\n"Content-Transfer-Encoding: 8bit\\n"\n\nmsgid "Master"\nmsgstr "Hauptbewässerungskreis"\n\nmsgid "Empty"\nmsgstr "Leer"\n');
+	t.importPO(root);
+	assert.equal(load("translations/human/de.json").messages.Master, "Hauptbewässerungskreis");
+	assert.equal(load("translations/human/de.json").messages.Empty, "");
+	assert.equal(load("www/locale/de.js").messages.Empty, "");
+	assert.deepEqual(load("translations/machine/de.json"), machine);
+});
+
+test("PO export excludes obsolete keys and rejected machine drafts", () => {
+	save("translations/human/de.json", {messages: {Station: "Station", Obsolete: "Alt", Empty: ""}});
+	t.importMachine(root, {language: "de", generator: "test/v1", messages: {Master: "Hauptventil"}});
+	const machine = load("translations/machine/de.json");
+	machine.messages.Master.review = "needs-revision";
+	save("translations/machine/de.json", machine);
+	t.exportPO(root, "translations/outgoing");
+	const exported = t.poMessages(fs.readFileSync(path.join(root, "translations/outgoing/messages_de.po")));
+	assert.deepEqual({...exported}, {Station: "Station"});
+	assert.throws(() => t.exportPO(root), /output directory/);
+});
+
 test("PO import refuses unknown language mappings and plural entries", () => {
 	save("translations/incoming/messages_de-DE.po", 'msgid "Empty"\nmsgstr "Leer"\n');
 	assert.throws(() => t.importPO(root), /map it explicitly/);

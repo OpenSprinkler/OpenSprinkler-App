@@ -367,6 +367,28 @@ function poMessages(text) {
 	return messages;
 }
 
+function exportPO(root = ROOT, outputDirectory) {
+	if (!nonempty(outputDirectory)) { throw new Error("Provide an output directory for translation PO files"); }
+	const {catalog, glossary, languages} = layers(root);
+	const pending = languages.map(({language, human, machine, overrides}) => {
+		const compiled = merge(human, machine, catalog, glossary, overrides).messages;
+		const entries = Object.create(null);
+		for (const [key, context] of Object.entries(catalog.messages)) {
+			if (!nonempty(compiled[key])) { continue; }
+			entries[key] = {msgid: key, msgstr: [compiled[key]], comments: {
+				reference: context.references.join("\n"), extracted: context.notes.join("\n")
+			}};
+		}
+		return {file: path.resolve(root, outputDirectory, `messages_${language}.po`), text: gettext.po.compile({
+			charset: "UTF-8", headers: {"content-type": "text/plain; charset=UTF-8", "content-transfer-encoding": "8bit", language},
+			translations: {"": entries}
+		}).toString()};
+	});
+	// Build and validate every dictionary before creating any export files.
+	for (const {file, text} of pending) { write(file, text); }
+	return pending.length;
+}
+
 function importPO(root = ROOT) {
 	const {catalog, glossary, languages} = layers(root), pending = [], seen = new Set(), conflicts = [];
 	for (const entry of languages) { merge(entry.human, entry.machine, catalog, glossary, entry.overrides); }
@@ -377,6 +399,8 @@ function importPO(root = ROOT) {
 		seen.add(language);
 		const incoming = poMessages(fs.readFileSync(file)), human = Object.assign(Object.create(null), target.human);
 		for (const [key, text] of Object.entries(incoming)) {
+			// A round trip through Transifex does not constitute a human review.
+			if (!nonempty(human[key]) && own(target.machine, key) && target.machine[key].text === text) { continue; }
 			// Existing legacy text is protected, not retroactively rejected by stricter validators.
 			if (human[key] !== text) { validateTranslation(key, text, glossary); }
 			if (nonempty(target.overrides[key]) && target.overrides[key] !== text) {
@@ -462,12 +486,13 @@ function main(args = process.argv.slice(2), root = ROOT) {
 			break;
 		}
 		case "import-po": console.log(`Imported ${importPO(root)} human dictionaries`); break;
-		default: throw new Error("Expected extract, coverage [--json], compile, check, prepare <lang> <file>, import-machine <file>, import-po, or bootstrap");
+		case "export-po": console.log(`Exported ${exportPO(root, argument)} merged translation PO files`); break;
+		default: throw new Error("Expected extract, coverage [--json], compile, check, prepare <lang> <file>, import-machine <file>, import-po, export-po <directory>, or bootstrap");
 	}
 }
 
 module.exports = {extract, catalogPO, hash, contextHash, parseJSON, dictionary, tokens, validateTranslation, terminologyWarnings,
-	machineEntry, merge, compile, coverage, importMachine, importPO, poMessages, bootstrap, prepareRequest, main};
+	machineEntry, merge, compile, coverage, importMachine, importPO, exportPO, poMessages, bootstrap, prepareRequest, main};
 if (require.main === module) {
 	try { main(); } catch (error) { console.error(error.message); process.exitCode = 1; }
 }

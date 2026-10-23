@@ -971,7 +971,7 @@
 		"months": "月",
 		"now?": "现在？",
 		"of rain is forecasted in the next:": "的降雨量，预报时段为未来：",
-		"on": "开",
+		"on": "于",
 		"operation?": "操作允许？",
 		"password (optional)": "密码(非必须)",
 		"publish topic": "发布话题",

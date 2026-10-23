@@ -1,12 +1,20 @@
 {
 	"messages": {
+		"API Tool": "API-Werkzeug",
+		"Current": "Strom",
+		"Flow Pulse Rate": "Volumen pro Impuls",
 		"From (mm/dd)": "Von (MM/TT)",
+		"Logs": "Protokolle",
+		"NTP Sync": "NTP-Synchronisierung",
+		"OpenSprinkler.com Login": "OpenSprinkler.com-Anmeldung",
 		"OpenSprinkler.com Login Expired": "OpenSprinkler.com Login abgelaufen",
 		"Overcurrent Fault detected": "Überstromfehler erkannt",
 		"Program Switch": "Programmschalter",
 		"Read Interval (s)": "Leseintervall (s)",
+		"Reset": "Zurücksetzen",
 		"Start Date (mm/dd/yyyy)": "Startdatum (MM/TT/JJJJ)",
 		"To (mm/dd)": "Bis (MM/TT)",
-		"Warning: The use of odd/even restrictions with the selected interval day may result in the program not running at all.": "Warnung: Einschränkungen auf gerade oder ungerade Tage können zusammen mit dem gewählten Tagesintervall dazu führen, dass das Programm überhaupt nicht ausgeführt wird."
+		"Warning: The use of odd/even restrictions with the selected interval day may result in the program not running at all.": "Warnung: Einschränkungen auf gerade oder ungerade Tage können zusammen mit dem gewählten Tagesintervall dazu führen, dass das Programm überhaupt nicht ausgeführt wird.",
+		"Weather API Key": "Wetter-API-Schlüssel"
 	}
 }

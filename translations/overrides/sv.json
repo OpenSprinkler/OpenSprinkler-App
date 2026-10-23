@@ -1,0 +1,10 @@
+{
+	"messages": {
+		"Current": "Ström",
+		"Email": "E-post",
+		"Flow Pulse Rate": "Volym per puls",
+		"GPIO Pin": "GPIO-stift",
+		"NTP Sync": "NTP-synkronisering",
+		"Special Station Auto-Refresh": "Automatisk uppdatering av specialstation"
+	}
+}

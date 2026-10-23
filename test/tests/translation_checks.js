@@ -14,7 +14,9 @@ describe("Compiled translation dictionaries", function() {
 		OSApp.uiState.language = previousLanguage;
 		OSApp.currentSession.lang = previousCode;
 	});
-	["de", "zh", "he", "ta"].forEach(function(language) {
+	Object.keys(OSApp.Language.Constants.languageCodes).filter(function(language) {
+		return language !== "en";
+	}).concat("fa").forEach(function(language) {
 		it("loads the merged " + language + " dictionary with no second request", async function() {
 			var store = await fetch("/base/www/locale/" + language + ".js").then(function(response) { return response.json(); });
 			var request = sandbox.stub($, "getJSON").callsFake(function(url, callback) {

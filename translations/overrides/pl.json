@@ -1,0 +1,8 @@
+{
+	"messages": {
+		"A valid DNS address is required when DHCP is not used": "Gdy DHCP jest wyłączone, wymagany jest poprawny adres DNS",
+		"Export": "Eksport",
+		"Flow Pulse Rate": "Objętość na impuls",
+		"OpenSprinkler.com Login": "Logowanie do OpenSprinkler.com"
+	}
+}

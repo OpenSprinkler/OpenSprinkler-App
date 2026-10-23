@@ -1,0 +1,10 @@
+{
+	"messages": {
+		"Email": "Имейл",
+		"File": "Файл",
+		"Flow Pulse Rate": "Обем на импулс",
+		"NTP Sync": "Синхронизация с NTP",
+		"Zoom in": "Увеличаване",
+		"Zoom out": "Намаляване"
+	}
+}

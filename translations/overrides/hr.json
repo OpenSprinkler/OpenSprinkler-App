@@ -1,0 +1,11 @@
+{
+	"messages": {
+		"Downgrade UI": "Vrati prethodnu verziju sučelja",
+		"Email (copy/paste)": "E-pošta (kopiraj/zalijepi)",
+		"Flow Pulse Rate": "Volumen po impulsu",
+		"GPIO Pin": "GPIO nožica",
+		"OpenSprinkler.com Login": "Prijava na OpenSprinkler.com",
+		"Reset": "Vrati početne vrijednosti",
+		"Timeline": "Vremenska crta"
+	}
+}
