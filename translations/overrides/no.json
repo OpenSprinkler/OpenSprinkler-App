@@ -1,7 +1,10 @@
 {
 	"messages": {
+		"Basic": "Generelt",
+		"Dutch": "Nederlandsk",
 		"NTP Sync": "NTP-synkronisering",
 		"Slovak": "Slovakisk",
+		"Slovenian": "Slovensk",
 		"on": "den"
 	}
 }

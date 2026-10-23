@@ -1,10 +1,17 @@
 {
 	"messages": {
 		"API Tool": "API-Werkzeug",
+		"Clock Update": "Uhrzeitaktualisierung",
 		"Current": "Strom",
+		"Factory Reset": "Zurücksetzen auf Werkseinstellungen",
+		"Farsi": "Persisch",
+		"Firmware Update": "Firmware-Aktualisierung",
 		"Flow Pulse Rate": "Volumen pro Impuls",
 		"From (mm/dd)": "Von (MM/TT)",
 		"Logs": "Protokolle",
+		"Manual": "Manuell",
+		"Move left": "Nach links verschieben",
+		"Move right": "Nach rechts verschieben",
 		"NTP Sync": "NTP-Synchronisierung",
 		"OpenSprinkler.com Login": "OpenSprinkler.com-Anmeldung",
 		"OpenSprinkler.com Login Expired": "OpenSprinkler.com Login abgelaufen",
@@ -12,9 +19,13 @@
 		"Program Switch": "Programmschalter",
 		"Read Interval (s)": "Leseintervall (s)",
 		"Reset": "Zurücksetzen",
+		"Reset Button": "Reset-Taste",
 		"Start Date (mm/dd/yyyy)": "Startdatum (MM/TT/JJJJ)",
 		"To (mm/dd)": "Bis (MM/TT)",
 		"Warning: The use of odd/even restrictions with the selected interval day may result in the program not running at all.": "Warnung: Einschränkungen auf gerade oder ungerade Tage können zusammen mit dem gewählten Tagesintervall dazu führen, dass das Programm überhaupt nicht ausgeführt wird.",
-		"Weather API Key": "Wetter-API-Schlüssel"
+		"Weather API Key": "Wetter-API-Schlüssel",
+		"WiFi Change": "WLAN-Änderung",
+		"WiFi Configure": "WLAN-Konfiguration",
+		"Zoom in": "Vergrößern"
 	}
 }
