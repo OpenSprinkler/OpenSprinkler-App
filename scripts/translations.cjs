@@ -240,6 +240,13 @@ function terminologyWarnings(source, translation, language, glossary) {
 	return warnings;
 }
 
+// Human wording that the compiled UI uses instead of a reviewed machine translation. It may be a genuine
+// improvement, so this only identifies differences for review; precedence is unchanged.
+function replacesReviewed(key, human, machine, overrides) {
+	return own(machine, key) && machine[key].review === "reviewed" && !nonempty(overrides[key]) &&
+		nonempty(human[key]) && human[key] !== machine[key].text;
+}
+
 function merge(human, machine, catalog, glossary, overrides = {}) {
 	const result = Object.assign(Object.create(null), human);
 	for (const [key, entry] of Object.entries(machine)) {
@@ -304,7 +311,7 @@ function coverage(root = ROOT) {
 	return languages.map(({language, human, machine, overrides}) => {
 		const compiled = merge(human, machine, catalog, glossary, overrides).messages;
 		const report = {language, total: Object.keys(catalog.messages).length, overrides: 0, human: 0, machine: 0, missing: [], review: [], warnings: [],
-			terminologyWarnings: [],
+			terminologyWarnings: [], reviewedReplaced: [],
 			obsoleteOverrides: Object.keys(overrides).filter(key => !own(catalog.messages, key)),
 			obsoleteHuman: Object.keys(human).filter(key => !own(catalog.messages, key)),
 			obsoleteMachine: Object.keys(machine).filter(key => !own(catalog.messages, key))};
@@ -314,7 +321,12 @@ function coverage(root = ROOT) {
 				if (warnings.length) { report.terminologyWarnings.push({key, text: compiled[key], warnings}); }
 			}
 			if (nonempty(overrides[key])) { report.overrides++; }
-			else if (nonempty(human[key])) { report.human++; }
+			else if (nonempty(human[key])) {
+				report.human++;
+				if (replacesReviewed(key, human, machine, overrides)) {
+					report.reviewedReplaced.push({key, reviewed: machine[key].text, current: human[key]});
+				}
+			}
 			else if (own(machine, key) && machine[key].review !== "needs-revision") {
 				report.machine++;
 				const entry = machine[key];
@@ -390,7 +402,7 @@ function exportPO(root = ROOT, outputDirectory) {
 }
 
 function importPO(root = ROOT) {
-	const {catalog, glossary, languages} = layers(root), pending = [], seen = new Set(), conflicts = [];
+	const {catalog, glossary, languages} = layers(root), pending = [], seen = new Set(), conflicts = [], replacements = [];
 	for (const entry of languages) { merge(entry.human, entry.machine, catalog, glossary, entry.overrides); }
 	for (const file of files(path.join(root, "translations/incoming"), ".po")) {
 		const language = path.basename(file).match(/^messages_(.+)\.po$/)?.[1];
@@ -406,7 +418,11 @@ function importPO(root = ROOT) {
 			if (nonempty(target.overrides[key]) && target.overrides[key] !== text) {
 				conflicts.push(`${language}: ${JSON.stringify(key)}: local ${JSON.stringify(target.overrides[key])}; incoming ${JSON.stringify(text)}`);
 			}
+			const previous = human[key];
 			human[key] = text;
+			if (previous !== text && own(catalog.messages, key) && replacesReviewed(key, human, target.machine, target.overrides)) {
+				replacements.push(`${language}: ${JSON.stringify(key)}: reviewed ${JSON.stringify(target.machine[key].text)}; incoming ${JSON.stringify(text)}`);
+			}
 		}
 		pending.push({file: path.join(root, "translations/human", language + ".json"), text: json({messages: ordered(human)})});
 	}
@@ -414,6 +430,7 @@ function importPO(root = ROOT) {
 	for (const entry of pending) { write(entry.file, entry.text); }
 	compile(root);
 	for (const conflict of conflicts) { console.warn("Local translation override retained: " + conflict); }
+	for (const replacement of replacements) { console.warn("Transifex wording now replaces a reviewed translation; review it, then accept or pin with an override: " + replacement); }
 	return pending.length;
 }
 
@@ -471,9 +488,12 @@ function main(args = process.argv.slice(2), root = ROOT) {
 			if (argument === "--json") { console.log(json(reports)); }
 			else {
 				reports.forEach(row => {
-					console.log(`${row.language}: ${row.overrides} overrides + ${row.human} human + ${row.machine} machine / ${row.total}; ${row.missing.length} missing, ${row.review.length} machine entries need review, ${row.terminologyWarnings.length} terminology warnings`);
+					console.log(`${row.language}: ${row.overrides} overrides + ${row.human} human + ${row.machine} machine / ${row.total}; ${row.missing.length} missing, ${row.review.length} machine entries need review, ${row.terminologyWarnings.length} terminology warnings, ${row.reviewedReplaced.length} reviewed translations replaced by human wording`);
 					for (const warning of row.terminologyWarnings) {
 						console.warn(`${row.language}: terminology review: ${JSON.stringify(warning)}`);
+					}
+					for (const replacement of row.reviewedReplaced) {
+						console.warn(`${row.language}: replaced reviewed translation: ${JSON.stringify(replacement)}`);
 					}
 				});
 			}
