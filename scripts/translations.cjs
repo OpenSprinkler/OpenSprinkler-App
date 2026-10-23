@@ -198,8 +198,8 @@ function validateTranslation(source, translation, glossary = {}) {
 	if (JSON.stringify((source.match(/\d+/g) || []).sort()) !== JSON.stringify((translation.match(/\d+/g) || []).sort())) {
 		throw new Error(`Numeric values changed: ${source}`);
 	}
-	// Do not allow translated text to introduce executable markup through a raw '<'.
-	if ((source.match(/</g) || []).length !== (translation.match(/</g) || []).length) {
+	// Allow literal '<' characters, but still reject added tag, comment, or declaration openings.
+	if ((source.match(/<(?=[a-zA-Z/!?])/g) || []).length !== (translation.match(/<(?=[a-zA-Z/!?])/g) || []).length) {
 		throw new Error(`Markup changed: ${source}`);
 	}
 	for (const term of glossary.doNotTranslate || []) {

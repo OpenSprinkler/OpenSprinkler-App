@@ -106,6 +106,9 @@ test("formatting validation preserves tokens and rejects injected markup", () =>
 	assert.deepEqual(t.validateTranslation("Hello %s {name}", "Hallo {name} %s"), []);
 	assert.throws(() => t.validateTranslation("Hello %s", "Hallo"), /tokens/);
 	assert.throws(() => t.validateTranslation("Hello", '<img src=x onerror="alert(1)">'), /tokens/);
+	for (const markup of ["<img src=x onerror=alert()", "</div", "<!--", "<!doctype html", "<?xml"]) {
+		assert.throws(() => t.validateTranslation("Hello", markup), /Markup/);
+	}
 	assert.throws(() => t.validateTranslation("MQTT", "Other", {doNotTranslate: ["MQTT"]}), /Protected term/);
 	assert.throws(() => t.validateTranslation("Station", " "), /Empty/);
 	assert.throws(() => t.validateTranslation("Run for 240 minutes", "Run for 24 minutes"), /Numeric/);
@@ -116,6 +119,8 @@ test("formatting validation preserves tokens and rejects injected markup", () =>
 test("shared words and different punctuation are warnings or valid, not blockers", () => {
 	assert.deepEqual(t.validateTranslation("Station", "Station"), ["same-as-English"]);
 	assert.deepEqual(t.validateTranslation("Station:", "Station"), []);
+	assert.deepEqual(t.validateTranslation("Move left", "Muovi <-"), []);
+	assert.deepEqual(t.validateTranslation("Less than 5", "<5"), []);
 });
 
 test("terminology checks use source words, language-specific mappings and explicit exceptions", () => {
@@ -206,6 +211,15 @@ test("languages without overrides still accept revised human translations", () =
 	t.importPO(root);
 	assert.equal(load("www/locale/de.js").messages.Station, "Revised human station");
 	assert.equal(t.coverage(root)[0].overrides, 0);
+});
+
+test("PO import preserves literal less-than characters in Italian translations", () => {
+	save("translations/human/it.json", {messages: {"Move left": ""}});
+	save("translations/incoming/messages_it.po", 'msgid "Move left"\nmsgstr "Muovi <-"\n');
+	assert.equal(t.importPO(root), 1);
+	assert.equal(load("translations/human/it.json").messages["Move left"], "Muovi <-");
+	assert.equal(load("www/locale/it.js").messages["Move left"], "Muovi <-");
+	assert.equal(t.compile(root, true), 2);
 });
 
 test("override validation rejects empty, malformed, unsafe, and unknown-locale sources before writes", () => {

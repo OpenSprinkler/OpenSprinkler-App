@@ -327,6 +327,8 @@
 		"Mon": "",
 		"Monday": "திங்கள்",
 		"Monthly": "",
+		"Move left": "இடதுபுறம் நகற்று",
+		"Move right": "வழதுபுறம் நகற்று",
 		"Multi-Day Levels": "",
 		"NTP IP Address": "",
 		"NTP Sync": "",
