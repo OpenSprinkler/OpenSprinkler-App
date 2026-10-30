@@ -280,6 +280,7 @@ OSApp.Sites.displayPage = function() {
 					if ( rename ) {
 						sites[ nm ] = sites[ site ];
 						delete sites[ site ];
+						OSApp.SiteMap.renameSite( site, nm );
 						site = nm;
 						if ( isCurrent ) {
 							OSApp.Storage.set( { "current_site": site } );
@@ -318,6 +319,7 @@ OSApp.Sites.displayPage = function() {
 						}
 
 						delete sites[ site ];
+						OSApp.SiteMap.removeSite( site );
 						OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, function() {
 							OSApp.Network.cloudSaveSites();
 							OSApp.Sites.updateSiteList( Object.keys( sites ), data.current_site );

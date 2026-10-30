@@ -255,6 +255,15 @@ OSApp.UIDom.launchApp = function() {
 		// Fix issues between jQuery Mobile and FastClick
 		OSApp.UIDom.fixInputClick( $newpage );
 
+		// When the fixed header and footer were hidden on the previous page (the first page after loading),
+		// jQuery Mobile sizes the page before they add their padding, so the page scrolls by their height.
+		// The padding is applied after this event, so size the page again once it is in place.
+		setTimeout( function() {
+			if ( $newpage.hasClass( $.mobile.activePageClass ) ) {
+				$.mobile.resetActivePageHeight();
+			}
+		}, 0 );
+
 		if ( OSApp.currentSession.isControllerConnected() && newpage !== "#site-control" && newpage !== "#start" && newpage !== "#loadingPage" ) {
 
 			// Update the controller status every 5 seconds and the program and station data every 30 seconds
@@ -369,6 +378,9 @@ OSApp.UIDom.showHomeMenu = ( function() {
                                         OSApp.Storage.set( { showDisabled: true } );
                                         showHidden = true;
                                 }
+
+				// Let the site map show or hide disabled valves too
+				$( "html" ).trigger( "showdisabled" );
 			} else if ( href === "#raindelay" ) {
 				OSApp.Weather.showRainDelay();
 			} else if ( href === "#globalpause" ) {
@@ -427,6 +439,10 @@ OSApp.UIDom.handleKeydown = function( e ) {
 	} else if ( ( menuOpen || altDown ) && code === 76 ) { // L
 		e.preventDefault();
 		OSApp.UIDom.changePage( "#logs" );
+	} else if ( ( menuOpen || altDown ) && code === 65 ) { // A
+		e.preventDefault();
+		OSApp.SiteMap.setHomeView( "map" );
+		OSApp.UIDom.goHome();
 	} else if ( ( menuOpen || altDown ) && code === 82 ) { // R
 		e.preventDefault();
 		OSApp.UIDom.changePage( "#runonce" );
@@ -1026,8 +1042,10 @@ OSApp.UIDom.showLoading = function( ele ) {
 	}
 };
 
-OSApp.UIDom.getPicture = function( callback ) {
+OSApp.UIDom.getPicture = function( callback, maxSize, quality ) {
 	callback = callback || function() {};
+	maxSize = maxSize || 200;
+	quality = quality || 0.5;
 	var imageLoader = $( "<input style='display: none' type='file' accept='image/*' />" )
 		.insertAfter( "body" )
 		.on( "change", function( event ) {
@@ -1036,7 +1054,6 @@ OSApp.UIDom.getPicture = function( callback ) {
 				var image = new Image();
 				image.onload = function() {
 					var canvas = document.createElement( "canvas" ),
-						maxSize = 200,
 						width = image.width,
 						height = image.height;
 					if ( width > height ) {
@@ -1053,9 +1070,11 @@ OSApp.UIDom.getPicture = function( callback ) {
 					canvas.width = width;
 					canvas.height = height;
 					canvas.getContext( "2d" ).drawImage( image, 0, 0, width, height );
-					var resizedImage = canvas.toDataURL( "image/jpeg", 0.5 ).replace( "data:image/jpeg;base64,", "" );
+					var resizedImage = canvas.toDataURL( "image/jpeg", quality ).replace( "data:image/jpeg;base64,", "" );
 					imageLoader.remove();
-					callback( resizedImage );
+
+					// The file as chosen comes second, for callers that need to recognize a particular file
+					callback( resizedImage, readerEvent.target.result );
 				};
 				image.src = readerEvent.target.result;
 			};
@@ -1063,6 +1082,115 @@ OSApp.UIDom.getPicture = function( callback ) {
 		} );
 
 	imageLoader.get( 0 ).click();
+};
+
+// Saves a file: a download in browsers, the share sheet in the apps. options: chooserTitle for the share sheet,
+// directory for the app's copy in its cache (earlier files there are removed), and onError.
+OSApp.UIDom.downloadBlob = function( blob, filename, options ) {
+	var onError = options.onError || function() {},
+		link, url;
+
+	if ( window.cordova ) {
+		OSApp.UIDom.shareBlob( blob, filename, options.chooserTitle, options.directory, onError );
+		return;
+	}
+
+	link = document.createElement( "a" );
+	if ( link.download === undefined ) {
+		return;
+	}
+	url = URL.createObjectURL( blob );
+	link.setAttribute( "href", url );
+	link.setAttribute( "download", filename );
+	link.style.visibility = "hidden";
+	document.body.appendChild( link );
+	try {
+		link.click();
+	} finally {
+		document.body.removeChild( link );
+		setTimeout( function() {
+			URL.revokeObjectURL( url );
+		}, 0 );
+	}
+};
+
+OSApp.UIDom.shareBlob = function( blob, filename, chooserTitle, directory, onError ) {
+	var sharing = window.plugins && window.plugins.socialsharing,
+		cacheDirectory = window.cordova.file && window.cordova.file.cacheDirectory;
+
+	if ( !sharing || typeof sharing.shareWithOptions !== "function" ||
+		!cacheDirectory || typeof window.resolveLocalFileSystemURL !== "function" ) {
+		onError();
+		return;
+	}
+
+	function writeAndShare( fileEntry ) {
+		fileEntry.createWriter( function( writer ) {
+			var cleared = false,
+				writeFailed = false;
+
+			writer.onerror = function() {
+				writeFailed = true;
+				console.warn( "OS: FileWriter failed", writer.error );
+				onError();
+			};
+			writer.onwriteend = function() {
+
+				// Cordova FileWriter calls onwriteend after onerror
+				if ( writeFailed ) {
+					return;
+				}
+
+				// getFile({create:true}) does not truncate an existing file, so truncate first, then write on the
+				// second onwriteend
+				if ( !cleared ) {
+					cleared = true;
+					writer.write( blob );
+					return;
+				}
+
+				// Dismissing the share sheet returns through the success callback (completed:false), so only
+				// genuine share failures reach onError
+				sharing.shareWithOptions( {
+					subject: filename,
+					files: [ fileEntry.nativeURL || fileEntry.toURL() ],
+					chooserTitle: chooserTitle
+				}, function() {}, function( error ) {
+					console.warn( "OS: SocialSharing failed", error );
+					onError();
+				} );
+			};
+			writer.truncate( 0 );
+		}, onError );
+	}
+
+	// Best-effort removal of earlier files so they don't pile up in the cache; failures must not block the share
+	function purge( folder, done ) {
+		folder.createReader().readEntries( function( entries ) {
+			var remaining = entries.length,
+				next = function() {
+					if ( --remaining === 0 ) {
+						done();
+					}
+				};
+
+			if ( !remaining ) {
+				done();
+				return;
+			}
+			entries.forEach( function( entry ) {
+				entry.remove( next, next );
+			} );
+		}, done );
+	}
+
+	window.resolveLocalFileSystemURL( cacheDirectory, function( cacheDir ) {
+		cacheDir.getDirectory( directory, { create: true }, function( folder ) {
+			purge( folder, function() {
+				folder.getFile( filename, { create: true }, writeAndShare, onError );
+			} );
+		}, onError );
+	}, onError );
 };
 
 OSApp.UIDom.showHelpText = function( e ) {

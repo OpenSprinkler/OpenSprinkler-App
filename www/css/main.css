@@ -1876,3 +1876,592 @@ button[id^="start_1-"] {
     padding: 12px 14px;
     margin: 24px 0;
 }
+
+/* Site map */
+/* Touch screens zoom with pinch and double-tap, so the zoom buttons are left off to keep the map clear */
+@media (pointer: coarse) {
+	.site-map-zoom {
+		display: none;
+	}
+}
+
+/* Cards / Map switch on the home page, floating just above the menu button */
+.home-view-button {
+	border: 0;
+	background: transparent;
+	position: fixed;
+	right: 10px;
+	bottom: calc(env(safe-area-inset-bottom) + 10% + 58px);
+	z-index: 9999;
+	height: 50px;
+	width: 50px;
+	margin: 0;
+}
+
+/* The view button stacks above the menu button, so the cards need room to scroll clear of both.
+   The map is sized to the screen instead, so it keeps the normal padding. */
+@media (max-width: 640px) {
+	#sprinklers .ui-content {
+		padding-bottom: calc(env(safe-area-inset-bottom) + 10vh + 118px);
+	}
+
+	#sprinklers.home-map-view .ui-content {
+		padding-bottom: 1em;
+	}
+}
+
+.home-view-button:after {
+	height: 50px;
+	width: 50px;
+	margin-top: -25px;
+	margin-left: -25px;
+	transform: scale(1.5);
+}
+
+.site-map-view {
+	margin-top: 8px;
+}
+
+.site-map-view {
+	margin-bottom: 8px;
+}
+
+/* The menu button slides left when the notification panel opens; keep the view button with it */
+#footer-menu.moveLeft ~ .ui-page-active .home-view-button {
+	transform: translate3d(-17em, 0, 0);
+}
+
+/* Hint text overlays the bottom of the map; taps pass through to the map */
+.site-map-hint {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 2;
+	margin: 0;
+	padding: 6px 12px;
+	background: rgba(0, 0, 0, 0.6);
+	color: #fff;
+	font-size: 13px;
+	line-height: 1.4;
+	text-shadow: none;
+	pointer-events: none;
+}
+
+/* Pins are drawn in a layer covering the map */
+.site-map-pins {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	pointer-events: none;
+}
+
+.site-map-pins .site-map-pin {
+	pointer-events: auto;
+}
+
+/* With no image, only a prompt to add one is shown */
+.site-map-empty-prompt {
+	display: none;
+	position: absolute;
+	top: 50%;
+	left: 0;
+	right: 0;
+	transform: translateY(-50%);
+	padding: 0 24px;
+	line-height: 1.4;
+}
+
+/* Shown until the map has loaded; editing waits for the controller's copy */
+.site-map-loading-text {
+	display: none;
+	position: absolute;
+	top: 50%;
+	left: 0;
+	right: 0;
+	transform: translateY(-50%);
+	margin: 0;
+	line-height: 1.4;
+	opacity: 0.7;
+}
+
+.site-map-loading-blank .site-map-loading-text {
+	display: block;
+}
+
+.site-map-loading .site-map-toolbar {
+	visibility: hidden;
+}
+
+.site-map-empty .site-map-empty-prompt {
+	display: block;
+}
+
+.site-map-empty .site-map-controls,
+.site-map-empty .site-map-hint,
+.site-map-empty .site-map-pins {
+	display: none;
+}
+
+/* Where the apps keep the image, a device without the map's image asks for it */
+.site-map-missing-prompt {
+	display: none;
+	position: absolute;
+	top: 50%;
+	left: 0;
+	right: 0;
+	z-index: 3;
+	transform: translateY(-50%);
+	padding: 0 24px;
+	line-height: 1.4;
+}
+
+.site-map-missing-image .site-map-missing-prompt {
+	display: block;
+}
+
+.site-map-missing-image {
+	border: 2px dashed #aaa;
+	border-radius: 8px;
+}
+
+.site-map-missing-image .site-map-toolbar,
+.site-map-missing-image:not(.site-map-previewing) .site-map-controls,
+.site-map-missing-image:not(.site-map-previewing) .site-map-hint,
+.site-map-missing-image:not(.site-map-previewing) .site-map-pins,
+.site-map-missing-image:not(.site-map-previewing) .site-map-drawings,
+.site-map-missing-image:not(.site-map-previewing) .site-map-image-el {
+	display: none;
+}
+
+.site-map-relay-cancel,
+.site-map-receiving .site-map-get-image,
+.site-map-receiving .site-map-load-image {
+	display: none !important;
+}
+
+.site-map-receiving .site-map-relay-cancel {
+	display: inline-block !important;
+}
+
+/* While the image fills in, the progress sits at the bottom of the map */
+.site-map-previewing .site-map-missing-prompt {
+	top: auto;
+	bottom: 8px;
+	left: 8px;
+	right: 8px;
+	transform: none;
+	padding: 4px 12px;
+	border-radius: 8px;
+	background: rgba(0, 0, 0, 0.6);
+	color: #fff;
+}
+
+.site-map-previewing .site-map-missing-prompt p {
+	margin: 4px 0;
+}
+
+/* Progress of sending the image to another device, on any page */
+.site-map-relay-status {
+	position: fixed;
+	bottom: 72px;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 1100;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 4px 4px 4px 14px;
+	border-radius: 20px;
+	background: rgba(0, 0, 0, 0.75);
+	color: #fff;
+	line-height: 1.4;
+	white-space: nowrap;
+}
+
+.site-map-relay-status .ui-btn {
+	margin: 0;
+}
+
+/* Edit and zoom controls overlay the top-right corner of the map */
+.site-map-controls {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	z-index: 2;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	line-height: normal;
+}
+
+.site-map-toolbar {
+	display: flex;
+	flex-direction: column;
+	margin-bottom: 6px;
+}
+
+.site-map-toolbar .ui-btn {
+	margin: 0 0 4px;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+
+.site-map-container {
+	position: relative;
+	margin: 0 auto;
+	max-width: 100%;
+	box-sizing: border-box;
+	overflow: hidden;
+	line-height: 0;
+	user-select: none;
+	-webkit-user-select: none;
+	touch-action: pan-y;
+}
+
+/* Once zoomed, all touch gestures pan and zoom the map instead of scrolling the page */
+.site-map-container.site-map-zoomed {
+	touch-action: none;
+	cursor: grab;
+}
+
+.site-map-container.site-map-panning {
+	cursor: grabbing;
+}
+
+.site-map-empty {
+	border: 2px dashed #aaa;
+	border-radius: 8px;
+}
+
+.site-map-empty .site-map-image-el {
+	display: none;
+}
+
+.site-map-image-el {
+	display: block;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+	transform-origin: 0 0;
+	will-change: transform;
+}
+
+.site-map-zoom {
+	display: flex;
+	flex-direction: column;
+}
+
+.site-map-zoom .ui-btn {
+	margin: 0 0 4px;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.site-map-editing .site-map-container {
+	cursor: crosshair;
+	outline: 2px dashed #1d74c4;
+}
+
+.site-map-pin {
+	position: absolute;
+	transform: translate(-50%, -50%);
+	line-height: 1.2;
+	cursor: pointer;
+	touch-action: none;
+}
+
+.site-map-editing .site-map-pin {
+	cursor: move;
+}
+
+/* Valve icon, centered on the valve's position */
+.site-map-pin-head {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	box-sizing: border-box;
+	border: 2px solid #fff;
+	border-radius: 6px;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+.site-map-valve {
+	width: 14px;
+	height: 14px;
+}
+
+.site-map-pin-idle .site-map-pin-head {
+	background: #1d74c4;
+}
+
+.site-map-pin-running .site-map-pin-head {
+	background: #2fa82f;
+	animation: site-map-pulse 1.5s ease-in-out infinite;
+}
+
+.site-map-pin-queued .site-map-pin-head {
+	background: #e69500;
+}
+
+.site-map-pin-disabled .site-map-pin-head {
+	background: #888;
+}
+
+@keyframes site-map-pulse {
+	50% {
+		box-shadow: 0 0 0 6px rgba(47, 168, 47, 0.35);
+	}
+}
+
+.site-map-picker .ui-listview {
+	max-height: 60vh;
+	overflow-y: auto;
+}
+
+/* Group of nearby valves: larger icon with the station count */
+.site-map-pin-group .site-map-pin-head {
+	width: 26px;
+	height: 26px;
+	border-radius: 50%;
+}
+
+.site-map-pin-count {
+	color: #fff;
+	font-size: 12px;
+	font-weight: bold;
+}
+
+.site-map-state-dot {
+	display: inline-block;
+	width: 10px;
+	height: 10px;
+	margin-right: 8px;
+	border-radius: 50%;
+	vertical-align: middle;
+}
+
+.site-map-state-dot.site-map-pin-idle {
+	background: #1d74c4;
+}
+
+.site-map-state-dot.site-map-pin-running {
+	background: #2fa82f;
+}
+
+.site-map-state-dot.site-map-pin-queued {
+	background: #e69500;
+}
+
+.site-map-state-dot.site-map-pin-disabled {
+	background: #888;
+}
+
+/* The notification panel is only enhanced once there are notifications; until then its empty list adds page scroll */
+#notificationPanel:not(.ui-panel) {
+	display: none;
+}
+
+/* Valve markers: time left on a running valve, and a badge for masters and special stations */
+.site-map-pin-time {
+	position: absolute;
+	top: 100%;
+	left: 50%;
+	transform: translateX(-50%);
+	margin-top: 2px;
+	padding: 0 4px;
+	border-radius: 3px;
+	background: rgba(0, 0, 0, 0.7);
+	color: #fff;
+	font-size: 11px;
+	line-height: 15px;
+	white-space: nowrap;
+	pointer-events: none;
+}
+
+.site-map-pin-time:empty {
+	display: none;
+}
+
+.site-map-pin-badge {
+	position: absolute;
+	top: -6px;
+	right: -8px;
+	min-width: 14px;
+	padding: 0 3px;
+	box-sizing: border-box;
+	border: 1px solid #fff;
+	border-radius: 7px;
+	background: #517d99;
+	color: #fff;
+	font-size: 9px;
+	font-weight: bold;
+	line-height: 12px;
+	text-align: center;
+	pointer-events: none;
+}
+
+.site-map-pin-kind-master.site-map-pin-idle .site-map-pin-head {
+	background: #6c4f99;
+}
+
+.site-map-picker-badge {
+	margin-left: 6px;
+	padding: 1px 5px;
+	border-radius: 3px;
+	background: #517d99;
+	color: #fff;
+	font-size: 11px;
+}
+
+/* Strokes keep their width while the drawings are scaled during a zoom */
+.site-map-drawings-root line,
+.site-map-drawings-root polyline,
+.site-map-drawings-root path,
+.site-map-drawings-root circle {
+	vector-effect: non-scaling-stroke;
+}
+
+/* Head runs and drip lines */
+.site-map-drawings {
+	position: absolute;
+	top: 0;
+	left: 0;
+	overflow: visible;
+	pointer-events: none;
+}
+
+.site-map-empty .site-map-drawings {
+	display: none;
+}
+
+.site-map-run {
+	--run-color: #1d74c4;
+	transition: opacity 0.2s;
+}
+
+.site-map-run-running {
+	--run-color: #2fa82f;
+}
+
+.site-map-run-queued {
+	--run-color: #e69500;
+}
+
+.site-map-run-disabled {
+	--run-color: #888;
+}
+
+/* While a zone runs, the others fade so it is clear which area is being watered */
+.site-map-run-dim {
+	opacity: 0.35;
+}
+
+.site-map-run-hit {
+	fill: none;
+	stroke: transparent;
+	stroke-width: 18px;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	pointer-events: stroke;
+	cursor: pointer;
+}
+
+.site-map-run-line {
+	fill: none;
+	stroke: var(--run-color);
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.9));
+}
+
+.site-map-run-heads .site-map-run-line,
+.site-map-run-feed {
+	stroke-width: 2px;
+}
+
+/* Supply pipe from the valve to the first head or the start of a drip line */
+.site-map-run-feed {
+	fill: none;
+	stroke: var(--run-color);
+	stroke-linecap: round;
+	filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.9));
+}
+
+.site-map-run-drip .site-map-run-line {
+	stroke-width: 3px;
+	stroke-dasharray: 2 5;
+}
+
+.site-map-head {
+	fill: var(--run-color);
+	stroke: #fff;
+	stroke-width: 1.5px;
+}
+
+/* Where a branch comes off another run */
+.site-map-junction {
+	fill: var(--run-color);
+	stroke: #fff;
+	stroke-width: 1.5px;
+}
+
+.site-map-head-mark {
+	stroke: #fff;
+	stroke-width: 1.5px;
+}
+
+.site-map-handle {
+	fill: rgba(255, 255, 255, 0.6);
+	stroke: var(--run-color);
+	stroke-width: 2px;
+	pointer-events: all;
+	cursor: move;
+	touch-action: none;
+}
+
+.site-map-run-current .site-map-run-line {
+	stroke-width: 3px;
+}
+
+/* While drawing, taps anywhere add points, so other valves and runs ignore them */
+.site-map-drawing .site-map-pin,
+.site-map-drawing .site-map-run-hit {
+	pointer-events: none;
+}
+
+.site-map-drawbar {
+	display: none;
+	position: absolute;
+	top: 8px;
+	left: 8px;
+	z-index: 3;
+	align-items: center;
+	gap: 4px;
+	padding: 4px 6px 4px 10px;
+	border-radius: 18px;
+	background: rgba(0, 0, 0, 0.65);
+	color: #fff;
+	font-size: 13px;
+	line-height: normal;
+	text-shadow: none;
+}
+
+.site-map-drawing-mode .site-map-drawbar {
+	display: flex;
+}
+
+.site-map-drawbar .ui-btn {
+	margin: 0;
+}
+
+.site-map-drawbar-label {
+	margin-right: 4px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 50vw;
+}

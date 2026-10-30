@@ -39,7 +39,7 @@ OSApp.Firmware.Constants = {
 };
 
 OSApp.Firmware.isChangeRequest = function( dest ) {
-	return /\/(?:cv|cs|csn|cr|cp|uwa|dp|dsn|dsl|co|cl|cu|up|cm|sp|pq|dl|sa|sc|sb|sn)(?:\?|$)/.test( dest );
+	return /\/(?:cv|cs|csn|cr|cp|uwa|dp|dsn|dsl|co|cl|cu|up|cm|cmp|cmi|um|umd|dm|sp|pq|dl|sa|sc|sb|sn)(?:\?|$)/.test( dest );
 };
 
 // Wrapper function to communicate with OpenSprinkler
@@ -54,13 +54,18 @@ OSApp.Firmware.sendToOS = function( dest, type, requestOptions ) {
 	var isChange = OSApp.Firmware.isChangeRequest( dest ),
 		queue = isChange ? "change" : "default",
 
-		// Use POST when sending data to the controller (requires firmware 2.1.8 or newer)
-		usePOST = ( isChange && OSApp.Firmware.checkOSVersion( 300 ) ),
+		// A request body is always POSTed with the parameters left in the URL. It is sent as text/plain so
+		// browsers don't need a CORS preflight, which the firmware can't tell apart from the real request.
+		hasBody = requestOptions.body !== undefined,
+
+		// Use POST when sending data to the controller (requires firmware 2.1.8 or newer). requestOptions.get keeps
+		// the parameters in the URL, as OpenThings Cloud doesn't pass on POST requests with a body.
+		usePOST = ( isChange && OSApp.Firmware.checkOSVersion( 300 ) && !hasBody && !requestOptions.get ),
 		urlDest = usePOST ? dest.split( "?" )[ 0 ] : dest,
 		obj = {
 			url: OSApp.currentSession.token ? "https://cloud.openthings.io/forward/v1/" + OSApp.currentSession.token + urlDest : OSApp.currentSession.prefix + OSApp.currentSession.ip + urlDest,
-			type: usePOST ? "POST" : "GET",
-			data: usePOST ? OSApp.Firmware.getUrlVars( dest ) : null,
+			type: usePOST || hasBody ? "POST" : "GET",
+			data: hasBody ? requestOptions.body : ( usePOST ? OSApp.Firmware.getUrlVars( dest ) : null ),
 			dataType: type,
 			shouldRetry: function( xhr, current ) {
 				if ( requestOptions.signal && requestOptions.signal.aborted ) {
@@ -80,6 +85,13 @@ OSApp.Firmware.sendToOS = function( dest, type, requestOptions ) {
 				activeRequest.abort();
 			}
 		};
+
+	if ( hasBody ) {
+		$.extend( obj, {
+			processData: false,
+			contentType: "text/plain"
+		} );
+	}
 
 	if ( OSApp.currentSession.auth || requestOptions.signal ) {
 		$.extend( obj, {

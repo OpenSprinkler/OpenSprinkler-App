@@ -548,6 +548,158 @@ describe("Import/Export Checks", function () {
 		} catch (error) { OSApp.currentSession.controller = controller; sandbox.restore(); throw error; }
 	});
 
+	it("should include the site map and leave out the controller's site map revision", function () {
+		var previousController = OSApp.currentSession.controller,
+			controller = { options: { fwv: 221, smap: 7 }, settings: {} },
+			siteMap = { pins: { 0: { x: 0.5, y: 0.25 } }, image: "data:image/jpeg;base64,/9j/" };
+
+		try {
+			OSApp.currentSession.controller = controller;
+			var backup = JSON.parse(OSApp.ImportExport.serializeConfig(siteMap));
+
+			assert.deepEqual(backup.siteMap, siteMap);
+			assert.notProperty(backup.options, "smap");
+			assert.equal(controller.options.smap, 7);
+			assert.notProperty(JSON.parse(OSApp.ImportExport.serializeConfig()), "siteMap");
+		} finally {
+			OSApp.currentSession.controller = previousController;
+		}
+	});
+
+	it("should leave the site map image out of email backups", function () {
+		var sandbox = sinon.createSandbox(),
+			previousController = OSApp.currentSession.controller,
+			popup;
+
+		try {
+			OSApp.currentSession.controller = { options: { fwv: 221 }, settings: {} };
+			sandbox.stub(OSApp.UIDom, "openPopup").callsFake(function (element) {
+				popup = element;
+			});
+			OSApp.ImportExport.showExportMethods({
+				pins: { 0: { x: 0.5, y: 0.5 } },
+				drawings: { 0: [ { type: "drip", pts: [ [ 0.1, 0.1 ], [ 0.2, 0.2 ] ] } ] },
+				image: "data:image/jpeg;base64,/9j/"
+			});
+
+			var email = decodeURIComponent(popup.find(".pasteMethod").attr("href").split("&body=")[1]),
+				backup = JSON.parse(email);
+			assert.deepEqual(backup.siteMap, {
+				pins: { 0: { x: 0.5, y: 0.5 } },
+				drawings: { 0: [ { type: "drip", pts: [ [ 0.1, 0.1 ], [ 0.2, 0.2 ] ] } ] }
+			});
+			assert.include(popup.text(), "site map image");
+		} finally {
+			OSApp.currentSession.controller = previousController;
+			sandbox.restore();
+		}
+	});
+
+	it("should export without the site map when it can't be loaded", function () {
+		var sandbox = sinon.createSandbox(),
+			shown;
+
+		try {
+			sandbox.stub($.mobile, "loading");
+			sandbox.stub(OSApp.SiteMap, "getBackupData").callsFake(function (callback) {
+				callback(null);
+			});
+			sandbox.stub(OSApp.ImportExport, "showExportMethods").callsFake(function (siteMap) {
+				shown = siteMap;
+			});
+			OSApp.ImportExport.getExportMethod();
+			assert.isNull(shown);
+		} finally {
+			sandbox.restore();
+		}
+	});
+
+	it("should restore the site map after importing a backup", function () {
+		var sandbox = sinon.createSandbox(),
+			previousController = OSApp.currentSession.controller,
+			restored = "not called",
+			nativeSetTimeout = window.setTimeout,
+			backup = baseBackup();
+
+		backup.siteMap = { pins: { 0: { x: 0.5, y: 0.5 } } };
+		OSApp.currentSession.controller = { options: { fwv: 300 }, settings: {}, sensors: { sn: [] } };
+		sandbox.stub(OSApp.UIDom, "areYouSure").callsFake(function (question, warning, callback) {
+			return callback();
+		});
+		sandbox.stub($.mobile, "loading");
+		sandbox.stub(OSApp.Errors, "showError");
+		sandbox.stub(OSApp.Firmware, "isOSPi").returns(false);
+		sandbox.stub(OSApp.Firmware, "checkOSVersion").returns(true);
+		sandbox.stub(OSApp.Firmware, "sendToOS").returns(resolved({ result: 1 }));
+		sandbox.stub(window, "setTimeout").callsFake(function (callback, delay) {
+			if (delay === 1500) {
+				callback();
+				return 0;
+			}
+			return nativeSetTimeout.apply(window, arguments);
+		});
+		sandbox.stub(OSApp.Sites, "updateController").callsFake(function (callback) {
+			callback();
+		});
+		sandbox.stub(OSApp.Weather, "updateWeather");
+
+		var finished = new Promise(function (resolve) {
+			sandbox.stub(OSApp.UIDom, "goHome").callsFake(resolve);
+			sandbox.stub(OSApp.SiteMap, "restoreBackupData").callsFake(function (siteMap, done) {
+				restored = siteMap;
+				done();
+			});
+		});
+		OSApp.ImportExport.importConfig(backup);
+
+		return cleanupAfter(finished.then(function () {
+			assert.deepEqual(restored, backup.siteMap);
+			assert.isTrue(OSApp.Errors.showError.calledWith("Backup restored to your device"));
+		}), sandbox, previousController);
+	});
+
+	it("should say when the site map couldn't be restored with the rest of a backup", function () {
+		var sandbox = sinon.createSandbox(),
+			previousController = OSApp.currentSession.controller,
+			nativeSetTimeout = window.setTimeout,
+			backup = baseBackup();
+
+		backup.siteMap = { pins: { 0: { x: 0.5, y: 0.5 } } };
+		OSApp.currentSession.controller = { options: { fwv: 300 }, settings: {}, sensors: { sn: [] } };
+		sandbox.stub(OSApp.UIDom, "areYouSure").callsFake(function (question, warning, callback) {
+			return callback();
+		});
+		sandbox.stub($.mobile, "loading");
+		sandbox.stub(OSApp.Errors, "showError");
+		sandbox.stub(OSApp.Firmware, "isOSPi").returns(false);
+		sandbox.stub(OSApp.Firmware, "checkOSVersion").returns(true);
+		sandbox.stub(OSApp.Firmware, "sendToOS").returns(resolved({ result: 1 }));
+		sandbox.stub(window, "setTimeout").callsFake(function (callback, delay) {
+			if (delay === 1500) {
+				callback();
+				return 0;
+			}
+			return nativeSetTimeout.apply(window, arguments);
+		});
+		sandbox.stub(OSApp.Sites, "updateController").callsFake(function (callback) {
+			callback();
+		});
+		sandbox.stub(OSApp.Weather, "updateWeather");
+
+		var finished = new Promise(function (resolve) {
+			sandbox.stub(OSApp.UIDom, "goHome").callsFake(resolve);
+			sandbox.stub(OSApp.SiteMap, "restoreBackupData").callsFake(function (siteMap, done) {
+				done(false);
+			});
+		});
+		OSApp.ImportExport.importConfig(backup);
+
+		return cleanupAfter(finished.then(function () {
+			assert.isFalse(OSApp.Errors.showError.calledWith("Backup restored to your device"));
+			assert.isTrue(OSApp.Errors.showError.calledWith("The backup was restored, but the site map couldn't be saved."));
+		}), sandbox, previousController);
+	});
+
 	it("should import an enabled Weather Sensor definition", function () {
 		var sandbox = sinon.createSandbox(),
 			state = [],

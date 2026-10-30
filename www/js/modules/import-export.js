@@ -18,11 +18,21 @@ var OSApp = OSApp || {};
 OSApp.ImportExport = OSApp.ImportExport || {};
 
 // Export and Import functions
-OSApp.ImportExport.serializeConfig = function() {
+// siteMap ({ pins, image }) is the site map to include, if any
+OSApp.ImportExport.serializeConfig = function( siteMap ) {
 	var controller = $.extend( {}, OSApp.currentSession.controller );
 
 	// /jsd describes firmware capabilities and cannot be restored as configuration.
 	delete controller.sensor_desc;
+
+	// The site map revision is controller state, not configuration
+	if ( controller.options && controller.options.smap !== undefined ) {
+		controller.options = $.extend( {}, controller.options );
+		delete controller.options.smap;
+	}
+	if ( siteMap ) {
+		controller.siteMap = siteMap;
+	}
 	return JSON.stringify( controller );
 };
 
@@ -122,8 +132,26 @@ OSApp.ImportExport.prepareBundleStationImport = function( data, targetController
 	return { special: special, stnSpe: stnSpe, error: error };
 };
 
+// Loads the site map so it can go in the backup, then offers the export methods. Nothing is offered if another
+// site was picked meanwhile, since the map belongs to the previous one.
 OSApp.ImportExport.getExportMethod = function() {
-	var popup = $(
+	var controller = OSApp.currentSession.controller;
+
+	$.mobile.loading( "show" );
+	OSApp.SiteMap.getBackupData( function( siteMap ) {
+		$.mobile.loading( "hide" );
+		if ( OSApp.currentSession.controller === controller ) {
+			OSApp.ImportExport.showExportMethods( siteMap );
+		}
+	} );
+};
+
+OSApp.ImportExport.showExportMethods = function( siteMap ) {
+	var hasImage = !!( siteMap && siteMap.image ),
+
+		// A mailto link can't hold the site map image, so email backups only include the pins and drawings
+		emailSiteMap = siteMap ? { pins: siteMap.pins, drawings: siteMap.drawings } : null,
+		popup = $(
 		"<div data-role='popup' data-theme='a'>" +
 			"<div class='ui-bar ui-bar-a'>" + OSApp.Language._( "Select Export Method" ) + "</div>" +
 			"<div data-role='controlgroup' class='tight'>" +
@@ -131,8 +159,9 @@ OSApp.ImportExport.getExportMethod = function() {
 				"<a class='ui-btn pasteMethod'>" + OSApp.Language._( "Email" ) + "</a>" +
 				"<a class='ui-btn localMethod'>" + OSApp.Language._( "Internal (within app)" ) + "</a>" +
 			"</div>" +
+			( hasImage ? "<p class='center smaller'>" + OSApp.Language._( "Email backups don't include the site map image." ) + "</p>" : "" ) +
 		"</div>" ),
-		backup = OSApp.ImportExport.serializeConfig(),
+		backup = OSApp.ImportExport.serializeConfig( siteMap ),
 		obj = encodeURIComponent( backup ),
 		subject = "OpenSprinkler Data Export on " + OSApp.Dates.dateToString( new Date() );
 
@@ -145,7 +174,8 @@ OSApp.ImportExport.getExportMethod = function() {
 		} );
 	}
 
-	var href = "mailto:?subject=" + encodeURIComponent( subject ) + "&body=" + obj;
+	var href = "mailto:?subject=" + encodeURIComponent( subject ) + "&body=" +
+		( hasImage ? encodeURIComponent( OSApp.ImportExport.serializeConfig( emailSiteMap ) ) : obj );
 	popup.find( ".pasteMethod" ).attr( "href", href ).on( "click", function() {
 		window.open( href, OSApp.currentDevice.isOSXApp ? "_system" : undefined );
 		popup.popup( "close" );
@@ -153,9 +183,17 @@ OSApp.ImportExport.getExportMethod = function() {
 
 	popup.find( ".localMethod" ).on( "click", function() {
 		popup.popup( "close" );
-		OSApp.Storage.set( { "backup": backup }, function() {
-			OSApp.Errors.showError( OSApp.Language._( "Backup saved on this device" ) );
-		} );
+		try {
+			OSApp.Storage.set( { "backup": backup }, function() {
+				OSApp.Errors.showError( OSApp.Language._( "Backup saved on this device" ) );
+			} );
+		} catch {
+
+			// Out of storage space: keep the backup without the site map image
+			OSApp.Storage.set( { "backup": OSApp.ImportExport.serializeConfig( emailSiteMap ) }, function() {
+				OSApp.Errors.showError( OSApp.Language._( "Backup saved on this device" ) );
+			} );
+		}
 	} );
 
 	OSApp.UIDom.openPopup( popup, { positionTo: $( "#sprinklers-settings" ).find( ".export_config" ) } );
@@ -1451,10 +1489,16 @@ OSApp.ImportExport.importConfig = function( data, onboardPlan, restorePlan ) {
 					OSApp.Sites.invalidateControllerStationSpecial();
 					OSApp.Sites.updateController(
 						function() {
-							$.mobile.loading( "hide" );
-							OSApp.Errors.showError( OSApp.Language._( "Backup restored to your device" ) );
-							OSApp.Weather.updateWeather();
-							OSApp.UIDom.goHome( true );
+
+							// Restored after the controller refresh so the station count and storage support are known
+							OSApp.SiteMap.restoreBackupData( data.siteMap, function( restored ) {
+								$.mobile.loading( "hide" );
+								OSApp.Errors.showError( restored === false ?
+									OSApp.Language._( "The backup was restored, but the site map couldn't be saved." ) :
+									OSApp.Language._( "Backup restored to your device" ) );
+								OSApp.Weather.updateWeather();
+								OSApp.UIDom.goHome( true );
+							} );
 						},
 						function() {
 							$.mobile.loading( "hide" );

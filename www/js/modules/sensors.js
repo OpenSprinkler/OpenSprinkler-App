@@ -2558,96 +2558,12 @@ OSApp.Sensors.displayLogs = function (_callback) {
         OSApp.Errors.showError(OSApp.Language._("Failed to download sensor logs"));
     }
 
-    function shareBlob(blob, filename) {
-        const sharing = window.plugins && window.plugins.socialsharing;
-        const cacheDirectory = window.cordova.file && window.cordova.file.cacheDirectory;
-        if (!sharing || typeof sharing.shareWithOptions !== "function" ||
-            !cacheDirectory || typeof window.resolveLocalFileSystemURL !== "function") {
-            showDownloadError();
-            return;
-        }
-
-        function writeAndShare(fileEntry) {
-            fileEntry.createWriter((writer) => {
-                let cleared = false;
-                let writeFailed = false;
-                writer.onerror = () => {
-                    writeFailed = true;
-                    console.warn("OS: FileWriter failed", writer.error);
-                    showDownloadError();
-                };
-                writer.onwriteend = () => {
-                    // Cordova FileWriter calls onwriteend after onerror.
-                    if (writeFailed) return;
-
-                    // getFile({create:true}) does not truncate an existing file,
-                    // so truncate first, then write on the second onwriteend.
-                    if (!cleared) {
-                        cleared = true;
-                        writer.write(blob);
-                        return;
-                    }
-
-                    const fileUrl = fileEntry.nativeURL || fileEntry.toURL();
-                    // Dismissing the share sheet returns through the success
-                    // callback (completed:false), so only genuine share failures
-                    // reach showDownloadError below.
-                    sharing.shareWithOptions({
-                        subject: filename,
-                        files: [ fileUrl ],
-                        chooserTitle: OSApp.Language._("Download Log")
-                    }, () => {}, (error) => {
-                        console.warn("OS: SocialSharing failed", error);
-                        showDownloadError();
-                    });
-                };
-                writer.truncate(0);
-            }, showDownloadError);
-        }
-
-        // Best-effort removal of previously exported CSVs so they don't pile up
-        // in the cache. Failures here are ignored; they must not block the export.
-        function purge(exportsDir, done) {
-            const reader = exportsDir.createReader();
-            reader.readEntries((entries) => {
-                let remaining = entries.length;
-                if (!remaining) { done(); return; }
-                entries.forEach((entry) => {
-                    const next = () => { if (--remaining === 0) done(); };
-                    entry.remove(next, next);
-                });
-            }, done);
-        }
-
-        window.resolveLocalFileSystemURL(cacheDirectory, (cacheDir) => {
-            cacheDir.getDirectory("sensor-exports", { create: true }, (exportsDir) => {
-                purge(exportsDir, () => {
-                    exportsDir.getFile(filename, { create: true }, writeAndShare, showDownloadError);
-                });
-            }, showDownloadError);
-        }, showDownloadError);
-    }
-
     function downloadBlob(blob, filename) {
-        if (window.cordova) {
-            shareBlob(blob, filename);
-            return;
-        }
-
-        const link = document.createElement("a");
-        if (link.download === undefined) return;
-
-        const url = URL.createObjectURL(blob);
-        link.setAttribute("href", url);
-        link.setAttribute("download", filename);
-        link.style.visibility = "hidden";
-        document.body.appendChild(link);
-        try {
-            link.click();
-        } finally {
-            document.body.removeChild(link);
-            setTimeout(() => URL.revokeObjectURL(url), 0);
-        }
+        OSApp.UIDom.downloadBlob(blob, filename, {
+            chooserTitle: OSApp.Language._("Download Log"),
+            directory: "sensor-exports",
+            onError: showDownloadError
+        });
     }
 
     function downloadCsv(csvContent, filename) {
